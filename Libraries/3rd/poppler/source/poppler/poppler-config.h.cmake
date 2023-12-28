@@ -2,7 +2,7 @@
 //
 // poppler-config.h
 //
-// Copyright 1996-2011 Glyph & Cog, LLC
+// Copyright 1996-2011, 2022 Glyph & Cog, LLC
 //
 //========================================================================
 
@@ -18,7 +18,8 @@
 // Copyright (C) 2016 Tor Lillqvist <tml@collabora.com>
 // Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
-// Copyright (C) 2018 Stefan Brüns <stefan.bruens@rwth-aachen.de>
+// Copyright (C) 2018 Stefan Brï¿½ns <stefan.bruens@rwth-aachen.de>
+// Copyright (C) 2020 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -73,11 +74,6 @@
 #cmakedefine ENABLE_LIBPNG 1
 #endif
 
-/* Use zlib instead of builtin zlib decoder. */
-#ifndef ENABLE_ZLIB
-#cmakedefine ENABLE_ZLIB 1
-#endif
-
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
 #ifndef HAVE_DIRENT_H
@@ -121,8 +117,8 @@
 //------------------------------------------------------------------------
 
 // copyright notice
-#define popplerCopyright "Copyright 2005-2020 The Poppler Developers - http://poppler.freedesktop.org"
-#define xpdfCopyright "Copyright 1996-2011 Glyph & Cog, LLC"
+#define popplerCopyright "Copyright 2005-2023 The Poppler Developers - http://poppler.freedesktop.org"
+#define xpdfCopyright "Copyright 1996-2011, 2022 Glyph & Cog, LLC"
 
 //------------------------------------------------------------------------
 // Win32 stuff
@@ -132,10 +128,6 @@
 #include <windef.h>
 #else
 #define CDECL
-#endif
-#if defined(MIKTEX)
-#  define MIKTEX_TEXWORKS_PATCHES
-#  include <miktex/poppler/export.h>
 #endif
 
 //------------------------------------------------------------------------

@@ -665,7 +665,7 @@ static int decomp_compat(Unicode u, Unicode *buf, bool reverseRTL = false)
     // decomposition tables stored as lists {character, decomp_length, offset}
     // so we do a binary search
     int start = 0, end = DECOMP_TABLE_LENGTH;
-    if (u >= decomp_table[start].character && u <= decomp_table[end - 1].character)
+    if (u >= decomp_table[start].character && u <= decomp_table[end - 1].character) {
         while (true) {
             int midpoint = (start + end) / 2;
             if (u == decomp_table[midpoint].character) {
@@ -685,15 +685,18 @@ static int decomp_compat(Unicode u, Unicode *buf, bool reverseRTL = false)
                     }
                     return length;
                 }
-            } else if (midpoint == start)
+            } else if (midpoint == start) {
                 break;
-            else if (u > decomp_table[midpoint].character)
+            } else if (u > decomp_table[midpoint].character) {
                 start = midpoint;
-            else
+            } else {
                 end = midpoint;
+            }
         }
-    if (buf)
+    }
+    if (buf) {
         *buf = u;
+    }
     return 1;
 }
 
@@ -712,8 +715,9 @@ static bool combine(Unicode base, Unicode add, Unicode *out)
         if (compose_first_single[idx_base - COMPOSE_FIRST_SINGLE_START][0] == add) {
             *out = compose_first_single[idx_base - COMPOSE_FIRST_SINGLE_START][1];
             return true;
-        } else
+        } else {
             return false;
+        }
     }
 
     idx_add = COMPOSE_INDEX(add);
@@ -721,8 +725,9 @@ static bool combine(Unicode base, Unicode add, Unicode *out)
         if (compose_second_single[idx_add - COMPOSE_SECOND_SINGLE_START][0] == base) {
             *out = compose_second_single[idx_add - COMPOSE_SECOND_SINGLE_START][1];
             return true;
-        } else
+        } else {
             return false;
+        }
     }
 
     if (idx_base >= COMPOSE_FIRST_START && idx_base < COMPOSE_FIRST_SINGLE_START && idx_add >= COMPOSE_SECOND_START && idx_add < COMPOSE_SECOND_SINGLE_START) {
@@ -774,14 +779,16 @@ Unicode *unicodeNormalizeNFKC(const Unicode *in, int len, int *out_len, int **in
     for (i = 0, o = 0; i < len; ++i) {
         if (HANGUL_IS_L(in[i]) || HANGUL_IS_SYLLABLE(in[i])) {
             o += 1;
-        } else
+        } else {
             o += decomp_compat(in[i], nullptr);
+        }
     }
 
     out = (Unicode *)gmallocn(o, sizeof(Unicode));
     classes = (int *)gmallocn(o, sizeof(int));
-    if (indices)
+    if (indices) {
         idx = (int *)gmallocn(o + 1, sizeof(int));
+    }
 
     for (i = 0, o = 0; i < len;) {
         Unicode u = in[i];
@@ -790,22 +797,27 @@ Unicode *unicodeNormalizeNFKC(const Unicode *in, int len, int *out_len, int **in
                 Unicode l = u;
                 if (i + 1 < len && HANGUL_IS_V(in[i + 1])) {
                     Unicode lv = HANGUL_COMPOSE_L_V(l, in[++i]);
-                    if (i + 1 < len && HANGUL_IS_T(in[i + 1]))
+                    if (i + 1 < len && HANGUL_IS_T(in[i + 1])) {
                         out[o] = HANGUL_COMPOSE_LV_T(lv, in[++i]);
-                    else
+                    } else {
                         out[o] = lv;
-                } else
+                    }
+                } else {
                     out[o] = l;
+                }
             } else if (HANGUL_SYLLABLE_IS_LV(u)) {
                 Unicode lv = u;
-                if (i + 1 < len && HANGUL_IS_T(in[i + 1]))
+                if (i + 1 < len && HANGUL_IS_T(in[i + 1])) {
                     out[o] = HANGUL_COMPOSE_LV_T(lv, in[++i]);
-                else
+                } else {
                     out[o] = lv;
-            } else
+                }
+            } else {
                 out[o] = u;
-            if (indices)
+            }
+            if (indices) {
                 idx[o] = i;
+            }
             ++i;
             ++o;
         } else {
@@ -814,22 +826,25 @@ Unicode *unicodeNormalizeNFKC(const Unicode *in, int len, int *out_len, int **in
             // chomp in until a starter is reached
             for (j = i, p = o; j < len; ++j) {
                 u = in[j];
-                if (j != i && COMBINING_CLASS(u) == 0)
+                if (j != i && COMBINING_CLASS(u) == 0) {
                     break;
+                }
                 dlen = decomp_compat(u, out + p, reverseRTL);
                 for (q = p; q < p + dlen; ++q) {
                     classes[q] = COMBINING_CLASS(out[q]);
-                    if (indices)
+                    if (indices) {
                         idx[q] = j;
+                    }
                 }
                 p += dlen;
             }
             // put out[o, p) in canonical ordering
-            for (q = o + 1; q < p; ++q)
+            for (q = o + 1; q < p; ++q) {
                 for (r = q; r > o + 1; --r) { // FIXME worth using a better sort?
                     int swap;
-                    if (classes[r] >= classes[r - 1])
+                    if (classes[r] >= classes[r - 1]) {
                         break;
+                    }
                     u = out[r];
                     out[r] = out[r - 1];
                     out[r - 1] = u;
@@ -842,19 +857,24 @@ Unicode *unicodeNormalizeNFKC(const Unicode *in, int len, int *out_len, int **in
                         idx[r - 1] = swap;
                     }
                 }
+            }
             // canonical compose out[o, p)
-            for (q = o + 1; q < p; ++q)
-                if (!combine(out[o], out[q], &out[o]))
+            for (q = o + 1; q < p; ++q) {
+                if (!combine(out[o], out[q], &out[o])) {
                     break;
+                }
+            }
             // move out[q, p) back to [o+1, ?)
-            if (q != o + 1)
+            if (q != o + 1) {
                 for (r = q, s = o + 1; r < p; ++r, ++s) {
                     out[s] = out[r];
-                    if (indices)
+                    if (indices) {
                         idx[s] = idx[r];
+                    }
                 }
-            else
+            } else {
                 s = p;
+            }
             i = j;
             o = s;
         }

@@ -12,6 +12,10 @@
 //
 //========================================================================
 
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
 #include "Linearization.h"
 #include "Parser.h"
 #include "Lexer.h"
@@ -45,8 +49,9 @@ Linearization::~Linearization() { }
 
 unsigned int Linearization::getLength() const
 {
-    if (!linDict.isDict())
+    if (!linDict.isDict()) {
         return 0;
+    }
 
     int length;
     if (linDict.getDict()->lookupInt("L", nullptr, &length) && length > 0) {

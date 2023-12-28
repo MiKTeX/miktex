@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2007-2008, 2010, 2012, 2015-2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2008, 2010, 2012, 2015-2020, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2010 Mike Slegeir <tehpola@yahoo.com>
 // Copyright (C) 2010, 2013 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
@@ -24,11 +24,12 @@
 // Copyright (C) 2012 Luis Parravicini <lparravi@gmail.com>
 // Copyright (C) 2014 Pino Toscano <pino@kde.org>
 // Copyright (C) 2015 William Bader <williambader@hotmail.com>
-// Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2017, 2021 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 // Copyright (C) 2018 Thibaut Brard <thibaut.brard@gmail.com>
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
-// Copyright (C) 2019 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2019, 2021 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2021 Hubert Figuiere <hub@figuiere.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -61,10 +62,8 @@
 #include "PDFDoc.h"
 #include "PDFDocFactory.h"
 #include "HtmlOutputDev.h"
-#ifdef HAVE_SPLASH
-#    include "SplashOutputDev.h"
-#    include "splash/SplashBitmap.h"
-#endif
+#include "SplashOutputDev.h"
+#include "splash/SplashBitmap.h"
 #include "GlobalParams.h"
 #include "PDFDocEncoding.h"
 #include "Error.h"
@@ -138,13 +137,12 @@ static const ArgDesc argDesc[] = { { "-f", argInt, &firstPage, 0, "first page to
                                    { "-fontfullname", argFlag, &fontFullName, 0, "outputs font full name" },
                                    {} };
 
-#ifdef HAVE_SPLASH
 class SplashOutputDevNoText : public SplashOutputDev
 {
 public:
     SplashOutputDevNoText(SplashColorMode colorModeA, int bitmapRowPadA, bool reverseVideoA, SplashColorPtr paperColorA, bool bitmapTopDownA = true)
         : SplashOutputDev(colorModeA, bitmapRowPadA, reverseVideoA, paperColorA, bitmapTopDownA) { }
-    ~SplashOutputDevNoText() override { }
+    ~SplashOutputDevNoText() override;
 
     void drawChar(GfxState *state, double x, double y, double dx, double dy, double originX, double originY, CharCode code, int nBytes, const Unicode *u, int uLen) override { }
     bool beginType3Char(GfxState *state, double x, double y, double dx, double dy, CharCode code, const Unicode *u, int uLen) override { return false; }
@@ -153,7 +151,8 @@ public:
     void endTextObject(GfxState *state) override { }
     bool interpretType3Chars() override { return false; }
 };
-#endif
+
+SplashOutputDevNoText::~SplashOutputDevNoText() = default;
 
 #if defined(MIKTEX)
 int Main(int argc, char** argv)
@@ -161,18 +160,16 @@ int Main(int argc, char** argv)
 int main(int argc, char *argv[])
 #endif
 {
-    PDFDoc *doc = nullptr;
+    std::unique_ptr<PDFDoc> doc;
     GooString *fileName = nullptr;
     GooString *docTitle = nullptr;
     GooString *author = nullptr, *keywords = nullptr, *subject = nullptr, *date = nullptr;
     GooString *htmlFileName = nullptr;
     HtmlOutputDev *htmlOut = nullptr;
-#ifdef HAVE_SPLASH
     SplashOutputDev *splashOut = nullptr;
-#endif
     bool doOutline;
     bool ok;
-    GooString *ownerPW, *userPW;
+    std::optional<GooString> ownerPW, userPW;
     Object info;
     int exit_status = EXIT_FAILURE;
 
@@ -213,14 +210,10 @@ int main(int argc, char *argv[])
 
     // open PDF file
     if (ownerPassword[0]) {
-        ownerPW = new GooString(ownerPassword);
-    } else {
-        ownerPW = nullptr;
+        ownerPW = GooString(ownerPassword);
     }
     if (userPassword[0]) {
-        userPW = new GooString(userPassword);
-    } else {
-        userPW = nullptr;
+        userPW = GooString(userPassword);
     }
 
     fileName = new GooString(argv[1]);
@@ -232,12 +225,6 @@ int main(int argc, char *argv[])
 
     doc = PDFDocFactory().createPDFDoc(*fileName, ownerPW, userPW);
 
-    if (userPW) {
-        delete userPW;
-    }
-    if (ownerPW) {
-        delete ownerPW;
-    }
     if (!doc->isOk()) {
         goto error;
     }
@@ -278,17 +265,20 @@ int main(int argc, char *argv[])
         goto error;
     } else {
         const char *p = fileName->c_str() + fileName->getLength() - 4;
-        if (!strcmp(p, ".pdf") || !strcmp(p, ".PDF"))
+        if (!strcmp(p, ".pdf") || !strcmp(p, ".PDF")) {
             htmlFileName = new GooString(fileName->c_str(), fileName->getLength() - 4);
-        else
+        } else {
             htmlFileName = fileName->copy();
+        }
         //   htmlFileName->append(".html");
     }
 
-    if (scale > 3.0)
+    if (scale > 3.0) {
         scale = 3.0;
-    if (scale < 0.5)
+    }
+    if (scale < 0.5) {
         scale = 0.5;
+    }
 
     if (complexMode) {
         // noframes=false;
@@ -308,10 +298,12 @@ int main(int argc, char *argv[])
     }
 
     // get page range
-    if (firstPage < 1)
+    if (firstPage < 1) {
         firstPage = 1;
-    if (lastPage < 1 || lastPage > doc->getNumPages())
+    }
+    if (lastPage < 1 || lastPage > doc->getNumPages()) {
         lastPage = doc->getNumPages();
+    }
     if (lastPage < firstPage) {
         error(errCommandLine, -1, "Wrong page range given: the first page ({0:d}) can not be after the last page ({1:d}).", firstPage, lastPage);
         goto error;
@@ -324,16 +316,19 @@ int main(int argc, char *argv[])
         keywords = getInfoString(info.getDict(), "Keywords");
         subject = getInfoString(info.getDict(), "Subject");
         date = getInfoDate(info.getDict(), "ModDate");
-        if (!date)
+        if (!date) {
             date = getInfoDate(info.getDict(), "CreationDate");
+        }
     }
-    if (!docTitle)
+    if (!docTitle) {
         docTitle = new GooString(htmlFileName);
+    }
 
-    if (!singleHtml)
+    if (!singleHtml) {
         rawOrder = complexMode; // todo: figure out what exactly rawOrder do :)
-    else
+    } else {
         rawOrder = singleHtml;
+    }
 
     doOutline = doc->getOutline()->getItems() != nullptr;
     // write text file
@@ -354,8 +349,6 @@ int main(int argc, char *argv[])
     }
 
     if ((complexMode || singleHtml) && !xml && !ignore) {
-#ifdef HAVE_SPLASH
-        GooString *imgFileName = nullptr;
         // White paper color
         SplashColor color;
         color[0] = color[1] = color[2] = 255;
@@ -363,18 +356,17 @@ int main(int argc, char *argv[])
         SplashImageFileFormat format = strcmp(extension, "jpg") ? splashFormatPng : splashFormatJpeg;
 
         splashOut = new SplashOutputDevNoText(splashModeRGB8, 4, false, color);
-        splashOut->startDoc(doc);
+        splashOut->startDoc(doc.get());
 
         for (int pg = firstPage; pg <= lastPage; ++pg) {
             InMemoryFile imf;
             doc->displayPage(splashOut, pg, 72 * scale, 72 * scale, 0, true, false, false);
             SplashBitmap *bitmap = splashOut->getBitmap();
 
-            imgFileName = GooString::format("{0:s}{1:03d}.{2:s}", htmlFileName->c_str(), pg, extension);
+            const std::unique_ptr<GooString> imgFileName = GooString::format("{0:s}{1:03d}.{2:s}", htmlFileName->c_str(), pg, extension);
             auto f1 = dataUrls ? imf.open("wb") : fopen(imgFileName->c_str(), "wb");
             if (!f1) {
                 fprintf(stderr, "Could not open %s\n", imgFileName->c_str());
-                delete imgFileName;
                 continue;
             }
             bitmap->writeImgFile(format, f1, 72 * scale, 72 * scale);
@@ -384,23 +376,14 @@ int main(int argc, char *argv[])
             } else {
                 htmlOut->addBackgroundImage(gbasename(imgFileName->c_str()));
             }
-            delete imgFileName;
         }
 
         delete splashOut;
-#else
-        fprintf(stderr, "Your pdftohtml was built without splash backend support. It is needed for the option you want to use.\n");
-        delete htmlOut;
-        delete htmlFileName;
-        delete fileName;
-        delete doc;
-        return -1;
-#endif
     }
 
     if (htmlOut->isOk()) {
         doc->displayPages(htmlOut, firstPage, lastPage, 72 * scale, 72 * scale, 0, true, false, false);
-        htmlOut->dumpDocOutline(doc);
+        htmlOut->dumpDocOutline(doc.get());
     }
 
     delete htmlOut;
@@ -409,12 +392,11 @@ int main(int argc, char *argv[])
 
     // clean up
 error:
-    if (doc)
-        delete doc;
     delete fileName;
 
-    if (htmlFileName)
+    if (htmlFileName) {
         delete htmlFileName;
+    }
 
     return exit_status;
 }
@@ -465,7 +447,6 @@ static GooString *getInfoString(Dict *infoDict, const char *key)
 static GooString *getInfoDate(Dict *infoDict, const char *key)
 {
     Object obj;
-    const char *s;
     int year, mon, day, hour, min, sec, tz_hour, tz_minute;
     char tz;
     struct tm tmStruct;
@@ -474,7 +455,7 @@ static GooString *getInfoDate(Dict *infoDict, const char *key)
 
     obj = infoDict->lookup(key);
     if (obj.isString()) {
-        s = obj.getString()->c_str();
+        const GooString *s = obj.getString();
         // TODO do something with the timezone info
         if (parseDateString(s, &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute)) {
             tmStruct.tm_year = year - 1900;

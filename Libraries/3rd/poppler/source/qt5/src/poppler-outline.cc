@@ -19,6 +19,10 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
 #include <poppler-qt5.h>
 #include <poppler-link.h>
 
@@ -44,8 +48,9 @@ OutlineItem::OutlineItem(const OutlineItem &other) : m_data { new OutlineItemDat
 
 OutlineItem &OutlineItem::operator=(const OutlineItem &other)
 {
-    if (this == &other)
+    if (this == &other) {
         return *this;
+    }
 
     auto *data = new OutlineItemData { *other.m_data };
     qSwap(m_data, data);

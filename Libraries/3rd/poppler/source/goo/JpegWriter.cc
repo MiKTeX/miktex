@@ -9,21 +9,25 @@
 // Copyright (C) 2010 Harry Roberts <harry.roberts@midnight-labs.org>
 // Copyright (C) 2011 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2013 Peter Breitenlohner <peb@mppmu.mpg.de>
-// Copyright (C) 2017, 2018 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2017, 2018, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2018 Martin Packman <gzlist@googlemail.com>
 // Copyright (C) 2018 Ed Porras <ed@motologic.com>
+// Copyright (C) 2021 Peter Williams <peter@newton.cx>
+// Copyright (C) 2023 Jordan Abrahams-Whitehead <ajordanr@google.com>
 //
 //========================================================================
 
 #include "JpegWriter.h"
 
+#include <limits>
+
 #ifdef ENABLE_LIBJPEG
 
+#    include "poppler/Error.h"
+#    include <cstdio>
 extern "C" {
 #    include <jpeglib.h>
 }
-
-#    include "poppler/Error.h"
 
 struct JpegWriterPrivate
 {
@@ -79,8 +83,13 @@ void JpegWriter::setOptimize(bool optimize)
     priv->optimize = optimize;
 }
 
-bool JpegWriter::init(FILE *f, int width, int height, int hDPI, int vDPI)
+bool JpegWriter::init(FILE *f, int width, int height, double hDPI, double vDPI)
 {
+    if (hDPI < 0 || vDPI < 0 || hDPI > std::numeric_limits<UINT16>::max() || vDPI > std::numeric_limits<UINT16>::max()) {
+        error(errInternal, -1, "JpegWriter::init: hDPI or vDPI values are invalid {0:f} {1:f}", hDPI, vDPI);
+        return false;
+    }
+
     // Setup error handler
     priv->cinfo.err = jpeg_std_error(&priv->jerr);
     priv->jerr.output_message = &outputMessage;
@@ -113,8 +122,8 @@ bool JpegWriter::init(FILE *f, int width, int height, int hDPI, int vDPI)
     priv->cinfo.image_width = width;
     priv->cinfo.image_height = height;
     priv->cinfo.density_unit = 1; // dots per inch
-    priv->cinfo.X_density = hDPI;
-    priv->cinfo.Y_density = vDPI;
+    priv->cinfo.X_density = static_cast<UINT16>(hDPI);
+    priv->cinfo.Y_density = static_cast<UINT16>(vDPI);
     switch (priv->format) {
     case GRAY:
         priv->cinfo.input_components = 1;

@@ -38,7 +38,7 @@ class XRef;
 // Lexer
 //------------------------------------------------------------------------
 
-class Lexer
+class POPPLER_PRIVATE_EXPORT Lexer
 {
 public:
     // Construct a lexer for a single stream.  Deletes the stream when
@@ -77,8 +77,9 @@ public:
     // Set position in file.
     void setPos(Goffset pos)
     {
-        if (curStr.isStream())
+        if (curStr.isStream()) {
             curStr.getStream()->setPos(pos);
+        }
     }
 
     // Returns true if <c> is a whitespace character.

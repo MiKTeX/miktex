@@ -23,6 +23,10 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
 #include "poppler-qt5.h"
 #include "poppler-private.h"
 
@@ -111,8 +115,9 @@ QString FontInfo::typeName() const
 
 FontInfo &FontInfo::operator=(const FontInfo &fi)
 {
-    if (this == &fi)
+    if (this == &fi) {
         return *this;
+    }
 
     *m_data = *fi.m_data;
     return *this;

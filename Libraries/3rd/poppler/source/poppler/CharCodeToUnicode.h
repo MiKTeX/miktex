@@ -17,7 +17,7 @@
 //
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2008, 2011, 2012, 2018, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2011, 2012, 2018, 2019, 2021, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
@@ -32,6 +32,7 @@
 #define CHARCODETOUNICODE_H
 
 #include <atomic>
+#include <optional>
 
 #include "poppler-config.h"
 #include "CharTypes.h"
@@ -99,13 +100,14 @@ public:
     CharCode getLength() const { return mapLen; }
 
 private:
-    void parseCMap1(int (*getCharFunc)(void *), void *data, int nBits);
+    bool parseCMap1(int (*getCharFunc)(void *), void *data, int nBits);
     void addMapping(CharCode code, char *uStr, int n, int offset);
+    void addMappingInt(CharCode code, Unicode u);
     CharCodeToUnicode();
-    CharCodeToUnicode(GooString *tagA);
-    CharCodeToUnicode(GooString *tagA, Unicode *mapA, CharCode mapLenA, bool copyMap, CharCodeToUnicodeString *sMapA, int sMapLenA, int sMapSizeA);
+    explicit CharCodeToUnicode(const std::optional<std::string> &tagA);
+    CharCodeToUnicode(const std::optional<std::string> &tagA, Unicode *mapA, CharCode mapLenA, bool copyMap, CharCodeToUnicodeString *sMapA, int sMapLenA, int sMapSizeA);
 
-    GooString *tag;
+    const std::optional<std::string> tag;
     Unicode *map;
     CharCode mapLen;
     CharCodeToUnicodeString *sMap;
@@ -119,7 +121,7 @@ private:
 class CharCodeToUnicodeCache
 {
 public:
-    CharCodeToUnicodeCache(int sizeA);
+    explicit CharCodeToUnicodeCache(int sizeA);
     ~CharCodeToUnicodeCache();
 
     CharCodeToUnicodeCache(const CharCodeToUnicodeCache &) = delete;

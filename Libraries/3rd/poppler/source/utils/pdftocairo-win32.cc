@@ -4,7 +4,7 @@
 //
 // Copyright (C) 2014 Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
 // Copyright (C) 2014, 2017 Adrian Johnson <ajohnson@redneon.com>
-// Copyright (C) 2017, 2018 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2017, 2018, 2022 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -90,12 +90,12 @@ static void fillPagePrinterOptions(double w, double h)
     h *= 254.0 / 72.0;
     if (w > h) {
         devmode->dmOrientation = DMORIENT_LANDSCAPE;
-        devmode->dmPaperWidth = h;
-        devmode->dmPaperLength = w;
+        devmode->dmPaperWidth = static_cast<short>(h);
+        devmode->dmPaperLength = static_cast<short>(w);
     } else {
         devmode->dmOrientation = DMORIENT_PORTRAIT;
-        devmode->dmPaperWidth = w;
-        devmode->dmPaperLength = h;
+        devmode->dmPaperWidth = static_cast<short>(w);
+        devmode->dmPaperLength = static_cast<short>(h);
     }
     devmode->dmPaperSize = 0;
     devmode->dmFields |= DM_ORIENTATION | DM_PAPERWIDTH | DM_PAPERLENGTH;
@@ -109,7 +109,7 @@ static void fillPrinterOptions(bool duplex, GooString *printOpt)
         const char *comma = strchr(nextOpt, ',');
         GooString opt;
         if (comma) {
-            opt.Set(nextOpt, comma - nextOpt);
+            opt.Set(nextOpt, static_cast<int>(comma - nextOpt));
             nextOpt = comma + 1;
         } else {
             opt.Set(nextOpt);
@@ -121,7 +121,7 @@ static void fillPrinterOptions(bool duplex, GooString *printOpt)
             fprintf(stderr, "Warning: unknown printer option \"%s\"\n", opt.c_str());
             continue;
         }
-        int iequal = equal - opt.c_str();
+        const int iequal = static_cast<int>(equal - opt.c_str());
         GooString value(&opt, iequal + 1, opt.getLength() - iequal - 1);
         opt.del(iequal, opt.getLength() - iequal);
         // here opt is "<optN>" and value is "<valN>"
@@ -255,7 +255,7 @@ static UINT_PTR CALLBACK printDialogHookProc(HWND hdlg, UINT uiMsg, WPARAM wPara
 
         RECT textRect;
         textRect.left = nameLabelRect.left;
-        textRect.right = nameLabelRect.left + 1.8 * (printerComboRect.left - nameLabelRect.left);
+        textRect.right = static_cast<LONG>(nameLabelRect.left + 1.8 * (printerComboRect.left - nameLabelRect.left));
         textRect.top = pdfGroupBoxRect.top + nameLabelRect.top - printerGroupRect.top;
         textRect.bottom = textRect.top + nameLabelRect.bottom - nameLabelRect.top;
         createStaticText(hdlg, hinstance, (HMENU)stc1, "Page Scaling:", &textRect);
@@ -463,13 +463,13 @@ void win32BeginPage(double *w, double *h, bool changePageSize, bool useFullPage)
         *h = GetDeviceCaps(hdc, VERTRES) * 72.0 / y_dpi;
     }
     XFORM xform;
-    xform.eM11 = x_dpi / 72.0;
+    xform.eM11 = x_dpi / 72.0f;
     xform.eM12 = 0;
     xform.eM21 = 0;
-    xform.eM22 = y_dpi / 72.0;
+    xform.eM22 = y_dpi / 72.0f;
     if (useFullPage) {
-        xform.eDx = -x_off;
-        xform.eDy = -y_off;
+        xform.eDx = static_cast<FLOAT>(-x_off);
+        xform.eDy = static_cast<FLOAT>(-y_off);
     } else {
         xform.eDx = 0;
         xform.eDy = 0;

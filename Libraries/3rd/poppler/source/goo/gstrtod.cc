@@ -58,29 +58,37 @@ double gstrtod(const char *nptr, char **endptr)
     if (decimal_point[0] != '.' || decimal_point[1] != 0) {
         p = nptr;
         /* Skip leading space */
-        while (ascii_isspace(*p))
+        while (ascii_isspace(*p)) {
             p++;
+        }
 
         /* Skip leading optional sign */
-        if (*p == '+' || *p == '-')
+        if (*p == '+' || *p == '-') {
             p++;
+        }
 
         if (ascii_isdigit(*p) || *p == '.') {
-            while (ascii_isdigit(*p))
+            while (ascii_isdigit(*p)) {
                 p++;
+            }
 
-            if (*p == '.')
+            if (*p == '.') {
                 decimal_point_pos = p++;
+            }
 
-            while (ascii_isdigit(*p))
+            while (ascii_isdigit(*p)) {
                 p++;
+            }
 
-            if (*p == 'e' || *p == 'E')
+            if (*p == 'e' || *p == 'E') {
                 p++;
-            if (*p == '+' || *p == '-')
+            }
+            if (*p == '+' || *p == '-') {
                 p++;
-            while (ascii_isdigit(*p))
+            }
+            while (ascii_isdigit(*p)) {
                 p++;
+            }
 
             end = p;
         }
@@ -107,10 +115,11 @@ double gstrtod(const char *nptr, char **endptr)
         strtod_errno = errno;
 
         if (fail_pos) {
-            if (fail_pos - copy > decimal_point_pos - nptr)
+            if (fail_pos - copy > decimal_point_pos - nptr) {
                 fail_pos = (char *)nptr + (fail_pos - copy) - (decimal_point_len - 1);
-            else
+            } else {
                 fail_pos = (char *)nptr + (fail_pos - copy);
+            }
         }
 
         free(copy);
@@ -136,8 +145,9 @@ double gstrtod(const char *nptr, char **endptr)
         strtod_errno = errno;
     }
 
-    if (endptr)
+    if (endptr) {
         *endptr = fail_pos;
+    }
 
     errno = strtod_errno;
 

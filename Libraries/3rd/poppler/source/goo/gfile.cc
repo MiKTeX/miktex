@@ -19,7 +19,7 @@
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2008 Adam Batkin <adam@batkin.net>
 // Copyright (C) 2008, 2010, 2012, 2013 Hib Eris <hib@hiberis.nl>
-// Copyright (C) 2009, 2012, 2014, 2017, 2018 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2012, 2014, 2017, 2018, 2021, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2013, 2018 Adam Reichold <adamreichold@myopera.com>
 // Copyright (C) 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
@@ -27,7 +27,7 @@
 // Copyright (C) 2013, 2017 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2017 Christoph Cullmann <cullmann@kde.org>
 // Copyright (C) 2018 Mojca Miklavec <mojca@macports.org>
-// Copyright (C) 2019 Christian Persch <chpe@src.gnome.org>
+// Copyright (C) 2019, 2021 Christian Persch <chpe@src.gnome.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -36,13 +36,8 @@
 
 #include <config.h>
 #if defined(MIKTEX)
-#  if defined(MIKTEX_WINDOWS)
-#    define MIKTEX_UTF8_WRAP_ALL 1
-#    include <miktex/utf8wrap.h>
-#    include <miktex/unxemu.h>
-#  endif
-#  include <miktex/Core/Directory>
-#  include <miktex/Util/PathName>
+#include <miktex/Core/Directory>
+#include <miktex/Util/PathName>
 #endif
 
 #ifndef _WIN32
@@ -134,14 +129,16 @@ GooString *appendToPath(GooString *path, const char *fileName)
     int i;
 
     // appending "." does nothing
-    if (!strcmp(fileName, "."))
+    if (!strcmp(fileName, ".")) {
         return path;
+    }
 
     // appending ".." goes up one directory
     if (!strcmp(fileName, "..")) {
         for (i = path->getLength() - 2; i >= 0; --i) {
-            if (path->getChar(i) == '/')
+            if (path->getChar(i) == '/') {
                 break;
+            }
         }
         if (i <= 0) {
             if (path->getChar(0) == '/') {
@@ -157,27 +154,29 @@ GooString *appendToPath(GooString *path, const char *fileName)
     }
 
     // otherwise, append "/" and new path component
-    if (path->getLength() > 0 && path->getChar(path->getLength() - 1) != '/')
+    if (path->getLength() > 0 && path->getChar(path->getLength() - 1) != '/') {
         path->append('/');
+    }
     path->append(fileName);
     return path;
 #endif
 }
 
+#ifndef _WIN32
+
 static bool makeFileDescriptorCloexec(int fd)
 {
-#ifdef FD_CLOEXEC
+#    ifdef FD_CLOEXEC
     int flags = fcntl(fd, F_GETFD);
-    if (flags >= 0 && !(flags & FD_CLOEXEC))
+    if (flags >= 0 && !(flags & FD_CLOEXEC)) {
         flags = fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
+    }
 
     return flags >= 0;
-#else
+#    else
     return true;
-#endif
+#    endif
 }
-
-#ifndef _WIN32
 
 int openFileDescriptor(const char *path, int flags)
 {
@@ -255,13 +254,15 @@ FILE *openFile(const char *path, const char *mode)
     // First try to atomically open the file with CLOEXEC
     const std::string modeStr = mode + "e"s;
     FILE *file = fopen(path, modeStr.c_str());
-    if (file != nullptr)
+    if (file != nullptr) {
         return file;
+    }
 
     // Fall back to the provided mode and apply CLOEXEC afterwards
     file = fopen(path, mode);
-    if (file == nullptr)
+    if (file == nullptr) {
         return nullptr;
+    }
 
     if (!makeFileDescriptorCloexec(fileno(file))) {
         fclose(file);
@@ -379,22 +380,22 @@ Goffset GooFile::size() const
     return size.QuadPart;
 }
 
-GooFile *GooFile::open(const GooString *fileName)
+std::unique_ptr<GooFile> GooFile::open(const std::string &fileName)
 {
 #if defined(MIKTEX_WINDOWS)
-  return GooFile::open(MiKTeX::Util::StringUtil::UTF8ToWideChar(fileName->c_str()).c_str());
+    return GooFile::open(MiKTeX::Util::StringUtil::UTF8ToWideChar(fileName.c_str()).c_str());
 #else
-    HANDLE handle = CreateFileA(fileName->c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+    HANDLE handle = CreateFileA(fileName.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
-    return handle == INVALID_HANDLE_VALUE ? nullptr : new GooFile(handle);
+    return handle == INVALID_HANDLE_VALUE ? std::unique_ptr<GooFile>() : std::unique_ptr<GooFile>(new GooFile(handle));
 #endif
 }
 
-GooFile *GooFile::open(const wchar_t *fileName)
+std::unique_ptr<GooFile> GooFile::open(const wchar_t *fileName)
 {
     HANDLE handle = CreateFileW(fileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
-    return handle == INVALID_HANDLE_VALUE ? nullptr : new GooFile(handle);
+    return handle == INVALID_HANDLE_VALUE ? std::unique_ptr<GooFile>() : std::unique_ptr<GooFile>(new GooFile(handle));
 }
 
 bool GooFile::modificationTimeChangedSinceOpen() const
@@ -425,11 +426,16 @@ Goffset GooFile::size() const
 #    endif
 }
 
-GooFile *GooFile::open(const GooString *fileName)
+std::unique_ptr<GooFile> GooFile::open(const std::string &fileName)
 {
-    int fd = openFileDescriptor(fileName->c_str(), O_RDONLY);
+    int fd = openFileDescriptor(fileName.c_str(), O_RDONLY);
 
-    return fd < 0 ? nullptr : new GooFile(fd);
+    return GooFile::open(fd);
+}
+
+std::unique_ptr<GooFile> GooFile::open(int fdA)
+{
+    return fdA < 0 ? std::unique_ptr<GooFile>() : std::unique_ptr<GooFile>(new GooFile(fdA));
 }
 
 GooFile::GooFile(int fdA) : fd(fdA)
@@ -473,7 +479,7 @@ GDirEntry::GDirEntry(const char *dirPath, const char *nameA, bool doStat)
         fa = GetFileAttributesA(fullPath->c_str());
         dir = (fa != 0xFFFFFFFF && (fa & FILE_ATTRIBUTE_DIRECTORY));
 #else
-        if (stat(fullPath->c_str(), &st) == 0)
+        if (stat(fullPath->c_str(), &st) == 0) {
             dir = S_ISDIR(st.st_mode);
 #endif
 #endif
@@ -511,22 +517,22 @@ GDir::~GDir()
         hnd = INVALID_HANDLE_VALUE;
     }
 #else
-    if (dir)
+    if (dir) {
         closedir(dir);
+    }
 #endif
 }
 
-GDirEntry *GDir::getNextEntry()
+std::unique_ptr<GDirEntry> GDir::getNextEntry()
 {
-    GDirEntry *e = nullptr;
-
 #if !defined(MIKTEX) && defined(_WIN32)
     if (hnd != INVALID_HANDLE_VALUE) {
-        e = new GDirEntry(path->c_str(), ffd.cFileName, doStat);
+        auto e = std::make_unique<GDirEntry>(path->c_str(), ffd.cFileName, doStat);
         if (!FindNextFileA(hnd, &ffd)) {
             FindClose(hnd);
             hnd = INVALID_HANDLE_VALUE;
         }
+        return e;
     }
 #else
     struct dirent *ent;
@@ -535,12 +541,12 @@ GDirEntry *GDir::getNextEntry()
             ent = readdir(dir);
         } while (ent && (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")));
         if (ent) {
-            e = new GDirEntry(path->c_str(), ent->d_name, doStat);
+            return std::make_unique<GDirEntry>(path->c_str(), ent->d_name, doStat);
         }
     }
 #endif
 
-    return e;
+    return {};
 }
 
 void GDir::rewind()
@@ -555,7 +561,8 @@ void GDir::rewind()
     hnd = FindFirstFileA(tmp->c_str(), &ffd);
     delete tmp;
 #else
-    if (dir)
+    if (dir) {
         rewinddir(dir);
+    }
 #endif
 }

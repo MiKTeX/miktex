@@ -20,7 +20,7 @@
 #include <cstring>
 #include <sstream>
 
-InMemoryFile::InMemoryFile() : iohead(0), fptr(nullptr) { }
+InMemoryFile::InMemoryFile() = default;
 
 #ifdef HAVE_IN_MEMORY_FILE_FOPENCOOKIE
 ssize_t InMemoryFile::_read(char *buf, size_t sz)
@@ -33,8 +33,9 @@ ssize_t InMemoryFile::_read(char *buf, size_t sz)
 
 ssize_t InMemoryFile::_write(const char *buf, size_t sz)
 {
-    if (iohead + sz > data.size())
+    if (iohead + sz > data.size()) {
         data.resize(iohead + sz);
+    }
     memcpy(&data[iohead], buf, sz);
     iohead += sz;
     return sz;

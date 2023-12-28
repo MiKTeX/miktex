@@ -6,7 +6,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2017-2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2017-2019, 2021 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -17,11 +17,12 @@
 #define FILE_SPEC_H
 
 #include "Object.h"
+#include "poppler_private_export.h"
 
-class EmbFile
+class POPPLER_PRIVATE_EXPORT EmbFile
 {
 public:
-    EmbFile(Object &&efStream);
+    explicit EmbFile(Object &&efStream);
     ~EmbFile();
 
     EmbFile(const EmbFile &) = delete;
@@ -48,10 +49,10 @@ private:
     Object m_objStr;
 };
 
-class FileSpec
+class POPPLER_PRIVATE_EXPORT FileSpec
 {
 public:
-    FileSpec(const Object *fileSpec);
+    explicit FileSpec(const Object *fileSpec);
     ~FileSpec();
 
     FileSpec(const FileSpec &) = delete;
@@ -79,6 +80,6 @@ private:
 };
 
 Object getFileSpecName(const Object *fileSpec);
-Object getFileSpecNameForPlatform(const Object *fileSpec);
+Object POPPLER_PRIVATE_EXPORT getFileSpecNameForPlatform(const Object *fileSpec);
 
 #endif /* FILE_SPEC_H */

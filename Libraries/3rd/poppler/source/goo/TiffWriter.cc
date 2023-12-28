@@ -5,7 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright (C) 2010, 2012 William Bader <williambader@hotmail.com>
-// Copyright (C) 2012 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2012, 2021, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2012, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012 Pino Toscano <pino@kde.org>
 // Copyright (C) 2014 Steven Lee <roc.sky@gmail.com>
@@ -25,6 +25,8 @@
 extern "C" {
 #    include <tiffio.h>
 }
+
+#    include <cstdint>
 
 struct TiffWriterPrivate
 {
@@ -59,13 +61,13 @@ void TiffWriter::setCompressionString(const char *compressionStringArg)
 
 // Write a TIFF file.
 
-bool TiffWriter::init(FILE *openedFile, int width, int height, int hDPI, int vDPI)
+bool TiffWriter::init(FILE *openedFile, int width, int height, double hDPI, double vDPI)
 {
     unsigned int compression;
-    uint16 photometric = 0;
-    uint32 rowsperstrip = (uint32)-1;
+    uint16_t photometric = 0;
+    uint32_t rowsperstrip = (uint32_t)-1;
     int bitspersample;
-    uint16 samplesperpixel = 0;
+    uint16_t samplesperpixel = 0;
     const struct compression_name_tag
     {
         const char *compressionName; // name of the compression option from the command line
@@ -182,14 +184,14 @@ bool TiffWriter::init(FILE *openedFile, int width, int height, int hDPI, int vDP
     TIFFSetField(priv->f, TIFFTAG_BITSPERSAMPLE, bitspersample);
     TIFFSetField(priv->f, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
     TIFFSetField(priv->f, TIFFTAG_PHOTOMETRIC, photometric);
-    TIFFSetField(priv->f, TIFFTAG_COMPRESSION, (uint16)compression);
+    TIFFSetField(priv->f, TIFFTAG_COMPRESSION, (uint16_t)compression);
     TIFFSetField(priv->f, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(priv->f, rowsperstrip));
-    TIFFSetField(priv->f, TIFFTAG_XRESOLUTION, (double)hDPI);
-    TIFFSetField(priv->f, TIFFTAG_YRESOLUTION, (double)vDPI);
+    TIFFSetField(priv->f, TIFFTAG_XRESOLUTION, hDPI);
+    TIFFSetField(priv->f, TIFFTAG_YRESOLUTION, vDPI);
     TIFFSetField(priv->f, TIFFTAG_RESOLUTIONUNIT, RESUNIT_INCH);
 
     if (priv->format == RGBA_PREMULTIPLIED) {
-        uint16 extra = EXTRASAMPLE_ASSOCALPHA;
+        uint16_t extra = EXTRASAMPLE_ASSOCALPHA;
         TIFFSetField(priv->f, TIFFTAG_EXTRASAMPLES, 1, &extra);
     }
 

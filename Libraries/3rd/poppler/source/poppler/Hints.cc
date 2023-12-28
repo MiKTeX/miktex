@@ -4,8 +4,8 @@
 //
 // This file is licensed under the GPLv2 or later
 //
-// Copyright 2010, 2012 Hib Eris <hib@hiberis.nl>
-// Copyright 2010, 2011, 2013, 2014, 2016-2019 Albert Astals Cid <aacid@kde.org>
+// Copyright 2010, 2012, 2013 Hib Eris <hib@hiberis.nl>
+// Copyright 2010, 2011, 2013, 2014, 2016-2019, 2021, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright 2010, 2013 Pino Toscano <pino@kde.org>
 // Copyright 2013 Adrian Johnson <ajohnson@redneon.com>
 // Copyright 2014 Fabio D'Urso <fabiodurso@hotmail.it>
@@ -32,7 +32,7 @@
 class StreamBitReader
 {
 public:
-    StreamBitReader(Stream *strA) : str(strA), inputBits(0), isAtEof(false) { }
+    explicit StreamBitReader(Stream *strA) : str(strA), inputBits(0), isAtEof(false) { }
 
     void resetInputBits() { inputBits = 0; }
 
@@ -60,23 +60,28 @@ public:
     {
         unsigned int bit, bits;
 
-        if (n < 0)
+        if (n < 0) {
             return -1;
-        if (n == 0)
+        }
+        if (n == 0) {
             return 0;
+        }
 
-        if (n == 1)
+        if (n == 1) {
             return readBit();
+        }
 
         bit = readBit();
-        if (bit == (unsigned int)-1)
+        if (bit == (unsigned int)-1) {
             return -1;
+        }
 
         bit = bit << (n - 1);
 
         bits = readBits(n - 1);
-        if (bits == (unsigned int)-1)
+        if (bits == (unsigned int)-1) {
             return -1;
+        }
 
         return bit | bits;
     }
@@ -184,21 +189,31 @@ void Hints::readTables(BaseStream *str, Linearization *linearization, XRef *xref
     char *p = &buf[0];
 
     if (hintsOffset && hintsLength) {
-        Stream *s = str->makeSubStream(hintsOffset, false, hintsLength, Object(objNull));
+        std::unique_ptr<Stream> s(str->makeSubStream(hintsOffset, false, hintsLength, Object(objNull)));
         s->reset();
         for (unsigned int i = 0; i < hintsLength; i++) {
-            *p++ = s->getChar();
+            const int c = s->getChar();
+            if (unlikely(c == EOF)) {
+                error(errSyntaxWarning, -1, "Found EOF while reading hints");
+                ok = false;
+                return;
+            }
+            *p++ = c;
         }
-        delete s;
     }
 
     if (hintsOffset2 && hintsLength2) {
-        Stream *s = str->makeSubStream(hintsOffset2, false, hintsLength2, Object(objNull));
+        std::unique_ptr<Stream> s(str->makeSubStream(hintsOffset2, false, hintsLength2, Object(objNull)));
         s->reset();
         for (unsigned int i = 0; i < hintsLength2; i++) {
-            *p++ = s->getChar();
+            const int c = s->getChar();
+            if (unlikely(c == EOF)) {
+                error(errSyntaxWarning, -1, "Found EOF while reading hints2");
+                ok = false;
+                return;
+            }
+            *p++ = c;
         }
-        delete s;
     }
 
     MemStream *memStream = new MemStream(&buf[0], 0, bufLength, Object(objNull));
@@ -220,8 +235,9 @@ void Hints::readTables(BaseStream *str, Linearization *linearization, XRef *xref
 
             if (ok) {
                 hintsStream->reset();
-                for (int i = 0; i < sharedStreamOffset; i++)
+                for (int i = 0; i < sharedStreamOffset; i++) {
                     hintsStream->getChar();
+                }
                 ok = readSharedObjectsTable(hintsStream);
             }
         } else {
@@ -253,8 +269,9 @@ bool Hints::readPageOffsetTable(Stream *str)
     }
 
     objectOffsetFirst = sbr.readBits(32);
-    if (objectOffsetFirst >= hintsOffset)
+    if (objectOffsetFirst >= hintsOffset) {
         objectOffsetFirst += hintsLength;
+    }
 
     nBitsDiffObjects = sbr.readBits(16);
     if (nBitsDiffObjects > 32) {
@@ -283,11 +300,17 @@ bool Hints::readPageOffsetTable(Stream *str)
 
     denominator = sbr.readBits(16);
 
+    if ((nBitsDiffPageLength > 32) || (nBitsOffsetStream > 32) || (nBitsLengthStream > 32) || (nBitsNumShared > 32) || (nBitsShared > 32) || (nBitsNumerator > 32)) {
+        error(errSyntaxWarning, -1, "Invalid number of bits reading page offset hints table");
+        return false;
+    }
+
     for (int i = 0; i < nPages && !sbr.atEOF(); i++) {
         nObjects[i] = nObjectLeast + sbr.readBits(nBitsDiffObjects);
     }
-    if (sbr.atEOF())
+    if (sbr.atEOF()) {
         return false;
+    }
 
     nObjects[0] = 0;
     xRefOffset[0] = mainXRefEntriesOffset + 20;
@@ -305,8 +328,9 @@ bool Hints::readPageOffsetTable(Stream *str)
     for (int i = 0; i < nPages && !sbr.atEOF(); i++) {
         pageLength[i] = pageLengthLeast + sbr.readBits(nBitsDiffPageLength);
     }
-    if (sbr.atEOF())
+    if (sbr.atEOF()) {
         return false;
+    }
 
     sbr.resetInputBits(); // reset on byte boundary. Not in specs!
     numSharedObject[0] = sbr.readBits(nBitsNumShared);
@@ -326,8 +350,9 @@ bool Hints::readPageOffsetTable(Stream *str)
             return false;
         }
     }
-    if (sbr.atEOF())
+    if (sbr.atEOF()) {
         return false;
+    }
 
     sbr.resetInputBits(); // reset on byte boundary. Not in specs!
     for (int i = 1; i < nPages; i++) {
@@ -390,8 +415,9 @@ bool Hints::readSharedObjectsTable(Stream *str)
     for (unsigned int i = 0; i < nSharedGroups && !sbr.atEOF(); i++) {
         groupLength[i] = groupLengthLeast + sbr.readBits(nBitsDiffGroupLength);
     }
-    if (sbr.atEOF())
+    if (sbr.atEOF()) {
         return false;
+    }
 
     groupOffset[0] = objectOffsetFirst;
     for (unsigned int i = 1; i < nSharedGroupsFirst; i++) {
@@ -408,8 +434,9 @@ bool Hints::readSharedObjectsTable(Stream *str)
     for (unsigned int i = 0; i < nSharedGroups && !sbr.atEOF(); i++) {
         groupHasSignature[i] = sbr.readBits(1);
     }
-    if (sbr.atEOF())
+    if (sbr.atEOF()) {
         return false;
+    }
 
     sbr.resetInputBits(); // reset on byte boundary. Not in specs!
     for (unsigned int i = 0; i < nSharedGroups && !sbr.atEOF(); i++) {
@@ -421,8 +448,9 @@ bool Hints::readSharedObjectsTable(Stream *str)
             sbr.readBits(32);
         }
     }
-    if (sbr.atEOF())
+    if (sbr.atEOF()) {
         return false;
+    }
 
     sbr.resetInputBits(); // reset on byte boundary. Not in specs!
     for (unsigned int i = 0; i < nSharedGroups && !sbr.atEOF(); i++) {
@@ -450,65 +478,30 @@ bool Hints::isOk() const
 
 Goffset Hints::getPageOffset(int page)
 {
-    if ((page < 1) || (page > nPages))
+    if ((page < 1) || (page > nPages)) {
         return 0;
-
-    if (page - 1 > pageFirst)
-        return pageOffset[page - 1];
-    else if (page - 1 < pageFirst)
-        return pageOffset[page];
-    else
-        return pageOffset[0];
-}
-
-std::vector<ByteRange> *Hints::getPageRanges(int page)
-{
-    if ((page < 1) || (page > nPages))
-        return nullptr;
-
-    int idx;
-    if (page - 1 > pageFirst)
-        idx = page - 1;
-    else if (page - 1 < pageFirst)
-        idx = page;
-    else
-        idx = 0;
-
-    ByteRange pageRange;
-    std::vector<ByteRange> *v = new std::vector<ByteRange>;
-
-    pageRange.offset = pageOffset[idx];
-    pageRange.length = pageLength[idx];
-    v->push_back(pageRange);
-
-    pageRange.offset = xRefOffset[idx];
-    pageRange.length = 20 * nObjects[idx];
-    v->push_back(pageRange);
-
-    for (unsigned int j = 0; j < numSharedObject[idx]; j++) {
-        unsigned int k = sharedObjectId[idx][j];
-
-        pageRange.offset = groupOffset[k];
-        pageRange.length = groupLength[k];
-        v->push_back(pageRange);
-
-        pageRange.offset = groupXRefOffset[k];
-        pageRange.length = 20 * groupNumObjects[k];
-        v->push_back(pageRange);
     }
 
-    return v;
+    if (page - 1 > pageFirst) {
+        return pageOffset[page - 1];
+    } else if (page - 1 < pageFirst) {
+        return pageOffset[page];
+    } else {
+        return pageOffset[0];
+    }
 }
 
 int Hints::getPageObjectNum(int page)
 {
-    if ((page < 1) || (page > nPages))
+    if ((page < 1) || (page > nPages)) {
         return 0;
+    }
 
-    if (page - 1 > pageFirst)
+    if (page - 1 > pageFirst) {
         return pageObjectNum[page - 1];
-    else if (page - 1 < pageFirst)
+    } else if (page - 1 < pageFirst) {
         return pageObjectNum[page];
-    else
+    } else {
         return pageObjectNum[0];
+    }
 }

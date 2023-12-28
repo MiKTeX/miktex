@@ -11,8 +11,8 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2010 Albert Astals Cid <aacid@kde.org>
-// Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2010, 2021 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2013, 2021 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2019 Stefan Brüns <stefan.bruens@rwth-aachen.de>
 //
 // To see a description of the changes please see the Changelog file that
@@ -64,15 +64,12 @@ SplashClip::SplashClip(SplashCoord x0, SplashCoord y0, SplashCoord x1, SplashCoo
     yMinI = splashFloor(yMin);
     xMaxI = splashCeil(xMax) - 1;
     yMaxI = splashCeil(yMax) - 1;
-    paths = nullptr;
     flags = nullptr;
-    scanners = nullptr;
     length = size = 0;
 }
 
-SplashClip::SplashClip(SplashClip *clip)
+SplashClip::SplashClip(const SplashClip *clip)
 {
-    int yMinAA, yMaxAA;
     int i;
 
     antialias = clip->antialias;
@@ -86,34 +83,16 @@ SplashClip::SplashClip(SplashClip *clip)
     yMaxI = clip->yMaxI;
     length = clip->length;
     size = clip->size;
-    paths = (SplashXPath **)gmallocn(size, sizeof(SplashXPath *));
     flags = (unsigned char *)gmallocn(size, sizeof(unsigned char));
-    scanners = (SplashXPathScanner **)gmallocn(size, sizeof(SplashXPathScanner *));
+    scanners = clip->scanners;
     for (i = 0; i < length; ++i) {
-        paths[i] = clip->paths[i]->copy();
         flags[i] = clip->flags[i];
-        if (antialias) {
-            yMinAA = yMinI * splashAASize;
-            yMaxAA = (yMaxI + 1) * splashAASize - 1;
-        } else {
-            yMinAA = yMinI;
-            yMaxAA = yMaxI;
-        }
-        scanners[i] = new SplashXPathScanner(paths[i], flags[i] & splashClipEO, yMinAA, yMaxAA);
     }
 }
 
 SplashClip::~SplashClip()
 {
-    int i;
-
-    for (i = 0; i < length; ++i) {
-        delete paths[i];
-        delete scanners[i];
-    }
-    gfree(paths);
     gfree(flags);
-    gfree(scanners);
 }
 
 void SplashClip::grow(int nPaths)
@@ -125,26 +104,15 @@ void SplashClip::grow(int nPaths)
         while (size < length + nPaths) {
             size *= 2;
         }
-        paths = (SplashXPath **)greallocn(paths, size, sizeof(SplashXPath *));
         flags = (unsigned char *)greallocn(flags, size, sizeof(unsigned char));
-        scanners = (SplashXPathScanner **)greallocn(scanners, size, sizeof(SplashXPathScanner *));
     }
 }
 
 void SplashClip::resetToRect(SplashCoord x0, SplashCoord y0, SplashCoord x1, SplashCoord y1)
 {
-    int i;
-
-    for (i = 0; i < length; ++i) {
-        delete paths[i];
-        delete scanners[i];
-    }
-    gfree(paths);
     gfree(flags);
-    gfree(scanners);
-    paths = nullptr;
     flags = nullptr;
-    scanners = nullptr;
+    scanners = {};
     length = size = 0;
 
     if (x0 < x1) {
@@ -212,37 +180,33 @@ SplashError SplashClip::clipToRect(SplashCoord x0, SplashCoord y0, SplashCoord x
 
 SplashError SplashClip::clipToPath(SplashPath *path, SplashCoord *matrix, SplashCoord flatness, bool eo)
 {
-    SplashXPath *xPath;
     int yMinAA, yMaxAA;
 
-    xPath = new SplashXPath(path, matrix, flatness, true);
+    SplashXPath xPath(path, matrix, flatness, true);
 
     // check for an empty path
-    if (xPath->length == 0) {
+    if (xPath.length == 0) {
         xMax = xMin - 1;
         yMax = yMin - 1;
         xMaxI = splashCeil(xMax) - 1;
         yMaxI = splashCeil(yMax) - 1;
-        delete xPath;
 
         // check for a rectangle
-    } else if (xPath->length == 4
-               && ((xPath->segs[0].x0 == xPath->segs[0].x1 && xPath->segs[0].x0 == xPath->segs[1].x0 && xPath->segs[0].x0 == xPath->segs[3].x1 && xPath->segs[2].x0 == xPath->segs[2].x1 && xPath->segs[2].x0 == xPath->segs[1].x1
-                    && xPath->segs[2].x0 == xPath->segs[3].x0 && xPath->segs[1].y0 == xPath->segs[1].y1 && xPath->segs[1].y0 == xPath->segs[0].y1 && xPath->segs[1].y0 == xPath->segs[2].y0 && xPath->segs[3].y0 == xPath->segs[3].y1
-                    && xPath->segs[3].y0 == xPath->segs[0].y0 && xPath->segs[3].y0 == xPath->segs[2].y1)
-                   || (xPath->segs[0].y0 == xPath->segs[0].y1 && xPath->segs[0].y0 == xPath->segs[1].y0 && xPath->segs[0].y0 == xPath->segs[3].y1 && xPath->segs[2].y0 == xPath->segs[2].y1 && xPath->segs[2].y0 == xPath->segs[1].y1
-                       && xPath->segs[2].y0 == xPath->segs[3].y0 && xPath->segs[1].x0 == xPath->segs[1].x1 && xPath->segs[1].x0 == xPath->segs[0].x1 && xPath->segs[1].x0 == xPath->segs[2].x0 && xPath->segs[3].x0 == xPath->segs[3].x1
-                       && xPath->segs[3].x0 == xPath->segs[0].x0 && xPath->segs[3].x0 == xPath->segs[2].x1))) {
-        clipToRect(xPath->segs[0].x0, xPath->segs[0].y0, xPath->segs[2].x0, xPath->segs[2].y0);
-        delete xPath;
+    } else if (xPath.length == 4
+               && ((xPath.segs[0].x0 == xPath.segs[0].x1 && xPath.segs[0].x0 == xPath.segs[1].x0 && xPath.segs[0].x0 == xPath.segs[3].x1 && xPath.segs[2].x0 == xPath.segs[2].x1 && xPath.segs[2].x0 == xPath.segs[1].x1
+                    && xPath.segs[2].x0 == xPath.segs[3].x0 && xPath.segs[1].y0 == xPath.segs[1].y1 && xPath.segs[1].y0 == xPath.segs[0].y1 && xPath.segs[1].y0 == xPath.segs[2].y0 && xPath.segs[3].y0 == xPath.segs[3].y1
+                    && xPath.segs[3].y0 == xPath.segs[0].y0 && xPath.segs[3].y0 == xPath.segs[2].y1)
+                   || (xPath.segs[0].y0 == xPath.segs[0].y1 && xPath.segs[0].y0 == xPath.segs[1].y0 && xPath.segs[0].y0 == xPath.segs[3].y1 && xPath.segs[2].y0 == xPath.segs[2].y1 && xPath.segs[2].y0 == xPath.segs[1].y1
+                       && xPath.segs[2].y0 == xPath.segs[3].y0 && xPath.segs[1].x0 == xPath.segs[1].x1 && xPath.segs[1].x0 == xPath.segs[0].x1 && xPath.segs[1].x0 == xPath.segs[2].x0 && xPath.segs[3].x0 == xPath.segs[3].x1
+                       && xPath.segs[3].x0 == xPath.segs[0].x0 && xPath.segs[3].x0 == xPath.segs[2].x1))) {
+        clipToRect(xPath.segs[0].x0, xPath.segs[0].y0, xPath.segs[2].x0, xPath.segs[2].y0);
 
     } else {
         grow(1);
         if (antialias) {
-            xPath->aaScale();
+            xPath.aaScale();
         }
-        xPath->sort();
-        paths[length] = xPath;
+        xPath.sort();
         flags[length] = eo ? splashClipEO : 0;
         if (antialias) {
             yMinAA = yMinI * splashAASize;
@@ -251,7 +215,7 @@ SplashError SplashClip::clipToPath(SplashPath *path, SplashCoord *matrix, Splash
             yMinAA = yMinI;
             yMaxAA = yMaxI;
         }
-        scanners[length] = new SplashXPathScanner(xPath, eo, yMinAA, yMaxAA);
+        scanners.emplace_back(std::make_shared<SplashXPathScanner>(xPath, eo, yMinAA, yMaxAA));
         ++length;
     }
 

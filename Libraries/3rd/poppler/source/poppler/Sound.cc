@@ -36,8 +36,9 @@ std::unique_ptr<Sound> Sound::parseSound(Object *obj)
     }
     // the Stream must have a Dict
     Dict *dict = str->getDict();
-    if (dict == nullptr)
+    if (dict == nullptr) {
         return nullptr;
+    }
     // the Dict must have the 'R' key of type num
     Object tmp = dict->lookup("R");
     if (tmp.isNum()) {

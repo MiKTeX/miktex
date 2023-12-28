@@ -16,7 +16,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2009, 2011, 2012, 2017, 2018 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2011, 2012, 2017, 2018, 2021, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2013 Adam Reichold <adamreichold@myopera.com>
 // Copyright (C) 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
@@ -25,7 +25,7 @@
 // Copyright (C) 2017 Christoph Cullmann <cullmann@kde.org>
 // Copyright (C) 2017 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2018 Mojca Miklavec <mojca@macports.org>
-// Copyright (C) 2019 Christian Persch <chpe@src.gnome.org>
+// Copyright (C) 2019, 2021 Christian Persch <chpe@src.gnome.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -36,10 +36,12 @@
 #define GFILE_H
 
 #include "poppler-config.h"
+#include "poppler_private_export.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstddef>
 #include <ctime>
+#include <string>
 extern "C" {
 #if defined(_WIN32)
 #    include <sys/stat.h>
@@ -73,6 +75,8 @@ extern "C" {
 #endif
 }
 
+#include <memory>
+
 class GooString;
 
 /* Integer type for all file offsets and file sizes */
@@ -82,27 +86,27 @@ typedef long long Goffset;
 
 // Append a file name to a path string.  <path> may be an empty
 // string, denoting the current directory).  Returns <path>.
-extern GooString *appendToPath(GooString *path, const char *fileName);
+extern GooString POPPLER_PRIVATE_EXPORT *appendToPath(GooString *path, const char *fileName);
 
 #ifndef _WIN32
 // Open a file descriptor
 // Could be implemented on WIN32 too, but the only external caller of
 // this function is not used on WIN32
-extern int openFileDescriptor(const char *path, int flags);
+extern int POPPLER_PRIVATE_EXPORT openFileDescriptor(const char *path, int flags);
 #endif
 
 // Open a file.  On Windows, this converts the path from UTF-8 to
 // UCS-2 and calls _wfopen (if available).  On other OSes, this simply
 // calls fopen.
-extern FILE *openFile(const char *path, const char *mode);
+extern FILE POPPLER_PRIVATE_EXPORT *openFile(const char *path, const char *mode);
 
 // Just like fgets, but handles Unix, Mac, and/or DOS end-of-line
 // conventions.
-extern char *getLine(char *buf, int size, FILE *f);
+extern char POPPLER_PRIVATE_EXPORT *getLine(char *buf, int size, FILE *f);
 
 // Like fseek/ftell but uses platform specific variants that support large files
-extern int Gfseek(FILE *f, Goffset offset, int whence);
-extern Goffset Gftell(FILE *f);
+extern int POPPLER_PRIVATE_EXPORT Gfseek(FILE *f, Goffset offset, int whence);
+extern Goffset POPPLER_PRIVATE_EXPORT Gftell(FILE *f);
 
 // Largest offset supported by Gfseek/Gftell
 extern Goffset GoffsetMax();
@@ -111,7 +115,7 @@ extern Goffset GoffsetMax();
 // GooFile
 //------------------------------------------------------------------------
 
-class GooFile
+class POPPLER_PRIVATE_EXPORT GooFile
 {
 public:
     GooFile(const GooFile &) = delete;
@@ -120,10 +124,13 @@ public:
     int read(char *buf, int n, Goffset offset) const;
     Goffset size() const;
 
-    static GooFile *open(const GooString *fileName);
+    static std::unique_ptr<GooFile> open(const std::string &fileName);
+#ifndef _WIN32
+    static std::unique_ptr<GooFile> open(int fdA);
+#endif
 
 #ifdef _WIN32
-    static GooFile *open(const wchar_t *fileName);
+    static std::unique_ptr<GooFile> open(const wchar_t *fileName);
 
     ~GooFile() { CloseHandle(handle); }
 
@@ -140,7 +147,7 @@ private:
     bool modificationTimeChangedSinceOpen() const;
 
 private:
-    GooFile(int fdA);
+    explicit GooFile(int fdA);
     int fd;
     struct timespec modifiedTimeOnOpen;
 #endif // _WIN32

@@ -16,7 +16,7 @@
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2007 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2008, 2009, 2012, 2014-2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2009, 2012, 2014-2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Tomas Are Haavet <tomasare@gmail.com>
 // Copyright (C) 2012 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
 // Copyright (C) 2012, 2017 Adrian Johnson <ajohnson@redneon.com>
@@ -24,6 +24,8 @@
 // Copyright (C) 2015 Aleksei Volkov <Aleksei Volkov>
 // Copyright (C) 2015, 2016 William Bader <williambader@hotmail.com>
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
+// Copyright (C) 2022 Zachary Travis <ztravis@everlaw.com>
+// Copyright (C) 2022 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -450,36 +452,35 @@ static const char *macGlyphNames[258] = { ".notdef",
 // FoFiTrueType
 //------------------------------------------------------------------------
 
-FoFiTrueType *FoFiTrueType::make(const char *fileA, int lenA, int faceIndexA)
+std::unique_ptr<FoFiTrueType> FoFiTrueType::make(const unsigned char *fileA, int lenA, int faceIndexA)
 {
-    FoFiTrueType *ff;
-
-    ff = new FoFiTrueType(fileA, lenA, false, faceIndexA);
+    // Cannot use std::make_unique, because the constructor is private
+    auto ff = new FoFiTrueType(fileA, lenA, false, faceIndexA);
     if (!ff->parsedOk) {
         delete ff;
         return nullptr;
     }
-    return ff;
+    return std::unique_ptr<FoFiTrueType>(ff);
 }
 
-FoFiTrueType *FoFiTrueType::load(const char *fileName, int faceIndexA)
+std::unique_ptr<FoFiTrueType> FoFiTrueType::load(const char *fileName, int faceIndexA)
 {
-    FoFiTrueType *ff;
     char *fileA;
     int lenA;
 
     if (!(fileA = FoFiBase::readFile(fileName, &lenA))) {
         return nullptr;
     }
-    ff = new FoFiTrueType(fileA, lenA, true, faceIndexA);
+    // Cannot use std::make_unique, because the constructor is private
+    auto ff = new FoFiTrueType((unsigned char *)fileA, lenA, true, faceIndexA);
     if (!ff->parsedOk) {
         delete ff;
         return nullptr;
     }
-    return ff;
+    return std::unique_ptr<FoFiTrueType>(ff);
 }
 
-FoFiTrueType::FoFiTrueType(const char *fileA, int lenA, bool freeFileDataA, int faceIndexA) : FoFiBase(fileA, lenA, freeFileDataA)
+FoFiTrueType::FoFiTrueType(const unsigned char *fileA, int lenA, bool freeFileDataA, int faceIndexA) : FoFiBase(fileA, lenA, freeFileDataA)
 {
     tables = nullptr;
     nTables = 0;
@@ -532,6 +533,7 @@ int FoFiTrueType::mapCodeToGID(int i, unsigned int c) const
     unsigned int segCnt, segEnd, segStart, segDelta, segOffset;
     unsigned int cmapFirst, cmapLen;
     int pos, a, b, m;
+    unsigned int high, low, idx;
     bool ok;
 
     if (i < 0 || i >= nCmaps) {
@@ -545,6 +547,21 @@ int FoFiTrueType::mapCodeToGID(int i, unsigned int c) const
             return 0;
         }
         gid = getU8(cmaps[i].offset + 6 + c, &ok);
+        break;
+    case 2:
+        high = c >> 8;
+        low = c & 0xFFU;
+        idx = getU16BE(pos + 6 + high * 2, &ok);
+        segStart = getU16BE(pos + 6 + 512 + idx, &ok);
+        segCnt = getU16BE(pos + 6 + 512 + idx + 2, &ok);
+        segDelta = getS16BE(pos + 6 + 512 + idx + 4, &ok);
+        segOffset = getU16BE(pos + 6 + 512 + idx + 6, &ok);
+        if (low < segStart || low >= segStart + segCnt) {
+            gid = 0;
+        } else {
+            int val = getU16BE(pos + 6 + 512 + idx + 6 + segOffset + (low - segStart) * 2, &ok);
+            gid = val == 0 ? 0 : (val + segDelta) & 0xFFFFU;
+        }
         break;
     case 4:
         segCnt = getU16BE(pos + 6, &ok) / 2;
@@ -590,6 +607,7 @@ int FoFiTrueType::mapCodeToGID(int i, unsigned int c) const
         gid = getU16BE(pos + 10 + 2 * (c - cmapFirst), &ok);
         break;
     case 12:
+    case 13:
         segCnt = getU32BE(pos + 12, &ok);
         a = -1;
         b = segCnt - 1;
@@ -612,7 +630,10 @@ int FoFiTrueType::mapCodeToGID(int i, unsigned int c) const
         if (c < segStart) {
             return 0;
         }
-        gid = segDelta + (c - segStart);
+        // In format 12, the glyph codes increment through
+        // each segment; in format 13 the same glyph code is used
+        // for an entire segment.
+        gid = segDelta + (cmaps[i].fmt == 12 ? (c - segStart) : 0);
         break;
     default:
         return 0;
@@ -640,7 +661,7 @@ bool FoFiTrueType::getCFFBlock(char **start, int *length) const
         return false;
     }
     i = seekTable("CFF ");
-    if (!checkRegion(tables[i].offset, tables[i].len)) {
+    if (i < 0 || !checkRegion(tables[i].offset, tables[i].len)) {
         return false;
     }
     *start = (char *)file + tables[i].offset;
@@ -659,7 +680,7 @@ int *FoFiTrueType::getCIDToGIDMap(int *nCIDs) const
     if (!getCFFBlock(&start, &length)) {
         return nullptr;
     }
-    if (!(ff = FoFiType1C::make(start, length))) {
+    if (!(ff = FoFiType1C::make((unsigned char *)start, length))) {
         return nullptr;
     }
     map = ff->getCIDToGIDMap(nCIDs);
@@ -701,7 +722,7 @@ void FoFiTrueType::getFontMatrix(double *mat) const
     if (!getCFFBlock(&start, &length)) {
         return;
     }
-    if (!(ff = FoFiType1C::make(start, length))) {
+    if (!(ff = FoFiType1C::make((unsigned char *)start, length))) {
         return;
     }
     ff->getFontMatrix(mat);
@@ -710,7 +731,6 @@ void FoFiTrueType::getFontMatrix(double *mat) const
 
 void FoFiTrueType::convertToType42(const char *psName, char **encoding, int *codeToGID, FoFiOutputFunc outputFunc, void *outputStream) const
 {
-    GooString *buf;
     int maxUsedGlyph;
     bool ok;
 
@@ -720,9 +740,8 @@ void FoFiTrueType::convertToType42(const char *psName, char **encoding, int *cod
 
     // write the header
     ok = true;
-    buf = GooString::format("%!PS-TrueTypeFont-{0:2g}\n", (double)getS32BE(0, &ok) / 65536.0);
+    std::unique_ptr<GooString> buf = GooString::format("%!PS-TrueTypeFont-{0:2g}\n", (double)getS32BE(0, &ok) / 65536.0);
     (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-    delete buf;
 
     // begin the font dictionary
     (*outputFunc)(outputStream, "10 dict begin\n", 14);
@@ -733,7 +752,6 @@ void FoFiTrueType::convertToType42(const char *psName, char **encoding, int *cod
     (*outputFunc)(outputStream, "/FontMatrix [1 0 0 1 0 0] def\n", 30);
     buf = GooString::format("/FontBBox [{0:d} {1:d} {2:d} {3:d}] def\n", bbox[0], bbox[1], bbox[2], bbox[3]);
     (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-    delete buf;
     (*outputFunc)(outputStream, "/PaintType 0 def\n", 17);
 
     // write the guts of the dictionary
@@ -754,7 +772,7 @@ void FoFiTrueType::convertToType1(const char *psName, const char **newEncoding, 
     if (!getCFFBlock(&start, &length)) {
         return;
     }
-    if (!(ff = FoFiType1C::make(start, length))) {
+    if (!(ff = FoFiType1C::make((unsigned char *)start, length))) {
         return;
     }
     ff->convertToType1(psName, newEncoding, ascii, outputFunc, outputStream);
@@ -763,7 +781,6 @@ void FoFiTrueType::convertToType1(const char *psName, const char **newEncoding, 
 
 void FoFiTrueType::convertToCIDType2(const char *psName, const int *cidMap, int nCIDs, bool needVerticalMetrics, FoFiOutputFunc outputFunc, void *outputStream) const
 {
-    GooString *buf;
     int cid, maxUsedGlyph;
     bool ok;
     int i, j, k;
@@ -774,9 +791,8 @@ void FoFiTrueType::convertToCIDType2(const char *psName, const int *cidMap, int 
 
     // write the header
     ok = true;
-    buf = GooString::format("%!PS-TrueTypeFont-{0:2g}\n", (double)getS32BE(0, &ok) / 65536.0);
+    std::unique_ptr<GooString> buf = GooString::format("%!PS-TrueTypeFont-{0:2g}\n", (double)getS32BE(0, &ok) / 65536.0);
     (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-    delete buf;
 
     // begin the font dictionary
     (*outputFunc)(outputStream, "20 dict begin\n", 14);
@@ -794,7 +810,6 @@ void FoFiTrueType::convertToCIDType2(const char *psName, const int *cidMap, int 
     if (cidMap) {
         buf = GooString::format("/CIDCount {0:d} def\n", nCIDs);
         (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-        delete buf;
         if (nCIDs > 32767) {
             (*outputFunc)(outputStream, "/CIDMap [", 9);
             for (i = 0; i < nCIDs; i += 32768 - 16) {
@@ -805,7 +820,6 @@ void FoFiTrueType::convertToCIDType2(const char *psName, const int *cidMap, int 
                         cid = cidMap[i + j + k];
                         buf = GooString::format("{0:02x}{1:02x}", (cid >> 8) & 0xff, cid & 0xff);
                         (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-                        delete buf;
                     }
                     (*outputFunc)(outputStream, "\n", 1);
                 }
@@ -821,7 +835,6 @@ void FoFiTrueType::convertToCIDType2(const char *psName, const int *cidMap, int 
                     cid = cidMap[i + j];
                     buf = GooString::format("{0:02x}{1:02x}", (cid >> 8) & 0xff, cid & 0xff);
                     (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-                    delete buf;
                 }
                 (*outputFunc)(outputStream, "\n", 1);
             }
@@ -831,32 +844,26 @@ void FoFiTrueType::convertToCIDType2(const char *psName, const int *cidMap, int 
         // direct mapping - just fill the string(s) with s[i]=i
         buf = GooString::format("/CIDCount {0:d} def\n", nGlyphs);
         (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-        delete buf;
         if (nGlyphs > 32767) {
             (*outputFunc)(outputStream, "/CIDMap [\n", 10);
             for (i = 0; i < nGlyphs; i += 32767) {
                 j = nGlyphs - i < 32767 ? nGlyphs - i : 32767;
                 buf = GooString::format("  {0:d} string 0 1 {1:d} {{\n", 2 * j, j - 1);
                 (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-                delete buf;
                 buf = GooString::format("    2 copy dup 2 mul exch {0:d} add -8 bitshift put\n", i);
                 (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-                delete buf;
                 buf = GooString::format("    1 index exch dup 2 mul 1 add exch {0:d} add"
                                         " 255 and put\n",
                                         i);
                 (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-                delete buf;
                 (*outputFunc)(outputStream, "  } for\n", 8);
             }
             (*outputFunc)(outputStream, "] def\n", 6);
         } else {
             buf = GooString::format("/CIDMap {0:d} string\n", 2 * nGlyphs);
             (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-            delete buf;
             buf = GooString::format("  0 1 {0:d} {{\n", nGlyphs - 1);
             (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-            delete buf;
             (*outputFunc)(outputStream, "    2 copy dup 2 mul exch -8 bitshift put\n", 42);
             (*outputFunc)(outputStream, "    1 index exch dup 2 mul 1 add exch 255 and put\n", 50);
             (*outputFunc)(outputStream, "  } for\n", 8);
@@ -866,7 +873,6 @@ void FoFiTrueType::convertToCIDType2(const char *psName, const int *cidMap, int 
     (*outputFunc)(outputStream, "/FontMatrix [1 0 0 1 0 0] def\n", 30);
     buf = GooString::format("/FontBBox [{0:d} {1:d} {2:d} {3:d}] def\n", bbox[0], bbox[1], bbox[2], bbox[3]);
     (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-    delete buf;
     (*outputFunc)(outputStream, "/PaintType 0 def\n", 17);
     (*outputFunc)(outputStream, "/Encoding [] readonly def\n", 26);
     (*outputFunc)(outputStream, "/CharStrings 1 dict dup begin\n", 30);
@@ -889,7 +895,7 @@ void FoFiTrueType::convertToCIDType0(const char *psName, int *cidMap, int nCIDs,
     if (!getCFFBlock(&start, &length)) {
         return;
     }
-    if (!(ff = FoFiType1C::make(start, length))) {
+    if (!(ff = FoFiType1C::make((unsigned char *)start, length))) {
         return;
     }
     ff->convertToCIDType0(psName, cidMap, nCIDs, outputFunc, outputStream);
@@ -898,7 +904,6 @@ void FoFiTrueType::convertToCIDType0(const char *psName, int *cidMap, int nCIDs,
 
 void FoFiTrueType::convertToType0(const char *psName, int *cidMap, int nCIDs, bool needVerticalMetrics, int *maxValidGlyph, FoFiOutputFunc outputFunc, void *outputStream) const
 {
-    GooString *buf;
     GooString *sfntsName;
     int maxUsedGlyph, n, i, j;
 
@@ -947,14 +952,12 @@ void FoFiTrueType::convertToType0(const char *psName, int *cidMap, int nCIDs, bo
         (*outputFunc)(outputStream, "10 dict begin\n", 14);
         (*outputFunc)(outputStream, "/FontName /", 11);
         (*outputFunc)(outputStream, psName, strlen(psName));
-        buf = GooString::format("_{0:02x} def\n", i >> 8);
+        std::unique_ptr<GooString> buf = GooString::format("_{0:02x} def\n", i >> 8);
         (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-        delete buf;
         (*outputFunc)(outputStream, "/FontType 42 def\n", 17);
         (*outputFunc)(outputStream, "/FontMatrix [1 0 0 1 0 0] def\n", 30);
         buf = GooString::format("/FontBBox [{0:d} {1:d} {2:d} {3:d}] def\n", bbox[0], bbox[1], bbox[2], bbox[3]);
         (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-        delete buf;
         (*outputFunc)(outputStream, "/PaintType 0 def\n", 17);
         (*outputFunc)(outputStream, "/sfnts ", 7);
         (*outputFunc)(outputStream, psName, strlen(psName));
@@ -963,7 +966,6 @@ void FoFiTrueType::convertToType0(const char *psName, int *cidMap, int nCIDs, bo
         for (j = 0; j < 256 && i + j < n; ++j) {
             buf = GooString::format("dup {0:d} /c{1:02x} put\n", j, j);
             (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-            delete buf;
         }
         (*outputFunc)(outputStream, "readonly def\n", 13);
         (*outputFunc)(outputStream, "/CharStrings 257 dict dup begin\n", 32);
@@ -971,7 +973,6 @@ void FoFiTrueType::convertToType0(const char *psName, int *cidMap, int nCIDs, bo
         for (j = 0; j < 256 && i + j < n; ++j) {
             buf = GooString::format("/c{0:02x} {1:d} def\n", j, cidMap ? cidMap[i + j] : i + j);
             (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-            delete buf;
         }
         (*outputFunc)(outputStream, "end readonly def\n", 17);
         (*outputFunc)(outputStream, "FontName currentdict end definefont pop\n", 40);
@@ -987,18 +988,16 @@ void FoFiTrueType::convertToType0(const char *psName, int *cidMap, int nCIDs, bo
     (*outputFunc)(outputStream, "/FMapType 2 def\n", 16);
     (*outputFunc)(outputStream, "/Encoding [\n", 12);
     for (i = 0; i < n; i += 256) {
-        buf = GooString::format("{0:d}\n", i >> 8);
+        const std::unique_ptr<GooString> buf = GooString::format("{0:d}\n", i >> 8);
         (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-        delete buf;
     }
     (*outputFunc)(outputStream, "] def\n", 6);
     (*outputFunc)(outputStream, "/FDepVector [\n", 14);
     for (i = 0; i < n; i += 256) {
         (*outputFunc)(outputStream, "/", 1);
         (*outputFunc)(outputStream, psName, strlen(psName));
-        buf = GooString::format("_{0:02x} findfont\n", i >> 8);
+        const std::unique_ptr<GooString> buf = GooString::format("_{0:02x} findfont\n", i >> 8);
         (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-        delete buf;
     }
     (*outputFunc)(outputStream, "] def\n", 6);
     (*outputFunc)(outputStream, "FontName currentdict end definefont pop\n", 40);
@@ -1013,7 +1012,7 @@ void FoFiTrueType::convertToType0(const char *psName, int *cidMap, int nCIDs, Fo
     if (!getCFFBlock(&start, &length)) {
         return;
     }
-    if (!(ff = FoFiType1C::make(start, length))) {
+    if (!(ff = FoFiType1C::make((unsigned char *)start, length))) {
         return;
     }
     ff->convertToType0(psName, cidMap, nCIDs, outputFunc, outputStream);
@@ -1023,7 +1022,6 @@ void FoFiTrueType::convertToType0(const char *psName, int *cidMap, int nCIDs, Fo
 void FoFiTrueType::cvtEncoding(char **encoding, FoFiOutputFunc outputFunc, void *outputStream) const
 {
     const char *name;
-    GooString *buf;
     int i;
 
     (*outputFunc)(outputStream, "/Encoding 256 array\n", 20);
@@ -1032,17 +1030,15 @@ void FoFiTrueType::cvtEncoding(char **encoding, FoFiOutputFunc outputFunc, void 
             if (!(name = encoding[i])) {
                 name = ".notdef";
             }
-            buf = GooString::format("dup {0:d} /", i);
+            const std::unique_ptr<GooString> buf = GooString::format("dup {0:d} /", i);
             (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-            delete buf;
             (*outputFunc)(outputStream, name, strlen(name));
             (*outputFunc)(outputStream, " put\n", 5);
         }
     } else {
         for (i = 0; i < 256; ++i) {
-            buf = GooString::format("dup {0:d} /c{1:02x} put\n", i, i);
+            const std::unique_ptr<GooString> buf = GooString::format("dup {0:d} /c{1:02x} put\n", i, i);
             (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-            delete buf;
         }
     }
     (*outputFunc)(outputStream, "readonly def\n", 13);
@@ -1051,7 +1047,6 @@ void FoFiTrueType::cvtEncoding(char **encoding, FoFiOutputFunc outputFunc, void 
 void FoFiTrueType::cvtCharStrings(char **encoding, const int *codeToGID, FoFiOutputFunc outputFunc, void *outputStream) const
 {
     const char *name;
-    GooString *buf;
     char buf2[16];
     int i, k;
 
@@ -1087,9 +1082,8 @@ void FoFiTrueType::cvtCharStrings(char **encoding, const int *codeToGID, FoFiOut
             if (k > 0 && k < nGlyphs) {
                 (*outputFunc)(outputStream, "/", 1);
                 (*outputFunc)(outputStream, name, strlen(name));
-                buf = GooString::format(" {0:d} def\n", k);
+                const std::unique_ptr<GooString> buf = GooString::format(" {0:d} def\n", k);
                 (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-                delete buf;
             }
         }
     }
@@ -1131,6 +1125,8 @@ void FoFiTrueType::cvtSfnts(FoFiOutputFunc outputFunc, void *outputStream, const
     unsigned char *vmtxTab;
     bool needVhea, needVmtx;
     int advance;
+
+    *maxUsedGlyph = -1;
 
     // construct the 'head' table, zero out the font checksum
     i = seekTable("head");
@@ -1182,12 +1178,17 @@ void FoFiTrueType::cvtSfnts(FoFiOutputFunc outputFunc, void *outputStream, const
     locaTable[nGlyphs].len = 0;
     std::sort(locaTable, locaTable + nGlyphs + 1, cmpTrueTypeLocaIdxFunctor());
     pos = 0;
-    *maxUsedGlyph = -1;
     for (i = 0; i <= nGlyphs; ++i) {
         locaTable[i].newOffset = pos;
-        pos += locaTable[i].len;
-        if (pos & 3) {
-            pos += 4 - (pos & 3);
+
+        int newPos;
+        if (unlikely(checkedAdd(pos, locaTable[i].len, &newPos))) {
+            ok = false;
+        } else {
+            pos = newPos;
+            if (pos & 3) {
+                pos += 4 - (pos & 3);
+            }
         }
         if (locaTable[i].len > 0) {
             *maxUsedGlyph = i;
@@ -1294,12 +1295,21 @@ void FoFiTrueType::cvtSfnts(FoFiOutputFunc outputFunc, void *outputStream, const
             newTables[k].checksum = checksum;
             newTables[k].offset = pos;
             newTables[k].len = length;
-            pos += length;
-            if (pos & 3) {
-                pos += 4 - (length & 3);
+            int newPos;
+            if (unlikely(checkedAdd(pos, length, &newPos))) {
+                ok = false;
+            } else {
+                pos = newPos;
+                if (pos & 3) {
+                    pos += 4 - (length & 3);
+                }
             }
             ++k;
         }
+    }
+    if (unlikely(k < nNewTables)) {
+        error(errSyntaxWarning, -1, "unexpected number of tables");
+        nNewTables = k;
     }
 
     // construct the table directory
@@ -1409,15 +1419,13 @@ void FoFiTrueType::cvtSfnts(FoFiOutputFunc outputFunc, void *outputStream, const
 
 void FoFiTrueType::dumpString(const unsigned char *s, int length, FoFiOutputFunc outputFunc, void *outputStream) const
 {
-    GooString *buf;
     int pad, i, j;
 
     (*outputFunc)(outputStream, "<", 1);
     for (i = 0; i < length; i += 32) {
         for (j = 0; j < 32 && i + j < length; ++j) {
-            buf = GooString::format("{0:02x}", s[i + j] & 0xff);
+            const std::unique_ptr<GooString> buf = GooString::format("{0:02x}", s[i + j] & 0xff);
             (*outputFunc)(outputStream, buf->c_str(), buf->getLength());
-            delete buf;
         }
         if (i % (65536 - 32) == 65536 - 64) {
             (*outputFunc)(outputStream, ">\n<", 3);
@@ -1481,18 +1489,21 @@ void FoFiTrueType::parse()
         int dircount;
 
         dircount = getU32BE(8, &parsedOk);
-        if (!parsedOk)
+        if (!parsedOk) {
             return;
+        }
         if (!dircount) {
             parsedOk = false;
             return;
         }
 
-        if (faceIndex >= dircount)
+        if (faceIndex >= dircount) {
             faceIndex = 0;
+        }
         pos = getU32BE(12 + faceIndex * 4, &parsedOk);
-        if (!parsedOk)
+        if (!parsedOk) {
             return;
+        }
     } else {
         pos = 0;
     }
@@ -1529,12 +1540,13 @@ void FoFiTrueType::parse()
         tables = (TrueTypeTable *)greallocn_checkoverflow(tables, nTables, sizeof(TrueTypeTable));
     }
     if (!parsedOk || tables == nullptr) {
+        parsedOk = false;
         return;
     }
 
     // check for tables that are required by both the TrueType spec and
     // the Type 42 spec
-    if (seekTable("head") < 0 || seekTable("hhea") < 0 || seekTable("maxp") < 0 || (!openTypeCFF && seekTable("loca") < 0) || (!openTypeCFF && seekTable("glyf") < 0) || (openTypeCFF && seekTable("CFF ") < 0)) {
+    if (seekTable("head") < 0 || seekTable("hhea") < 0 || seekTable("maxp") < 0 || (!openTypeCFF && seekTable("loca") < 0) || (!openTypeCFF && seekTable("glyf") < 0) || (openTypeCFF && (seekTable("CFF ") < 0 && seekTable("CFF2") < 0))) {
         parsedOk = false;
         return;
     }
@@ -1625,8 +1637,9 @@ void FoFiTrueType::readPostTable()
             } else {
                 j -= 258;
                 if (j != stringIdx) {
-                    for (stringIdx = 0, stringPos = tablePos + 34 + 2 * n; stringIdx < j; ++stringIdx, stringPos += 1 + getU8(stringPos, &ok))
+                    for (stringIdx = 0, stringPos = tablePos + 34 + 2 * n; stringIdx < j; ++stringIdx, stringPos += 1 + getU8(stringPos, &ok)) {
                         ;
+                    }
                     if (!ok) {
                         continue;
                     }
@@ -1680,8 +1693,9 @@ unsigned int FoFiTrueType::charToTag(const char *tagName)
     unsigned int tag = 0;
     int i;
 
-    if (n > 4)
+    if (n > 4) {
         n = 4;
+    }
     for (i = 0; i < n; i++) {
         tag <<= 8;
         tag |= tagName[i] & 0xff;
@@ -1864,8 +1878,9 @@ unsigned int FoFiTrueType::mapToVertGID(unsigned int orgGID)
 {
     unsigned int mapped;
 
-    if (gsubFeatureTable == 0)
+    if (gsubFeatureTable == 0) {
         return orgGID;
+    }
     if ((mapped = doMapToVertGID(orgGID)) != 0) {
         return mapped;
     }
@@ -1881,8 +1896,9 @@ unsigned int FoFiTrueType::scanLookupList(unsigned int listIndex, unsigned int o
     unsigned int gid = 0;
     unsigned int pos;
 
-    if (gsubLookupList == 0)
+    if (gsubLookupList == 0) {
         return 0; /* no lookup list */
+    }
     pos = gsubLookupList + 2 + listIndex * 2;
     lookupTable = getU16BE(pos, &parsedOk);
     /* read lookup table */
@@ -1893,8 +1909,9 @@ unsigned int FoFiTrueType::scanLookupList(unsigned int listIndex, unsigned int o
     for (i = 0; i < subTableCount; i++) {
         subTable = getU16BE(pos, &parsedOk);
         pos += 2;
-        if ((gid = scanLookupSubTable(gsubLookupList + lookupTable + subTable, orgGID)) != 0)
+        if ((gid = scanLookupSubTable(gsubLookupList + lookupTable + subTable, orgGID)) != 0) {
             break;
+        }
     }
     return gid;
 }

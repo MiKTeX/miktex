@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2007, Brad Hards <bradh@kde.org>
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
- * Copyright (C) 2016, 2018, 2019, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2016, 2018, 2019, 2021, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2017, Hubert Figuière <hub@figuiere.net>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -59,8 +59,8 @@ public:
         HeadingOnly
     };
 
-    OptContentItem(OptionalContentGroup *group);
-    OptContentItem(const QString &label);
+    explicit OptContentItem(OptionalContentGroup *group);
+    explicit OptContentItem(const QString &label);
     OptContentItem();
     ~OptContentItem();
 

@@ -1,13 +1,13 @@
 ## version.cmake
 ##
-## Copyright (C) 2017-2022 Christian Schenk
+## Copyright (C) 2017-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
 
-set(POPPLER_MAJOR_VERSION "20")
-set(POPPLER_MINOR_VERSION "10")
+set(POPPLER_MAJOR_VERSION "23")
+set(POPPLER_MINOR_VERSION "12")
 set(POPPLER_MICRO_VERSION "0")
 
 set(POPPLER_VERSION "${POPPLER_MAJOR_VERSION}.${POPPLER_MINOR_VERSION}.${POPPLER_MICRO_VERSION}")
@@ -15,7 +15,7 @@ set(POPPLER_VERSION "${POPPLER_MAJOR_VERSION}.${POPPLER_MINOR_VERSION}.${POPPLER
 set(MIKTEX_COMP_ORIG_VERSION_STR "${POPPLER_VERSION}")
 
 set(MIKTEX_COMP_MAJOR_VERSION 4)
-set(MIKTEX_COMP_MINOR_VERSION 0)
+set(MIKTEX_COMP_MINOR_VERSION 1)
 set(MIKTEX_COMP_PATCH_VERSION 0)
 
-set(MIKTEX_COMP_INTERFACE_VERSION 3)
+set(MIKTEX_COMP_INTERFACE_VERSION 4)

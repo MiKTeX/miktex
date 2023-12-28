@@ -16,9 +16,9 @@
 // Copyright (C) 2011 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2013 Yury G. Kudryashov <urkud.urkud@gmail.com>
 // Copyright (C) 2014, 2017 Adrian Johnson <ajohnson@redneon.com>
-// Copyright (C) 2018, 2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2018, 2020, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
-// Copyright (C) 2019 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2019, 2021 Oliver Sander <oliver.sander@tu-dresden.de>
 // Copyright (C) 2020 <r.coeffier@bee-buzziness.com>
 //
 // To see a description of the changes please see the Changelog file that
@@ -76,28 +76,24 @@ int Main(int argc, char** argv)
 int main(int argc, char *argv[])
 #endif
 {
+    std::unique_ptr<PDFDoc> doc;
     GooString *fileName;
     const UnicodeMap *uMap;
-    GooString *ownerPW, *userPW;
-    PDFDoc *doc;
+    std::optional<GooString> ownerPW, userPW;
     char uBuf[8];
     char path[1024];
     char *p;
     bool ok;
     bool hasSaveFile;
-    int exitCode;
-    std::vector<FileSpec *> embeddedFiles;
+    std::vector<std::unique_ptr<FileSpec>> embeddedFiles;
     int nFiles, nPages, n, i, j;
-    FileSpec *fileSpec;
     Page *page;
     Annots *annots;
-    Annot *annot;
     const GooString *s1;
     Unicode u;
     bool isUnicode;
 
     Win32Console win32Console(&argc, &argv);
-    exitCode = 99;
 
     // parse args
     ok = parseArgs(argDesc, &argc, argv);
@@ -112,7 +108,7 @@ int main(int argc, char *argv[])
         if (!printVersion) {
             printUsage("pdfdetach", "<PDF-file>", argDesc);
         }
-        goto err0;
+        return 99;
     }
     fileName = new GooString(argv[1]);
 
@@ -126,51 +122,43 @@ int main(int argc, char *argv[])
     if (!(uMap = globalParams->getTextEncoding())) {
         error(errConfig, -1, "Couldn't get text encoding");
         delete fileName;
-        goto err0;
+        return 99;
     }
 
     // open PDF file
     if (ownerPassword[0] != '\001') {
-        ownerPW = new GooString(ownerPassword);
-    } else {
-        ownerPW = nullptr;
+        ownerPW = GooString(ownerPassword);
     }
     if (userPassword[0] != '\001') {
-        userPW = new GooString(userPassword);
-    } else {
-        userPW = nullptr;
+        userPW = GooString(userPassword);
     }
 
     doc = PDFDocFactory().createPDFDoc(*fileName, ownerPW, userPW);
 
-    if (userPW) {
-        delete userPW;
-    }
-    if (ownerPW) {
-        delete ownerPW;
-    }
     if (!doc->isOk()) {
-        exitCode = 1;
-        goto err2;
+        return 1;
     }
 
-    for (i = 0; i < doc->getCatalog()->numEmbeddedFiles(); ++i)
+    for (i = 0; i < doc->getCatalog()->numEmbeddedFiles(); ++i) {
         embeddedFiles.push_back(doc->getCatalog()->embeddedFile(i));
+    }
 
     nPages = doc->getCatalog()->getNumPages();
     for (i = 0; i < nPages; ++i) {
         page = doc->getCatalog()->getPage(i + 1);
-        if (!page)
+        if (!page) {
             continue;
+        }
         annots = page->getAnnots();
-        if (!annots)
+        if (!annots) {
             break;
+        }
 
-        for (j = 0; j < annots->getNumAnnots(); ++j) {
-            annot = annots->getAnnot(j);
-            if (annot->getType() != Annot::typeFileAttachment)
+        for (Annot *annot : annots->getAnnots()) {
+            if (annot->getType() != Annot::typeFileAttachment) {
                 continue;
-            embeddedFiles.push_back(new FileSpec(static_cast<AnnotFileAttachment *>(annot)->getFile()));
+            }
+            embeddedFiles.push_back(std::make_unique<FileSpec>(static_cast<AnnotFileAttachment *>(annot)->getFile()));
         }
     }
 
@@ -180,12 +168,11 @@ int main(int argc, char *argv[])
     if (doList) {
         printf("%d embedded files\n", nFiles);
         for (i = 0; i < nFiles; ++i) {
-            fileSpec = embeddedFiles[i];
+            const std::unique_ptr<FileSpec> &fileSpec = embeddedFiles[i];
             printf("%d: ", i + 1);
             s1 = fileSpec->getFileName();
             if (!s1) {
-                exitCode = 3;
-                goto err2;
+                return 3;
             }
             if (s1->hasUnicodeMarker()) {
                 isUnicode = true;
@@ -211,7 +198,7 @@ int main(int argc, char *argv[])
         // save all embedded files
     } else if (saveAll) {
         for (i = 0; i < nFiles; ++i) {
-            fileSpec = embeddedFiles[i];
+            const std::unique_ptr<FileSpec> &fileSpec = embeddedFiles[i];
             if (savePath[0]) {
                 n = strlen(savePath);
                 if (n > (int)sizeof(path) - 2) {
@@ -225,8 +212,7 @@ int main(int argc, char *argv[])
             }
             s1 = fileSpec->getFileName();
             if (!s1) {
-                exitCode = 3;
-                goto err2;
+                return 3;
             }
             if (s1->hasUnicodeMarker()) {
                 isUnicode = true;
@@ -244,8 +230,9 @@ int main(int argc, char *argv[])
                     ++j;
                 }
                 n = uMap->mapUnicode(u, uBuf, sizeof(uBuf));
-                if (p + n >= path + sizeof(path))
+                if (p + n >= path + sizeof(path)) {
                     break;
+                }
                 memcpy(p, uBuf, n);
                 p += n;
             }
@@ -253,13 +240,11 @@ int main(int argc, char *argv[])
 
             auto *embFile = fileSpec->getEmbeddedFile();
             if (!embFile || !embFile->isOk()) {
-                exitCode = 3;
-                goto err2;
+                return 3;
             }
             if (!embFile->save(path)) {
                 error(errIO, -1, "Error saving embedded file as '{0:s}'", p);
-                exitCode = 2;
-                goto err2;
+                return 2;
             }
         }
 
@@ -267,7 +252,7 @@ int main(int argc, char *argv[])
     } else {
         if (hasSaveFile) {
             for (i = 0; i < nFiles; ++i) {
-                fileSpec = embeddedFiles[i];
+                const std::unique_ptr<FileSpec> &fileSpec = embeddedFiles[i];
                 s1 = fileSpec->getFileName();
                 if (strcmp(s1->c_str(), saveFile) == 0) {
                     saveNum = i + 1;
@@ -277,18 +262,17 @@ int main(int argc, char *argv[])
         }
         if (saveNum < 1 || saveNum > nFiles) {
             error(errCommandLine, -1, hasSaveFile ? "Invalid file name" : "Invalid file number");
-            goto err2;
+            return 99;
         }
 
-        fileSpec = embeddedFiles[saveNum - 1];
+        const std::unique_ptr<FileSpec> &fileSpec = embeddedFiles[saveNum - 1];
         if (savePath[0]) {
             p = savePath;
         } else {
             p = path;
             s1 = fileSpec->getFileName();
             if (!s1) {
-                exitCode = 3;
-                goto err2;
+                return 3;
             }
             if (s1->hasUnicodeMarker()) {
                 isUnicode = true;
@@ -306,8 +290,9 @@ int main(int argc, char *argv[])
                     ++j;
                 }
                 n = uMap->mapUnicode(u, uBuf, sizeof(uBuf));
-                if (p + n >= path + sizeof(path))
+                if (p + n >= path + sizeof(path)) {
                     break;
+                }
                 memcpy(p, uBuf, n);
                 p += n;
             }
@@ -317,24 +302,13 @@ int main(int argc, char *argv[])
 
         auto *embFile = fileSpec->getEmbeddedFile();
         if (!embFile || !embFile->isOk()) {
-            exitCode = 3;
-            goto err2;
+            return 3;
         }
         if (!embFile->save(p)) {
             error(errIO, -1, "Error saving embedded file as '{0:s}'", p);
-            exitCode = 2;
-            goto err2;
+            return 2;
         }
     }
 
-    exitCode = 0;
-
-    // clean up
-err2:
-    for (auto &file : embeddedFiles)
-        delete file;
-    delete doc;
-err0:
-
-    return exitCode;
+    return 0;
 }

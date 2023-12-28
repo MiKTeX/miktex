@@ -28,7 +28,7 @@
 
 #include "UTF.h"
 
-int mapUTF8(Unicode u, char *buf, int bufSize);
+int POPPLER_PRIVATE_EXPORT mapUTF8(Unicode u, char *buf, int bufSize);
 
 int mapUTF16(Unicode u, char *buf, int bufSize);
 

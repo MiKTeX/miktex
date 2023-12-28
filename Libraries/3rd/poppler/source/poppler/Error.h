@@ -30,6 +30,7 @@
 
 #include <cstdarg>
 #include "poppler-config.h"
+#include "poppler_private_export.h"
 #include "goo/gfile.h"
 #include "goo/GooString.h"
 
@@ -51,8 +52,8 @@ enum ErrorCategory
 
 using ErrorCallback = void (*)(ErrorCategory category, Goffset pos, const char *msg);
 
-extern void setErrorCallback(ErrorCallback cbk);
+extern void POPPLER_PRIVATE_EXPORT setErrorCallback(ErrorCallback cbk);
 
-extern void CDECL error(ErrorCategory category, Goffset pos, const char *msg, ...) GOOSTRING_FORMAT;
+extern void CDECL POPPLER_PRIVATE_EXPORT error(ErrorCategory category, Goffset pos, const char *msg, ...) GOOSTRING_FORMAT;
 
 #endif

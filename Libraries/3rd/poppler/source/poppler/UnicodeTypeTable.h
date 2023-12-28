@@ -28,6 +28,7 @@
 #define UNICODETYPETABLE_H
 
 #include "CharTypes.h"
+#include "poppler_private_export.h"
 
 extern bool unicodeTypeL(Unicode c);
 
@@ -41,8 +42,8 @@ extern bool unicodeIsAlphabeticPresentationForm(Unicode c);
 
 extern Unicode unicodeToUpper(Unicode c);
 
-extern Unicode *unicodeNormalizeNFKC(const Unicode *in, int len, int *out_len, int **indices);
+extern Unicode POPPLER_PRIVATE_EXPORT *unicodeNormalizeNFKC(const Unicode *in, int len, int *out_len, int **indices);
 
-extern Unicode *unicodeNormalizeNFKC(const Unicode *in, int len, int *out_len, int **indices, bool reverseRTL);
+extern Unicode POPPLER_PRIVATE_EXPORT *unicodeNormalizeNFKC(const Unicode *in, int len, int *out_len, int **indices, bool reverseRTL);
 
 #endif

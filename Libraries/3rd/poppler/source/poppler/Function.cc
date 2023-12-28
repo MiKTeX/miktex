@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006, 2008-2010, 2013-2015, 2017-2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2008-2010, 2013-2015, 2017-2020, 2022, 2023 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2011 Andrea Canciani <ranma42@gmail.com>
@@ -208,7 +208,7 @@ void IdentityFunction::transform(const double *in, double *out) const
 // SampledFunction
 //------------------------------------------------------------------------
 
-SampledFunction::SampledFunction(Object *funcObj, Dict *dict)
+SampledFunction::SampledFunction(Object *funcObj, Dict *dict) : cacheOut {}
 {
     Stream *str;
     int sampleBits;
@@ -355,8 +355,9 @@ SampledFunction::SampledFunction(Object *funcObj, Dict *dict)
 
     //----- samples
     nSamples = n;
-    for (i = 0; i < m; ++i)
+    for (i = 0; i < m; ++i) {
         nSamples *= sampleSize[i];
+    }
     samples = (double *)gmallocn_checkoverflow(nSamples, sizeof(double));
     if (!samples) {
         error(errSyntaxError, -1, "Function has invalid number of samples");
@@ -462,7 +463,7 @@ void SampledFunction::transform(const double *in, double *out) const
     // map input values into sample array
     for (int i = 0; i < m; ++i) {
         x = (in[i] - domain[i][0]) * inputMul[i] + encode[i][0];
-        if (x < 0 || x != x) { // x!=x is a more portable version of isnan(x)
+        if (x < 0 || std::isnan(x)) {
             x = 0;
         } else if (x > sampleSize[i] - 1) {
             x = sampleSize[i] - 1;
@@ -525,12 +526,14 @@ bool SampledFunction::hasDifferentResultSet(const Function *func) const
 {
     if (func->getType() == 0) {
         SampledFunction *compTo = (SampledFunction *)func;
-        if (compTo->getSampleNumber() != nSamples)
+        if (compTo->getSampleNumber() != nSamples) {
             return true;
+        }
         const double *compSamples = compTo->getSamples();
         for (int i = 0; i < nSamples; i++) {
-            if (samples[i] != compSamples[i])
+            if (samples[i] != compSamples[i]) {
                 return true;
+            }
         }
     }
     return false;
@@ -1128,7 +1131,7 @@ PostScriptFunction::PostScriptFunction(Object *funcObj, Dict *dict)
     //----- parse the function
     codeString = new GooString();
     str->reset();
-    if (getToken(str).cmp("{") != 0) {
+    if (getToken(str)->cmp("{") != 0) {
         error(errSyntaxError, -1, "Expected '{{' at start of PostScript function");
         goto err1;
     }
@@ -1228,8 +1231,10 @@ bool PostScriptFunction::parseCode(Stream *str, int *codePtr)
     int a, b, mid, cmp;
 
     while (true) {
-        GooString tok = getToken(str);
-        const char *p = tok.c_str();
+        // This needs to be on the heap to help make parseCode
+        // able to call itself more times recursively
+        std::unique_ptr<GooString> tok = getToken(str);
+        const char *p = tok->c_str();
         if (isdigit(*p) || *p == '.' || *p == '-') {
             isReal = false;
             for (; *p; ++p) {
@@ -1241,13 +1246,13 @@ bool PostScriptFunction::parseCode(Stream *str, int *codePtr)
             resizeCode(*codePtr);
             if (isReal) {
                 code[*codePtr].type = psReal;
-                code[*codePtr].real = gatof(tok.c_str());
+                code[*codePtr].real = gatof(tok->c_str());
             } else {
                 code[*codePtr].type = psInt;
-                code[*codePtr].intg = atoi(tok.c_str());
+                code[*codePtr].intg = atoi(tok->c_str());
             }
             ++*codePtr;
-        } else if (!tok.cmp("{")) {
+        } else if (!tok->cmp("{")) {
             opPtr = *codePtr;
             *codePtr += 3;
             resizeCode(opPtr + 2);
@@ -1255,7 +1260,7 @@ bool PostScriptFunction::parseCode(Stream *str, int *codePtr)
                 return false;
             }
             tok = getToken(str);
-            if (!tok.cmp("{")) {
+            if (!tok->cmp("{")) {
                 elsePtr = *codePtr;
                 if (!parseCode(str, codePtr)) {
                     return false;
@@ -1264,7 +1269,7 @@ bool PostScriptFunction::parseCode(Stream *str, int *codePtr)
             } else {
                 elsePtr = -1;
             }
-            if (!tok.cmp("if")) {
+            if (!tok->cmp("if")) {
                 if (elsePtr >= 0) {
                     error(errSyntaxError, -1, "Got 'if' operator with two blocks in PostScript function");
                     return false;
@@ -1273,7 +1278,7 @@ bool PostScriptFunction::parseCode(Stream *str, int *codePtr)
                 code[opPtr].op = psOpIf;
                 code[opPtr + 2].type = psBlock;
                 code[opPtr + 2].blk = *codePtr;
-            } else if (!tok.cmp("ifelse")) {
+            } else if (!tok->cmp("ifelse")) {
                 if (elsePtr < 0) {
                     error(errSyntaxError, -1, "Got 'ifelse' operator with one block in PostScript function");
                     return false;
@@ -1288,7 +1293,7 @@ bool PostScriptFunction::parseCode(Stream *str, int *codePtr)
                 error(errSyntaxError, -1, "Expected if/ifelse operator in PostScript function");
                 return false;
             }
-        } else if (!tok.cmp("}")) {
+        } else if (!tok->cmp("}")) {
             resizeCode(*codePtr);
             code[*codePtr].type = psOperator;
             code[*codePtr].op = psOpReturn;
@@ -1301,7 +1306,7 @@ bool PostScriptFunction::parseCode(Stream *str, int *codePtr)
             // invariant: psOpNames[a] < tok < psOpNames[b]
             while (b - a > 1) {
                 mid = (a + b) / 2;
-                cmp = tok.cmp(psOpNames[mid]);
+                cmp = tok->cmp(psOpNames[mid]);
                 if (cmp > 0) {
                     a = mid;
                 } else if (cmp < 0) {
@@ -1311,7 +1316,7 @@ bool PostScriptFunction::parseCode(Stream *str, int *codePtr)
                 }
             }
             if (cmp != 0) {
-                error(errSyntaxError, -1, "Unknown operator '{0:t}' in PostScript function", &tok);
+                error(errSyntaxError, -1, "Unknown operator '{0:t}' in PostScript function", tok.get());
                 return false;
             }
             resizeCode(*codePtr);
@@ -1323,12 +1328,12 @@ bool PostScriptFunction::parseCode(Stream *str, int *codePtr)
     return true;
 }
 
-GooString PostScriptFunction::getToken(Stream *str)
+std::unique_ptr<GooString> PostScriptFunction::getToken(Stream *str)
 {
     int c;
     bool comment;
 
-    GooString s;
+    std::string s;
     comment = false;
     while (true) {
         if ((c = str->getChar()) == EOF) {
@@ -1346,10 +1351,10 @@ GooString PostScriptFunction::getToken(Stream *str)
         }
     }
     if (c == '{' || c == '}') {
-        s.append((char)c);
+        s.push_back((char)c);
     } else if (isdigit(c) || c == '.' || c == '-') {
         while (true) {
-            s.append((char)c);
+            s.push_back((char)c);
             c = str->lookChar();
             if (c == EOF || !(isdigit(c) || c == '.' || c == '-')) {
                 break;
@@ -1359,7 +1364,7 @@ GooString PostScriptFunction::getToken(Stream *str)
         }
     } else {
         while (true) {
-            s.append((char)c);
+            s.push_back((char)c);
             c = str->lookChar();
             if (c == EOF || !isalnum(c)) {
                 break;
@@ -1368,7 +1373,7 @@ GooString PostScriptFunction::getToken(Stream *str)
             codeString->append(c);
         }
     }
-    return s;
+    return std::make_unique<GooString>(s);
 }
 
 void PostScriptFunction::resizeCode(int newSize)
@@ -1428,8 +1433,9 @@ void PostScriptFunction::exec(PSStack *stack, int codePtr) const
                 r2 = stack->popNum();
                 r1 = stack->popNum();
                 result = atan2(r1, r2) * 180.0 / M_PI;
-                if (result < 0)
+                if (result < 0) {
                     result += 360.0;
+                }
                 stack->pushReal(result);
                 break;
             case psOpBitshift:

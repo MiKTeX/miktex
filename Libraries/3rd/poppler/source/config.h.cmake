@@ -18,14 +18,20 @@
 /* Do not hardcode the library location */
 #cmakedefine ENABLE_RELOCATABLE 1
 
-/* Build against zlib. */
-#cmakedefine ENABLE_ZLIB 1
-
 /* Use zlib instead of builtin zlib decoder to uncompress flate streams. */
 #cmakedefine ENABLE_ZLIB_UNCOMPRESS 1
 
 /* Build against libnss3 for digital signature validation */
 #cmakedefine ENABLE_NSS3 1
+
+/* Build against libgpgme for digital signature validation */
+#cmakedefine ENABLE_GPGME 1
+
+/* Signatures enabled */
+#cmakedefine ENABLE_SIGNATURES 1
+
+/* Default signature backend */
+#cmakedefine DEFAULT_SIGNATURE_BACKEND "${DEFAULT_SIGNATURE_BACKEND}"
 
 /* Use cairo for rendering. */
 #cmakedefine HAVE_CAIRO 1
@@ -70,9 +76,6 @@
 /* Defines if timegm is available on your system */
 #cmakedefine HAVE_TIMEGM 1
 
-/* Define if you have the iconv() function and it works. */
-#cmakedefine HAVE_ICONV 1
-
 /* Define to 1 if you have the `z' library (-lz). */
 #cmakedefine HAVE_LIBZ 1
 
@@ -82,12 +85,6 @@
 /* Define to 1 if you have the `mkstemp' function. */
 #cmakedefine HAVE_MKSTEMP 1
 
-/* Define to 1 if you have the `strcpy_s' function. */
-#cmakedefine HAVE_STRCPY_S 1
-
-/* Define to 1 if you have the `strcat_s' function. */
-#cmakedefine HAVE_STRCAT_S 1
-
 /* Defines if strtok_r is available on your system */
 #cmakedefine HAVE_STRTOK_R 1
 
@@ -96,9 +93,6 @@
 
 /* Define to 1 if you have the `popen' function. */
 #cmakedefine HAVE_POPEN 1
-
-/* Use splash for rendering. */
-#cmakedefine HAVE_SPLASH 1
 
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
    */
@@ -116,9 +110,6 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
-
-/* Define to 1 if you have the <codecvt> header file. */
-#cmakedefine HAVE_CODECVT
 
 /* Define to 1 if you have a big endian machine */
 #cmakedefine WORDS_BIGENDIAN 1
@@ -174,6 +165,9 @@
 /* Use win32 font configuration backend */
 #cmakedefine WITH_FONTCONFIGURATION_WIN32 1
 
+/* Use android font configuration backend */
+#cmakedefine WITH_FONTCONFIGURATION_ANDROID 1
+
 /* OpenJPEG with the OPJ_DPARAMETERS_IGNORE_PCLR_CMAP_CDEF_FLAG flag */
 #cmakedefine WITH_OPENJPEG_IGNORE_PCLR_CMAP_CDEF_FLAG 1
 
@@ -188,6 +182,8 @@
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 #define popen _popen
 #define pclose _pclose
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
 #endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */
@@ -198,3 +194,7 @@
 
 /* Define for large files, on AIX-style hosts. */
 /* TODO This is wrong, port if needed #undef _LARGE_FILES */
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif

@@ -157,8 +157,9 @@ bool SplashFTFont::getGlyph(int c, int xFrac, int yFrac, SplashGlyphBitmap *bitm
 static FT_Int32 getFTLoadFlags(bool type1, bool trueType, bool aa, bool enableFreeTypeHinting, bool enableSlightHinting)
 {
     int ret = FT_LOAD_DEFAULT;
-    if (aa)
+    if (aa) {
         ret |= FT_LOAD_NO_BITMAP;
+    }
 
     if (enableFreeTypeHinting) {
         if (enableSlightHinting) {

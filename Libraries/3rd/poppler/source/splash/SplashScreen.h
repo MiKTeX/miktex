@@ -11,7 +11,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2009, 2018, 2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2018, 2020, 2021 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -32,22 +32,23 @@
 class SplashScreen
 {
 public:
-    SplashScreen(const SplashScreenParams *params);
-    SplashScreen(SplashScreen *screen);
+    explicit SplashScreen(const SplashScreenParams *params);
+    explicit SplashScreen(const SplashScreen *screen);
     ~SplashScreen();
 
     SplashScreen(const SplashScreen &) = delete;
     SplashScreen &operator=(const SplashScreen &) = delete;
 
-    SplashScreen *copy() { return new SplashScreen(this); }
+    SplashScreen *copy() const { return new SplashScreen(this); }
 
     // Return the computed pixel value (0=black, 1=white) for the gray
     // level <value> at (<x>, <y>).
     int test(int x, int y, unsigned char value)
     {
         int xx, yy;
-        if (mat == nullptr)
+        if (mat == nullptr) {
             createMatrix();
+        }
         xx = x & sizeM1;
         yy = y & sizeM1;
         return value < mat[(yy << log2Size) + xx] ? 0 : 1;
@@ -58,8 +59,9 @@ public:
     // solid white or black.
     bool isStatic(unsigned char value)
     {
-        if (mat == nullptr)
+        if (mat == nullptr) {
             createMatrix();
+        }
         return value < minVal || value >= maxVal;
     }
 

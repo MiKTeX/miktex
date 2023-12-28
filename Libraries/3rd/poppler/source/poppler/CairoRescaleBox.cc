@@ -233,8 +233,9 @@ static int compute_coverage(int coverage[], int src_length, int dest_length)
            floor((i+1)*scale) - ceil(i*scale) <= floor(scale)
         */
 
-        if (left_fract == 0.)
+        if (left_fract == 0.) {
             count--;
+        }
 
         /* compute how much the right-most pixel contributes */
         overage = ratio * (right_fract);
@@ -286,8 +287,9 @@ bool CairoRescaleBox::downScaleImage(unsigned orig_width, unsigned orig_height, 
 
     temp_buf = (uint32_t *)gmallocn3((orig_height + scaled_height - 1) / scaled_height + 1, scaled_width, sizeof(uint32_t));
 
-    if (!x_coverage || !y_coverage || !scanline || !temp_buf)
+    if (!x_coverage || !y_coverage || !scanline || !temp_buf) {
         goto cleanup;
+    }
 
     pixel_coverage_x = compute_coverage(x_coverage, orig_width, scaled_width);
     pixel_coverage_y = compute_coverage(y_coverage, orig_height, scaled_height);

@@ -1,6 +1,6 @@
 /* poppler-sound.cc: qt interface to poppler
  * Copyright (C) 2008, 2010, Pino Toscano <pino@kde.org>
- * Copyright (C) 2008, 2018, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2008, 2018, 2022, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2010, Carlos Garcia Campos <carlosgc@gnome.org>
  * Copyright (C) 2012, Tobias Koenig <tobias.koenig@kdab.com>
  *
@@ -34,12 +34,12 @@ class MovieData
 public:
     MovieData() : m_movieObj(nullptr) { }
 
-    ~MovieData() { delete m_movieObj; }
+    ~MovieData() = default;
 
     MovieData(const MovieData &) = delete;
     MovieData &operator=(const MovieData &) = delete;
 
-    Movie *m_movieObj;
+    std::unique_ptr<Movie> m_movieObj;
     QSize m_size;
     int m_rotation;
     QImage m_posterImage;

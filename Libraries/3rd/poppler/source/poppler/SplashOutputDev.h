@@ -20,7 +20,7 @@
 // Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
 // Copyright (C) 2011 Andrea Canciani <ranma42@gmail.com>
 // Copyright (C) 2011, 2017 Adrian Johnson <ajohnson@redneon.com>
-// Copyright (C) 2012, 2015, 2018-2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2012, 2015, 2018-2021 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2015, 2016 William Bader <williambader@hotmail.com>
 // Copyright (C) 2018 Stefan Brüns <stefan.bruens@rwth-aachen.de>
 //
@@ -35,6 +35,7 @@
 #include "splash/SplashTypes.h"
 #include "splash/SplashPattern.h"
 #include "poppler-config.h"
+#include "poppler_private_export.h"
 #include "OutputDev.h"
 #include "GfxState.h"
 #include "GlobalParams.h"
@@ -60,7 +61,7 @@ class SplashFunctionPattern : public SplashPattern
 public:
     SplashFunctionPattern(SplashColorMode colorMode, GfxState *state, GfxFunctionShading *shading);
 
-    SplashPattern *copy() override { return new SplashFunctionPattern(colorMode, state, (GfxFunctionShading *)shading); }
+    SplashPattern *copy() const override { return new SplashFunctionPattern(colorMode, state, (GfxFunctionShading *)shading); }
 
     ~SplashFunctionPattern() override;
 
@@ -116,7 +117,7 @@ class SplashAxialPattern : public SplashUnivariatePattern
 public:
     SplashAxialPattern(SplashColorMode colorMode, GfxState *state, GfxAxialShading *shading);
 
-    SplashPattern *copy() override { return new SplashAxialPattern(colorMode, state, (GfxAxialShading *)shading); }
+    SplashPattern *copy() const override { return new SplashAxialPattern(colorMode, state, (GfxAxialShading *)shading); }
 
     ~SplashAxialPattern() override;
 
@@ -133,7 +134,7 @@ class SplashGouraudPattern : public SplashGouraudColor
 public:
     SplashGouraudPattern(bool bDirectColorTranslation, GfxState *state, GfxGouraudTriangleShading *shading);
 
-    SplashPattern *copy() override { return new SplashGouraudPattern(bDirectColorTranslation, state, shading); }
+    SplashPattern *copy() const override { return new SplashGouraudPattern(bDirectColorTranslation, state, shading); }
 
     ~SplashGouraudPattern() override;
 
@@ -169,7 +170,7 @@ class SplashRadialPattern : public SplashUnivariatePattern
 public:
     SplashRadialPattern(SplashColorMode colorMode, GfxState *state, GfxRadialShading *shading);
 
-    SplashPattern *copy() override { return new SplashRadialPattern(colorMode, state, (GfxRadialShading *)shading); }
+    SplashPattern *copy() const override { return new SplashRadialPattern(colorMode, state, (GfxRadialShading *)shading); }
 
     ~SplashRadialPattern() override;
 
@@ -189,12 +190,11 @@ private:
 // SplashOutputDev
 //------------------------------------------------------------------------
 
-class SplashOutputDev : public OutputDev
+class POPPLER_PRIVATE_EXPORT SplashOutputDev : public OutputDev
 {
 public:
     // Constructor.
-    SplashOutputDev(SplashColorMode colorModeA, int bitmapRowPadA, bool reverseVideoA, SplashColorPtr paperColorA, bool bitmapTopDownA = true, SplashThinLineMode thinLineMode = splashThinLineDefault,
-                    bool overprintPreviewA = globalParams->getOverprintPreview());
+    SplashOutputDev(SplashColorMode colorModeA, int bitmapRowPadA, bool reverseVideoA, SplashColorPtr paperColorA, bool bitmapTopDownA = true, SplashThinLineMode thinLineMode = splashThinLineDefault, bool overprintPreviewA = false);
 
     // Destructor.
     ~SplashOutputDev() override;
@@ -265,8 +265,7 @@ public:
     void stroke(GfxState *state) override;
     void fill(GfxState *state) override;
     void eoFill(GfxState *state) override;
-    bool tilingPatternFill(GfxState *state, Gfx *gfx, Catalog *catalog, Object *str, const double *ptm, int paintType, int tilingType, Dict *resDict, const double *mat, const double *bbox, int x0, int y0, int x1, int y1, double xStep,
-                           double yStep) override;
+    bool tilingPatternFill(GfxState *state, Gfx *gfx, Catalog *catalog, GfxTilingPattern *tPat, const double *mat, int x0, int y0, int x1, int y1, double xStep, double yStep) override;
     bool functionShadedFill(GfxState *state, GfxFunctionShading *shading) override;
     bool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax) override;
     bool radialShadedFill(GfxState *state, GfxRadialShading *shading, double tMin, double tMax) override;

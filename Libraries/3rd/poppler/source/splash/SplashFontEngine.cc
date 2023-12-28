@@ -28,10 +28,6 @@
 //========================================================================
 
 #include <config.h>
-#if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
-#endif
 
 #include <cstdlib>
 #include <cstdio>
@@ -100,8 +96,9 @@ SplashFontFile *SplashFontEngine::loadType1Font(SplashFontFileID *idA, SplashFon
     // semantics, this will remove the last link; otherwise it will
     // return an error, leaving the file to be deleted later (if
     // loadXYZFont failed, the file will always be deleted)
-    if (src->isFile)
+    if (src->isFile) {
         src->unref();
+    }
 
     return fontFile;
 }
@@ -118,8 +115,9 @@ SplashFontFile *SplashFontEngine::loadType1CFont(SplashFontFileID *idA, SplashFo
     // semantics, this will remove the last link; otherwise it will
     // return an error, leaving the file to be deleted later (if
     // loadXYZFont failed, the file will always be deleted)
-    if (src->isFile)
+    if (src->isFile) {
         src->unref();
+    }
 
     return fontFile;
 }
@@ -136,8 +134,9 @@ SplashFontFile *SplashFontEngine::loadOpenTypeT1CFont(SplashFontFileID *idA, Spl
     // semantics, this will remove the last link; otherwise it will
     // return an error, leaving the file to be deleted later (if
     // loadXYZFont failed, the file will always be deleted)
-    if (src->isFile)
+    if (src->isFile) {
         src->unref();
+    }
 
     return fontFile;
 }
@@ -154,8 +153,9 @@ SplashFontFile *SplashFontEngine::loadCIDFont(SplashFontFileID *idA, SplashFontS
     // semantics, this will remove the last link; otherwise it will
     // return an error, leaving the file to be deleted later (if
     // loadXYZFont failed, the file will always be deleted)
-    if (src->isFile)
+    if (src->isFile) {
         src->unref();
+    }
 
     return fontFile;
 }
@@ -172,8 +172,9 @@ SplashFontFile *SplashFontEngine::loadOpenTypeCFFFont(SplashFontFileID *idA, Spl
     // semantics, this will remove the last link; otherwise it will
     // return an error, leaving the file to be deleted later (if
     // loadXYZFont failed, the file will always be deleted)
-    if (src->isFile)
+    if (src->isFile) {
         src->unref();
+    }
 
     return fontFile;
 }
@@ -194,8 +195,9 @@ SplashFontFile *SplashFontEngine::loadTrueTypeFont(SplashFontFileID *idA, Splash
     // semantics, this will remove the last link; otherwise it will
     // return an error, leaving the file to be deleted later (if
     // loadXYZFont failed, the file will always be deleted)
-    if (src->isFile)
+    if (src->isFile) {
         src->unref();
+    }
 
     return fontFile;
 }

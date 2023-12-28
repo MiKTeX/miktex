@@ -28,16 +28,12 @@
 #include <string>
 
 #include "CharTypes.h"
+#include "poppler_private_export.h"
 
 class GooString;
 
-#if defined(MIKTEX)
-#include <miktex/poppler/export.h>
-extern MIKTEX_POPPLER_EXPORT const Unicode pdfDocEncoding[256];
-#else
-extern const Unicode pdfDocEncoding[256];
-#endif
+extern const Unicode POPPLER_PRIVATE_EXPORT pdfDocEncoding[256];
 
-char *pdfDocEncodingToUTF16(const std::string &orig, int *length);
+char POPPLER_PRIVATE_EXPORT *pdfDocEncodingToUTF16(const std::string &orig, int *length);
 
 #endif

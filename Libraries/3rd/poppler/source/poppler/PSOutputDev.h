@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Martin Kretzschmar <martink@gnome.org>
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2006-2008, 2012, 2013, 2015, 2017-2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2008, 2012, 2013, 2015, 2017-2023 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007 Brad Hards <bradh@kde.org>
 // Copyright (C) 2009-2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
@@ -26,8 +26,11 @@
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
-// Copyright (C) 2018 Philipp Knechtges <philipp-dev@knechtges.com>
-// Copyright (C) 2019 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2018, 2020 Philipp Knechtges <philipp-dev@knechtges.com>
+// Copyright (C) 2019, 2023 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2021 Hubert Figuiere <hub@figuiere.net>
+// Copyright (C) 2021 Christian Persch <chpe@src.gnome.org>
+// Copyright (C) 2023 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -38,17 +41,21 @@
 #define PSOUTPUTDEV_H
 
 #include "poppler-config.h"
+#include "poppler_private_export.h"
 #include <cstddef>
 #include "Object.h"
 #include "GfxState.h"
 #include "GlobalParams.h"
 #include "OutputDev.h"
+#include "fofi/FoFiBase.h"
 #include <set>
 #include <map>
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
 #include <string>
+
+#include "splash/Splash.h"
 
 class PDFDoc;
 class XRef;
@@ -68,6 +75,16 @@ class PSOutputDev;
 //------------------------------------------------------------------------
 // PSOutputDev
 //------------------------------------------------------------------------
+
+enum PSLevel
+{
+    psLevel1,
+    psLevel1Sep,
+    psLevel2,
+    psLevel2Sep,
+    psLevel3,
+    psLevel3Sep
+};
 
 enum PSOutMode
 {
@@ -97,23 +114,26 @@ enum PSForceRasterize
     psNeverRasterize // never rasterize, may produce incorrect output
 };
 
-typedef void (*PSOutputFunc)(void *stream, const char *data, int len);
-
 typedef GooString *(*PSOutCustomCodeCbk)(PSOutputDev *psOut, PSOutCustomCodeLocation loc, int n, void *data);
 
-class PSOutputDev : public OutputDev
+class POPPLER_PRIVATE_EXPORT PSOutputDev : public OutputDev
 {
 public:
     // Open a PostScript output file, and write the prolog.
     // pages has to be sorted in increasing order
     PSOutputDev(const char *fileName, PDFDoc *docA, char *psTitleA, const std::vector<int> &pages, PSOutMode modeA, int paperWidthA = -1, int paperHeightA = -1, bool noCrop = false, bool duplexA = true, int imgLLXA = 0, int imgLLYA = 0,
-                int imgURXA = 0, int imgURYA = 0, PSForceRasterize forceRasterizeA = psRasterizeWhenNeeded, bool manualCtrlA = false, PSOutCustomCodeCbk customCodeCbkA = nullptr, void *customCodeCbkDataA = nullptr);
+                int imgURXA = 0, int imgURYA = 0, PSForceRasterize forceRasterizeA = psRasterizeWhenNeeded, bool manualCtrlA = false, PSOutCustomCodeCbk customCodeCbkA = nullptr, void *customCodeCbkDataA = nullptr,
+                PSLevel levelA = psLevel2);
+
+    // Open a PSOutputDev that will write to a file descriptor
+    PSOutputDev(int fdA, PDFDoc *docA, char *psTitleA, const std::vector<int> &pages, PSOutMode modeA, int paperWidthA = -1, int paperHeightA = -1, bool noCrop = false, bool duplexA = true, int imgLLXA = 0, int imgLLYA = 0, int imgURXA = 0,
+                int imgURYA = 0, PSForceRasterize forceRasterizeA = psRasterizeWhenNeeded, bool manualCtrlA = false, PSOutCustomCodeCbk customCodeCbkA = nullptr, void *customCodeCbkDataA = nullptr, PSLevel levelA = psLevel2);
 
     // Open a PSOutputDev that will write to a generic stream.
     // pages has to be sorted in increasing order
-    PSOutputDev(PSOutputFunc outputFuncA, void *outputStreamA, char *psTitleA, PDFDoc *docA, const std::vector<int> &pages, PSOutMode modeA, int paperWidthA = -1, int paperHeightA = -1, bool noCrop = false, bool duplexA = true,
+    PSOutputDev(FoFiOutputFunc outputFuncA, void *outputStreamA, char *psTitleA, PDFDoc *docA, const std::vector<int> &pages, PSOutMode modeA, int paperWidthA = -1, int paperHeightA = -1, bool noCrop = false, bool duplexA = true,
                 int imgLLXA = 0, int imgLLYA = 0, int imgURXA = 0, int imgURYA = 0, PSForceRasterize forceRasterizeA = psRasterizeWhenNeeded, bool manualCtrlA = false, PSOutCustomCodeCbk customCodeCbkA = nullptr,
-                void *customCodeCbkDataA = nullptr);
+                void *customCodeCbkDataA = nullptr, PSLevel levelA = psLevel2);
 
     // Destructor -- writes the trailer and closes the file.
     ~PSOutputDev() override;
@@ -217,8 +237,7 @@ public:
     void stroke(GfxState *state) override;
     void fill(GfxState *state) override;
     void eoFill(GfxState *state) override;
-    bool tilingPatternFill(GfxState *state, Gfx *gfx, Catalog *cat, Object *str, const double *pmat, int paintType, int tilingType, Dict *resDict, const double *mat, const double *bbox, int x0, int y0, int x1, int y1, double xStep,
-                           double yStep) override;
+    bool tilingPatternFill(GfxState *state, Gfx *gfx, Catalog *cat, GfxTilingPattern *tPat, const double *mat, int x0, int y0, int x1, int y1, double xStep, double yStep) override;
     bool functionShadedFill(GfxState *state, GfxFunctionShading *shading) override;
     bool axialShadedFill(GfxState *state, GfxAxialShading *shading, double /*tMin*/, double /*tMax*/) override;
     bool radialShadedFill(GfxState *state, GfxRadialShading *shading, double /*sMin*/, double /*sMax*/) override;
@@ -289,10 +308,18 @@ public:
     void setDisplayText(bool display) { displayText = display; }
 
     void setPSCenter(bool center) { psCenter = center; }
+    void setPSExpandSmaller(bool expand) { psExpandSmaller = expand; }
+    void setPSShrinkLarger(bool shrink) { psShrinkLarger = shrink; }
+    void setOverprintPreview(bool overprintPreviewA) { overprintPreview = overprintPreviewA; }
     void setRasterAntialias(bool a) { rasterAntialias = a; }
     void setForceRasterize(PSForceRasterize f) { forceRasterize = f; }
     void setRasterResolution(double r) { rasterResolution = r; }
-    void setRasterMono(bool b) { rasterMono = b; }
+    void setRasterMono(bool b)
+    {
+        processColorFormat = splashModeMono8;
+        processColorFormatSpecified = true;
+    }
+
     void setUncompressPreloadedImages(bool b) { uncompressPreloadedImages = b; }
 
     bool getEmbedType1() const { return embedType1; }
@@ -303,16 +330,7 @@ public:
     bool getOptimizeColorSpace() const { return optimizeColorSpace; }
     bool getPassLevel1CustomColor() const { return passLevel1CustomColor; }
     bool getEnableLZW() const { return enableLZW; };
-    bool getEnableFlate() const
-#ifdef ENABLE_ZLIB
-    {
-        return enableFlate;
-    }
-#else
-    {
-        return false;
-    }
-#endif
+    bool getEnableFlate() const { return enableFlate; }
     void setEmbedType1(bool b) { embedType1 = b; }
     void setEmbedTrueType(bool b) { embedTrueType = b; }
     void setEmbedCIDPostScript(bool b) { embedCIDPostScript = b; }
@@ -327,23 +345,39 @@ public:
     void setEnableLZW(bool b) { enableLZW = b; }
     void setEnableFlate(bool b) { enableFlate = b; }
 
+    void setProcessColorFormat(SplashColorMode format)
+    {
+        processColorFormat = format;
+        processColorFormatSpecified = true;
+    }
+
 private:
-    void init(PSOutputFunc outputFuncA, void *outputStreamA, PSFileType fileTypeA, char *psTitleA, PDFDoc *doc, const std::vector<int> &pages, PSOutMode modeA, int imgLLXA, int imgLLYA, int imgURXA, int imgURYA, bool manualCtrlA,
-              int paperWidthA, int paperHeightA, bool noCropA, bool duplexA);
+    struct PSOutPaperSize
+    {
+        PSOutPaperSize() = default;
+        PSOutPaperSize(std::string &&nameA, int wA, int hA) : name(nameA), w(wA), h(hA) { }
+        ~PSOutPaperSize() = default;
+        PSOutPaperSize &operator=(const PSOutPaperSize &) = delete;
+        std::string name;
+        int w, h;
+    };
+
+    void init(FoFiOutputFunc outputFuncA, void *outputStreamA, PSFileType fileTypeA, char *psTitleA, PDFDoc *doc, const std::vector<int> &pages, PSOutMode modeA, int imgLLXA, int imgLLYA, int imgURXA, int imgURYA, bool manualCtrlA,
+              int paperWidthA, int paperHeightA, bool noCropA, bool duplexA, PSLevel levelA);
     void postInit();
     void setupResources(Dict *resDict);
     void setupFonts(Dict *resDict);
     void setupFont(GfxFont *font, Dict *parentResDict);
     void setupEmbeddedType1Font(Ref *id, GooString *psName);
     void updateFontMaxValidGlyph(GfxFont *font, int maxValidGlyph);
-    void setupExternalType1Font(GooString *fileName, GooString *psName);
+    void setupExternalType1Font(const GooString *fileName, GooString *psName);
     void setupEmbeddedType1CFont(GfxFont *font, Ref *id, GooString *psName);
     void setupEmbeddedOpenTypeT1CFont(GfxFont *font, Ref *id, GooString *psName);
     void setupEmbeddedTrueTypeFont(GfxFont *font, Ref *id, GooString *psName);
-    void setupExternalTrueTypeFont(GfxFont *font, GooString *fileName, GooString *psName);
+    void setupExternalTrueTypeFont(GfxFont *font, const GooString *fileName, GooString *psName);
     void setupEmbeddedCIDType0Font(GfxFont *font, Ref *id, GooString *psName);
     void setupEmbeddedCIDTrueTypeFont(GfxFont *font, Ref *id, GooString *psName, bool needVerticalMetrics);
-    void setupExternalCIDTrueTypeFont(GfxFont *font, GooString *fileName, GooString *psName, bool needVerticalMetrics);
+    void setupExternalCIDTrueTypeFont(GfxFont *font, const GooString *fileName, GooString *psName, bool needVerticalMetrics);
     void setupEmbeddedOpenTypeCFFFont(GfxFont *font, Ref *id, GooString *psName);
     void setupType3Font(GfxFont *font, GooString *psName, Dict *parentResDict);
     GooString *makePSFontName(GfxFont *font, const Ref *id);
@@ -369,7 +403,7 @@ private:
     void opiTransform(GfxState *state, double x0, double y0, double *x1, double *y1);
 #endif
     void cvtFunction(const Function *func, bool invertPSFunction = false);
-    GooString *filterPSName(const GooString *name);
+    static std::string filterPSName(const std::string &name);
 
     // Write the document-level setup.
     void writeDocSetup(Catalog *catalog, const std::vector<int> &pageList, bool duplexA);
@@ -377,7 +411,7 @@ private:
     void writePSChar(char c);
     void writePS(const char *s);
     void writePSBuf(const char *s, int len);
-    void writePSFmt(const char *fmt, ...);
+    void writePSFmt(const char *fmt, ...) GOOSTRING_FORMAT;
     void writePSString(const std::string &s);
     void writePSName(const char *s);
     GooString *filterPSLabel(GooString *label, bool *needParens = nullptr);
@@ -400,7 +434,7 @@ private:
     char *psTitle;
     bool postInitDone; // true if postInit() was called
 
-    PSOutputFunc outputFunc;
+    FoFiOutputFunc outputFunc;
     void *outputStream;
     PSFileType fileType; // file / pipe / stdout
     bool manualCtrl;
@@ -415,9 +449,7 @@ private:
     PDFDoc *doc;
     XRef *xref; // the xref table for this PDF file
 
-    Ref *fontIDs; // list of object IDs of all used fonts
-    int fontIDLen; // number of entries in fontIDs array
-    int fontIDSize; // size of fontIDs array
+    std::vector<Ref> fontIDs; // list of object IDs of all used fonts
     std::set<int> resourceIDs; // list of object IDs of objects containing Resources we've already set up
     std::unordered_set<std::string> fontNames; // all used font names
     std::unordered_map<std::string, int> perFontMaxValidGlyph; // max valid glyph of each font
@@ -440,8 +472,8 @@ private:
     int numTilingPatterns; // current number of nested tiling patterns
     int nextFunc; // next unique number to use for a function
 
-    std::vector<PSOutPaperSize *> *paperSizes; // list of used paper sizes, if paperMatch
-                                               //   is true
+    std::vector<PSOutPaperSize> paperSizes; // list of used paper sizes, if paperMatch
+                                            //   is true
     std::map<int, int> pagePaperSize; // page num to paperSize entry mapping
     double tx0, ty0; // global translation
     double xScale0, yScale0; // global scaling
@@ -473,12 +505,12 @@ private:
     PSForceRasterize forceRasterize; // controls the rasterization of pages into images
     bool displayText; // displayText
     bool psCenter; // center pages on the paper
+    bool psExpandSmaller = false; // expand smaller pages to fill paper
+    bool psShrinkLarger = true; // shrink larger pages to fit paper
+    bool overprintPreview = false; // enable overprint preview
     bool rasterAntialias; // antialias on rasterize
     bool uncompressPreloadedImages;
     double rasterResolution; // PostScript rasterization resolution (dpi)
-    bool rasterMono; // true to do PostScript rasterization
-                     //   in monochrome (gray); false to do it
-                     //   in color (RGB/CMYK)
     bool embedType1; // embed Type 1 fonts?
     bool embedTrueType; // embed TrueType fonts?
     bool embedCIDPostScript; // embed CID PostScript fonts?
@@ -497,6 +529,9 @@ private:
     bool enableLZW; // enable LZW compression
     bool enableFlate; // enable Flate compression
 
+    SplashColorMode processColorFormat;
+    bool processColorFormatSpecified;
+
     std::unordered_set<std::string> iccEmitted; // contains ICCBased CSAs that have been emitted
 
 #ifdef OPI_SUPPORT
@@ -505,6 +540,7 @@ private:
 #endif
 
     bool ok; // set up ok?
+    std::set<int> patternsBeingTiled; // the patterns that are being tiled
 
     friend class WinPDFPrinter;
 };

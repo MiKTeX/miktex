@@ -78,10 +78,11 @@ static inline int splashFloor(SplashCoord x)
     __asm fldcw WORD PTR oldCW;
     return result;
 #else
-    if (x > 0)
+    if (x > 0) {
         return (int)x;
-    else
+    } else {
         return (int)floor(x);
+    }
 #endif
 }
 

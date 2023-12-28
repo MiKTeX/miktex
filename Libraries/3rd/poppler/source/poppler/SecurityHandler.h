@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2012, 2018, 2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2012, 2018, 2020-2022 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -27,6 +27,8 @@
 
 #include "Object.h"
 
+#include <optional>
+
 class GooString;
 class PDFDoc;
 
@@ -39,7 +41,7 @@ class SecurityHandler
 public:
     static SecurityHandler *make(PDFDoc *docA, Object *encryptDictA);
 
-    SecurityHandler(PDFDoc *docA);
+    explicit SecurityHandler(PDFDoc *docA);
     virtual ~SecurityHandler();
 
     SecurityHandler(const SecurityHandler &) = delete;
@@ -57,12 +59,12 @@ public:
     // document can be opened (if it's unencrypted, or if a correct
     // password is obtained); false otherwise (encrypted and no correct
     // password).
-    bool checkEncryption(const GooString *ownerPassword, const GooString *userPassword);
+    bool checkEncryption(const std::optional<GooString> &ownerPassword, const std::optional<GooString> &userPassword);
 
     // Create authorization data for the specified owner and user
     // passwords.  If the security handler doesn't support "batch" mode,
     // this function should return NULL.
-    virtual void *makeAuthData(const GooString *ownerPassword, const GooString *userPassword) = 0;
+    virtual void *makeAuthData(const std::optional<GooString> &ownerPassword, const std::optional<GooString> &userPassword) = 0;
 
     // Free the authorization data returned by makeAuthData or
     // getAuthData.
@@ -99,13 +101,13 @@ public:
     ~StandardSecurityHandler() override;
 
     bool isUnencrypted() const override;
-    void *makeAuthData(const GooString *ownerPassword, const GooString *userPassword) override;
+    void *makeAuthData(const std::optional<GooString> &ownerPassword, const std::optional<GooString> &userPassword) override;
     void freeAuthData(void *authData) override;
     bool authorize(void *authData) override;
     int getPermissionFlags() const override { return permFlags; }
     bool getOwnerPasswordOk() const override { return ownerPasswordOk; }
     const unsigned char *getFileKey() const override { return fileKey; }
-    int getFileKeyLength() const override { return fileKeyLength; }
+    int getFileKeyLength() const override { return ok ? fileKeyLength : 0; }
     int getEncVersion() const override { return encVersion; }
     int getEncRevision() const override { return encRevision; }
     CryptAlgorithm getEncAlgorithm() const override { return encAlgorithm; }

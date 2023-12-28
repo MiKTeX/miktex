@@ -17,7 +17,8 @@
 #define GBASENAME_H
 
 #include <string>
+#include "poppler_private_export.h"
 
-std::string gbasename(const char *filename);
+std::string POPPLER_PRIVATE_EXPORT gbasename(const char *filename);
 
 #endif // ndef GBASENAME_H

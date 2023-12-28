@@ -12,7 +12,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2018 Stefan Brüns <stefan.bruens@rwth-aachen.de>
-// Copyright (C) 2018-2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2018-2021 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
 //
 // To see a description of the changes please see the Changelog file that
@@ -51,24 +51,6 @@ SplashPath::SplashPath()
     curSubpath = 0;
     hints = nullptr;
     hintsLength = hintsSize = 0;
-}
-
-SplashPath::SplashPath(SplashPath *path)
-{
-    length = path->length;
-    size = path->size;
-    pts = (SplashPathPoint *)gmallocn(size, sizeof(SplashPathPoint));
-    flags = (unsigned char *)gmallocn(size, sizeof(unsigned char));
-    memcpy(pts, path->pts, length * sizeof(SplashPathPoint));
-    memcpy(flags, path->flags, length * sizeof(unsigned char));
-    curSubpath = path->curSubpath;
-    if (path->hints) {
-        hintsLength = hintsSize = path->hintsLength;
-        hints = (SplashPathHint *)gmallocn(hintsSize, sizeof(SplashPathHint));
-        memcpy(hints, path->hints, hintsLength * sizeof(SplashPathHint));
-    } else {
-        hints = nullptr;
-    }
 }
 
 SplashPath::SplashPath(SplashPath &&path) noexcept
@@ -124,8 +106,9 @@ void SplashPath::append(SplashPath *path)
     int i;
 
     grow(path->length);
-    if (unlikely(size == 0))
+    if (unlikely(size == 0)) {
         return;
+    }
 
     curSubpath = length + path->curSubpath;
     for (i = 0; i < path->length; ++i) {
@@ -141,8 +124,9 @@ SplashError SplashPath::moveTo(SplashCoord x, SplashCoord y)
         return splashErrBogusPath;
     }
     grow(1);
-    if (unlikely(size == 0))
+    if (unlikely(size == 0)) {
         return splashErrBogusPath;
+    }
     pts[length].x = x;
     pts[length].y = y;
     flags[length] = splashPathFirst | splashPathLast;
@@ -157,8 +141,9 @@ SplashError SplashPath::lineTo(SplashCoord x, SplashCoord y)
     }
     flags[length - 1] &= ~splashPathLast;
     grow(1);
-    if (unlikely(size == 0))
+    if (unlikely(size == 0)) {
         return splashErrBogusPath;
+    }
     pts[length].x = x;
     pts[length].y = y;
     flags[length] = splashPathLast;
@@ -173,8 +158,9 @@ SplashError SplashPath::curveTo(SplashCoord x1, SplashCoord y1, SplashCoord x2, 
     }
     flags[length - 1] &= ~splashPathLast;
     grow(3);
-    if (unlikely(size == 0))
+    if (unlikely(size == 0)) {
         return splashErrBogusPath;
+    }
     pts[length].x = x1;
     pts[length].y = y1;
     flags[length] = splashPathCurve;

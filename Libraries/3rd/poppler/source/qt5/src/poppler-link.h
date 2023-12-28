@@ -1,5 +1,5 @@
 /* poppler-link.h: qt interface to poppler
- * Copyright (C) 2006, 2013, 2016, 2018, 2019, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2006, 2013, 2016, 2018, 2019, 2021, 2022, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2007-2008, 2010, Pino Toscano <pino@kde.org>
  * Copyright (C) 2010, 2012, Guillermo Amaral <gamaral@kdab.com>
  * Copyright (C) 2012, Tobias Koenig <tokoe@kdab.com>
@@ -90,8 +90,8 @@ public:
     };
 
     /// \cond PRIVATE
-    LinkDestination(const LinkDestinationData &data);
-    LinkDestination(const QString &description);
+    explicit LinkDestination(const LinkDestinationData &data);
+    explicit LinkDestination(const QString &description);
     /// \endcond
     /**
      * Copy constructor.
@@ -180,7 +180,7 @@ class POPPLER_QT5_EXPORT Link
 {
 public:
     /// \cond PRIVATE
-    Link(const QRectF &linkArea);
+    explicit Link(const QRectF &linkArea);
     /// \endcond
 
     /**
@@ -230,7 +230,7 @@ public:
 
 protected:
     /// \cond PRIVATE
-    Link(LinkPrivate &dd);
+    explicit Link(LinkPrivate &dd);
     Q_DECLARE_PRIVATE(Link)
     LinkPrivate *d_ptr;
     /// \endcond
@@ -385,7 +385,8 @@ public:
         Find = 10,
         GoToPage = 11,
         Close = 12,
-        Print = 13 ///< \since 0.16
+        Print = 13, ///< \since 0.16
+        SaveAs = 14 ///< \since 22.04
     };
 
     /**
@@ -633,7 +634,7 @@ public:
     /**
      * Create a new OCGState link. This is only used by Poppler::Page.
      */
-    LinkOCGState(LinkOCGStatePrivate *ocgp);
+    explicit LinkOCGState(LinkOCGStatePrivate *ocgp);
     /**
      * Destructor.
      */
@@ -657,7 +658,7 @@ public:
     /**
      * Create a new Hide link. This is only used by Poppler::Page.
      */
-    LinkHide(LinkHidePrivate *lhidep);
+    explicit LinkHide(LinkHidePrivate *lhidep);
     /**
      * Destructor.
      */

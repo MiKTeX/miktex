@@ -24,6 +24,10 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //*********************************************************************************
 
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
 #include <cmath>
 #include "Rendition.h"
 #include "FileSpec.h"
@@ -197,9 +201,9 @@ void MediaParameters::parseMediaPlayParameters(Object *obj)
         Object oname = tmp.dictLookup("S");
         if (oname.isName()) {
             const char *name = oname.getName();
-            if (!strcmp(name, "F"))
+            if (!strcmp(name, "F")) {
                 duration = -1; // infinity
-            else if (!strcmp(name, "T")) {
+            } else if (!strcmp(name, "T")) {
                 Object ddict = tmp.dictLookup("T");
                 if (ddict.isDict()) {
                     Object tmp2 = ddict.dictLookup("V");
@@ -332,8 +336,9 @@ MediaRendition::MediaRendition(Object *obj)
         }
     }
 
-    if (!ok)
+    if (!ok) {
         return;
+    }
 
     //
     // parse Media Play Parameters
@@ -375,28 +380,32 @@ MediaRendition::MediaRendition(const MediaRendition &other)
     isEmbedded = other.isEmbedded;
     embeddedStreamObject = other.embeddedStreamObject.copy();
 
-    if (other.contentType)
+    if (other.contentType) {
         contentType = other.contentType->copy();
-    else
+    } else {
         contentType = nullptr;
+    }
 
-    if (other.fileName)
+    if (other.fileName) {
         fileName = other.fileName->copy();
-    else
+    } else {
         fileName = nullptr;
+    }
 }
 
 void MediaRendition::outputToFile(FILE *fp)
 {
-    if (!isEmbedded)
+    if (!isEmbedded) {
         return;
+    }
 
     embeddedStreamObject.streamReset();
 
     while (true) {
         int c = embeddedStreamObject.streamGetChar();
-        if (c == EOF)
+        if (c == EOF) {
             break;
+        }
 
         fwrite(&c, 1, 1, fp);
     }

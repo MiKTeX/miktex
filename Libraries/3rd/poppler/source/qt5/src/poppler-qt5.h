@@ -1,7 +1,7 @@
 /* poppler-qt.h: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
  * Copyright (C) 2005, 2007, Brad Hards <bradh@frogmouth.net>
- * Copyright (C) 2005-2015, 2017-2020, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2005-2015, 2017-2022, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2005, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
  * Copyright (C) 2006-2011, Pino Toscano <pino@kde.org>
  * Copyright (C) 2009 Shawn Rutledge <shawn.t.rutledge@gmail.com>
@@ -16,12 +16,20 @@
  * Copyright (C) 2012, 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
  * Copyright (C) 2013 Anthony Granger <grangeranthony@gmail.com>
  * Copyright (C) 2016 Jakub Alba <jakubalba@gmail.com>
- * Copyright (C) 2017 Oliver Sander <oliver.sander@tu-dresden.de>
+ * Copyright (C) 2017, 2020, 2021 Oliver Sander <oliver.sander@tu-dresden.de>
  * Copyright (C) 2017, 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
- * Copyright (C) 2018 Nelson Benítez León <nbenitezl@gmail.com>
+ * Copyright (C) 2018, 2021 Nelson Benítez León <nbenitezl@gmail.com>
  * Copyright (C) 2019 Jan Grulich <jgrulich@redhat.com>
  * Copyright (C) 2019 Alexander Volkov <a.volkov@rusbitech.ru>
  * Copyright (C) 2020 Philipp Knechtges <philipp-dev@knechtges.com>
+ * Copyright (C) 2020 Katarina Behrens <Katarina.Behrens@cib.de>
+ * Copyright (C) 2020 Thorsten Behrens <Thorsten.Behrens@CIB.de>
+ * Copyright (C) 2020 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by Technische Universität Dresden
+ * Copyright (C) 2021 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>.
+ * Copyright (C) 2021 Mahmoud Khalil <mahmoudkhalil11@gmail.com>
+ * Copyright (C) 2021 Georgiy Sgibnev <georgiy@sgibnev.com>. Work sponsored by lab50.net.
+ * Copyright (C) 2022 Martin <martinbts@gmx.net>
+ * Copyright (C) 2023 Kevin Ottens <kevin.ottens@enioka.com>. Work sponsored by De Bortoli Wines
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +48,8 @@
 
 #ifndef __POPPLER_QT_H__
 #define __POPPLER_QT_H__
+
+#include <functional>
 
 #include "poppler-annotation.h"
 #include "poppler-link.h"
@@ -85,7 +95,7 @@ struct OutlineItemData;
 
     \since 0.16
 */
-typedef void (*PopplerDebugFunc)(const QString & /*message*/, const QVariant & /*closure*/);
+using PopplerDebugFunc = void (*)(const QString & /*message*/, const QVariant & /*closure*/);
 
 /**
     Set a new debug/error output function.
@@ -199,7 +209,7 @@ public:
     /**
        Create a new font information container.
     */
-    FontInfo(const FontInfoData &fid);
+    explicit FontInfo(const FontInfoData &fid);
     /// \endcond
 
     /**
@@ -338,7 +348,7 @@ class POPPLER_QT5_EXPORT EmbeddedFile
 
 public:
     /// \cond PRIVATE
-    EmbeddedFile(EmbFile *embfile);
+    explicit EmbeddedFile(EmbFile *embfile);
     /// \endcond
 
     /**
@@ -408,7 +418,7 @@ public:
 
 private:
     Q_DISABLE_COPY(EmbeddedFile)
-    EmbeddedFile(EmbeddedFileData &dd);
+    explicit EmbeddedFile(EmbeddedFileData &dd);
 
     EmbeddedFileData *m_embeddedFile;
 };
@@ -528,7 +538,7 @@ public:
 
         \since 0.62
     */
-    typedef void (*RenderToImagePartialUpdateFunc)(const QImage & /*image*/, const QVariant & /*closure*/);
+    using RenderToImagePartialUpdateFunc = void (*)(const QImage & /*image*/, const QVariant & /*closure*/);
 
     /**
         Partial Update query renderToImage callback.
@@ -538,7 +548,7 @@ public:
 
         \since 0.62
     */
-    typedef bool (*ShouldRenderToImagePartialQueryFunc)(const QVariant & /*closure*/);
+    using ShouldRenderToImagePartialQueryFunc = bool (*)(const QVariant & /*closure*/);
 
     /**
        Render the page to a QImage using the current
@@ -599,7 +609,7 @@ public:
 
         \since 0.63
     */
-    typedef bool (*ShouldAbortQueryFunc)(const QVariant & /*closure*/);
+    using ShouldAbortQueryFunc = bool (*)(const QVariant & /*closure*/);
 
     /**
 Render the page to a QImage using the current
@@ -695,7 +705,7 @@ rather unexpected results.
 
        \returns whether the painting succeeded
 
-       \note This method is only supported for Arthur
+       \note This method is only supported for the QPainterOutputDev
 
        \since 0.16
     */
@@ -759,9 +769,12 @@ rather unexpected results.
         NoSearchFlags = 0x00000000, ///< since 0.63
         IgnoreCase = 0x00000001, ///< Case differences are ignored
         WholeWords = 0x00000002, ///< Only whole words are matched
-        IgnoreDiacritics = 0x00000004 ///< Diacritic differences (eg. accents, umlauts, diaeresis) are ignored. \since 0.73
-                                      ///< This option will have no effect if the search term contains characters which
-                                      ///< are not pure ascii.
+        IgnoreDiacritics = 0x00000004, ///< Diacritic differences (eg. accents, umlauts, diaeresis) are ignored. \since 0.73
+                                       ///< This option will have no effect if the search term contains characters which
+                                       ///< are not pure ascii.
+        AcrossLines = 0x00000008 ///< Allows to match on text spanning from end of a line to the next line.
+                                 ///< It won't match on text spanning more than two lines. Automatically ignores hyphen
+                                 ///< at end of line, and allows whitespace in search term to match on newline. \since 21.05.0
     };
     Q_DECLARE_FLAGS(SearchFlags, SearchFlag)
 
@@ -807,6 +820,9 @@ rather unexpected results.
 
     /**
        Returns a list of all occurrences of the specified text on the page.
+
+       if SearchFlags::AcrossLines is given in \param flags, then rects may just
+       be parts of the text itself if it's split between multiple lines.
 
        \param text the text to search
        \param flags the flags to consider during matching
@@ -1071,7 +1087,7 @@ public:
     QVector<OutlineItem> children() const;
 
 private:
-    OutlineItem(OutlineItemData *data);
+    explicit OutlineItem(OutlineItemData *data);
     OutlineItemData *m_data;
 };
 
@@ -1166,7 +1182,8 @@ public:
     enum RenderBackend
     {
         SplashBackend, ///< Splash backend
-        ArthurBackend ///< Arthur (Qt) backend
+        ArthurBackend, ///< \deprecated The old name of the QPainter backend
+        QPainterBackend = ArthurBackend ///< @since 20.11
     };
 
     /**
@@ -1325,6 +1342,11 @@ public:
        This function can return nullptr if for some reason the page can't be properly parsed.
 
        \param index the page number index
+
+       \warning The Page object returned by this method internally stores a pointer
+       to the document that it was created from.  This pointer will go stale if you
+       delete the Document object.  Therefore the Document object needs to be kept alive
+       as long as you want to use the Page object.
     */
     Page *page(int index) const;
 
@@ -1629,9 +1651,27 @@ QString subject = m_doc->info("Subject");
        \param minor an optional pointer to a variable where store the
        "minor" number of the version
 
+       \deprecated Will be removed in the Qt6 interface.  Use the method
+       returning a PdfVersion object instead!
+
        \since 0.12
     */
-    void getPdfVersion(int *major, int *minor) const;
+    Q_DECL_DEPRECATED void getPdfVersion(int *major, int *minor) const;
+
+    /** \brief The version specification of a pdf file */
+    struct PdfVersion
+    {
+        int major;
+        int minor;
+    };
+
+    /**
+       The version of the PDF specification that the document
+       conforms to
+
+       \since 21.08
+    */
+    PdfVersion getPdfVersion() const;
 
     /**
        The fonts within the PDF document.
@@ -1878,6 +1918,21 @@ QString subject = m_doc->info("Subject");
     QVector<FormFieldSignature *> signatures() const;
 
     /**
+     Returns whether the document's XRef table has been reconstructed or not
+
+     \since 21.06
+    */
+    bool xrefWasReconstructed() const;
+
+    /**
+     Sets the document's XRef reconstruction callback, so whenever a XRef table
+     reconstruction happens the callback will get triggered.
+
+     \since 21.06
+    */
+    void setXRefReconstructedCallback(const std::function<void()> &callback);
+
+    /**
        Destructor.
     */
     ~Document();
@@ -1887,7 +1942,7 @@ private:
 
     DocumentData *m_doc;
 
-    Document(DocumentData *dataA);
+    explicit Document(DocumentData *dataA);
 };
 
 class BaseConverterPrivate;
@@ -1943,7 +1998,7 @@ public:
 
 protected:
     /// \cond PRIVATE
-    BaseConverter(BaseConverterPrivate &dd);
+    explicit BaseConverter(BaseConverterPrivate &dd);
     Q_DECLARE_PRIVATE(BaseConverter)
     BaseConverterPrivate *d_ptr;
     /// \endcond
@@ -1984,7 +2039,8 @@ public:
         StrictMargins = 0x00000002,
         ForceRasterization = 0x00000004,
         PrintToEPS = 0x00000008, ///< Output EPS instead of PS \since 0.20
-        HideAnnotations = 0x00000010 ///< Don't print annotations \since 0.20
+        HideAnnotations = 0x00000010, ///< Don't print annotations \since 0.20
+        ForceOverprintPreview = 0x00000020 ///< Force rasterized overprint preview during conversion \since 23.09
     };
     Q_DECLARE_FLAGS(PSOptions, PSOption)
 
@@ -2055,6 +2111,16 @@ public:
     */
     void setStrictMargins(bool strictMargins);
 
+    /**
+      Defines if the page will be rasterized to an image with overprint
+      preview enabled before printing.
+
+      Defaults to false
+
+      \since 23.09
+    */
+    void setForceOverprintPreview(bool forceOverprintPreview);
+
     /** Defines if the page will be rasterized to an image before printing. Defaults to false */
     void setForceRasterize(bool forceRasterize);
 
@@ -2089,7 +2155,7 @@ private:
     Q_DECLARE_PRIVATE(PSConverter)
     Q_DISABLE_COPY(PSConverter)
 
-    PSConverter(DocumentData *document);
+    explicit PSConverter(DocumentData *document);
 };
 
 /**
@@ -2125,13 +2191,173 @@ public:
      */
     PDFOptions pdfOptions() const;
 
+    /**
+     * Holds data for a new signature
+     *  - Common Name of cert to sign (aka nickname)
+     *  - password for the cert
+     *  - page where to add the signature
+     *  - rect for the signature annotation
+     *  - text that will be shown inside the rect
+     *  - font size and color
+     *  - border width and color
+     *  - background color
+     * \since 21.01
+     */
+    class POPPLER_QT5_EXPORT NewSignatureData
+    {
+    public:
+        NewSignatureData();
+        ~NewSignatureData();
+        NewSignatureData(const NewSignatureData &) = delete;
+        NewSignatureData &operator=(const NewSignatureData &) = delete;
+
+        QString certNickname() const;
+        void setCertNickname(const QString &certNickname);
+
+        QString password() const;
+        void setPassword(const QString &password);
+
+        int page() const;
+        void setPage(int page);
+
+        QRectF boundingRectangle() const;
+        void setBoundingRectangle(const QRectF &rect);
+
+        QString signatureText() const;
+        void setSignatureText(const QString &text);
+
+        /**
+         * If this text is not empty, the signature representation
+         * will split in two, with this text on the left and signatureText
+         * on the right
+         *
+         * \since 21.06
+         */
+        QString signatureLeftText() const;
+        void setSignatureLeftText(const QString &text);
+
+        /**
+         * Signature's property Reason.
+         *
+         * Default: an empty string.
+         *
+         * \since 21.10
+         */
+        QString reason() const;
+        void setReason(const QString &reason);
+
+        /**
+         * Signature's property Location.
+         *
+         * Default: an empty string.
+         *
+         * \since 21.10
+         */
+        QString location() const;
+        void setLocation(const QString &location);
+
+        /**
+         * Default: 10
+         */
+        double fontSize() const;
+        void setFontSize(double fontSize);
+
+        /**
+         * Default: 20
+         *
+         * \since 21.06
+         */
+        double leftFontSize() const;
+        void setLeftFontSize(double fontSize);
+
+        /**
+         * Default: red
+         */
+        QColor fontColor() const;
+        void setFontColor(const QColor &color);
+
+        /**
+         * Default: red
+         */
+        QColor borderColor() const;
+        void setBorderColor(const QColor &color);
+
+        /**
+         * border width in points
+         *
+         * Default: 1.5
+         *
+         * \since 21.05
+         */
+        double borderWidth() const;
+        void setBorderWidth(double width);
+
+        /**
+         * Default: QColor(240, 240, 240)
+         */
+        QColor backgroundColor() const;
+        void setBackgroundColor(const QColor &color);
+
+        /**
+         * Default: QUuid::createUuid().toString()
+         */
+        QString fieldPartialName() const;
+        void setFieldPartialName(const QString &name);
+
+        /**
+         * Document owner password (needed if the document that is being signed is password protected)
+         *
+         * Default: no password
+         *
+         * \since 22.02
+         */
+        QByteArray documentOwnerPassword() const;
+        void setDocumentOwnerPassword(const QByteArray &password);
+
+        /**
+         * Document user password (needed if the document that is being signed is password protected)
+         *
+         * Default: no password
+         *
+         * \since 22.02
+         */
+        QByteArray documentUserPassword() const;
+        void setDocumentUserPassword(const QByteArray &password);
+
+        /**
+         * Filesystem path to an image file to be used as background
+         * image for the signature annotation widget.
+         *
+         * Default: empty
+         *
+         * \since 22.02
+         */
+        QString imagePath() const;
+        void setImagePath(const QString &path);
+
+    private:
+        struct NewSignatureDataPrivate;
+        NewSignatureDataPrivate *const d;
+    };
+
+    /**
+        Sign PDF at given Annotation / signature form
+
+        \param data new signature data
+
+        \return whether the signing succeeded
+
+        \since 21.01
+    */
+    bool sign(const NewSignatureData &data);
+
     bool convert() override;
 
 private:
     Q_DECLARE_PRIVATE(PDFConverter)
     Q_DISABLE_COPY(PDFConverter)
 
-    PDFConverter(DocumentData *document);
+    explicit PDFConverter(DocumentData *document);
 };
 
 /**
@@ -2194,7 +2420,7 @@ public:
     };
 
     /// \cond PRIVATE
-    SoundObject(Sound *popplersound);
+    explicit SoundObject(Sound *popplersound);
     /// \endcond
 
     ~SoundObject();
@@ -2305,7 +2531,7 @@ public:
 
 private:
     /// \cond PRIVATE
-    MovieObject(AnnotMovie *ann);
+    explicit MovieObject(AnnotMovie *ann);
     /// \endcond
 
     Q_DISABLE_COPY(MovieObject)

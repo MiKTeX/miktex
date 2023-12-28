@@ -1,5 +1,5 @@
 /* poppler-annotation-helper.h: qt interface to poppler
- * Copyright (C) 2006, 2008, 2017-2019, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2006, 2008, 2017-2019, 2021, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
  * Copyright (C) 2012, Fabio D'Urso <fabiodurso@hotmail.it>
  * Copyright (C) 2018, Dileep Sankhla <sankhla.dileep96@gmail.com>
@@ -55,7 +55,12 @@ void XPDFReader::transform(double *M, double x, double y, QPointF &res)
 void XPDFReader::invTransform(const double *M, const QPointF p, double &x, double &y)
 {
     const double det = M[0] * M[3] - M[1] * M[2];
-    Q_ASSERT(det != 0);
+    if (det == 0) {
+        qWarning("Tried to invert singular matrix, something won't work");
+        x = 0;
+        y = 0;
+        return;
+    }
 
     const double invM[4] = { M[3] / det, -M[1] / det, -M[2] / det, M[0] / det };
     const double xt = p.x() - M[4];

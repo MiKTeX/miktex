@@ -1,6 +1,6 @@
 /* poppler-media.cc: qt interface to poppler
  * Copyright (C) 2012 Guillermo A. Amaral B. <gamaral@kde.org>
- * Copyright (C) 2013, 2018 Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2013, 2018, 2021 Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,10 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
 #include "poppler-media.h"
 
 #include "Rendition.h"
@@ -32,7 +36,7 @@ namespace Poppler {
 class MediaRenditionPrivate
 {
 public:
-    MediaRenditionPrivate(::MediaRendition *renditionA) : rendition(renditionA) { }
+    explicit MediaRenditionPrivate(::MediaRendition *renditionA) : rendition(renditionA) { }
 
     ~MediaRenditionPrivate() { delete rendition; }
 
@@ -82,8 +86,9 @@ QByteArray MediaRendition::data() const
     Q_D(const MediaRendition);
 
     Stream *s = d->rendition->getEmbbededStream();
-    if (!s)
+    if (!s) {
         return QByteArray();
+    }
 
     QBuffer buffer;
     unsigned char data[BUFFER_MAX];
@@ -91,8 +96,9 @@ QByteArray MediaRendition::data() const
 
     buffer.open(QIODevice::WriteOnly);
     s->reset();
-    while ((bread = s->doGetChars(BUFFER_MAX, data)) != 0)
+    while ((bread = s->doGetChars(BUFFER_MAX, data)) != 0) {
         buffer.write(reinterpret_cast<const char *>(data), bread);
+    }
     buffer.close();
 
     return buffer.data();
@@ -105,8 +111,9 @@ bool MediaRendition::autoPlay() const
         return d->rendition->getBEParameters()->autoPlay;
     } else if (d->rendition->getMHParameters()) {
         return d->rendition->getMHParameters()->autoPlay;
-    } else
+    } else {
         qDebug("No BE or MH parameters to reference!");
+    }
     return false;
 }
 
@@ -117,8 +124,9 @@ bool MediaRendition::showControls() const
         return d->rendition->getBEParameters()->showControls;
     } else if (d->rendition->getMHParameters()) {
         return d->rendition->getMHParameters()->showControls;
-    } else
+    } else {
         qDebug("No BE or MH parameters to reference!");
+    }
     return false;
 }
 
@@ -129,8 +137,9 @@ float MediaRendition::repeatCount() const
         return d->rendition->getBEParameters()->repeatCount;
     } else if (d->rendition->getMHParameters()) {
         return d->rendition->getMHParameters()->repeatCount;
-    } else
+    } else {
         qDebug("No BE or MH parameters to reference!");
+    }
     return 1.f;
 }
 
@@ -139,15 +148,17 @@ QSize MediaRendition::size() const
     Q_D(const MediaRendition);
     const MediaParameters *mp = nullptr;
 
-    if (d->rendition->getBEParameters())
+    if (d->rendition->getBEParameters()) {
         mp = d->rendition->getBEParameters();
-    else if (d->rendition->getMHParameters())
+    } else if (d->rendition->getMHParameters()) {
         mp = d->rendition->getMHParameters();
-    else
+    } else {
         qDebug("No BE or MH parameters to reference!");
+    }
 
-    if (mp)
+    if (mp) {
         return QSize(mp->windowParams.width, mp->windowParams.height);
+    }
     return QSize();
 }
 

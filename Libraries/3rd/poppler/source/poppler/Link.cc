@@ -16,7 +16,7 @@
 // Copyright (C) 2006, 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2007, 2010, 2011 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2008 Hugo Mercier <hmercier31@gmail.com>
-// Copyright (C) 2008-2010, 2012-2014, 2016-2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008-2010, 2012-2014, 2016-2023 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2009 Ilya Gorenbein <igorenbein@finjan.com>
 // Copyright (C) 2012 Tobias Koening <tobias.koenig@kdab.com>
@@ -63,13 +63,13 @@ std::unique_ptr<LinkAction> LinkAction::parseDest(const Object *obj)
     return action;
 }
 
-std::unique_ptr<LinkAction> LinkAction::parseAction(const Object *obj, const GooString *baseURI)
+std::unique_ptr<LinkAction> LinkAction::parseAction(const Object *obj, const std::optional<std::string> &baseURI)
 {
     std::set<int> seenNextActions;
     return parseAction(obj, baseURI, &seenNextActions);
 }
 
-std::unique_ptr<LinkAction> LinkAction::parseAction(const Object *obj, const GooString *baseURI, std::set<int> *seenNextActions)
+std::unique_ptr<LinkAction> LinkAction::parseAction(const Object *obj, const std::optional<std::string> &baseURI, std::set<int> *seenNextActions)
 {
 
     if (!obj->isDict()) {
@@ -170,7 +170,7 @@ std::unique_ptr<LinkAction> LinkAction::parseAction(const Object *obj, const Goo
         }
 
         actionList.reserve(1);
-        actionList.push_back(parseAction(&nextObj, nullptr, seenNextActions));
+        actionList.push_back(parseAction(&nextObj, {}, seenNextActions));
     } else if (nextObj.isArray()) {
         const Array *a = nextObj.getArray();
         const int n = a->getLength();
@@ -192,7 +192,7 @@ std::unique_ptr<LinkAction> LinkAction::parseAction(const Object *obj, const Goo
                 }
             }
 
-            actionList.push_back(parseAction(&obj3, nullptr, seenNextActions));
+            actionList.push_back(parseAction(&obj3, {}, seenNextActions));
         }
     }
 
@@ -408,25 +408,6 @@ LinkDest::LinkDest(const Array *a)
     ok = true;
 }
 
-LinkDest::LinkDest(const LinkDest *dest)
-{
-    kind = dest->kind;
-    pageIsRef = dest->pageIsRef;
-    if (pageIsRef)
-        pageRef = dest->pageRef;
-    else
-        pageNum = dest->pageNum;
-    left = dest->left;
-    bottom = dest->bottom;
-    right = dest->right;
-    top = dest->top;
-    zoom = dest->zoom;
-    changeLeft = dest->changeLeft;
-    changeTop = dest->changeTop;
-    changeZoom = dest->changeZoom;
-    ok = true;
-}
-
 //------------------------------------------------------------------------
 // LinkGoTo
 //------------------------------------------------------------------------
@@ -526,11 +507,13 @@ LinkLaunch::LinkLaunch(const Object *actionObj)
     }
 }
 
+LinkLaunch::~LinkLaunch() = default;
+
 //------------------------------------------------------------------------
 // LinkURI
 //------------------------------------------------------------------------
 
-LinkURI::LinkURI(const Object *uriObj, const GooString *baseURI)
+LinkURI::LinkURI(const Object *uriObj, const std::optional<std::string> &baseURI)
 {
     hasURIFlag = false;
     if (uriObj->isString()) {
@@ -546,7 +529,7 @@ LinkURI::LinkURI(const Object *uriObj, const GooString *baseURI)
         } else {
             // relative URI
             if (baseURI) {
-                uri = baseURI->toStr();
+                uri = *baseURI;
                 if (uri.size() > 0) {
                     char c = uri.back();
                     if (c != '/' && c != '?') {
@@ -762,11 +745,11 @@ LinkJavaScript::LinkJavaScript(Object *jsObj)
 
 LinkJavaScript::~LinkJavaScript() = default;
 
-Object LinkJavaScript::createObject(XRef *xref, const GooString &js)
+Object LinkJavaScript::createObject(XRef *xref, const std::string &js)
 {
     Dict *linkDict = new Dict(xref);
     linkDict->add("S", Object(objName, "JavaScript"));
-    linkDict->add("JS", Object(js.copy()));
+    linkDict->add("JS", Object(new GooString(js)));
 
     return Object(linkDict);
 }
@@ -783,8 +766,9 @@ LinkOCGState::LinkOCGState(const Object *obj) : isValid(true)
         for (int i = 0; i < obj1.arrayGetLength(); ++i) {
             const Object &obj2 = obj1.arrayGetNF(i);
             if (obj2.isName()) {
-                if (!stList.list.empty())
+                if (!stList.list.empty()) {
                     stateList.push_back(stList);
+                }
 
                 const char *name = obj2.getName();
                 stList.list.clear();
@@ -806,8 +790,9 @@ LinkOCGState::LinkOCGState(const Object *obj) : isValid(true)
             }
         }
         // Add the last group
-        if (!stList.list.empty())
+        if (!stList.list.empty()) {
             stateList.push_back(stList);
+        }
     } else {
         error(errSyntaxWarning, -1, "Invalid OCGState action");
         isValid = false;
@@ -857,13 +842,17 @@ LinkResetForm::LinkResetForm(const Object *obj)
         fields.resize(obj1.arrayGetLength());
         for (int i = 0; i < obj1.arrayGetLength(); ++i) {
             const Object &obj2 = obj1.arrayGetNF(i);
-            if (obj2.isName())
+            if (obj2.isName()) {
                 fields[i] = std::string(obj2.getName());
-            else if (obj2.isRef()) {
+            } else if (obj2.isString()) {
+                fields[i] = obj2.getString()->toStr();
+            } else if (obj2.isRef()) {
                 fields[i] = std::to_string(obj2.getRef().num);
                 fields[i].append(" ");
                 fields[i].append(std::to_string(obj2.getRef().gen));
                 fields[i].append(" R");
+            } else {
+                error(errSyntaxWarning, -1, "LinkResetForm: unexpected Field type");
             }
         }
     }
@@ -872,8 +861,9 @@ LinkResetForm::LinkResetForm(const Object *obj)
     if (obj1.isInt()) {
         int flags = obj1.getInt();
 
-        if (flags & 0x1)
+        if (flags & 0x1) {
             exclude = true;
+        }
     }
 }
 
@@ -896,14 +886,15 @@ LinkUnknown::~LinkUnknown() = default;
 
 Links::Links(Annots *annots)
 {
-    if (!annots)
+    if (!annots) {
         return;
+    }
 
-    for (int i = 0; i < annots->getNumAnnots(); ++i) {
-        Annot *annot = annots->getAnnot(i);
+    for (Annot *annot : annots->getAnnots()) {
 
-        if (annot->getType() != Annot::typeLink)
+        if (annot->getType() != Annot::typeLink) {
             continue;
+        }
 
         annot->incRefCnt();
         links.push_back(static_cast<AnnotLink *>(annot));
@@ -912,6 +903,7 @@ Links::Links(Annots *annots)
 
 Links::~Links()
 {
-    for (AnnotLink *link : links)
+    for (AnnotLink *link : links) {
         link->decRefCnt();
+    }
 }

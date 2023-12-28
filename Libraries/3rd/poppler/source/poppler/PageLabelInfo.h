@@ -3,7 +3,7 @@
 // This file is under the GPLv2 or later license
 //
 // Copyright (C) 2005-2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005, 2018, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2018-2020, 2023 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
 // Copyright (C) 2019 Oliver Sander <oliver.sander@tu-dresden.de>
 //
@@ -37,7 +37,7 @@ public:
     bool indexToLabel(int index, GooString *label) const;
 
 private:
-    void parse(Object *tree);
+    void parse(const Object *tree, RefRecursionChecker &parsedRefs);
 
 private:
     struct Interval

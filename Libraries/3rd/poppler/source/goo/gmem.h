@@ -14,9 +14,10 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Takashi Iwai <tiwai@suse.de>
-// Copyright (C) 2007-2010, 2017, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2010, 2017, 2019, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Jonathan Kew <jonathan_kew@sil.org>
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
+// Copyright (C) 2021 Even Rouault <even.rouault@spatialys.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -26,6 +27,7 @@
 #ifndef GMEM_H
 #define GMEM_H
 
+#include <cassert>
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
@@ -168,7 +170,14 @@ inline void *greallocn(void *p, int count, int size, bool checkoverflow = false,
         std::abort();
     }
 
-    return grealloc(p, bytes, checkoverflow);
+    assert(bytes > 0);
+    if (void *q = grealloc(p, bytes, checkoverflow)) {
+        return q;
+    }
+    if (free_p) {
+        gfree(p);
+    }
+    return nullptr;
 }
 
 inline void *greallocn_checkoverflow(void *p, int count, int size)

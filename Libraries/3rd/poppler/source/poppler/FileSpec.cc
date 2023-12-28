@@ -7,7 +7,7 @@
 //
 // Copyright (C) 2008-2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
-// Copyright (C) 2012, 2017-2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2012, 2017-2021 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2012 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
@@ -56,20 +56,24 @@ EmbFile::EmbFile(Object &&efStream)
         Object paramDict = dataDict->lookup("Params");
         if (paramDict.isDict()) {
             Object paramObj = paramDict.dictLookup("ModDate");
-            if (paramObj.isString())
+            if (paramObj.isString()) {
                 m_modDate = new GooString(paramObj.getString());
+            }
 
             paramObj = paramDict.dictLookup("CreationDate");
-            if (paramObj.isString())
+            if (paramObj.isString()) {
                 m_createDate = new GooString(paramObj.getString());
+            }
 
             paramObj = paramDict.dictLookup("Size");
-            if (paramObj.isInt())
+            if (paramObj.isInt()) {
                 m_size = paramObj.getInt();
+            }
 
             paramObj = paramDict.dictLookup("CheckSum");
-            if (paramObj.isString())
+            if (paramObj.isString()) {
                 m_checksum = new GooString(paramObj.getString());
+            }
         }
     }
 }
@@ -99,8 +103,9 @@ bool EmbFile::save2(FILE *f)
 {
     int c;
 
-    if (unlikely(!m_objStr.isStream()))
+    if (unlikely(!m_objStr.isStream())) {
         return false;
+    }
 
     m_objStr.streamReset();
     while ((c = m_objStr.streamGetChar()) != EOF) {
@@ -156,11 +161,13 @@ FileSpec::~FileSpec()
 
 EmbFile *FileSpec::getEmbeddedFile()
 {
-    if (!ok)
+    if (!ok || !fileSpec.isDict()) {
         return nullptr;
+    }
 
-    if (embFile)
+    if (embFile) {
         return embFile;
+    }
 
     XRef *xref = fileSpec.getDict()->getXRef();
     embFile = new EmbFile(fileStream.fetch(xref));
@@ -181,8 +188,7 @@ Object FileSpec::newFileSpecObject(XRef *xref, GooFile *file, const std::string 
     FileStream *fStream = new FileStream(file, 0, false, file->size(), std::move(streamDict));
     fStream->setNeedsEncryptionOnSave(true);
     Stream *stream = fStream;
-    Object streamObj = Object(stream);
-    const Ref streamRef = xref->addIndirectObject(&streamObj);
+    const Ref streamRef = xref->addIndirectObject(Object(stream));
 
     Dict *efDict = new Dict(xref);
     efDict->set("F", Object(streamRef));
@@ -197,12 +203,14 @@ Object FileSpec::newFileSpecObject(XRef *xref, GooFile *file, const std::string 
 
 GooString *FileSpec::getFileNameForPlatform()
 {
-    if (platformFileName)
+    if (platformFileName) {
         return platformFileName;
+    }
 
     Object obj1 = getFileSpecNameForPlatform(&fileSpec);
-    if (obj1.isString())
+    if (obj1.isString()) {
         platformFileName = obj1.getString()->copy();
+    }
 
     return platformFileName;
 }

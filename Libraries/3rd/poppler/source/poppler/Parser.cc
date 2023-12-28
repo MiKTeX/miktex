@@ -67,14 +67,22 @@ Object Parser::getObj(int recursion)
     return getObj(false, nullptr, cryptRC4, 0, 0, 0, recursion);
 }
 
-Object Parser::getObj(bool simpleOnly, const unsigned char *fileKey, CryptAlgorithm encAlgorithm, int keyLength, int objNum, int objGen, int recursion, bool strict)
+static std::unique_ptr<GooString> decryptedString(const GooString *s, const unsigned char *fileKey, CryptAlgorithm encAlgorithm, int keyLength, int objNum, int objGen)
+{
+    DecryptStream decrypt(new MemStream(s->c_str(), 0, s->getLength(), Object(objNull)), fileKey, encAlgorithm, keyLength, { objNum, objGen });
+    decrypt.reset();
+    std::unique_ptr<GooString> res = std::make_unique<GooString>();
+    int c;
+    while ((c = decrypt.getChar()) != EOF) {
+        res->append((char)c);
+    }
+    return res;
+}
+
+Object Parser::getObj(bool simpleOnly, const unsigned char *fileKey, CryptAlgorithm encAlgorithm, int keyLength, int objNum, int objGen, int recursion, bool strict, bool decryptString)
 {
     Object obj;
     Stream *str;
-    DecryptStream *decrypt;
-    const GooString *s;
-    GooString *s2;
-    int c;
 
     // refill buffer after inline image data
     if (inlineImg == 2) {
@@ -95,12 +103,14 @@ Object Parser::getObj(bool simpleOnly, const unsigned char *fileKey, CryptAlgori
             Object obj2 = getObj(false, fileKey, encAlgorithm, keyLength, objNum, objGen, recursion + 1);
             obj.arrayAdd(std::move(obj2));
         }
-        if (recursion + 1 >= recursionLimit && strict)
+        if (recursion + 1 >= recursionLimit && strict) {
             goto err;
+        }
         if (buf1.isEOF()) {
             error(errSyntaxError, getPos(), "End of file inside array");
-            if (strict)
+            if (strict) {
                 goto err;
+            }
         }
         shift();
 
@@ -108,22 +118,30 @@ Object Parser::getObj(bool simpleOnly, const unsigned char *fileKey, CryptAlgori
     } else if (!simpleOnly && buf1.isCmd("<<")) {
         shift(objNum);
         obj = Object(new Dict(lexer.getXRef()));
+        bool hasContentsEntry = false;
         while (!buf1.isCmd(">>") && !buf1.isEOF()) {
             if (!buf1.isName()) {
                 error(errSyntaxError, getPos(), "Dictionary key must be a name object");
-                if (strict)
+                if (strict) {
                     goto err;
+                }
                 shift();
             } else {
                 // buf1 will go away in shift(), so keep the key
                 const auto key = std::move(buf1);
                 shift();
                 if (buf1.isEOF() || buf1.isError()) {
-                    if (strict && buf1.isError())
+                    if (strict && buf1.isError()) {
                         goto err;
+                    }
                     break;
                 }
-                Object obj2 = getObj(false, fileKey, encAlgorithm, keyLength, objNum, objGen, recursion + 1);
+                // We don't decrypt strings that are the value of "Contents" key entries. We decrypt them if needed a few lines below.
+                // The "Contents" field of Sig dictionaries is not encrypted, but we can't know the type of the dictionary here yet
+                // so we don't decrypt any Contents and if later we find it's not a Sig dictionary we decrypt it
+                const bool isContents = !hasContentsEntry && key.isName("Contents");
+                hasContentsEntry = hasContentsEntry || isContents;
+                Object obj2 = getObj(false, fileKey, encAlgorithm, keyLength, objNum, objGen, recursion + 1, /*strict*/ false, /*decryptString*/ !isContents);
                 if (unlikely(obj2.isError() && recursion + 1 >= recursionLimit)) {
                     break;
                 }
@@ -132,8 +150,20 @@ Object Parser::getObj(bool simpleOnly, const unsigned char *fileKey, CryptAlgori
         }
         if (buf1.isEOF()) {
             error(errSyntaxError, getPos(), "End of file inside dictionary");
-            if (strict)
+            if (strict) {
                 goto err;
+            }
+        }
+        if (fileKey && hasContentsEntry) {
+            Dict *dict = obj.getDict();
+            const bool isSigDict = dict->is("Sig");
+            if (!isSigDict) {
+                const Object &contentsObj = dict->lookupNF("Contents");
+                if (contentsObj.isString()) {
+                    std::unique_ptr<GooString> s = decryptedString(contentsObj.getString(), fileKey, encAlgorithm, keyLength, objNum, objGen);
+                    dict->set("Contents", Object(s.release()));
+                }
+            }
         }
         // stream objects are not allowed inside content streams or
         // object streams
@@ -169,16 +199,9 @@ Object Parser::getObj(bool simpleOnly, const unsigned char *fileKey, CryptAlgori
         }
 
         // string
-    } else if (buf1.isString() && fileKey) {
-        s = buf1.getString();
-        s2 = new GooString();
-        decrypt = new DecryptStream(new MemStream(s->c_str(), 0, s->getLength(), Object(objNull)), fileKey, encAlgorithm, keyLength, { objNum, objGen });
-        decrypt->reset();
-        while ((c = decrypt->getChar()) != EOF) {
-            s2->append((char)c);
-        }
-        delete decrypt;
-        obj = Object(s2);
+    } else if (decryptString && buf1.isString() && fileKey) {
+        std::unique_ptr<GooString> s2 = decryptedString(buf1.getString(), fileKey, encAlgorithm, keyLength, objNum, objGen);
+        obj = Object(s2.release());
         shift();
 
         // simple object
@@ -230,8 +253,9 @@ Stream *Parser::makeStream(Object &&dict, const unsigned char *fileKey, CryptAlg
         length = obj.getInt64();
     } else {
         error(errSyntaxError, getPos(), "Bad 'Length' attribute in stream");
-        if (strict)
+        if (strict) {
             return nullptr;
+        }
         length = 0;
     }
 
@@ -268,8 +292,9 @@ Stream *Parser::makeStream(Object &&dict, const unsigned char *fileKey, CryptAlg
         shift();
     } else {
         error(errSyntaxError, getPos(), "Missing 'endstream' or incorrect stream length");
-        if (strict)
+        if (strict) {
             return nullptr;
+        }
         if (lexer.hasXRef() && lexer.getStream()) {
             // shift until we find the proper endstream or we change to another object or reach eof
             length = lexer.getPos() - pos;
@@ -280,8 +305,9 @@ Stream *Parser::makeStream(Object &&dict, const unsigned char *fileKey, CryptAlg
             // When building the xref we can't use it so use this
             // kludge for broken PDF files: just add 5k to the length, and
             // hope its enough
-            if (length < LLONG_MAX - pos - 5000)
+            if (length < LLONG_MAX - pos - 5000) {
                 length += 5000;
+            }
         }
     }
 
@@ -324,9 +350,9 @@ void Parser::shift(int objNum)
         inlineImg = 1;
     }
     buf1 = std::move(buf2);
-    if (inlineImg > 0) // don't buffer inline image data
+    if (inlineImg > 0) { // don't buffer inline image data
         buf2.setToNull();
-    else {
+    } else {
         buf2 = lexer.getObj(objNum);
     }
 }

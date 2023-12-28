@@ -5,12 +5,15 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
-// Copyright 2010, 2018 Albert Astals Cid <aacid@kde.org>
+// Copyright 2010, 2018, 2020, 2022 Albert Astals Cid <aacid@kde.org>
+// Copyright 2021 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 //========================================================================
 
 #ifndef PDFDOCBUILDER_H
 #define PDFDOCBUILDER_H
+
+#include <memory>
 
 #include "PDFDoc.h"
 class GooString;
@@ -27,7 +30,7 @@ class PDFDocBuilder
 
 public:
     PDFDocBuilder() = default;
-    virtual ~PDFDocBuilder() = default;
+    virtual ~PDFDocBuilder();
 
     PDFDocBuilder(const PDFDocBuilder &) = delete;
     PDFDocBuilder &operator=(const PDFDocBuilder &) = delete;
@@ -35,7 +38,7 @@ public:
     // Builds a new PDFDoc. Returns a PDFDoc. You should check this PDFDoc
     // with PDFDoc::isOk() for failures.
     // The caller is responsible for deleting ownerPassword, userPassWord and guiData.
-    virtual PDFDoc *buildPDFDoc(const GooString &uri, GooString *ownerPassword = nullptr, GooString *userPassword = nullptr, void *guiDataA = nullptr) = 0;
+    virtual std::unique_ptr<PDFDoc> buildPDFDoc(const GooString &uri, const std::optional<GooString> &ownerPassword = {}, const std::optional<GooString> &userPassword = {}, void *guiDataA = nullptr) = 0;
 
     // Returns true if the builder supports building a PDFDoc from the URI.
     virtual bool supports(const GooString &uri) = 0;

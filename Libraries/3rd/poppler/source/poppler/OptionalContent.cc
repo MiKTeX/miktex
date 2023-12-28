@@ -130,13 +130,15 @@ bool OCGs::optContentIsVisible(const Object *dictRef)
     Dict *dict;
     bool result = true;
 
-    if (dictRef->isNull())
+    if (dictRef->isNull()) {
         return result;
+    }
 
     if (dictRef->isRef()) {
         OptionalContentGroup *oc = findOcgByRef(dictRef->getRef());
-        if (oc)
+        if (oc) {
             return oc->getState() == OptionalContentGroup::On;
+        }
     }
 
     Object dictObj = dictRef->fetch(m_xref);

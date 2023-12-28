@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2008 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2009, 2018, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2018-2020, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2012, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
 //
@@ -26,7 +26,9 @@
 #ifndef CMAP_H
 #define CMAP_H
 
+#include <array>
 #include <atomic>
+#include <memory>
 
 #include "poppler-config.h"
 #include "CharTypes.h"
@@ -44,30 +46,20 @@ class CMap
 public:
     // Parse a CMap from <obj>, which can be a name or a stream.  Sets
     // the initial reference count to 1.  Returns NULL on failure.
-    static CMap *parse(CMapCache *cache, const GooString *collectionA, Object *obj);
+    static std::shared_ptr<CMap> parse(CMapCache *cache, const GooString *collectionA, Object *obj);
 
     // Create the CMap specified by <collection> and <cMapName>.  Sets
     // the initial reference count to 1.  Returns NULL on failure.
-    static CMap *parse(CMapCache *cache, const GooString *collectionA, const GooString *cMapNameA);
+    static std::shared_ptr<CMap> parse(CMapCache *cache, const GooString *collectionA, const GooString *cMapNameA);
 
     // Parse a CMap from <str>.  Sets the initial reference count to 1.
     // Returns NULL on failure.
-    static CMap *parse(CMapCache *cache, const GooString *collectionA, Stream *str);
-
-    // Create the CMap specified by <collection> and <cMapName>.  Sets
-    // the initial reference count to 1.
-    // Stream is a stream containing the CMap, can be NULL and
-    // this means the CMap will be searched in the CMap files
-    // Returns NULL on failure.
-    static CMap *parse(CMapCache *cache, const GooString *collectionA, const GooString *cMapNameA, Stream *stream);
+    static std::shared_ptr<CMap> parse(CMapCache *cache, const GooString *collectionA, Stream *str);
 
     ~CMap();
 
     CMap(const CMap &) = delete;
     CMap &operator=(const CMap &) = delete;
-
-    void incRefCnt();
-    void decRefCnt();
 
     // Return collection name (<registry>-<ordering>).
     const GooString *getCollection() const { return collection; }
@@ -106,7 +98,6 @@ private:
     int wMode; // writing mode (0=horizontal, 1=vertical)
     CMapVectorEntry *vector; // vector for first byte (NULL for
                              //   identity CMap)
-    std::atomic_int refCnt;
 };
 
 //------------------------------------------------------------------------
@@ -117,7 +108,7 @@ class CMapCache
 {
 public:
     CMapCache();
-    ~CMapCache();
+    ~CMapCache() = default;
 
     CMapCache(const CMapCache &) = delete;
     CMapCache &operator=(const CMapCache &) = delete;
@@ -128,10 +119,10 @@ public:
     // Stream is a stream containing the CMap, can be NULL and
     // this means the CMap will be searched in the CMap files
     // Returns NULL on failure.
-    CMap *getCMap(const GooString *collection, const GooString *cMapName, Stream *stream);
+    std::shared_ptr<CMap> getCMap(const GooString *collection, const GooString *cMapName);
 
 private:
-    CMap *cache[cMapCacheSize];
+    std::array<std::shared_ptr<CMap>, cMapCacheSize> cache;
 };
 
 #endif

@@ -1,6 +1,8 @@
 /* poppler-qiodevicestream.cc: Qt5 interface to poppler
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
  * Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+ * Copyright (C) 2020, 2021 Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2021, Even Rouault <even.rouault@spatialys.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +25,6 @@
 
 #include <cstdio>
 
-#define QIODeviceOutStreamBufSize 8192
-
 namespace Poppler {
 
 QIODeviceOutStream::QIODeviceOutStream(QIODevice *device) : m_device(device) { }
@@ -43,15 +43,28 @@ void QIODeviceOutStream::put(char c)
     m_device->putChar(c);
 }
 
+static int poppler_vasprintf(char **buf_ptr, const char *format, va_list ap) GCC_PRINTF_FORMAT(2, 0);
+
+static int poppler_vasprintf(char **buf_ptr, const char *format, va_list ap)
+{
+    va_list ap_copy;
+    va_copy(ap_copy, ap);
+    const size_t size = vsnprintf(nullptr, 0, format, ap_copy) + 1;
+    va_end(ap_copy);
+    *buf_ptr = new char[size];
+
+    return qvsnprintf(*buf_ptr, size, format, ap);
+}
+
 void QIODeviceOutStream::printf(const char *format, ...)
 {
     va_list ap;
     va_start(ap, format);
-    char buf[QIODeviceOutStreamBufSize];
-    size_t bufsize = 0;
-    bufsize = qvsnprintf(buf, QIODeviceOutStreamBufSize - 1, format, ap);
+    char *buf;
+    const size_t bufsize = poppler_vasprintf(&buf, format, ap);
     va_end(ap);
     m_device->write(buf, bufsize);
+    delete[] buf;
 }
 
 }

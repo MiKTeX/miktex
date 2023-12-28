@@ -15,10 +15,10 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Dom Lachowicz <cinamod@hotmail.com>
-// Copyright (C) 2007-2010, 2012, 2016-2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2010, 2012, 2016-2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2011 Vittal Aithal <vittal.aithal@cognidox.com>
-// Copyright (C) 2012, 2013, 2016-2018 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2012, 2013, 2016-2018, 2021 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Adrian Perez de Castro <aperez@igalia.com>
 // Copyright (C) 2013 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
@@ -26,7 +26,7 @@
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
 // Copyright (C) 2018 Evangelos Rigas <erigas@rnd2.org>
 // Copyright (C) 2019 Christian Persch <chpe@src.gnome.org>
-// Copyright (C) 2019, 2020 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2019-2021 Oliver Sander <oliver.sander@tu-dresden.de>
 // Copyright (C) 2019 Thomas Fischer <fischer@unix-ag.uni-kl.de>
 //
 // To see a description of the changes please see the Changelog file that
@@ -43,6 +43,7 @@
 #include <ctime>
 #include <cmath>
 #include <map>
+#include <set>
 #include "parseargs.h"
 #include "printencodings.h"
 #include "goo/GooString.h"
@@ -73,6 +74,7 @@ static int firstPage = 1;
 static int lastPage = 0;
 static bool printBoxes = false;
 static bool printMetadata = false;
+static bool printCustom = false;
 static bool printJS = false;
 static bool isoDates = false;
 static bool rawDates = false;
@@ -85,17 +87,20 @@ static bool printEnc = false;
 static bool printStructure = false;
 static bool printStructureText = false;
 static bool printDests = false;
+static bool printUrls = false;
 
 static const ArgDesc argDesc[] = { { "-f", argInt, &firstPage, 0, "first page to convert" },
                                    { "-l", argInt, &lastPage, 0, "last page to convert" },
                                    { "-box", argFlag, &printBoxes, 0, "print the page bounding boxes" },
                                    { "-meta", argFlag, &printMetadata, 0, "print the document metadata (XML)" },
+                                   { "-custom", argFlag, &printCustom, 0, "print both custom and standard metadata" },
                                    { "-js", argFlag, &printJS, 0, "print all JavaScript in the PDF" },
                                    { "-struct", argFlag, &printStructure, 0, "print the logical document structure (for tagged files)" },
                                    { "-struct-text", argFlag, &printStructureText, 0, "print text contents along with document structure (for tagged files)" },
                                    { "-isodates", argFlag, &isoDates, 0, "print the dates in ISO-8601 format" },
                                    { "-rawdates", argFlag, &rawDates, 0, "print the undecoded date strings directly from the PDF file" },
                                    { "-dests", argFlag, &printDests, 0, "print all named destinations in the PDF" },
+                                   { "-url", argFlag, &printUrls, 0, "print all URLs inside PDF objects (does not scan text content)" },
                                    { "-enc", argString, textEncName, sizeof(textEncName), "output text encoding name" },
                                    { "-listenc", argFlag, &printEnc, 0, "list available encodings" },
                                    { "-opw", argString, ownerPassword, sizeof(ownerPassword), "owner password (for encrypted files)" },
@@ -107,30 +112,42 @@ static const ArgDesc argDesc[] = { { "-f", argInt, &firstPage, 0, "first page to
                                    { "-?", argFlag, &printHelp, 0, "print usage information" },
                                    {} };
 
+static void printTextString(const GooString *s, const UnicodeMap *uMap)
+{
+    Unicode *u;
+    char buf[8];
+    int len = TextStringToUCS4(s->toStr(), &u);
+    for (int i = 0; i < len; i++) {
+        int n = uMap->mapUnicode(u[i], buf, sizeof(buf));
+        fwrite(buf, 1, n, stdout);
+    }
+    gfree(u);
+}
+
+static void printUCS4String(const Unicode *u, int len, const UnicodeMap *uMap)
+{
+    char buf[8];
+    for (int i = 0; i < len; i++) {
+        int n = uMap->mapUnicode(u[i], buf, sizeof(buf));
+        fwrite(buf, 1, n, stdout);
+    }
+}
+
 static void printInfoString(Dict *infoDict, const char *key, const char *text, const UnicodeMap *uMap)
 {
     const GooString *s1;
-    Unicode *u;
-    char buf[8];
-    int i, n, len;
 
     Object obj = infoDict->lookup(key);
     if (obj.isString()) {
         fputs(text, stdout);
         s1 = obj.getString();
-        len = TextStringToUCS4(s1, &u);
-        for (i = 0; i < len; i++) {
-            n = uMap->mapUnicode(u[i], buf, sizeof(buf));
-            fwrite(buf, 1, n, stdout);
-        }
-        gfree(u);
+        printTextString(s1, uMap);
         fputc('\n', stdout);
     }
 }
 
-static void printInfoDate(Dict *infoDict, const char *key, const char *text)
+static void printInfoDate(Dict *infoDict, const char *key, const char *text, const UnicodeMap *uMap)
 {
-    const char *s;
     int year, mon, day, hour, min, sec, tz_hour, tz_minute;
     char tz;
     struct tm tmStruct;
@@ -140,7 +157,7 @@ static void printInfoDate(Dict *infoDict, const char *key, const char *text)
     Object obj = infoDict->lookup(key);
     if (obj.isString()) {
         fputs(text, stdout);
-        s = obj.getString()->c_str();
+        const GooString *s = obj.getString();
         // TODO do something with the timezone info
         if (parseDateString(s, &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute)) {
             tmStruct.tm_year = year - 1900;
@@ -156,43 +173,44 @@ static void printInfoDate(Dict *infoDict, const char *key, const char *text)
             time = timegm(&tmStruct);
             if (time != (time_t)-1) {
                 int offset = (tz_hour * 60 + tz_minute) * 60;
-                if (tz == '-')
+                if (tz == '-') {
                     offset *= -1;
+                }
                 time -= offset;
                 localtime_r(&time, &tmStruct);
                 strftime(buf, sizeof(buf), "%c %Z", &tmStruct);
                 fputs(buf, stdout);
             } else {
-                fputs(s, stdout);
+                printTextString(s, uMap);
             }
         } else {
-            fputs(s, stdout);
+            printTextString(s, uMap);
         }
         fputc('\n', stdout);
     }
 }
 
-static void printISODate(Dict *infoDict, const char *key, const char *text)
+static void printISODate(Dict *infoDict, const char *key, const char *text, const UnicodeMap *uMap)
 {
-    const char *s;
     int year, mon, day, hour, min, sec, tz_hour, tz_minute;
     char tz;
 
     Object obj = infoDict->lookup(key);
     if (obj.isString()) {
         fputs(text, stdout);
-        s = obj.getString()->c_str();
+        const GooString *s = obj.getString();
         if (parseDateString(s, &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute)) {
             fprintf(stdout, "%04d-%02d-%02dT%02d:%02d:%02d", year, mon, day, hour, min, sec);
             if (tz_hour == 0 && tz_minute == 0) {
                 fprintf(stdout, "Z");
             } else {
                 fprintf(stdout, "%c%02d", tz, tz_hour);
-                if (tz_minute)
+                if (tz_minute) {
                     fprintf(stdout, ":%02d", tz_minute);
+                }
             }
         } else {
-            fputs(s, stdout);
+            printTextString(obj.getString(), uMap);
         }
         fputc('\n', stdout);
     }
@@ -216,9 +234,8 @@ static void printAttribute(const Attribute *attribute, unsigned indent)
     printIndent(indent);
     printf(" /%s ", attribute->getTypeName());
     if (attribute->getType() == Attribute::UserProperty) {
-        GooString *name = attribute->getName();
+        std::unique_ptr<GooString> name = attribute->getName();
         printf("(%s) ", name->c_str());
-        delete name;
     }
     attribute->getValue()->print(stdout);
     if (attribute->getFormattedValue()) {
@@ -389,16 +406,28 @@ static void printDestinations(PDFDoc *doc, const UnicodeMap *uMap)
                     printf("%4d ", i);
                     printLinkDest(it.second);
                     printf(" \"");
-                    Unicode *u;
-                    char buf[8];
-                    const int len = TextStringToUCS4(it.first, &u);
-                    for (int j = 0; j < len; j++) {
-                        const int n = uMap->mapUnicode(u[j], buf, sizeof(buf));
-                        fwrite(buf, 1, n, stdout);
-                    }
-                    gfree(u);
+                    printTextString(it.first, uMap);
                     printf("\"\n");
                     delete it.first;
+                }
+            }
+        }
+    }
+}
+
+static void printUrlList(PDFDoc *doc)
+{
+    printf("Page  Type          URL\n");
+    for (int pg = firstPage; pg <= lastPage; pg++) {
+        Page *page = doc->getPage(pg);
+        if (page) {
+            std::unique_ptr<Links> links = page->getLinks();
+            for (AnnotLink *annot : links->getLinks()) {
+                LinkAction *action = annot->getAction();
+                if (action->getKind() == actionURI) {
+                    LinkURI *linkUri = dynamic_cast<LinkURI *>(action);
+                    std::string uri = linkUri->getURI();
+                    printf("%4d  Annotation    %s\n", pg, uri.c_str());
                 }
             }
         }
@@ -629,13 +658,71 @@ static void printPdfSubtype(PDFDoc *doc, const UnicodeMap *uMap)
 
         printf("    Title:         %s\n", typeExp->c_str());
         printf("    Abbreviation:  %s\n", abbr->c_str());
-        if (part.get())
+        if (part.get()) {
             printf("    Subtitle:      Part %d: %s\n", subpart, part->c_str());
-        else
+        } else {
             printf("    Subtitle:      Part %d\n", subpart);
+        }
         printf("    Standard:      %s-%d\n", typeExp->toStr().substr(0, 9).c_str(), subpart);
-        if (confExp.get())
+        if (confExp.get()) {
             printf("    Conformance:   %s\n", confExp->c_str());
+        }
+    }
+}
+
+static void printCustomInfo(PDFDoc *doc, const UnicodeMap *uMap)
+{
+    Object info = doc->getDocInfo();
+    if (info.isDict()) {
+        Dict *dict = info.getDict();
+
+        // Sort keys
+        std::set<std::string> keys;
+        for (int i = 0; i < dict->getLength(); i++) {
+            std::string key(dict->getKey(i));
+            if (key != "Trapped") {
+                keys.insert(key);
+            }
+        }
+
+        for (const std::string &key : keys) {
+            if (key == "CreationDate") {
+                if (isoDates) {
+                    printISODate(info.getDict(), "CreationDate", "CreationDate:    ", uMap);
+                } else if (rawDates) {
+                    printInfoString(info.getDict(), "CreationDate", "CreationDate:    ", uMap);
+                } else {
+                    printInfoDate(info.getDict(), "CreationDate", "CreationDate:    ", uMap);
+                }
+            } else if (key == "ModDate") {
+                if (isoDates) {
+                    printISODate(info.getDict(), "ModDate", "ModDate:         ", uMap);
+                } else if (rawDates) {
+                    printInfoString(info.getDict(), "ModDate", "ModDate:         ", uMap);
+                } else {
+                    printInfoDate(info.getDict(), "ModDate", "ModDate:         ", uMap);
+                }
+            } else {
+                Object obj = dict->lookup(key.c_str());
+                if (obj.isString()) {
+                    // print key
+                    Unicode *u;
+                    int len = utf8ToUCS4(key.c_str(), &u);
+                    printUCS4String(u, len, uMap);
+                    fputs(":", stdout);
+                    while (len < 16) {
+                        fputs(" ", stdout);
+                        len++;
+                    }
+                    gfree(u);
+
+                    // print value
+                    GooString val_str(obj.getString());
+                    printTextString(&val_str, uMap);
+                    fputc('\n', stdout);
+                }
+            }
+        }
     }
 }
 
@@ -650,39 +737,63 @@ static void printInfo(PDFDoc *doc, const UnicodeMap *uMap, long long filesize, b
     // print doc info
     Object info = doc->getDocInfo();
     if (info.isDict()) {
-        printInfoString(info.getDict(), "Title", "Title:          ", uMap);
-        printInfoString(info.getDict(), "Subject", "Subject:        ", uMap);
-        printInfoString(info.getDict(), "Keywords", "Keywords:       ", uMap);
-        printInfoString(info.getDict(), "Author", "Author:         ", uMap);
-        printInfoString(info.getDict(), "Creator", "Creator:        ", uMap);
-        printInfoString(info.getDict(), "Producer", "Producer:       ", uMap);
+        printInfoString(info.getDict(), "Title", "Title:           ", uMap);
+        printInfoString(info.getDict(), "Subject", "Subject:         ", uMap);
+        printInfoString(info.getDict(), "Keywords", "Keywords:        ", uMap);
+        printInfoString(info.getDict(), "Author", "Author:          ", uMap);
+        printInfoString(info.getDict(), "Creator", "Creator:         ", uMap);
+        printInfoString(info.getDict(), "Producer", "Producer:        ", uMap);
         if (isoDates) {
-            printISODate(info.getDict(), "CreationDate", "CreationDate:   ");
-            printISODate(info.getDict(), "ModDate", "ModDate:        ");
+            printISODate(info.getDict(), "CreationDate", "CreationDate:    ", uMap);
+            printISODate(info.getDict(), "ModDate", "ModDate:         ", uMap);
         } else if (rawDates) {
-            printInfoString(info.getDict(), "CreationDate", "CreationDate:   ", uMap);
-            printInfoString(info.getDict(), "ModDate", "ModDate:        ", uMap);
+            printInfoString(info.getDict(), "CreationDate", "CreationDate:    ", uMap);
+            printInfoString(info.getDict(), "ModDate", "ModDate:         ", uMap);
         } else {
-            printInfoDate(info.getDict(), "CreationDate", "CreationDate:   ");
-            printInfoDate(info.getDict(), "ModDate", "ModDate:        ");
+            printInfoDate(info.getDict(), "CreationDate", "CreationDate:    ", uMap);
+            printInfoDate(info.getDict(), "ModDate", "ModDate:         ", uMap);
         }
     }
 
+    bool hasMetadata = false;
+    std::unique_ptr<GooString> metadata = doc->readMetadata();
+    if (metadata) {
+        hasMetadata = true;
+    }
+
+    const std::set<std::string> docInfoStandardKeys { "Title", "Author", "Subject", "Keywords", "Creator", "Producer", "CreationDate", "ModDate", "Trapped" };
+
+    bool hasCustom = false;
+    if (info.isDict()) {
+        Dict *dict = info.getDict();
+        for (i = 0; i < dict->getLength(); i++) {
+            std::string key(dict->getKey(i));
+            if (docInfoStandardKeys.find(key) == docInfoStandardKeys.end()) {
+                hasCustom = true;
+                break;
+            }
+        }
+    }
+
+    // print metadata info
+    printf("Custom Metadata: %s\n", hasCustom ? "yes" : "no");
+    printf("Metadata Stream: %s\n", hasMetadata ? "yes" : "no");
+
     // print tagging info
-    printf("Tagged:         %s\n", (doc->getCatalog()->getMarkInfo() & Catalog::markInfoMarked) ? "yes" : "no");
-    printf("UserProperties: %s\n", (doc->getCatalog()->getMarkInfo() & Catalog::markInfoUserProperties) ? "yes" : "no");
-    printf("Suspects:       %s\n", (doc->getCatalog()->getMarkInfo() & Catalog::markInfoSuspects) ? "yes" : "no");
+    printf("Tagged:          %s\n", (doc->getCatalog()->getMarkInfo() & Catalog::markInfoMarked) ? "yes" : "no");
+    printf("UserProperties:  %s\n", (doc->getCatalog()->getMarkInfo() & Catalog::markInfoUserProperties) ? "yes" : "no");
+    printf("Suspects:        %s\n", (doc->getCatalog()->getMarkInfo() & Catalog::markInfoSuspects) ? "yes" : "no");
 
     // print form info
     switch (doc->getCatalog()->getFormType()) {
     case Catalog::NoForm:
-        printf("Form:           none\n");
+        printf("Form:            none\n");
         break;
     case Catalog::AcroForm:
-        printf("Form:           AcroForm\n");
+        printf("Form:            AcroForm\n");
         break;
     case Catalog::XfaForm:
-        printf("Form:           XFA\n");
+        printf("Form:            XFA\n");
         break;
     }
 
@@ -690,14 +801,14 @@ static void printInfo(PDFDoc *doc, const UnicodeMap *uMap, long long filesize, b
     {
         JSInfo jsInfo(doc, firstPage - 1);
         jsInfo.scanJS(lastPage - firstPage + 1);
-        printf("JavaScript:     %s\n", jsInfo.containsJS() ? "yes" : "no");
+        printf("JavaScript:      %s\n", jsInfo.containsJS() ? "yes" : "no");
     }
 
     // print page count
-    printf("Pages:          %d\n", doc->getNumPages());
+    printf("Pages:           %d\n", doc->getNumPages());
 
     // print encryption info
-    printf("Encrypted:      ");
+    printf("Encrypted:       ");
     if (doc->isEncrypted()) {
         unsigned char *fileKey;
         CryptAlgorithm encAlgorithm;
@@ -730,9 +841,9 @@ static void printInfo(PDFDoc *doc, const UnicodeMap *uMap, long long filesize, b
         w = doc->getPageCropWidth(pg);
         h = doc->getPageCropHeight(pg);
         if (multiPage) {
-            printf("Page %4d size: %g x %g pts", pg, w, h);
+            printf("Page %4d size:  %g x %g pts", pg, w, h);
         } else {
-            printf("Page size:      %g x %g pts", w, h);
+            printf("Page size:       %g x %g pts", w, h);
         }
         if ((fabs(w - 612) < 1 && fabs(h - 792) < 1) || (fabs(w - 792) < 1 && fabs(h - 612) < 1)) {
             printf(" (letter)");
@@ -753,9 +864,9 @@ static void printInfo(PDFDoc *doc, const UnicodeMap *uMap, long long filesize, b
         printf("\n");
         r = doc->getPageRotate(pg);
         if (multiPage) {
-            printf("Page %4d rot:  %d\n", pg, r);
+            printf("Page %4d rot:   %d\n", pg, r);
         } else {
-            printf("Page rot:       %d\n", r);
+            printf("Page rot:        %d\n", r);
         }
     }
 
@@ -768,15 +879,15 @@ static void printInfo(PDFDoc *doc, const UnicodeMap *uMap, long long filesize, b
                     error(errSyntaxError, -1, "Failed to print boxes for page {0:d}", pg);
                     continue;
                 }
-                sprintf(buf, "Page %4d MediaBox: ", pg);
+                sprintf(buf, "Page %4d MediaBox:  ", pg);
                 printBox(buf, page->getMediaBox());
-                sprintf(buf, "Page %4d CropBox:  ", pg);
+                sprintf(buf, "Page %4d CropBox:   ", pg);
                 printBox(buf, page->getCropBox());
-                sprintf(buf, "Page %4d BleedBox: ", pg);
+                sprintf(buf, "Page %4d BleedBox:  ", pg);
                 printBox(buf, page->getBleedBox());
-                sprintf(buf, "Page %4d TrimBox:  ", pg);
+                sprintf(buf, "Page %4d TrimBox:   ", pg);
                 printBox(buf, page->getTrimBox());
-                sprintf(buf, "Page %4d ArtBox:   ", pg);
+                sprintf(buf, "Page %4d ArtBox:    ", pg);
                 printBox(buf, page->getArtBox());
             }
         } else {
@@ -784,23 +895,23 @@ static void printInfo(PDFDoc *doc, const UnicodeMap *uMap, long long filesize, b
             if (!page) {
                 error(errSyntaxError, -1, "Failed to print boxes for page {0:d}", firstPage);
             } else {
-                printBox("MediaBox:       ", page->getMediaBox());
-                printBox("CropBox:        ", page->getCropBox());
-                printBox("BleedBox:       ", page->getBleedBox());
-                printBox("TrimBox:        ", page->getTrimBox());
-                printBox("ArtBox:         ", page->getArtBox());
+                printBox("MediaBox:        ", page->getMediaBox());
+                printBox("CropBox:         ", page->getCropBox());
+                printBox("BleedBox:        ", page->getBleedBox());
+                printBox("TrimBox:         ", page->getTrimBox());
+                printBox("ArtBox:          ", page->getArtBox());
             }
         }
     }
 
     // print file size
-    printf("File size:      %lld bytes\n", filesize);
+    printf("File size:       %lld bytes\n", filesize);
 
     // print linearization info
-    printf("Optimized:      %s\n", doc->isLinearized() ? "yes" : "no");
+    printf("Optimized:       %s\n", doc->isLinearized() ? "yes" : "no");
 
     // print PDF version
-    printf("PDF version:    %d.%d\n", doc->getPDFMajorVersion(), doc->getPDFMinorVersion());
+    printf("PDF version:     %d.%d\n", doc->getPDFMajorVersion(), doc->getPDFMinorVersion());
 
     printPdfSubtype(doc, uMap);
 }
@@ -811,9 +922,9 @@ int Main(int argc, char** argv)
 int main(int argc, char *argv[])
 #endif
 {
-    PDFDoc *doc;
+    std::unique_ptr<PDFDoc> doc;
     GooString *fileName;
-    GooString *ownerPW, *userPW;
+    std::optional<GooString> ownerPW, userPW;
     const UnicodeMap *uMap;
     FILE *f;
     bool ok;
@@ -832,13 +943,15 @@ int main(int argc, char *argv[])
         if (!printVersion) {
             printUsage("pdfinfo", "<PDF-file>", argDesc);
         }
-        if (printVersion || printHelp)
+        if (printVersion || printHelp) {
             exitCode = 0;
+        }
         goto err0;
     }
 
-    if (printStructureText)
+    if (printStructureText) {
         printStructure = true;
+    }
 
     // read config file
     globalParams = std::make_unique<GlobalParams>();
@@ -864,14 +977,10 @@ int main(int argc, char *argv[])
 
     // open PDF file
     if (ownerPassword[0] != '\001') {
-        ownerPW = new GooString(ownerPassword);
-    } else {
-        ownerPW = nullptr;
+        ownerPW = GooString(ownerPassword);
     }
     if (userPassword[0] != '\001') {
-        userPW = new GooString(userPassword);
-    } else {
-        userPW = nullptr;
+        userPW = GooString(userPassword);
     }
 
     if (fileName->cmp("-") == 0) {
@@ -881,12 +990,6 @@ int main(int argc, char *argv[])
 
     doc = PDFDocFactory().createPDFDoc(*fileName, ownerPW, userPW);
 
-    if (userPW) {
-        delete userPW;
-    }
-    if (ownerPW) {
-        delete ownerPW;
-    }
     if (!doc->isOk()) {
         exitCode = 1;
         goto err2;
@@ -911,15 +1014,16 @@ int main(int argc, char *argv[])
 
     if (printMetadata) {
         // print the metadata
-        const GooString *metadata = doc->readMetadata();
+        const std::unique_ptr<GooString> metadata = doc->readMetadata();
         if (metadata) {
             fputs(metadata->c_str(), stdout);
             fputc('\n', stdout);
-            delete metadata;
         }
+    } else if (printCustom) {
+        printCustomInfo(doc.get(), uMap);
     } else if (printJS) {
         // print javascript
-        JSInfo jsInfo(doc, firstPage - 1);
+        JSInfo jsInfo(doc.get(), firstPage - 1);
         jsInfo.scanJS(lastPage - firstPage + 1, stdout, uMap);
     } else if (printStructure || printStructureText) {
         // print structure
@@ -930,7 +1034,9 @@ int main(int argc, char *argv[])
             }
         }
     } else if (printDests) {
-        printDestinations(doc, uMap);
+        printDestinations(doc.get(), uMap);
+    } else if (printUrls) {
+        printUrlList(doc.get());
     } else {
         // print info
         long long filesize = 0;
@@ -942,16 +1048,16 @@ int main(int argc, char *argv[])
             fclose(f);
         }
 
-        if (multiPage == false)
+        if (multiPage == false) {
             lastPage = 1;
+        }
 
-        printInfo(doc, uMap, filesize, multiPage);
+        printInfo(doc.get(), uMap, filesize, multiPage);
     }
     exitCode = 0;
 
     // clean up
 err2:
-    delete doc;
     delete fileName;
 err1:
 err0:

@@ -1,5 +1,5 @@
 /*
- * parseargs.h
+ * parseargs.cc
  *
  * Command line argument parser.
  *
@@ -47,12 +47,14 @@ bool parseArgs(const ArgDesc *args, int *argc, char *argv[])
     while (i < *argc) {
         if (!strcmp(argv[i], "--")) {
             --*argc;
-            for (j = i; j < *argc; ++j)
+            for (j = i; j < *argc; ++j) {
                 argv[j] = argv[j + 1];
+            }
             break;
         } else if ((arg = findArg(args, argv[i]))) {
-            if (!grabArg(arg, i, argc, argv))
+            if (!grabArg(arg, i, argc, argv)) {
                 ok = false;
+            }
         } else {
             ++i;
         }
@@ -68,13 +70,15 @@ void printUsage(const char *program, const char *otherArgs, const ArgDesc *args)
 
     w = 0;
     for (arg = args; arg->arg; ++arg) {
-        if ((w1 = strlen(arg->arg)) > w)
+        if ((w1 = strlen(arg->arg)) > w) {
             w = w1;
+        }
     }
 
     fprintf(stderr, "Usage: %s [options]", program);
-    if (otherArgs)
+    if (otherArgs) {
         fprintf(stderr, " %s", otherArgs);
+    }
     fprintf(stderr, "\n");
 
     for (arg = args; arg->arg; ++arg) {
@@ -101,8 +105,9 @@ void printUsage(const char *program, const char *otherArgs, const ArgDesc *args)
             break;
         }
         fprintf(stderr, "%-*s", w1, typ);
-        if (arg->usage)
+        if (arg->usage) {
             fprintf(stderr, ": %s", arg->usage);
+        }
         fprintf(stderr, "\n");
     }
 }
@@ -112,8 +117,9 @@ static const ArgDesc *findArg(const ArgDesc *args, char *arg)
     const ArgDesc *p;
 
     for (p = args; p->arg; ++p) {
-        if (p->kind < argFlagDummy && !strcmp(p->arg, arg))
+        if (p->kind < argFlagDummy && !strcmp(p->arg, arg)) {
             return p;
+        }
     }
     return nullptr;
 }
@@ -175,20 +181,24 @@ static bool grabArg(const ArgDesc *arg, int i, int *argc, char *argv[])
     }
     if (n > 0) {
         *argc -= n;
-        for (j = i; j < *argc; ++j)
+        for (j = i; j < *argc; ++j) {
             argv[j] = argv[j + n];
+        }
     }
     return ok;
 }
 
 bool isInt(const char *s)
 {
-    if (*s == '-' || *s == '+')
+    if (*s == '-' || *s == '+') {
         ++s;
-    while (isdigit(*s))
+    }
+    while (isdigit(*s)) {
         ++s;
-    if (*s)
+    }
+    if (*s) {
         return false;
+    }
     return true;
 }
 
@@ -196,31 +206,36 @@ bool isFP(const char *s)
 {
     int n;
 
-    if (*s == '-' || *s == '+')
+    if (*s == '-' || *s == '+') {
         ++s;
+    }
     n = 0;
     while (isdigit(*s)) {
         ++s;
         ++n;
     }
-    if (*s == '.')
+    if (*s == '.') {
         ++s;
+    }
     while (isdigit(*s)) {
         ++s;
         ++n;
     }
     if (n > 0 && (*s == 'e' || *s == 'E')) {
         ++s;
-        if (*s == '-' || *s == '+')
+        if (*s == '-' || *s == '+') {
             ++s;
+        }
         n = 0;
-        if (!isdigit(*s))
+        if (!isdigit(*s)) {
             return false;
+        }
         do {
             ++s;
         } while (isdigit(*s));
     }
-    if (*s)
+    if (*s) {
         return false;
+    }
     return true;
 }

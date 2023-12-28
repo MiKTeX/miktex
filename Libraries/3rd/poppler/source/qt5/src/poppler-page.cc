@@ -1,7 +1,7 @@
 /* poppler-page.cc: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
  * Copyright (C) 2005, Brad Hards <bradh@frogmouth.net>
- * Copyright (C) 2005-2020, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2005-2022, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2005, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
  * Copyright (C) 2006-2011, Pino Toscano <pino@kde.org>
  * Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
@@ -22,9 +22,12 @@
  * Copyright (C) 2017, 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
  * Copyright (C) 2018 Intevation GmbH <intevation@intevation.de>
  * Copyright (C) 2018, Tobias Deiminger <haxtibal@posteo.de>
- * Copyright (C) 2018 Nelson Benítez León <nbenitezl@gmail.com>
+ * Copyright (C) 2018, 2021 Nelson Benítez León <nbenitezl@gmail.com>
  * Copyright (C) 2020 Oliver Sander <oliver.sander@tu-dresden.de>
  * Copyright (C) 2020 Philipp Knechtges <philipp-dev@knechtges.com>
+ * Copyright (C) 2021 Hubert Figuiere <hub@figuiere.net>
+ * Copyright (C) 2021 Thomas Huxhorn <thomas.huxhorn@web.de>
+ * Copyright (C) 2023 Kevin Ottens <kevin.ottens@enioka.com>. Work sponsored by De Bortoli Wines
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,8 +45,8 @@
  */
 
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
 #endif
 #include <poppler-qt5.h>
 
@@ -52,8 +55,11 @@
 #include <QtCore/QVarLengthArray>
 #include <QtGui/QImage>
 #include <QtGui/QPainter>
+#include <QDebug>
 
 #include <config.h>
+#include <cfloat>
+#include <poppler-config.h>
 #include <PDFDoc.h>
 #include <Catalog.h>
 #include <Form.h>
@@ -61,12 +67,10 @@
 #include <TextOutputDev.h>
 #include <Annot.h>
 #include <Link.h>
-#include <ArthurOutputDev.h>
+#include <QPainterOutputDev.h>
 #include <Rendition.h>
-#if defined(HAVE_SPLASH)
-#    include <SplashOutputDev.h>
-#    include <splash/SplashBitmap.h>
-#endif
+#include <SplashOutputDev.h>
+#include <splash/SplashBitmap.h>
 
 #include "poppler-private.h"
 #include "poppler-page-transition-private.h"
@@ -117,6 +121,8 @@ public:
     {
     }
 
+    ~Qt5SplashOutputDev() override;
+
     void dump() override
     {
         if (partialUpdateCallback && shouldDoPartialUpdateCallback && shouldDoPartialUpdateCallback(payload)) {
@@ -128,10 +134,6 @@ public:
     {
         SplashBitmap *b = getBitmap();
 
-        const int bw = b->getWidth();
-        const int bh = b->getHeight();
-        const int brs = b->getRowSize();
-
         // If we use DeviceN8, convert to XBGR8.
         // If requested, also transfer Splash's internal alpha channel.
         const SplashBitmap::ConversionMode mode = ignorePaperColor ? SplashBitmap::conversionAlphaPremultiplied : SplashBitmap::conversionOpaque;
@@ -139,6 +141,10 @@ public:
         const QImage::Format format = ignorePaperColor ? QImage::Format_ARGB32_Premultiplied : QImage::Format_RGB32;
 
         if (b->convertToXBGR(mode)) {
+            const int bw = b->getWidth();
+            const int bh = b->getHeight();
+            const int brs = b->getRowSize();
+
             SplashColorPtr data = takeImageData ? b->takeData() : b->getDataPtr();
 
             if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
@@ -155,7 +161,11 @@ public:
 
             if (takeImageData) {
                 // Construct a Qt image holding (and also owning) the raw bitmap data.
-                return QImage(data, bw, bh, brs, format, gfree, data);
+                QImage i(data, bw, bh, brs, format, gfree, data);
+                if (i.isNull()) {
+                    gfree(data);
+                }
+                return i;
             } else {
                 return QImage(data, bw, bh, brs, format).copy();
             }
@@ -168,10 +178,13 @@ private:
     bool ignorePaperColor;
 };
 
-class QImageDumpingArthurOutputDev : public ArthurOutputDev, public OutputDevCallbackHelper
+Qt5SplashOutputDev::~Qt5SplashOutputDev() = default;
+
+class QImageDumpingQPainterOutputDev : public QPainterOutputDev, public OutputDevCallbackHelper
 {
 public:
-    QImageDumpingArthurOutputDev(QPainter *painter, QImage *i) : ArthurOutputDev(painter), image(i) { }
+    QImageDumpingQPainterOutputDev(QPainter *painter, QImage *i) : QPainterOutputDev(painter), image(i) { }
+    ~QImageDumpingQPainterOutputDev() override;
 
     void dump() override
     {
@@ -184,6 +197,8 @@ private:
     QImage *image;
 };
 
+QImageDumpingQPainterOutputDev::~QImageDumpingQPainterOutputDev() = default;
+
 Link *PageData::convertLinkActionToLink(::LinkAction *a, const QRectF &linkArea)
 {
     return convertLinkActionToLink(a, parentDoc, linkArea);
@@ -191,8 +206,9 @@ Link *PageData::convertLinkActionToLink(::LinkAction *a, const QRectF &linkArea)
 
 Link *PageData::convertLinkActionToLink(::LinkAction *a, DocumentData *parentDoc, const QRectF &linkArea)
 {
-    if (!a)
+    if (!a) {
         return nullptr;
+    }
 
     Link *popplerLink = nullptr;
     switch (a->getKind()) {
@@ -220,35 +236,37 @@ Link *PageData::convertLinkActionToLink(::LinkAction *a, DocumentData *parentDoc
 
     case actionNamed: {
         const std::string &name = ((LinkNamed *)a)->getName();
-        if (name == "NextPage")
+        if (name == "NextPage") {
             popplerLink = new LinkAction(linkArea, LinkAction::PageNext);
-        else if (name == "PrevPage")
+        } else if (name == "PrevPage") {
             popplerLink = new LinkAction(linkArea, LinkAction::PagePrev);
-        else if (name == "FirstPage")
+        } else if (name == "FirstPage") {
             popplerLink = new LinkAction(linkArea, LinkAction::PageFirst);
-        else if (name == "LastPage")
+        } else if (name == "LastPage") {
             popplerLink = new LinkAction(linkArea, LinkAction::PageLast);
-        else if (name == "GoBack")
+        } else if (name == "GoBack") {
             popplerLink = new LinkAction(linkArea, LinkAction::HistoryBack);
-        else if (name == "GoForward")
+        } else if (name == "GoForward") {
             popplerLink = new LinkAction(linkArea, LinkAction::HistoryForward);
-        else if (name == "Quit")
+        } else if (name == "Quit") {
             popplerLink = new LinkAction(linkArea, LinkAction::Quit);
-        else if (name == "GoToPage")
+        } else if (name == "GoToPage") {
             popplerLink = new LinkAction(linkArea, LinkAction::GoToPage);
-        else if (name == "Find")
+        } else if (name == "Find") {
             popplerLink = new LinkAction(linkArea, LinkAction::Find);
-        else if (name == "FullScreen")
+        } else if (name == "FullScreen") {
             popplerLink = new LinkAction(linkArea, LinkAction::Presentation);
-        else if (name == "Print")
+        } else if (name == "Print") {
             popplerLink = new LinkAction(linkArea, LinkAction::Print);
-        else if (name == "Close") {
+        } else if (name == "Close") {
             // acroread closes the document always, doesnt care whether
             // its presentation mode or not
             // popplerLink = new LinkAction( linkArea, LinkAction::EndPresentation );
             popplerLink = new LinkAction(linkArea, LinkAction::Close);
+        } else if (name == "SaveAs") {
+            popplerLink = new LinkAction(linkArea, LinkAction::SaveAs);
         } else {
-            // TODO
+            qWarning() << "Unhandled action name" << name.c_str();
         }
     } break;
 
@@ -272,8 +290,9 @@ Link *PageData::convertLinkActionToLink(::LinkAction *a, DocumentData *parentDoc
         const QString title = (lm->hasAnnotTitle() ? UnicodeParsedString(lm->getAnnotTitle()) : QString());
 
         Ref reference = Ref::INVALID();
-        if (lm->hasAnnotRef())
+        if (lm->hasAnnotRef()) {
             reference = *lm->getAnnotRef();
+        }
 
         LinkMovie::Operation operation = LinkMovie::Play;
         switch (lm->getOperation()) {
@@ -298,8 +317,9 @@ Link *PageData::convertLinkActionToLink(::LinkAction *a, DocumentData *parentDoc
         ::LinkRendition *lrn = (::LinkRendition *)a;
 
         Ref reference = Ref::INVALID();
-        if (lrn->hasScreenAnnot())
+        if (lrn->hasScreenAnnot()) {
             reference = lrn->getScreenAnnot();
+        }
 
         popplerLink = new LinkRendition(linkArea, lrn->getMedia() ? lrn->getMedia()->copy() : nullptr, lrn->getOperation(), UnicodeParsedString(lrn->getScript()), reference);
     } break;
@@ -351,24 +371,29 @@ inline TextPage *PageData::prepareTextSearch(const QString &text, Page::Rotation
     return textPage;
 }
 
-inline bool PageData::performSingleTextSearch(TextPage *textPage, QVector<Unicode> &u, double &sLeft, double &sTop, double &sRight, double &sBottom, Page::SearchDirection direction, bool sCase, bool sWords, bool sDiacritics = false)
+inline bool PageData::performSingleTextSearch(TextPage *textPage, QVector<Unicode> &u, double &sLeft, double &sTop, double &sRight, double &sBottom, Page::SearchDirection direction, bool sCase, bool sWords, bool sDiacritics,
+                                              bool sAcrossLines)
 {
-    if (direction == Page::FromTop)
-        return textPage->findText(u.data(), u.size(), true, true, false, false, sCase, sDiacritics, false, sWords, &sLeft, &sTop, &sRight, &sBottom);
-    else if (direction == Page::NextResult)
-        return textPage->findText(u.data(), u.size(), false, true, true, false, sCase, sDiacritics, false, sWords, &sLeft, &sTop, &sRight, &sBottom);
-    else if (direction == Page::PreviousResult)
-        return textPage->findText(u.data(), u.size(), false, true, true, false, sCase, sDiacritics, true, sWords, &sLeft, &sTop, &sRight, &sBottom);
+    if (direction == Page::FromTop) {
+        return textPage->findText(u.data(), u.size(), true, true, false, false, sCase, sDiacritics, sAcrossLines, false, sWords, &sLeft, &sTop, &sRight, &sBottom, nullptr, nullptr);
+    } else if (direction == Page::NextResult) {
+        return textPage->findText(u.data(), u.size(), false, true, true, false, sCase, sDiacritics, sAcrossLines, false, sWords, &sLeft, &sTop, &sRight, &sBottom, nullptr, nullptr);
+    } else if (direction == Page::PreviousResult) {
+        return textPage->findText(u.data(), u.size(), false, true, true, false, sCase, sDiacritics, sAcrossLines, true, sWords, &sLeft, &sTop, &sRight, &sBottom, nullptr, nullptr);
+    }
 
     return false;
 }
 
-inline QList<QRectF> PageData::performMultipleTextSearch(TextPage *textPage, QVector<Unicode> &u, bool sCase, bool sWords, bool sDiacritics = false)
+inline QList<QRectF> PageData::performMultipleTextSearch(TextPage *textPage, QVector<Unicode> &u, bool sCase, bool sWords, bool sDiacritics, bool sAcrossLines)
 {
     QList<QRectF> results;
     double sLeft = 0.0, sTop = 0.0, sRight = 0.0, sBottom = 0.0;
+    bool sIgnoredHyphen = false;
+    PDFRectangle continueMatch;
+    continueMatch.x1 = DBL_MAX; // we use this to detect valid return values
 
-    while (textPage->findText(u.data(), u.size(), false, true, true, false, sCase, sDiacritics, false, sWords, &sLeft, &sTop, &sRight, &sBottom)) {
+    while (textPage->findText(u.data(), u.size(), false, true, true, false, sCase, sDiacritics, sAcrossLines, false, sWords, &sLeft, &sTop, &sRight, &sBottom, &continueMatch, &sIgnoredHyphen)) {
         QRectF result;
 
         result.setLeft(sLeft);
@@ -377,6 +402,18 @@ inline QList<QRectF> PageData::performMultipleTextSearch(TextPage *textPage, QVe
         result.setBottom(sBottom);
 
         results.append(result);
+
+        if (sAcrossLines && continueMatch.x1 != DBL_MAX) {
+            QRectF resultN;
+
+            resultN.setLeft(continueMatch.x1);
+            resultN.setTop(continueMatch.y1);
+            resultN.setRight(continueMatch.x2);
+            resultN.setBottom(continueMatch.y1);
+
+            results.append(resultN);
+            continueMatch.x1 = DBL_MAX;
+        }
     }
 
     return results;
@@ -421,26 +458,30 @@ static auto shouldAbortExtractionInternalCallback = [](void *user_data) {
 // Needed to make the ternary operator happy.
 static bool (*nullAbortCallBack)(void *user_data) = nullptr;
 
-static bool renderToArthur(QImageDumpingArthurOutputDev *arthur_output, QPainter *painter, PageData *page, double xres, double yres, int x, int y, int w, int h, Page::Rotation rotate, Page::PainterFlags flags)
+static bool renderToQPainter(QImageDumpingQPainterOutputDev *qpainter_output, QPainter *painter, PageData *page, double xres, double yres, int x, int y, int w, int h, Page::Rotation rotate, Page::PainterFlags flags)
 {
     const bool savePainter = !(flags & Page::DontSaveAndRestore);
-    if (savePainter)
+    if (savePainter) {
         painter->save();
-    if (page->parentDoc->m_hints & Document::Antialiasing)
+    }
+    if (page->parentDoc->m_hints & Document::Antialiasing) {
         painter->setRenderHint(QPainter::Antialiasing);
-    if (page->parentDoc->m_hints & Document::TextAntialiasing)
+    }
+    if (page->parentDoc->m_hints & Document::TextAntialiasing) {
         painter->setRenderHint(QPainter::TextAntialiasing);
+    }
     painter->translate(x == -1 ? 0 : -x, y == -1 ? 0 : -y);
 
-    arthur_output->startDoc(page->parentDoc->doc);
+    qpainter_output->startDoc(page->parentDoc->doc);
 
     const bool hideAnnotations = page->parentDoc->m_hints & Document::HideAnnotations;
 
-    OutputDevCallbackHelper *abortHelper = arthur_output;
-    page->parentDoc->doc->displayPageSlice(arthur_output, page->index + 1, xres, yres, (int)rotate * 90, false, true, false, x, y, w, h, abortHelper->shouldAbortRenderCallback ? shouldAbortRenderInternalCallback : nullAbortCallBack,
+    OutputDevCallbackHelper *abortHelper = qpainter_output;
+    page->parentDoc->doc->displayPageSlice(qpainter_output, page->index + 1, xres, yres, (int)rotate * 90, false, true, false, x, y, w, h, abortHelper->shouldAbortRenderCallback ? shouldAbortRenderInternalCallback : nullAbortCallBack,
                                            abortHelper, (hideAnnotations) ? annotDisplayDecideCbk : nullAnnotCallBack, nullptr, true);
-    if (savePainter)
+    if (savePainter) {
         painter->restore();
+    }
     return true;
 }
 
@@ -474,7 +515,6 @@ QImage Page::renderToImage(double xres, double yres, int xPos, int yPos, int w, 
     QImage img;
     switch (m_page->parentDoc->m_backend) {
     case Poppler::Document::SplashBackend: {
-#if defined(HAVE_SPLASH)
         SplashColor bgColor;
         const bool overprintPreview = m_page->parentDoc->m_hints & Document::OverprintPreview ? true : false;
         if (overprintPreview) {
@@ -506,10 +546,12 @@ QImage Page::renderToImage(double xres, double yres, int xPos, int yPos, int w, 
         const SplashColorMode colorMode = overprintPreview ? splashModeDeviceN8 : splashModeXBGR8;
 
         SplashThinLineMode thinLineMode = splashThinLineDefault;
-        if (m_page->parentDoc->m_hints & Document::ThinLineShape)
+        if (m_page->parentDoc->m_hints & Document::ThinLineShape) {
             thinLineMode = splashThinLineShape;
-        if (m_page->parentDoc->m_hints & Document::ThinLineSolid)
+        }
+        if (m_page->parentDoc->m_hints & Document::ThinLineSolid) {
             thinLineMode = splashThinLineSolid;
+        }
 
         const bool ignorePaperColor = m_page->parentDoc->m_hints & Document::IgnorePaperColor;
 
@@ -521,9 +563,9 @@ QImage Page::renderToImage(double xres, double yres, int xPos, int yPos, int w, 
         splash_output.setVectorAntialias(m_page->parentDoc->m_hints & Document::Antialiasing ? true : false);
         splash_output.setFreeTypeHinting(m_page->parentDoc->m_hints & Document::TextHinting ? true : false, m_page->parentDoc->m_hints & Document::TextSlightHinting ? true : false);
 
-#    ifdef USE_CMS
+#ifdef USE_CMS
         splash_output.setDisplayProfile(m_page->parentDoc->m_displayProfile);
-#    endif
+#endif
 
         splash_output.startDoc(m_page->parentDoc->doc);
 
@@ -534,10 +576,9 @@ QImage Page::renderToImage(double xres, double yres, int xPos, int yPos, int w, 
                                                  (hideAnnotations) ? annotDisplayDecideCbk : nullAnnotCallBack, nullptr, true);
 
         img = splash_output.getXBGRImage(true /* takeImageData */);
-#endif
         break;
     }
-    case Poppler::Document::ArthurBackend: {
+    case Poppler::Document::QPainterBackend: {
         QSize size = pageSize();
         QImage tmpimg(w == -1 ? qRound(size.width() * xres / 72.0) : w, h == -1 ? qRound(size.height() * yres / 72.0) : h, QImage::Format_ARGB32);
 
@@ -546,42 +587,44 @@ QImage Page::renderToImage(double xres, double yres, int xPos, int yPos, int w, 
         tmpimg.fill(bgColor);
 
         QPainter painter(&tmpimg);
-        QImageDumpingArthurOutputDev arthur_output(&painter, &tmpimg);
+        QImageDumpingQPainterOutputDev qpainter_output(&painter, &tmpimg);
 
-        arthur_output.setHintingPreference(QFontHintingFromPopplerHinting(m_page->parentDoc->m_hints));
+        qpainter_output.setHintingPreference(QFontHintingFromPopplerHinting(m_page->parentDoc->m_hints));
 
 #ifdef USE_CMS
-        arthur_output.setDisplayProfile(m_page->parentDoc->m_displayProfile);
+        qpainter_output.setDisplayProfile(m_page->parentDoc->m_displayProfile);
 #endif
 
-        arthur_output.setCallbacks(partialUpdateCallback, shouldDoPartialUpdateCallback, shouldAbortRenderCallback, payload);
-        renderToArthur(&arthur_output, &painter, m_page, xres, yres, xPos, yPos, w, h, rotate, DontSaveAndRestore);
+        qpainter_output.setCallbacks(partialUpdateCallback, shouldDoPartialUpdateCallback, shouldAbortRenderCallback, payload);
+        renderToQPainter(&qpainter_output, &painter, m_page, xres, yres, xPos, yPos, w, h, rotate, DontSaveAndRestore);
         painter.end();
         img = tmpimg;
         break;
     }
     }
 
-    if (shouldAbortRenderCallback && shouldAbortRenderCallback(payload))
+    if (shouldAbortRenderCallback && shouldAbortRenderCallback(payload)) {
         return QImage();
+    }
 
     return img;
 }
 
 bool Page::renderToPainter(QPainter *painter, double xres, double yres, int x, int y, int w, int h, Rotation rotate, PainterFlags flags) const
 {
-    if (!painter)
+    if (!painter) {
         return false;
+    }
 
     switch (m_page->parentDoc->m_backend) {
     case Poppler::Document::SplashBackend:
         return false;
-    case Poppler::Document::ArthurBackend: {
-        QImageDumpingArthurOutputDev arthur_output(painter, nullptr);
+    case Poppler::Document::QPainterBackend: {
+        QImageDumpingQPainterOutputDev qpainter_output(painter, nullptr);
 
-        arthur_output.setHintingPreference(QFontHintingFromPopplerHinting(m_page->parentDoc->m_hints));
+        qpainter_output.setHintingPreference(QFontHintingFromPopplerHinting(m_page->parentDoc->m_hints));
 
-        return renderToArthur(&arthur_output, painter, m_page, xres, yres, x, y, w, h, rotate, flags);
+        return renderToQPainter(&qpainter_output, painter, m_page, xres, yres, x, y, w, h, rotate, flags);
     }
     }
     return false;
@@ -639,7 +682,7 @@ bool Page::search(const QString &text, double &sLeft, double &sTop, double &sRig
     QVector<Unicode> u;
     TextPage *textPage = m_page->prepareTextSearch(text, rotate, &u);
 
-    const bool found = m_page->performSingleTextSearch(textPage, u, sLeft, sTop, sRight, sBottom, direction, sCase, false);
+    const bool found = m_page->performSingleTextSearch(textPage, u, sLeft, sTop, sRight, sBottom, direction, sCase, false, false, false);
 
     textPage->decRefCnt();
 
@@ -651,11 +694,12 @@ bool Page::search(const QString &text, double &sLeft, double &sTop, double &sRig
     const bool sCase = flags.testFlag(IgnoreCase) ? false : true;
     const bool sWords = flags.testFlag(WholeWords) ? true : false;
     const bool sDiacritics = flags.testFlag(IgnoreDiacritics) ? true : false;
+    const bool sAcrossLines = flags.testFlag(AcrossLines) ? true : false;
 
     QVector<Unicode> u;
     TextPage *textPage = m_page->prepareTextSearch(text, rotate, &u);
 
-    const bool found = m_page->performSingleTextSearch(textPage, u, sLeft, sTop, sRight, sBottom, direction, sCase, sWords, sDiacritics);
+    const bool found = m_page->performSingleTextSearch(textPage, u, sLeft, sTop, sRight, sBottom, direction, sCase, sWords, sDiacritics, sAcrossLines);
 
     textPage->decRefCnt();
 
@@ -669,7 +713,7 @@ QList<QRectF> Page::search(const QString &text, SearchMode caseSensitive, Rotati
     QVector<Unicode> u;
     TextPage *textPage = m_page->prepareTextSearch(text, rotate, &u);
 
-    const QList<QRectF> results = m_page->performMultipleTextSearch(textPage, u, sCase, false);
+    const QList<QRectF> results = m_page->performMultipleTextSearch(textPage, u, sCase, false, false, false);
 
     textPage->decRefCnt();
 
@@ -681,11 +725,12 @@ QList<QRectF> Page::search(const QString &text, SearchFlags flags, Rotation rota
     const bool sCase = flags.testFlag(IgnoreCase) ? false : true;
     const bool sWords = flags.testFlag(WholeWords) ? true : false;
     const bool sDiacritics = flags.testFlag(IgnoreDiacritics) ? true : false;
+    const bool sAcrossLines = flags.testFlag(AcrossLines) ? true : false;
 
     QVector<Unicode> u;
     TextPage *textPage = m_page->prepareTextSearch(text, rotate, &u);
 
-    const QList<QRectF> results = m_page->performMultipleTextSearch(textPage, u, sCase, sWords, sDiacritics);
+    const QList<QRectF> results = m_page->performMultipleTextSearch(textPage, u, sCase, sWords, sDiacritics, sAcrossLines);
 
     textPage->decRefCnt();
 
@@ -699,23 +744,19 @@ QList<TextBox *> Page::textList(Rotation rotate) const
 
 QList<TextBox *> Page::textList(Rotation rotate, ShouldAbortQueryFunc shouldAbortExtractionCallback, const QVariant &closure) const
 {
-    TextOutputDev *output_dev;
-
     QList<TextBox *> output_list;
 
-    output_dev = new TextOutputDev(nullptr, false, 0, false, false);
+    TextOutputDev output_dev(nullptr, false, 0, false, false);
 
     int rotation = (int)rotate * 90;
 
     TextExtractionAbortHelper abortHelper(shouldAbortExtractionCallback, closure);
-    m_page->parentDoc->doc->displayPageSlice(output_dev, m_page->index + 1, 72, 72, rotation, false, false, false, -1, -1, -1, -1, shouldAbortExtractionCallback ? shouldAbortExtractionInternalCallback : nullAbortCallBack, &abortHelper,
+    m_page->parentDoc->doc->displayPageSlice(&output_dev, m_page->index + 1, 72, 72, rotation, false, false, false, -1, -1, -1, -1, shouldAbortExtractionCallback ? shouldAbortExtractionInternalCallback : nullAbortCallBack, &abortHelper,
                                              nullptr, nullptr, true);
 
-    TextWordList *word_list = output_dev->makeWordList();
+    std::unique_ptr<TextWordList> word_list = output_dev.makeWordList();
 
-    if (!word_list || (shouldAbortExtractionCallback && shouldAbortExtractionCallback(closure))) {
-        delete word_list;
-        delete output_dev;
+    if (shouldAbortExtractionCallback && shouldAbortExtractionCallback(closure)) {
         return output_list;
     }
 
@@ -749,9 +790,6 @@ QList<TextBox *> Page::textList(Rotation rotate, ShouldAbortQueryFunc shouldAbor
         text_box->m_data->nextWord = wordBoxMap.value(word->nextWord());
     }
 
-    delete word_list;
-    delete output_dev;
-
     return output_list;
 }
 
@@ -761,8 +799,9 @@ PageTransition *Page::transition() const
         Object o = m_page->page->getTrans();
         PageTransitionParams params;
         params.dictObj = &o;
-        if (params.dictObj->isDict())
+        if (params.dictObj->isDict()) {
             m_page->transition = new PageTransition(params);
+        }
     }
     return m_page->transition;
 }
@@ -858,7 +897,7 @@ QList<FormField *> Page::formFields() const
 {
     QList<FormField *> fields;
     ::Page *p = m_page->page;
-    ::FormPageWidgets *form = p->getFormWidgets();
+    const std::unique_ptr<FormPageWidgets> form = p->getFormWidgets();
     int formcount = form->getNumWidgets();
     for (int i = 0; i < formcount; ++i) {
         ::FormWidget *fm = form->getWidget(i);
@@ -883,11 +922,10 @@ QList<FormField *> Page::formFields() const
         default:;
         }
 
-        if (ff)
+        if (ff) {
             fields.append(ff);
+        }
     }
-
-    delete form;
 
     return fields;
 }
@@ -900,8 +938,9 @@ double Page::duration() const
 QString Page::label() const
 {
     GooString goo;
-    if (!m_page->parentDoc->doc->getCatalog()->indexToLabel(m_page->index, &goo))
+    if (!m_page->parentDoc->doc->getCatalog()->indexToLabel(m_page->index, &goo)) {
         return QString();
+    }
 
     return UnicodeParsedString(&goo);
 }

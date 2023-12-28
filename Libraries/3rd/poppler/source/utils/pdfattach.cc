@@ -4,8 +4,8 @@
 //
 // This file is licensed under the GPLv2 or later
 //
-// Copyright (C) 2019, 2020 Albert Astals Cid <aacid@kde.org>
-// Copyright (C) 2019 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2019-2022 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2019, 2023 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -21,6 +21,7 @@
 #include "PDFDocFactory.h"
 #include "Error.h"
 #include "ErrorCodes.h"
+#include "UTF.h"
 #include "Win32Console.h"
 
 static bool doReplace = false;
@@ -65,20 +66,20 @@ int main(int argc, char *argv[])
         return 99;
     }
     const GooString pdfFileName(argv[1]);
-    const GooString attachFilePath(argv[2]);
+    const std::string attachFilePath(argv[2]);
 
     // init GlobalParams
     globalParams = std::make_unique<GlobalParams>();
 
     // open PDF file
-    std::unique_ptr<PDFDoc> doc(PDFDocFactory().createPDFDoc(pdfFileName, nullptr, nullptr));
+    std::unique_ptr<PDFDoc> doc(PDFDocFactory().createPDFDoc(pdfFileName, {}, {}));
 
     if (!doc->isOk()) {
         fprintf(stderr, "Couldn't open %s\n", pdfFileName.c_str());
         return 1;
     }
 
-    std::unique_ptr<GooFile> attachFile(GooFile::open(&attachFilePath));
+    std::unique_ptr<GooFile> attachFile(GooFile::open(attachFilePath));
     if (!attachFile) {
         fprintf(stderr, "Couldn't open %s\n", attachFilePath.c_str());
         return 2;
@@ -89,7 +90,7 @@ int main(int argc, char *argv[])
         return 3;
     }
 
-    const std::string attachFileName = gbasename(attachFilePath.c_str());
+    const std::string attachFileName = utf8ToUtf16WithBom(gbasename(attachFilePath.c_str()));
 
     if (!doReplace && doc->getCatalog()->hasEmbeddedFile(attachFileName)) {
         fprintf(stderr, "There is already an embedded file named %s.\n", attachFileName.c_str());
@@ -99,7 +100,7 @@ int main(int argc, char *argv[])
     doc->getCatalog()->addEmbeddedFile(attachFile.get(), attachFileName);
 
     const GooString outputPdfFilePath(argv[3]);
-    const int saveResult = doc->saveAs(&outputPdfFilePath);
+    const int saveResult = doc->saveAs(outputPdfFilePath);
     if (saveResult != errNone) {
         fprintf(stderr, "Couldn't save the file properly.\n");
         return 5;

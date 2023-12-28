@@ -3,7 +3,7 @@
 // FlateEncoder.h
 //
 // Copyright (C) 2016, William Bader <williambader@hotmail.com>
-// Copyright (C) 2018, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2018, 2019, 2021 Albert Astals Cid <aacid@kde.org>
 //
 // This file is under the GPLv2 or later license
 //
@@ -40,15 +40,15 @@ extern "C" {
 class FlateEncoder : public FilterStream
 {
 public:
-    FlateEncoder(Stream *strA);
+    explicit FlateEncoder(Stream *strA);
     ~FlateEncoder() override;
     StreamKind getKind() const override { return strWeird; }
     void reset() override;
     int getChar() override { return (outBufPtr >= outBufEnd && !fillBuf()) ? EOF : (*outBufPtr++ & 0xff); }
     int lookChar() override { return (outBufPtr >= outBufEnd && !fillBuf()) ? EOF : (*outBufPtr & 0xff); }
     GooString *getPSFilter(int psLevel, const char *indent) override { return nullptr; }
-    bool isBinary(bool last = true) override { return true; }
-    bool isEncoder() override { return true; }
+    bool isBinary(bool last = true) const override { return true; }
+    bool isEncoder() const override { return true; }
 
 private:
     static const int inBufSize = 16384;

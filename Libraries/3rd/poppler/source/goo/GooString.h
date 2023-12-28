@@ -17,7 +17,7 @@
 //
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
-// Copyright (C) 2008-2010, 2012, 2014, 2017-2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008-2010, 2012, 2014, 2017-2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2012-2014 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Jason Crain <jason@aquaticape.us>
 // Copyright (C) 2015, 2018 Adam Reichold <adam.reichold@t-online.de>
@@ -26,7 +26,10 @@
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 // Copyright (C) 2019 Christophe Fergeau <cfergeau@redhat.com>
 // Copyright (C) 2019 Tomoyuki Kubota <himajin100000@gmail.com>
-// Copyright (C) 2019, 2020 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2019, 2020, 2022, 2023 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2019 Hans-Ulrich Jüttner <huj@froreich-bioscientia.de>
+// Copyright (C) 2020 Thorsten Behrens <Thorsten.Behrens@CIB.de>
+// Copyright (C) 2022 Even Rouault <even.rouault@spatialys.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -36,7 +39,10 @@
 #ifndef GooString_H
 #define GooString_H
 
+#include "poppler_private_export.h"
+
 #include <cstdarg>
+#include <memory>
 #include <string>
 
 #ifdef __clang__
@@ -72,10 +78,11 @@ public:
 
     // Create a string from <lengthA> chars at <sA>.  This string
     // can contain null characters.
-    GooString(const char *sA, int lengthA) : std::string(sA ? sA : "", sA ? lengthA : 0) { }
+    GooString(const char *sA, size_t lengthA) : std::string(sA ? sA : "", sA ? lengthA : 0) { }
 
     // Create a string from <lengthA> chars at <idx> in <str>.
-    GooString(const GooString *str, int idx, int lengthA) : std::string(*str, idx, lengthA) { }
+    GooString(const GooString *str, int idx, size_t lengthA) : std::string(*str, idx, lengthA) { }
+    GooString(const std::string &str, int idx, size_t lengthA) : std::string(str, idx, lengthA) { }
 
     // Set content of a string to <newStr>.
     GooString *Set(const GooString *newStr)
@@ -133,8 +140,8 @@ public:
     //     t -- GooString *
     //     w -- blank space; arg determines width
     // To get literal curly braces, use {{ or }}.
-    static GooString *format(const char *fmt, ...) GOOSTRING_FORMAT;
-    static GooString *formatv(const char *fmt, va_list argList);
+    POPPLER_PRIVATE_EXPORT static std::unique_ptr<GooString> format(const char *fmt, ...) GOOSTRING_FORMAT;
+    POPPLER_PRIVATE_EXPORT static std::unique_ptr<GooString> formatv(const char *fmt, va_list argList);
 
     // Get length.
     int getLength() const { return size(); }
@@ -143,7 +150,7 @@ public:
     using std::string::c_str;
 
     // Get <i>th character.
-    char getChar(int i) const { return (*this)[i]; }
+    char getChar(size_t i) const { return (*this)[i]; }
 
     // Change <i>th character.
     void setChar(int i, char c) { (*this)[i] = c; }
@@ -176,15 +183,15 @@ public:
         static_cast<std::string &>(*this).append(str);
         return this;
     }
-    GooString *append(const char *str, int lengthA)
+    GooString *append(const char *str, size_t lengthA)
     {
         static_cast<std::string &>(*this).append(str, lengthA);
         return this;
     }
 
     // Append a formatted string.
-    GooString *appendf(const char *fmt, ...) GOOSTRING_FORMAT;
-    GooString *appendfv(const char *fmt, va_list argList);
+    POPPLER_PRIVATE_EXPORT GooString *appendf(const char *fmt, ...) GOOSTRING_FORMAT;
+    POPPLER_PRIVATE_EXPORT GooString *appendfv(const char *fmt, va_list argList);
 
     // Insert a character or string.
     GooString *insert(int i, char c)
@@ -195,6 +202,11 @@ public:
     GooString *insert(int i, const GooString *str)
     {
         static_cast<std::string &>(*this).insert(i, *str);
+        return this;
+    }
+    GooString *insert(int i, const std::string &str)
+    {
+        static_cast<std::string &>(*this).insert(i, str);
         return this;
     }
     GooString *insert(int i, const char *str)
@@ -216,7 +228,11 @@ public:
     }
 
     // Convert string to all-lower case.
-    GooString *lowerCase();
+    POPPLER_PRIVATE_EXPORT GooString *lowerCase();
+    POPPLER_PRIVATE_EXPORT static void lowerCase(std::string &s);
+
+    // Returns a new string converted to all-lower case.
+    POPPLER_PRIVATE_EXPORT static std::string toLowerCase(const std::string &s);
 
     // Compare two strings:  -1:<  0:=  +1:>
     int cmp(const GooString *str) const { return compare(*str); }
@@ -226,23 +242,19 @@ public:
     int cmpN(const char *sA, int n) const { return compare(0, n, sA); }
 
     // Return true if strings starts with prefix
-    bool startsWith(const char *prefix) const;
+    POPPLER_PRIVATE_EXPORT bool startsWith(const char *prefix) const;
     // Return true if string ends with suffix
-    bool endsWith(const char *suffix) const;
+    POPPLER_PRIVATE_EXPORT bool endsWith(const char *suffix) const;
+
+    static bool startsWith(std::string_view str, std::string_view prefix) { return str.size() >= prefix.size() && 0 == str.compare(0, prefix.size(), prefix); }
+    static bool endsWith(std::string_view str, std::string_view suffix) { return str.size() >= suffix.size() && 0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix); }
 
     bool hasUnicodeMarker() const { return hasUnicodeMarker(*this); }
     static bool hasUnicodeMarker(const std::string &s) { return s.size() >= 2 && s[0] == '\xfe' && s[1] == '\xff'; }
     bool hasUnicodeMarkerLE() const { return hasUnicodeMarkerLE(*this); }
     static bool hasUnicodeMarkerLE(const std::string &s) { return s.size() >= 2 && s[0] == '\xff' && s[1] == '\xfe'; }
-    bool hasJustUnicodeMarker() const { return size() == 2 && hasUnicodeMarker(); }
 
-    void prependUnicodeMarker();
-
-    // Sanitizes the string so that it does
-    // not contain any ( ) < > [ ] { } / %
-    // The postscript mode also has some more strict checks
-    // The caller owns the return value
-    GooString *sanitizedName(bool psmode) const;
+    POPPLER_PRIVATE_EXPORT void prependUnicodeMarker();
 };
 
 #endif

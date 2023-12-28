@@ -12,7 +12,7 @@
 #include <GfxState.h>
 #include <OutputDev.h>
 
-class BBoxOutputDev : public OutputDev
+class POPPLER_PRIVATE_EXPORT BBoxOutputDev : public OutputDev
 {
 public:
     bool upsideDown() override { return false; }

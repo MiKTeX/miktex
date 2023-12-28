@@ -17,7 +17,7 @@
 // Copyright (C) 2009 David Benjamin <davidben@mit.edu>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
-// Copyright (C) 2013, 2018, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2013, 2018, 2019, 2021 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 //
 // To see a description of the changes please see the Changelog file that
@@ -99,7 +99,7 @@ public:
     int getChar() override;
     int lookChar() override = 0;
     Goffset getPos() override;
-    bool isBinary(bool last) override;
+    bool isBinary(bool last) const override;
     Stream *getUndecodedStream() override { return this; }
     void setAutoDelete(bool val);
 

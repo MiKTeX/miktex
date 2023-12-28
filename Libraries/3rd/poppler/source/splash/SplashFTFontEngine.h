@@ -13,7 +13,7 @@
 //
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
-// Copyright (C) 2009, 2018 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2018, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
@@ -64,7 +64,6 @@ private:
     bool enableFreeTypeHinting;
     bool enableSlightHinting;
     FT_Library lib;
-    bool useCIDs;
 
     friend class SplashFTFontFile;
     friend class SplashFTFont;

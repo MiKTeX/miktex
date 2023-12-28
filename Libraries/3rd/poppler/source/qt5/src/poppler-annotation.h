@@ -1,5 +1,5 @@
 /* poppler-annotation.h: qt interface to poppler
- * Copyright (C) 2006-2008, 2012, 2013, 2018-2020 Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2006-2008, 2012, 2013, 2018-2022 Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2006, 2008 Pino Toscano <pino@kde.org>
  * Copyright (C) 2007, Brad Hards <bradh@frogmouth.net>
  * Copyright (C) 2010, Philip Lorenz <lorenzph+freedesktop@gmail.com>
@@ -8,6 +8,9 @@
  * Copyright (C) 2012, 2013 Fabio D'Urso <fabiodurso@hotmail.it>
  * Copyright (C) 2013, Anthony Granger <grangeranthony@gmail.com>
  * Copyright (C) 2018, Dileep Sankhla <sankhla.dileep96@gmail.com>
+ * Copyright (C) 2020, Katarina Behrens <Katarina.Behrens@cib.de>
+ * Copyright (C) 2020, Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by Technische Universität Dresden
+ * Copyright (C) 2021, Mahmoud Ahmed Khalil <mahmoudkhalil11@gmail.com>
  * Adapting code from
  *   Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>
  *
@@ -42,10 +45,13 @@
 #include <QtXml/QDomDocument>
 #include "poppler-export.h"
 
+#include <memory>
+
 namespace Poppler {
 
 class Annotation;
 class AnnotationPrivate;
+class AnnotationAppearancePrivate;
 class TextAnnotationPrivate;
 class LineAnnotationPrivate;
 class GeomAnnotationPrivate;
@@ -93,6 +99,31 @@ public:
      * \p parentNode or a null element if not found.
      */
     Q_DECL_DEPRECATED static QDomElement findChildElement(const QDomNode &parentNode, const QString &name);
+};
+
+/**
+ * \short AnnotationAppearance class wrapping Poppler's AP stream object
+ *
+ * The Annotation's Appearance Stream is a Form XObject containing
+ * information required to properly render the Annotation on the document.
+ *
+ * This class wraps Poppler's Object implementing the appearance stream
+ * for the calling annotation. It can be used to preserve the current
+ * Appearance Stream for the calling annotation.
+ *
+ * \since 21.10.0
+ */
+class POPPLER_QT5_EXPORT AnnotationAppearance
+{
+    friend class Annotation;
+
+public:
+    explicit AnnotationAppearance(AnnotationAppearancePrivate *annotationAppearancePrivate);
+    ~AnnotationAppearance();
+
+private:
+    AnnotationAppearancePrivate *d;
+    Q_DISABLE_COPY(AnnotationAppearance)
 };
 
 /**
@@ -420,6 +451,20 @@ public:
     virtual SubType subType() const = 0;
 
     /**
+     * Returns the current appearance stream of this annotation.
+     *
+     * \since 21.10.0
+     */
+    std::unique_ptr<AnnotationAppearance> annotationAppearance() const;
+
+    /**
+     * Sets the annotation's appearance stream with the @p annotationAppearance.
+     *
+     * \since 21.10.0
+     */
+    void setAnnotationAppearance(const AnnotationAppearance &annotationAppearance);
+
+    /**
      * Destructor.
      */
     virtual ~Annotation();
@@ -448,7 +493,7 @@ public:
 
 protected:
     /// \cond PRIVATE
-    Annotation(AnnotationPrivate &dd);
+    explicit Annotation(AnnotationPrivate &dd);
     Annotation(AnnotationPrivate &dd, const QDomNode &annNode);
     void storeBaseAnnotationProperties(QDomNode &annNode, QDomDocument &document) const;
     Q_DECLARE_PRIVATE(Annotation)
@@ -485,7 +530,7 @@ public:
         TypeWriter
     };
 
-    TextAnnotation(TextType type);
+    explicit TextAnnotation(TextType type);
     ~TextAnnotation() override;
     SubType subType() const override;
 
@@ -517,7 +562,7 @@ public:
 
     QFont textFont() const;
     void setTextFont(const QFont &font);
-    /// \since 0.69
+    /// Default text color is black \since 0.69
     QColor textColor() const;
     /// \since 0.69
     void setTextColor(const QColor &color);
@@ -536,8 +581,8 @@ public:
     void setInplaceIntent(InplaceIntent intent);
 
 private:
-    TextAnnotation(const QDomNode &node);
-    TextAnnotation(TextAnnotationPrivate &dd);
+    explicit TextAnnotation(const QDomNode &node);
+    explicit TextAnnotation(TextAnnotationPrivate &dd);
     void store(QDomNode &parentNode, QDomDocument &document) const override;
     void setTextType(TextType type);
     Q_DECLARE_PRIVATE(TextAnnotation)
@@ -584,7 +629,7 @@ public:
     };
 
     /// \since 0.20
-    LineAnnotation(LineType type);
+    explicit LineAnnotation(LineType type);
     ~LineAnnotation() override;
     SubType subType() const override;
 
@@ -619,8 +664,8 @@ public:
     void setLineIntent(LineIntent intent);
 
 private:
-    LineAnnotation(const QDomNode &node);
-    LineAnnotation(LineAnnotationPrivate &dd);
+    explicit LineAnnotation(const QDomNode &node);
+    explicit LineAnnotation(LineAnnotationPrivate &dd);
     void store(QDomNode &parentNode, QDomDocument &document) const override;
     void setLineType(LineType type);
     Q_DECLARE_PRIVATE(LineAnnotation)
@@ -657,8 +702,8 @@ public:
     void setGeomInnerColor(const QColor &color);
 
 private:
-    GeomAnnotation(const QDomNode &node);
-    GeomAnnotation(GeomAnnotationPrivate &dd);
+    explicit GeomAnnotation(const QDomNode &node);
+    explicit GeomAnnotation(GeomAnnotationPrivate &dd);
     void store(QDomNode &parentNode, QDomDocument &document) const override;
     Q_DECLARE_PRIVATE(GeomAnnotation)
     Q_DISABLE_COPY(GeomAnnotation)
@@ -726,8 +771,8 @@ public:
     void setHighlightQuads(const QList<Quad> &quads);
 
 private:
-    HighlightAnnotation(const QDomNode &node);
-    HighlightAnnotation(HighlightAnnotationPrivate &dd);
+    explicit HighlightAnnotation(const QDomNode &node);
+    explicit HighlightAnnotation(HighlightAnnotationPrivate &dd);
     void store(QDomNode &parentNode, QDomDocument &document) const override;
     Q_DECLARE_PRIVATE(HighlightAnnotation)
     Q_DISABLE_COPY(HighlightAnnotation)
@@ -776,9 +821,16 @@ public:
     */
     void setStampIconName(const QString &name);
 
+    /**
+       Set a custom icon for this stamp annotation.
+
+       \since 21.10.0
+    */
+    void setStampCustomImage(const QImage &image);
+
 private:
-    StampAnnotation(const QDomNode &node);
-    StampAnnotation(StampAnnotationPrivate &dd);
+    explicit StampAnnotation(const QDomNode &node);
+    explicit StampAnnotation(StampAnnotationPrivate &dd);
     void store(QDomNode &parentNode, QDomDocument &document) const override;
     Q_DECLARE_PRIVATE(StampAnnotation)
     Q_DISABLE_COPY(StampAnnotation)
@@ -803,9 +855,9 @@ public:
     void setInkPaths(const QList<QLinkedList<QPointF>> &paths);
 
 private:
-    InkAnnotation(const QDomNode &node);
+    explicit InkAnnotation(const QDomNode &node);
     void store(QDomNode &parentNode, QDomDocument &document) const override;
-    InkAnnotation(InkAnnotationPrivate &dd);
+    explicit InkAnnotation(InkAnnotationPrivate &dd);
     Q_DECLARE_PRIVATE(InkAnnotation)
     Q_DISABLE_COPY(InkAnnotation)
 };
@@ -841,8 +893,8 @@ public:
 
 private:
     LinkAnnotation();
-    LinkAnnotation(const QDomNode &node);
-    LinkAnnotation(LinkAnnotationPrivate &dd);
+    explicit LinkAnnotation(const QDomNode &node);
+    explicit LinkAnnotation(LinkAnnotationPrivate &dd);
     void store(QDomNode &parentNode, QDomDocument &document) const override;
     Q_DECLARE_PRIVATE(LinkAnnotation)
     Q_DISABLE_COPY(LinkAnnotation)
@@ -876,8 +928,8 @@ public:
     void setCaretSymbol(CaretSymbol symbol);
 
 private:
-    CaretAnnotation(const QDomNode &node);
-    CaretAnnotation(CaretAnnotationPrivate &dd);
+    explicit CaretAnnotation(const QDomNode &node);
+    explicit CaretAnnotation(CaretAnnotationPrivate &dd);
     void store(QDomNode &parentNode, QDomDocument &document) const override;
     Q_DECLARE_PRIVATE(CaretAnnotation)
     Q_DISABLE_COPY(CaretAnnotation)
@@ -920,8 +972,8 @@ public:
 
 private:
     FileAttachmentAnnotation();
-    FileAttachmentAnnotation(const QDomNode &node);
-    FileAttachmentAnnotation(FileAttachmentAnnotationPrivate &dd);
+    explicit FileAttachmentAnnotation(const QDomNode &node);
+    explicit FileAttachmentAnnotation(FileAttachmentAnnotationPrivate &dd);
     void store(QDomNode &parentNode, QDomDocument &document) const override;
     Q_DECLARE_PRIVATE(FileAttachmentAnnotation)
     Q_DISABLE_COPY(FileAttachmentAnnotation)
@@ -964,8 +1016,8 @@ public:
 
 private:
     SoundAnnotation();
-    SoundAnnotation(const QDomNode &node);
-    SoundAnnotation(SoundAnnotationPrivate &dd);
+    explicit SoundAnnotation(const QDomNode &node);
+    explicit SoundAnnotation(SoundAnnotationPrivate &dd);
     void store(QDomNode &parentNode, QDomDocument &document) const override;
     Q_DECLARE_PRIVATE(SoundAnnotation)
     Q_DISABLE_COPY(SoundAnnotation)
@@ -1008,8 +1060,8 @@ public:
 
 private:
     MovieAnnotation();
-    MovieAnnotation(const QDomNode &node);
-    MovieAnnotation(MovieAnnotationPrivate &dd);
+    explicit MovieAnnotation(const QDomNode &node);
+    explicit MovieAnnotation(MovieAnnotationPrivate &dd);
     void store(QDomNode &parentNode, QDomDocument &document) const override;
     Q_DECLARE_PRIVATE(MovieAnnotation)
     Q_DISABLE_COPY(MovieAnnotation)
@@ -1063,7 +1115,7 @@ public:
 
 private:
     ScreenAnnotation();
-    ScreenAnnotation(ScreenAnnotationPrivate &dd);
+    explicit ScreenAnnotation(ScreenAnnotationPrivate &dd);
     void store(QDomNode &parentNode, QDomDocument &document) const override; // stub
     Q_DECLARE_PRIVATE(ScreenAnnotation)
     Q_DISABLE_COPY(ScreenAnnotation)
@@ -1098,7 +1150,7 @@ public:
 
 private:
     WidgetAnnotation();
-    WidgetAnnotation(WidgetAnnotationPrivate &dd);
+    explicit WidgetAnnotation(WidgetAnnotationPrivate &dd);
     void store(QDomNode &parentNode, QDomDocument &document) const override; // stub
     Q_DECLARE_PRIVATE(WidgetAnnotation)
     Q_DISABLE_COPY(WidgetAnnotation)
@@ -1425,8 +1477,8 @@ private:
     void setContent(RichMediaAnnotation::Content *content);
 
     RichMediaAnnotation();
-    RichMediaAnnotation(const QDomNode &node);
-    RichMediaAnnotation(RichMediaAnnotationPrivate &dd);
+    explicit RichMediaAnnotation(const QDomNode &node);
+    explicit RichMediaAnnotation(RichMediaAnnotationPrivate &dd);
     void store(QDomNode &parentNode, QDomDocument &document) const override;
     Q_DECLARE_PRIVATE(RichMediaAnnotation)
     Q_DISABLE_COPY(RichMediaAnnotation)

@@ -15,6 +15,7 @@
 //
 // Copyright (C) 2011, 2012, 2020 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2013 Jason Crain <jason@aquaticape.us>
+// Copyright (C) 2022, 2023 Vincent Lefevre <vincent@vinc17.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -2044,6 +2045,7 @@ static const struct NameToUnicodeTab nameToUnicodeTextTab[] = { { 0x0021, "!" },
                                                                 { 0x2265, "greaterequal" },
                                                                 { 0x22db, "greaterequalorless" },
                                                                 { 0xff1e, "greatermonospace" },
+                                                                { 0x2a7e, "greaterorequalslant" },
                                                                 { 0x2273, "greaterorequivalent" },
                                                                 { 0x2277, "greaterorless" },
                                                                 { 0x2267, "greateroverequal" },
@@ -2536,6 +2538,7 @@ static const struct NameToUnicodeTab nameToUnicodeTextTab[] = { { 0x0021, "!" },
                                                                 { 0x2264, "lessequal" },
                                                                 { 0x22da, "lessequalorgreater" },
                                                                 { 0xff1c, "lessmonospace" },
+                                                                { 0x2a7d, "lessorequalslant" },
                                                                 { 0x2272, "lessorequivalent" },
                                                                 { 0x2276, "lessorgreater" },
                                                                 { 0x2266, "lessoverequal" },
@@ -3515,6 +3518,7 @@ static const struct NameToUnicodeTab nameToUnicodeTextTab[] = { { 0x0021, "!" },
                                                                 { 0x05bd, "siluqhebrew" },
                                                                 { 0x05bd, "siluqlefthebrew" },
                                                                 { 0x223c, "similar" },
+                                                                { 0x2243, "similarequal" },
                                                                 { 0x05c2, "sindothebrew" },
                                                                 { 0x3274, "siosacirclekorean" },
                                                                 { 0x3214, "siosaparenkorean" },

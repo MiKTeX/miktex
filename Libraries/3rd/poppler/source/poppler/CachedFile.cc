@@ -6,7 +6,7 @@
 //
 // Copyright 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright 2010, 2011 Hib Eris <hib@hiberis.nl>
-// Copyright 2010, 2018, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright 2010, 2018-2020, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2013 Julien Nabet <serval2412@yahoo.fr>
 //
 //========================================================================
@@ -18,29 +18,27 @@
 // CachedFile
 //------------------------------------------------------------------------
 
-CachedFile::CachedFile(CachedFileLoader *cacheLoader, GooString *uriA)
+CachedFile::CachedFile(CachedFileLoader *cacheLoader)
 {
-    uri = uriA;
     loader = cacheLoader;
 
     streamPos = 0;
     chunks = new std::vector<Chunk>();
     length = 0;
 
-    length = loader->init(uri, this);
+    length = loader->init(this);
     refCnt = 1;
 
     if (length != ((size_t)-1)) {
         chunks->resize(length / CachedFileChunkSize + 1);
     } else {
-        error(errInternal, -1, "Failed to initialize file cache for '{0:t}'.", uri);
+        error(errInternal, -1, "Failed to initialize file cache.");
         chunks->resize(0);
     }
 }
 
 CachedFile::~CachedFile()
 {
-    delete uri;
     delete loader;
     delete chunks;
 }
@@ -52,8 +50,9 @@ void CachedFile::incRefCnt()
 
 void CachedFile::decRefCnt()
 {
-    if (--refCnt == 0)
+    if (--refCnt == 0) {
         delete this;
+    }
 }
 
 long int CachedFile::tell()
@@ -96,19 +95,23 @@ int CachedFile::cache(const std::vector<ByteRange> &origRanges)
         ranges = &all;
     }
 
-    for (int i = 0; i < numChunks; ++i)
+    for (int i = 0; i < numChunks; ++i) {
         chunkNeeded[i] = false;
+    }
     for (const ByteRange &r : *ranges) {
 
-        if (r.length == 0)
+        if (r.length == 0) {
             continue;
-        if (r.offset >= length)
+        }
+        if (r.offset >= length) {
             continue;
+        }
 
         const size_t start = r.offset;
         size_t end = start + r.length - 1;
-        if (end >= length)
+        if (end >= length) {
             end = length - 1;
+        }
 
         startChunk = start / CachedFileChunkSize;
         endChunk = end / CachedFileChunkSize;
@@ -121,10 +124,12 @@ int CachedFile::cache(const std::vector<ByteRange> &origRanges)
 
     int chunk = 0;
     while (chunk < numChunks) {
-        while (!chunkNeeded[chunk] && (++chunk != numChunks))
+        while (!chunkNeeded[chunk] && (++chunk != numChunks)) {
             ;
-        if (chunk == numChunks)
+        }
+        if (chunk == numChunks) {
             break;
+        }
         startChunk = chunk;
         loadChunks.push_back(chunk);
 
@@ -154,12 +159,14 @@ size_t CachedFile::read(void *ptr, size_t unitsize, size_t count)
         bytes = length - streamPos;
     }
 
-    if (bytes == 0)
+    if (bytes == 0) {
         return 0;
+    }
 
     // Load data
-    if (cache(streamPos, bytes) != 0)
+    if (cache(streamPos, bytes) != 0) {
         return 0;
+    }
 
     // Copy data to buffer
     size_t toCopy = bytes;
@@ -168,8 +175,9 @@ size_t CachedFile::read(void *ptr, size_t unitsize, size_t count)
         int offset = streamPos % CachedFileChunkSize;
         size_t len = CachedFileChunkSize - offset;
 
-        if (len > toCopy)
+        if (len > toCopy) {
             len = toCopy;
+        }
 
         memcpy(ptr, (*chunks)[chunk].data + offset, len);
         streamPos += len;
@@ -215,15 +223,17 @@ size_t CachedFileWriter::write(const char *ptr, size_t size)
     size_t written = 0;
     size_t chunk;
 
-    if (!len)
+    if (!len) {
         return 0;
+    }
 
     while (len) {
         if (chunks) {
             if (offset == CachedFileChunkSize) {
                 ++it;
-                if (it == (*chunks).end())
+                if (it == (*chunks).end()) {
                     return written;
+                }
                 offset = 0;
             }
             chunk = *it;
@@ -259,5 +269,7 @@ size_t CachedFileWriter::write(const char *ptr, size_t size)
 
     return written;
 }
+
+CachedFileLoader::~CachedFileLoader() = default;
 
 //------------------------------------------------------------------------

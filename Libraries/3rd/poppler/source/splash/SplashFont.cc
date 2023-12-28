@@ -162,8 +162,9 @@ bool SplashFont::getGlyph(int c, int xFrac, int yFrac, SplashGlyphBitmap *bitmap
 
     if (*clipRes == splashClipAllOutside) {
         bitmap->freeData = false;
-        if (bitmap2.freeData)
+        if (bitmap2.freeData) {
             gfree(bitmap2.data);
+        }
         return true;
     }
 

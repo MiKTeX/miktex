@@ -16,7 +16,7 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2007-2008 Julien Rebetez <julienr@svn.gnome.org>
-// Copyright (C) 2010, 2017-2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010, 2017-2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Paweł Wiejacha <pawel.wiejacha@gmail.com>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
@@ -37,19 +37,22 @@
 #include <utility>
 
 #include "poppler-config.h"
+#include "poppler_private_export.h"
 #include "Object.h"
 
 //------------------------------------------------------------------------
 // Dict
 //------------------------------------------------------------------------
 
-class Dict
+class POPPLER_PRIVATE_EXPORT Dict
 {
 public:
     // Constructor.
-    Dict(XRef *xrefA);
-    Dict(const Dict *dictA);
+    explicit Dict(XRef *xrefA);
+    explicit Dict(const Dict *dictA);
     Dict *copy(XRef *xrefA) const;
+
+    Dict *deepCopy() const;
 
     Dict(const Dict &) = delete;
     Dict &operator=(const Dict &) = delete;
@@ -100,6 +103,11 @@ public:
 
     bool hasKey(const char *key) const;
 
+    // Returns a key name that is not in the dictionary
+    // It will be suggestedKey itself if available
+    // otherwise it will start adding 0, 1, 2, 3, etc. to suggestedKey until there's one available
+    std::string findAvailableKey(const std::string &suggestedKey);
+
 private:
     friend class Object; // for incRef/decRef
 
@@ -110,10 +118,10 @@ private:
     using DictEntry = std::pair<std::string, Object>;
     struct CmpDictEntry;
 
-    std::atomic_bool sorted;
     XRef *xref; // the xref table for this PDF file
     std::vector<DictEntry> entries;
     std::atomic_int ref; // reference count
+    std::atomic_bool sorted;
     mutable std::recursive_mutex mutex;
 
     const DictEntry *find(const char *key) const;

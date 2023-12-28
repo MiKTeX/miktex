@@ -11,7 +11,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2010, 2018 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010, 2018, 2021 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2019 Stefan Brüns <stefan.bruens@rwth-aachen.de>
 //
@@ -24,6 +24,9 @@
 #define SPLASHCLIP_H
 
 #include "SplashTypes.h"
+
+#include <memory>
+#include <vector>
 
 class SplashPath;
 class SplashXPath;
@@ -50,7 +53,7 @@ public:
     SplashClip(SplashCoord x0, SplashCoord y0, SplashCoord x1, SplashCoord y1, bool antialiasA);
 
     // Copy a clip.
-    SplashClip *copy() { return new SplashClip(this); }
+    SplashClip *copy() const { return new SplashClip(this); }
 
     ~SplashClip();
 
@@ -113,16 +116,15 @@ public:
     int getNumPaths() { return length; }
 
 protected:
-    SplashClip(SplashClip *clip);
+    explicit SplashClip(const SplashClip *clip);
     void grow(int nPaths);
     bool testClipPaths(int x, int y);
 
     bool antialias;
     SplashCoord xMin, yMin, xMax, yMax;
     int xMinI, yMinI, xMaxI, yMaxI;
-    SplashXPath **paths;
     unsigned char *flags;
-    SplashXPathScanner **scanners;
+    std::vector<std::shared_ptr<SplashXPathScanner>> scanners;
     int length, size;
 };
 

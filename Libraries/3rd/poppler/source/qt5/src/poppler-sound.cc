@@ -67,16 +67,18 @@ SoundObject::SoundType SoundObject::soundType() const
 
 QString SoundObject::url() const
 {
-    if (m_soundData->m_type != SoundObject::External)
+    if (m_soundData->m_type != SoundObject::External) {
         return QString();
+    }
 
     return QString(m_soundData->m_soundObj->getFileName().c_str());
 }
 
 QByteArray SoundObject::data() const
 {
-    if (m_soundData->m_type != SoundObject::Embedded)
+    if (m_soundData->m_type != SoundObject::Embedded) {
         return QByteArray();
+    }
 
     Stream *stream = m_soundData->m_soundObj->getStream();
     stream->reset();

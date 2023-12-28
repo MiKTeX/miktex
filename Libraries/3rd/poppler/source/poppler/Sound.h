@@ -1,6 +1,6 @@
 /* Sound.h - an object that holds the sound structure
  * Copyright (C) 2006-2007, Pino Toscano <pino@kde.org>
- * Copyright (C) 2017-2020, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2017-2021, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2020, Oliver Sander <oliver.sander@tu-dresden.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -42,7 +42,7 @@ enum SoundEncoding
     soundALaw // A-law-encoded samples
 };
 
-class Sound
+class POPPLER_PRIVATE_EXPORT Sound
 {
 public:
     // Try to parse the Object obj
@@ -68,7 +68,7 @@ public:
 
 private:
     // Create a sound. The Object obj is ensured to be a Stream with a Dict
-    Sound(const Object *obj, bool readAttrs = true);
+    explicit Sound(const Object *obj, bool readAttrs = true);
 
     Object streamObj;
     SoundKind kind;

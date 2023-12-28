@@ -1,6 +1,6 @@
 /* poppler-media.h: qt interface to poppler
  * Copyright (C) 2012 Guillermo A. Amaral B. <gamaral@kde.org>
- * Copyright (C) 2012, 2013 Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2012, 2013, 2021 Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ public:
     /**
       Constructs a MediaRendition. Takes ownership of the passed rendition
      */
-    MediaRendition(::MediaRendition *rendition);
+    explicit MediaRendition(::MediaRendition *rendition);
     ~MediaRendition();
 
     /**

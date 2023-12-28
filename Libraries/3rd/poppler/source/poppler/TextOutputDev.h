@@ -17,14 +17,14 @@
 // Copyright (C) 2006 Ed Catmur <ed@catmur.co.uk>
 // Copyright (C) 2007, 2008, 2011, 2013 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007, 2017 Adrian Johnson <ajohnson@redneon.com>
-// Copyright (C) 2008, 2010, 2015, 2016, 2018, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010, 2015, 2016, 2018, 2019, 2021 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Brian Ewins <brian.ewins@gmail.com>
 // Copyright (C) 2012, 2013, 2015, 2016 Jason Crain <jason@aquaticape.us>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 // Copyright (C) 2018 Sanchit Anand <sanxchit@gmail.com>
-// Copyright (C) 2018, 2020 Nelson Benítez León <nbenitezl@gmail.com>
-// Copyright (C) 2019 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2018, 2020, 2021 Nelson Benítez León <nbenitezl@gmail.com>
+// Copyright (C) 2019, 2022 Oliver Sander <oliver.sander@tu-dresden.de>
 // Copyright (C) 2019 Dan Shea <dan.shea@logical-innovations.com>
 // Copyright (C) 2020 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
 //
@@ -37,6 +37,7 @@
 #define TEXTOUTPUTDEV_H
 
 #include "poppler-config.h"
+#include "poppler_private_export.h"
 #include <cstdio>
 #include "GfxFont.h"
 #include "GfxState.h"
@@ -83,10 +84,10 @@ enum EndOfLineKind
 // TextFontInfo
 //------------------------------------------------------------------------
 
-class TextFontInfo
+class POPPLER_PRIVATE_EXPORT TextFontInfo
 {
 public:
-    TextFontInfo(const GfxState *state);
+    explicit TextFontInfo(const GfxState *state);
     ~TextFontInfo();
 
     TextFontInfo(const TextFontInfo &) = delete;
@@ -118,7 +119,7 @@ public:
 #endif
 
 private:
-    GfxFont *gfxFont;
+    std::shared_ptr<GfxFont> gfxFont;
 #ifdef TEXTOUT_WORD_LIST
     GooString *fontName;
     int flags;
@@ -133,7 +134,7 @@ private:
 // TextWord
 //------------------------------------------------------------------------
 
-class TextWord
+class POPPLER_PRIVATE_EXPORT TextWord
 {
 public:
     // Constructor.
@@ -503,7 +504,7 @@ private:
 // TextWordList
 //------------------------------------------------------------------------
 
-class TextWordList
+class POPPLER_PRIVATE_EXPORT TextWordList
 {
 public:
     // Build a flat word list, in content stream order (if
@@ -524,7 +525,7 @@ public:
     TextWord *get(int idx);
 
 private:
-    std::vector<TextWord *> *words;
+    std::vector<TextWord *> words;
 };
 
 #endif // TEXTOUT_WORD_LIST
@@ -551,11 +552,11 @@ private:
 // TextPage
 //------------------------------------------------------------------------
 
-class TextPage
+class POPPLER_PRIVATE_EXPORT TextPage
 {
 public:
     // Constructor.
-    TextPage(bool rawOrderA, bool discardDiagA = false);
+    explicit TextPage(bool rawOrderA, bool discardDiagA = false);
 
     TextPage(const TextPage &) = delete;
     TextPage &operator=(const TextPage &) = delete;
@@ -595,6 +596,7 @@ public:
 
     // Coalesce strings that look like parts of the same line.
     void coalesce(bool physLayout, double fixedPitch, bool doHTML);
+    void coalesce(bool physLayout, double fixedPitch, bool doHTML, double minColSpacing1);
 
     // Find a string.  If <startAtTop> is true, starts looking at the
     // top of the page; else if <startAtLast> is true, starts looking
@@ -611,6 +613,20 @@ public:
     // which are not pure ascii.
     bool findText(const Unicode *s, int len, bool startAtTop, bool stopAtBottom, bool startAtLast, bool stopAtLast, bool caseSensitive, bool ignoreDiacritics, bool backward, bool wholeWord, double *xMin, double *yMin, double *xMax,
                   double *yMax);
+
+    // Adds new parameter <matchAcrossLines>, which allows <s> to match on text
+    // spanning from end of a line to the next line. In that case, the rect for
+    // the part of match that falls on the next line will be stored in
+    // <continueMatch>, and if hyphenation (i.e. ignoring hyphen at end of line)
+    // was used while matching at the end of the line prior to <continueMatch>,
+    // then <ignoredHyphen> will be true, otherwise will be false.
+    // Only finding across two lines is supported, i.e. it won't match where <s>
+    // spans more than two lines.
+    //
+    // <matchAcrossLines> will be ignored if <backward> is true (as that
+    // combination has not been implemented yet).
+    bool findText(const Unicode *s, int len, bool startAtTop, bool stopAtBottom, bool startAtLast, bool stopAtLast, bool caseSensitive, bool ignoreDiacritics, bool matchAcrossLines, bool backward, bool wholeWord, double *xMin, double *yMin,
+                  double *xMax, double *yMax, PDFRectangle *continueMatch, bool *ignoredHyphen);
 
     // Get the text which is inside the specified rectangle.
     GooString *getText(double xMin, double yMin, double xMax, double yMax, EndOfLineKind textEOL) const;
@@ -645,7 +661,7 @@ public:
     // this->rawOrder is true), physical layout order (if <physLayout>
     // is true and this->rawOrder is false), or reading order (if both
     // flags are false).
-    TextWordList *makeWordList(bool physLayout);
+    std::unique_ptr<TextWordList> makeWordList(bool physLayout);
 #endif
 
 private:
@@ -655,6 +671,7 @@ private:
     void clear();
     void assignColumns(TextLineFrag *frags, int nFrags, bool rot) const;
     int dumpFragment(const Unicode *text, int len, const UnicodeMap *uMap, GooString *s) const;
+    void adjustRotation(TextLine *line, int start, int end, double *xMin, double *xMax, double *yMin, double *yMax);
 
     bool rawOrder; // keep text in content stream order
     bool discardDiag; // discard diagonal text
@@ -673,7 +690,7 @@ private:
                           //   previous char
     bool diagonal; // whether the current text is diagonal
 
-    TextPool *pools[4]; // a "pool" of TextWords for each rotation
+    std::unique_ptr<TextPool> pools[4]; // a "pool" of TextWords for each rotation
     TextFlow *flows; // linked list of flows
     TextBlock **blocks; // array of blocks, in yx order
     int nBlocks; // number of blocks
@@ -684,14 +701,14 @@ private:
                         //   rawOrder is set)
     TextWord *rawLastWord; // last word on rawWords list
 
-    std::vector<TextFontInfo *> *fonts; // all font info objects used on this page
+    std::vector<std::unique_ptr<TextFontInfo>> fonts; // all font info objects used on this page
 
     double lastFindXMin, // coordinates of the last "find" result
             lastFindYMin;
     bool haveLastFind;
 
-    std::vector<TextUnderline *> *underlines;
-    std::vector<TextLink *> *links;
+    std::vector<std::unique_ptr<TextUnderline>> underlines;
+    std::vector<std::unique_ptr<TextLink>> links;
 
     int refCnt;
 
@@ -708,11 +725,11 @@ private:
 // ActualText
 //------------------------------------------------------------------------
 
-class ActualText
+class POPPLER_PRIVATE_EXPORT ActualText
 {
 public:
     // Create an ActualText
-    ActualText(TextPage *out);
+    explicit ActualText(TextPage *out);
     ~ActualText();
 
     ActualText(const ActualText &) = delete;
@@ -737,9 +754,11 @@ private:
 // TextOutputDev
 //------------------------------------------------------------------------
 
-class TextOutputDev : public OutputDev
+class POPPLER_PRIVATE_EXPORT TextOutputDev : public OutputDev
 {
 public:
+    static double minColSpacing1_default;
+
     // Open a text output file.  If <fileName> is NULL, no file is
     // written (this is useful, e.g., for searching text).  If
     // <physLayoutA> is true, the original physical layout of the text
@@ -845,7 +864,7 @@ public:
     // this->rawOrder is true), physical layout order (if
     // this->physLayout is true and this->rawOrder is false), or reading
     // order (if both flags are false).
-    TextWordList *makeWordList();
+    std::unique_ptr<TextWordList> makeWordList();
 #endif
 
     // Returns the TextPage object for the last rasterized page,
@@ -869,6 +888,8 @@ public:
     }
     void setTextEOL(EndOfLineKind textEOLA) { textEOL = textEOLA; }
     void setTextPageBreaks(bool textPageBreaksA) { textPageBreaks = textPageBreaksA; }
+    double getMinColSpacing1() const { return minColSpacing1; }
+    void setMinColSpacing1(double val) { minColSpacing1 = val; }
 
 private:
     TextOutputFunc outputFunc; // output function
@@ -881,6 +902,7 @@ private:
     double fixedPitch; // if physLayout is true and this is non-zero,
                        //   assume fixed-pitch characters with this
                        //   width
+    double minColSpacing1; // see default value defined with same name at TextOutputDev.cc
     bool rawOrder; // keep text in content stream order
     bool discardDiag; // Diagonal text, i.e., text that is not close to one of the
                       // 0, 90, 180, or 270 degree axes, is discarded. This is useful

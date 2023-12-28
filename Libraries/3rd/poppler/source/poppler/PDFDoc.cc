@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005, 2006, 2008 Brad Hards <bradh@frogmouth.net>
-// Copyright (C) 2005, 2007-2009, 2011-2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2007-2009, 2011-2023 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008, 2010 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008, 2010, 2011 Carlos Garcia Campos <carlosgc@gnome.org>
@@ -34,7 +34,7 @@
 // Copyright (C) 2015 Li Junling <lijunling@sina.com>
 // Copyright (C) 2015 André Guerreiro <aguerreiro1985@gmail.com>
 // Copyright (C) 2015 André Esser <bepandre@hotmail.com>
-// Copyright (C) 2016 Jakub Alba <jakubalba@gmail.com>
+// Copyright (C) 2016, 2020 Jakub Alba <jakubalba@gmail.com>
 // Copyright (C) 2017 Jean Ghali <jghali@libertysurf.fr>
 // Copyright (C) 2017 Fredrik Fornwall <fredrik@fornwall.net>
 // Copyright (C) 2018 Ben Timby <btimby@gmail.com>
@@ -44,6 +44,17 @@
 // Copyright (C) 2018 Philipp Knechtges <philipp-dev@knechtges.com>
 // Copyright (C) 2019 Christian Persch <chpe@src.gnome.org>
 // Copyright (C) 2020 Nelson Benítez León <nbenitezl@gmail.com>
+// Copyright (C) 2020 Thorsten Behrens <Thorsten.Behrens@CIB.de>
+// Copyright (C) 2020 Adam Sampson <ats@offog.org>
+// Copyright (C) 2021-2023 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2021 Mahmoud Khalil <mahmoudkhalil11@gmail.com>
+// Copyright (C) 2021 RM <rm+git@arcsin.org>
+// Copyright (C) 2021 Georgiy Sgibnev <georgiy@sgibnev.com>. Work sponsored by lab50.net.
+// Copyright (C) 2021-2022 Marek Kasik <mkasik@redhat.com>
+// Copyright (C) 2022 Felix Jung <fxjung@posteo.de>
+// Copyright (C) 2022 crt <chluo@cse.cuhk.edu.hk>
+// Copyright (C) 2022 Erich E. Hoover <erich.e.hoover@gmail.com>
+// Copyright (C) 2023 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -62,7 +73,9 @@
 #include <cstddef>
 #include <cstring>
 #include <ctime>
+#include <iomanip>
 #include <regex>
+#include <sstream>
 #include <sys/stat.h>
 #include "goo/glibc.h"
 #include "goo/gstrtod.h"
@@ -78,7 +91,6 @@
 #include "Link.h"
 #include "OutputDev.h"
 #include "Error.h"
-#include "ErrorCodes.h"
 #include "Lexer.h"
 #include "Parser.h"
 #include "SecurityHandler.h"
@@ -87,7 +99,16 @@
 #include "PDFDoc.h"
 #include "Hints.h"
 #include "UTF.h"
+#include "FlateEncoder.h"
 #include "JSInfo.h"
+#include "ImageEmbeddingUtils.h"
+
+//------------------------------------------------------------------------
+
+struct FILECloser
+{
+    void operator()(FILE *f) { fclose(f); }
+};
 
 //------------------------------------------------------------------------
 
@@ -109,91 +130,57 @@
 // PDFDoc
 //------------------------------------------------------------------------
 
-#define pdfdocLocker() std::unique_lock<std::recursive_mutex> locker(mutex)
+#define pdfdocLocker() const std::scoped_lock locker(mutex)
 
-void PDFDoc::init()
-{
-    ok = false;
-    errCode = errNone;
-    fileName = nullptr;
-    file = nullptr;
-    str = nullptr;
-    xref = nullptr;
-    linearization = nullptr;
-    catalog = nullptr;
-    hints = nullptr;
-    outline = nullptr;
-    startXRefPos = -1;
-    secHdlr = nullptr;
-    pageCache = nullptr;
-}
+PDFDoc::PDFDoc() { }
 
-PDFDoc::PDFDoc()
-{
-    init();
-}
-
-PDFDoc::PDFDoc(const GooString *fileNameA, const GooString *ownerPassword, const GooString *userPassword, void *guiDataA)
+PDFDoc::PDFDoc(std::unique_ptr<GooString> &&fileNameA, const std::optional<GooString> &ownerPassword, const std::optional<GooString> &userPassword, void *guiDataA, const std::function<void()> &xrefReconstructedCallback)
+    : fileName(std::move(fileNameA)), guiData(guiDataA)
 {
 #ifdef _WIN32
-    int n, i;
-#endif
-
-    init();
-
-    fileName = fileNameA;
-    guiData = guiDataA;
-#ifdef _WIN32
-    n = fileName->getLength();
+    const int n = fileName->getLength();
     fileNameU = (wchar_t *)gmallocn(n + 1, sizeof(wchar_t));
-    for (i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i) {
         fileNameU[i] = (wchar_t)(fileName->getChar(i) & 0xff);
     }
     fileNameU[n] = L'\0';
-#endif
 
-    // try to open file
-#ifdef _WIN32
     wchar_t *wFileName = (wchar_t *)utf8ToUtf16(fileName->c_str());
     file = GooFile::open(wFileName);
     gfree(wFileName);
 #else
-    file = GooFile::open(fileName);
+    file = GooFile::open(fileName->toStr());
 #endif
-    if (file == nullptr) {
+
+    if (!file) {
         // fopen() has failed.
         // Keep a copy of the errno returned by fopen so that it can be
         // referred to later.
         fopenErrno = errno;
-        error(errIO, -1, "Couldn't open file '{0:t}': {1:s}.", fileName, strerror(errno));
+        error(errIO, -1, "Couldn't open file '{0:t}': {1:s}.", fileName.get(), strerror(errno));
         errCode = errOpenFile;
         return;
     }
 
     // create stream
-    str = new FileStream(file, 0, false, file->size(), Object(objNull));
+    str = new FileStream(file.get(), 0, false, file->size(), Object(objNull));
 
-    ok = setup(ownerPassword, userPassword);
+    ok = setup(ownerPassword, userPassword, xrefReconstructedCallback);
 }
 
 #ifdef _WIN32
-PDFDoc::PDFDoc(wchar_t *fileNameA, int fileNameLen, GooString *ownerPassword, GooString *userPassword, void *guiDataA)
+PDFDoc::PDFDoc(wchar_t *fileNameA, int fileNameLen, const std::optional<GooString> &ownerPassword, const std::optional<GooString> &userPassword, void *guiDataA, const std::function<void()> &xrefReconstructedCallback) : guiData(guiDataA)
 {
     OSVERSIONINFO version;
-    int i;
-
-    init();
-
-    guiData = guiDataA;
 
     // save both Unicode and 8-bit copies of the file name
     GooString *fileNameG = new GooString();
     fileNameU = (wchar_t *)gmallocn(fileNameLen + 1, sizeof(wchar_t));
-    for (i = 0; i < fileNameLen; ++i) {
+    for (int i = 0; i < fileNameLen; ++i) {
         fileNameG->append((char)fileNameA[i]);
         fileNameU[i] = fileNameA[i];
     }
-    fileName = fileNameG;
+    fileName.reset(fileNameG);
     fileNameU[fileNameLen] = L'\0';
 
     // try to open file
@@ -203,61 +190,52 @@ PDFDoc::PDFDoc(wchar_t *fileNameA, int fileNameLen, GooString *ownerPassword, Go
     if (version.dwPlatformId == VER_PLATFORM_WIN32_NT) {
         file = GooFile::open(fileNameU);
     } else {
-        file = GooFile::open(fileName);
+        file = GooFile::open(fileName->toStr());
     }
     if (!file) {
-        error(errIO, -1, "Couldn't open file '{0:t}'", fileName);
+        error(errIO, -1, "Couldn't open file '{0:t}'", fileName.get());
         errCode = errOpenFile;
         return;
     }
 
     // create stream
-    str = new FileStream(file, 0, false, file->size(), Object(objNull));
+    str = new FileStream(file.get(), 0, false, file->size(), Object(objNull));
 
-    ok = setup(ownerPassword, userPassword);
+    ok = setup(ownerPassword, userPassword, xrefReconstructedCallback);
 }
 #endif
 
-PDFDoc::PDFDoc(BaseStream *strA, const GooString *ownerPassword, const GooString *userPassword, void *guiDataA)
+PDFDoc::PDFDoc(BaseStream *strA, const std::optional<GooString> &ownerPassword, const std::optional<GooString> &userPassword, void *guiDataA, const std::function<void()> &xrefReconstructedCallback) : guiData(guiDataA)
 {
-#ifdef _WIN32
-    int n, i;
-#endif
-
-    init();
-    guiData = guiDataA;
     if (strA->getFileName()) {
-        fileName = strA->getFileName()->copy();
+        fileName.reset(strA->getFileName()->copy());
 #ifdef _WIN32
-        n = fileName->getLength();
+        const int n = fileName->getLength();
         fileNameU = (wchar_t *)gmallocn(n + 1, sizeof(wchar_t));
-        for (i = 0; i < n; ++i) {
+        for (int i = 0; i < n; ++i) {
             fileNameU[i] = (wchar_t)(fileName->getChar(i) & 0xff);
         }
         fileNameU[n] = L'\0';
 #endif
-    } else {
-        fileName = nullptr;
-#ifdef _WIN32
-        fileNameU = NULL;
-#endif
     }
     str = strA;
-    ok = setup(ownerPassword, userPassword);
+    ok = setup(ownerPassword, userPassword, xrefReconstructedCallback);
 }
 
-bool PDFDoc::setup(const GooString *ownerPassword, const GooString *userPassword)
+bool PDFDoc::setup(const std::optional<GooString> &ownerPassword, const std::optional<GooString> &userPassword, const std::function<void()> &xrefReconstructedCallback)
 {
     pdfdocLocker();
 
     if (str->getLength() <= 0) {
         error(errSyntaxError, -1, "Document stream is empty");
+        errCode = errDamaged;
         return false;
     }
 
     str->setPos(0, -1);
     if (str->getPos() < 0) {
         error(errSyntaxError, -1, "Document base stream is not seekable");
+        errCode = errFileIO;
         return false;
     }
 
@@ -273,12 +251,12 @@ bool PDFDoc::setup(const GooString *ownerPassword, const GooString *userPassword
     bool wasReconstructed = false;
 
     // read xref table
-    xref = new XRef(str, getStartXRef(), getMainXRefEntriesOffset(), &wasReconstructed);
+    xref = new XRef(str, getStartXRef(), getMainXRefEntriesOffset(), &wasReconstructed, false, xrefReconstructedCallback);
     if (!xref->isOk()) {
         if (wasReconstructed) {
             delete xref;
             startXRefPos = -1;
-            xref = new XRef(str, getStartXRef(true), getMainXRefEntriesOffset(true), &wasReconstructed);
+            xref = new XRef(str, getStartXRef(true), getMainXRefEntriesOffset(true), &wasReconstructed, false, xrefReconstructedCallback);
         }
         if (!xref->isOk()) {
             error(errSyntaxError, -1, "Couldn't read xref table");
@@ -300,7 +278,7 @@ bool PDFDoc::setup(const GooString *ownerPassword, const GooString *userPassword
             // try one more time to construct the Catalog, maybe the problem is damaged XRef
             delete catalog;
             delete xref;
-            xref = new XRef(str, 0, 0, nullptr, true);
+            xref = new XRef(str, 0, 0, nullptr, true, xrefReconstructedCallback);
             catalog = new Catalog(this);
         }
 
@@ -329,34 +307,14 @@ PDFDoc::~PDFDoc()
         gfree(pageCache);
     }
     delete secHdlr;
-    if (outline) {
-        delete outline;
-    }
-    if (catalog) {
-        delete catalog;
-    }
-    if (xref) {
-        delete xref;
-    }
-    if (hints) {
-        delete hints;
-    }
-    if (linearization) {
-        delete linearization;
-    }
-    if (str) {
-        delete str;
-    }
-    if (file) {
-        delete file;
-    }
-    if (fileName) {
-        delete fileName;
-    }
+    delete outline;
+    delete catalog;
+    delete xref;
+    delete hints;
+    delete linearization;
+    delete str;
 #ifdef _WIN32
-    if (fileNameU) {
-        gfree(fileNameU);
-    }
+    gfree(fileNameU);
 #endif
 }
 
@@ -370,8 +328,9 @@ bool PDFDoc::checkFooter()
     int i, ch;
     for (i = 0; i < 1024; i++) {
         ch = str->getChar();
-        if (ch == EOF)
+        if (ch == EOF) {
             break;
+        }
         eof[i] = ch;
     }
     eof[i] = '\0';
@@ -404,14 +363,15 @@ void PDFDoc::checkHeader()
     int i;
     int bytesRead;
 
-    pdfMajorVersion = 0;
-    pdfMinorVersion = 0;
+    headerPdfMajorVersion = 0;
+    headerPdfMinorVersion = 0;
 
     // read up to headerSearchSize bytes from the beginning of the document
     for (i = 0; i < headerSearchSize; ++i) {
         const int c = str->getChar();
-        if (c == EOF)
+        if (c == EOF) {
             break;
+        }
         hdrBuf[i] = c;
     }
     bytesRead = i;
@@ -434,11 +394,11 @@ void PDFDoc::checkHeader()
         error(errSyntaxWarning, -1, "May not be a PDF file (continuing anyway)");
         return;
     }
-    sscanf(p, "%d.%d", &pdfMajorVersion, &pdfMinorVersion);
+    sscanf(p, "%d.%d", &headerPdfMajorVersion, &headerPdfMinorVersion);
     // We don't do the version check. Don't add it back in.
 }
 
-bool PDFDoc::checkEncryption(const GooString *ownerPassword, const GooString *userPassword)
+bool PDFDoc::checkEncryption(const std::optional<GooString> &ownerPassword, const std::optional<GooString> &userPassword)
 {
     bool encrypted;
     bool ret;
@@ -468,11 +428,10 @@ bool PDFDoc::checkEncryption(const GooString *ownerPassword, const GooString *us
     return ret;
 }
 
-static PDFSubtypePart pdfPartFromString(PDFSubtype subtype, GooString *pdfSubtypeVersion)
+static PDFSubtypePart pdfPartFromString(PDFSubtype subtype, const std::string &pdfsubver)
 {
     const std::regex regex("PDF/(?:A|X|VT|E|UA)-([[:digit:]])(?:[[:alpha:]]{1,2})?:?([[:digit:]]{4})?");
     std::smatch match;
-    const std::string &pdfsubver = pdfSubtypeVersion->toStr();
     PDFSubtypePart subtypePart = subtypePartNone;
 
     if (std::regex_search(pdfsubver, match, regex)) {
@@ -528,11 +487,10 @@ static PDFSubtypePart pdfPartFromString(PDFSubtype subtype, GooString *pdfSubtyp
     return subtypePart;
 }
 
-static PDFSubtypeConformance pdfConformanceFromString(GooString *pdfSubtypeVersion)
+static PDFSubtypeConformance pdfConformanceFromString(const std::string &pdfsubver)
 {
     const std::regex regex("PDF/(?:A|X|VT|E|UA)-[[:digit:]]([[:alpha:]]+)");
     std::smatch match;
-    const std::string &pdfsubver = pdfSubtypeVersion->toStr();
     PDFSubtypeConformance pdfConf = subtypeConfNone;
 
     // match contains the PDF conformance (A, B, G, N, P, PG or U)
@@ -569,7 +527,7 @@ void PDFDoc::extractPDFSubtype()
     pdfPart = subtypePartNull;
     pdfConformance = subtypeConfNull;
 
-    GooString *pdfSubtypeVersion = nullptr;
+    std::unique_ptr<GooString> pdfSubtypeVersion;
     // Find PDF InfoDict subtype key if any
     if ((pdfSubtypeVersion = getDocInfoStringEntry("GTS_PDFA1Version"))) {
         pdfSubtype = subtypePDFA;
@@ -589,12 +547,10 @@ void PDFDoc::extractPDFSubtype()
     }
 
     // Extract part from version string
-    pdfPart = pdfPartFromString(pdfSubtype, pdfSubtypeVersion);
+    pdfPart = pdfPartFromString(pdfSubtype, pdfSubtypeVersion->toStr());
 
     // Extract conformance from version string
-    pdfConformance = pdfConformanceFromString(pdfSubtypeVersion);
-
-    delete pdfSubtypeVersion;
+    pdfConformance = pdfConformanceFromString(pdfSubtypeVersion->toStr());
 }
 
 static void addSignatureFieldsToVector(FormField *ff, std::vector<FormFieldSignature *> &res)
@@ -613,17 +569,38 @@ static void addSignatureFieldsToVector(FormField *ff, std::vector<FormFieldSigna
 
 std::vector<FormFieldSignature *> PDFDoc::getSignatureFields()
 {
+    // Unfortunately there's files with signatures in Forms but not in Annots
+    // and files with signatures in Annots but no in forms so we need to search both
     std::vector<FormFieldSignature *> res;
 
+    // First search
     const Form *f = catalog->getForm();
-    if (!f)
-        return res;
-
-    const int nRootFields = f->getNumFields();
-    for (int i = 0; i < nRootFields; ++i) {
-        FormField *ff = f->getRootField(i);
-        addSignatureFieldsToVector(ff, res);
+    if (f) {
+        const int nRootFields = f->getNumFields();
+        for (int i = 0; i < nRootFields; ++i) {
+            FormField *ff = f->getRootField(i);
+            addSignatureFieldsToVector(ff, res);
+        }
     }
+
+    // Second search
+    for (int page = 1; page <= getNumPages(); ++page) {
+        Page *p = getPage(page);
+        if (p) {
+            const std::unique_ptr<FormPageWidgets> pw = p->getFormWidgets();
+            for (int i = 0; i < pw->getNumWidgets(); ++i) {
+                FormWidget *fw = pw->getWidget(i);
+                if (fw->getType() == formSignature) {
+                    assert(fw->getField()->getType() == formSignature);
+                    FormFieldSignature *ffs = static_cast<FormFieldSignature *>(fw->getField());
+                    if (std::find(res.begin(), res.end(), ffs) == res.end()) {
+                        res.push_back(ffs);
+                    }
+                }
+            }
+        }
+    }
+
     return res;
 }
 
@@ -634,8 +611,9 @@ void PDFDoc::displayPage(OutputDev *out, int page, double hDPI, double vDPI, int
         printf("***** page %d *****\n", page);
     }
 
-    if (getPage(page))
+    if (getPage(page)) {
         getPage(page)->display(out, hDPI, vDPI, rotate, useMediaBox, crop, printing, abortCheckCbk, abortCheckCbkData, annotDisplayDecideCbk, annotDisplayDecideCbkData, copyXRef);
+    }
 }
 
 void PDFDoc::displayPages(OutputDev *out, int firstPage, int lastPage, double hDPI, double vDPI, int rotate, bool useMediaBox, bool crop, bool printing, bool (*abortCheckCbk)(void *data), void *abortCheckCbkData,
@@ -651,23 +629,25 @@ void PDFDoc::displayPages(OutputDev *out, int firstPage, int lastPage, double hD
 void PDFDoc::displayPageSlice(OutputDev *out, int page, double hDPI, double vDPI, int rotate, bool useMediaBox, bool crop, bool printing, int sliceX, int sliceY, int sliceW, int sliceH, bool (*abortCheckCbk)(void *data),
                               void *abortCheckCbkData, bool (*annotDisplayDecideCbk)(Annot *annot, void *user_data), void *annotDisplayDecideCbkData, bool copyXRef)
 {
-    if (getPage(page))
+    if (getPage(page)) {
         getPage(page)->displaySlice(out, hDPI, vDPI, rotate, useMediaBox, crop, sliceX, sliceY, sliceW, sliceH, printing, abortCheckCbk, abortCheckCbkData, annotDisplayDecideCbk, annotDisplayDecideCbkData, copyXRef);
+    }
 }
 
-Links *PDFDoc::getLinks(int page)
+std::unique_ptr<Links> PDFDoc::getLinks(int page)
 {
     Page *p = getPage(page);
     if (!p) {
-        return new Links(nullptr);
+        return std::make_unique<Links>(nullptr);
     }
     return p->getLinks();
 }
 
 void PDFDoc::processLinks(OutputDev *out, int page)
 {
-    if (getPage(page))
+    if (getPage(page)) {
         getPage(page)->processLinks(out);
+    }
 }
 
 Linearization *PDFDoc::getLinearization()
@@ -681,12 +661,15 @@ Linearization *PDFDoc::getLinearization()
 
 bool PDFDoc::checkLinearization()
 {
-    if (linearization == nullptr)
+    if (linearization == nullptr) {
         return false;
-    if (linearizationState == 1)
+    }
+    if (linearizationState == 1) {
         return true;
-    if (linearizationState == 2)
+    }
+    if (linearizationState == 2) {
         return false;
+    }
     if (!hints) {
         hints = new Hints(str, linearization, getXRef(), secHdlr);
     }
@@ -722,25 +705,20 @@ bool PDFDoc::checkLinearization()
 
 bool PDFDoc::isLinearized(bool tryingToReconstruct)
 {
-    if ((str->getLength()) && (getLinearization()->getLength() == str->getLength()))
+    if ((str->getLength()) && (getLinearization()->getLength() == str->getLength())) {
         return true;
-    else {
-        if (tryingToReconstruct)
+    } else {
+        if (tryingToReconstruct) {
             return getLinearization()->getLength() > 0;
-        else
+        } else {
             return false;
+        }
     }
-}
-
-void PDFDoc::setDocInfoModified(Object *infoObj)
-{
-    Object infoObjRef = getDocInfoNF();
-    xref->setModifiedObject(infoObj, infoObjRef.getRef());
 }
 
 void PDFDoc::setDocInfoStringEntry(const char *key, GooString *value)
 {
-    bool removeEntry = !value || value->getLength() == 0 || value->hasJustUnicodeMarker();
+    bool removeEntry = !value || value->getLength() == 0 || (value->toStr() == unicodeByteOrderMark);
     if (removeEntry) {
         delete value;
     }
@@ -751,7 +729,8 @@ void PDFDoc::setDocInfoStringEntry(const char *key, GooString *value)
         return;
     }
 
-    infoObj = createDocInfoIfNoneExists();
+    Ref infoObjRef;
+    infoObj = xref->createDocInfoIfNeeded(&infoObjRef);
     if (removeEntry) {
         infoObj.dictSet(key, Object(objNull));
     } else {
@@ -762,28 +741,23 @@ void PDFDoc::setDocInfoStringEntry(const char *key, GooString *value)
         // Info dictionary is empty. Remove it altogether.
         removeDocInfo();
     } else {
-        setDocInfoModified(&infoObj);
+        xref->setModifiedObject(&infoObj, infoObjRef);
     }
 }
 
-GooString *PDFDoc::getDocInfoStringEntry(const char *key)
+std::unique_ptr<GooString> PDFDoc::getDocInfoStringEntry(const char *key)
 {
     Object infoObj = getDocInfo();
     if (!infoObj.isDict()) {
-        return nullptr;
+        return {};
     }
 
-    Object entryObj = infoObj.dictLookup(key);
-
-    GooString *result;
-
-    if (entryObj.isString()) {
-        result = entryObj.takeString();
-    } else {
-        result = nullptr;
+    const Object entryObj = infoObj.dictLookup(key);
+    if (!entryObj.isString()) {
+        return {};
     }
 
-    return result;
+    return std::unique_ptr<GooString>(entryObj.getString()->copy());
 }
 
 static bool get_id(const GooString *encodedidstring, GooString *id)
@@ -792,13 +766,15 @@ static bool get_id(const GooString *encodedidstring, GooString *id)
     char pdfid[pdfIdLength + 1];
     int n;
 
-    if (encodedidstring->getLength() != pdfIdLength / 2)
+    if (encodedidstring->getLength() != pdfIdLength / 2) {
         return false;
+    }
 
     n = sprintf(pdfid, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", encodedid[0] & 0xff, encodedid[1] & 0xff, encodedid[2] & 0xff, encodedid[3] & 0xff, encodedid[4] & 0xff, encodedid[5] & 0xff, encodedid[6] & 0xff,
                 encodedid[7] & 0xff, encodedid[8] & 0xff, encodedid[9] & 0xff, encodedid[10] & 0xff, encodedid[11] & 0xff, encodedid[12] & 0xff, encodedid[13] & 0xff, encodedid[14] & 0xff, encodedid[15] & 0xff);
-    if (n != pdfIdLength)
+    if (n != pdfIdLength) {
         return false;
+    }
 
     id->Set(pdfid, pdfIdLength);
     return true;
@@ -848,14 +824,13 @@ Hints *PDFDoc::getHints()
     return hints;
 }
 
-int PDFDoc::savePageAs(const GooString *name, int pageNo)
+int PDFDoc::savePageAs(const GooString &name, int pageNo)
 {
     FILE *f;
-    OutStream *outStr;
-    XRef *yRef, *countRef;
 
-    if (file && file->modificationTimeChangedSinceOpen())
+    if (file && file->modificationTimeChangedSinceOpen()) {
         return errFileChangedSinceOpen;
+    }
 
     int rootNum = getXRef()->getNumObjects() + 1;
 
@@ -880,30 +855,32 @@ int PDFDoc::savePageAs(const GooString *name, int pageNo)
     Ref *refPage = getCatalog()->getPageRef(pageNo);
     Object page = getXRef()->fetch(*refPage);
 
-    if (!(f = openFile(name->c_str(), "wb"))) {
-        error(errIO, -1, "Couldn't open file '{0:t}'", name);
+    if (!(f = openFile(name.c_str(), "wb"))) {
+        error(errIO, -1, "Couldn't open file '{0:t}'", &name);
         return errOpenFile;
     }
-    outStr = new FileOutStream(f, 0);
+    // Calls fclose on f when the fileCloser is destroyed because it goes out of scope
+    const std::unique_ptr<FILE, FILECloser> fileCloser(f);
+    const std::unique_ptr<OutStream> outStr = std::make_unique<FileOutStream>(f, 0);
 
-    yRef = new XRef(getXRef()->getTrailerDict());
+    const std::unique_ptr<XRef> yRef = std::make_unique<XRef>(getXRef()->getTrailerDict());
 
     if (secHdlr != nullptr && !secHdlr->isUnencrypted()) {
         yRef->setEncryption(secHdlr->getPermissionFlags(), secHdlr->getOwnerPasswordOk(), fileKey, keyLength, secHdlr->getEncVersion(), secHdlr->getEncRevision(), encAlgorithm);
     }
-    countRef = new XRef();
+    const std::unique_ptr<XRef> countRef = std::make_unique<XRef>();
     Object *trailerObj = getXRef()->getTrailerDict();
     if (trailerObj->isDict()) {
-        markPageObjects(trailerObj->getDict(), yRef, countRef, 0, refPage->num, rootNum + 2);
+        markPageObjects(trailerObj->getDict(), yRef.get(), countRef.get(), 0, refPage->num, rootNum + 2);
     }
     yRef->add(0, 65535, 0, false);
-    writeHeader(outStr, getPDFMajorVersion(), getPDFMinorVersion());
+    writeHeader(outStr.get(), getPDFMajorVersion(), getPDFMinorVersion());
 
     // get and mark info dict
     Object infoObj = getXRef()->getDocInfo();
     if (infoObj.isDict()) {
         Dict *infoDict = infoObj.getDict();
-        markPageObjects(infoDict, yRef, countRef, 0, refPage->num, rootNum + 2);
+        markPageObjects(infoDict, yRef.get(), countRef.get(), 0, refPage->num, rootNum + 2);
         if (trailerObj->isDict()) {
             Dict *trailerDict = trailerObj->getDict();
             const Object &ref = trailerDict->lookupNF("Info");
@@ -918,33 +895,49 @@ int PDFDoc::savePageAs(const GooString *name, int pageNo)
 
     // get and mark output intents etc.
     Object catObj = getXRef()->getCatalog();
+    if (!catObj.isDict()) {
+        error(errSyntaxError, -1, "XRef's Catalog is not a dictionary");
+        return errOpenFile;
+    }
     Dict *catDict = catObj.getDict();
     Object pagesObj = catDict->lookup("Pages");
+    if (!pagesObj.isDict()) {
+        error(errSyntaxError, -1, "Catalog Pages is not a dictionary");
+        return errOpenFile;
+    }
     Object afObj = catDict->lookupNF("AcroForm").copy();
     if (!afObj.isNull()) {
-        markAcroForm(&afObj, yRef, countRef, 0, refPage->num, rootNum + 2);
+        markAcroForm(&afObj, yRef.get(), countRef.get(), 0, refPage->num, rootNum + 2);
     }
     Dict *pagesDict = pagesObj.getDict();
     Object resourcesObj = pagesDict->lookup("Resources");
-    if (resourcesObj.isDict())
-        markPageObjects(resourcesObj.getDict(), yRef, countRef, 0, refPage->num, rootNum + 2);
-    markPageObjects(catDict, yRef, countRef, 0, refPage->num, rootNum + 2);
+    if (resourcesObj.isDict()) {
+        markPageObjects(resourcesObj.getDict(), yRef.get(), countRef.get(), 0, refPage->num, rootNum + 2);
+    }
+    if (!markPageObjects(catDict, yRef.get(), countRef.get(), 0, refPage->num, rootNum + 2)) {
+        error(errSyntaxError, -1, "markPageObjects failed");
+        return errDamaged;
+    }
 
+    if (!page.isDict()) {
+        error(errSyntaxError, -1, "page is not a dictionary");
+        return errOpenFile;
+    }
     Dict *pageDict = page.getDict();
     if (resourcesObj.isNull() && !pageDict->hasKey("Resources")) {
         Object *resourceDictObject = getCatalog()->getPage(pageNo)->getResourceDictObject();
         if (resourceDictObject->isDict()) {
             resourcesObj = resourceDictObject->copy();
-            markPageObjects(resourcesObj.getDict(), yRef, countRef, 0, refPage->num, rootNum + 2);
+            markPageObjects(resourcesObj.getDict(), yRef.get(), countRef.get(), 0, refPage->num, rootNum + 2);
         }
     }
-    markPageObjects(pageDict, yRef, countRef, 0, refPage->num, rootNum + 2);
+    markPageObjects(pageDict, yRef.get(), countRef.get(), 0, refPage->num, rootNum + 2);
     Object annotsObj = pageDict->lookupNF("Annots").copy();
     if (!annotsObj.isNull()) {
-        markAnnotations(&annotsObj, yRef, countRef, 0, refPage->num, rootNum + 2);
+        markAnnotations(&annotsObj, yRef.get(), countRef.get(), 0, refPage->num, rootNum + 2);
     }
     yRef->markUnencrypted();
-    writePageObjects(outStr, yRef, 0);
+    writePageObjects(outStr.get(), yRef.get(), 0);
 
     yRef->add(rootNum, 0, outStr->getPos(), true);
     outStr->printf("%d 0 obj\n", rootNum);
@@ -952,11 +945,12 @@ int PDFDoc::savePageAs(const GooString *name, int pageNo)
     for (int j = 0; j < catDict->getLength(); j++) {
         const char *key = catDict->getKey(j);
         if (strcmp(key, "Type") != 0 && strcmp(key, "Catalog") != 0 && strcmp(key, "Pages") != 0) {
-            if (j > 0)
+            if (j > 0) {
                 outStr->printf(" ");
+            }
             Object value = catDict->getValNF(j).copy();
             outStr->printf("/%s ", key);
-            writeObject(&value, outStr, getXRef(), 0, nullptr, cryptRC4, 0, 0, 0);
+            writeObject(&value, outStr.get(), getXRef(), 0, nullptr, cryptRC4, 0, 0, 0);
         }
     }
     outStr->printf(">>\nendobj\n");
@@ -966,7 +960,7 @@ int PDFDoc::savePageAs(const GooString *name, int pageNo)
     outStr->printf("<< /Type /Pages /Kids [ %d 0 R ] /Count 1 ", rootNum + 2);
     if (resourcesObj.isDict()) {
         outStr->printf("/Resources ");
-        writeObject(&resourcesObj, outStr, getXRef(), 0, nullptr, cryptRC4, 0, 0, 0);
+        writeObject(&resourcesObj, outStr.get(), getXRef(), 0, nullptr, cryptRC4, 0, 0, 0);
     }
     outStr->printf(">>\n");
     outStr->printf("endobj\n");
@@ -975,15 +969,16 @@ int PDFDoc::savePageAs(const GooString *name, int pageNo)
     outStr->printf("%d 0 obj\n", rootNum + 2);
     outStr->printf("<< ");
     for (int n = 0; n < pageDict->getLength(); n++) {
-        if (n > 0)
+        if (n > 0) {
             outStr->printf(" ");
+        }
         const char *key = pageDict->getKey(n);
         Object value = pageDict->getValNF(n).copy();
         if (strcmp(key, "Parent") == 0) {
             outStr->printf("/Parent %d 0 R", rootNum + 1);
         } else {
             outStr->printf("/%s ", key);
-            writeObject(&value, outStr, getXRef(), 0, nullptr, cryptRC4, 0, 0, 0);
+            writeObject(&value, outStr.get(), getXRef(), 0, nullptr, cryptRC4, 0, 0, 0);
         }
     }
     outStr->printf(" >>\nendobj\n");
@@ -992,26 +987,22 @@ int PDFDoc::savePageAs(const GooString *name, int pageNo)
     Ref ref;
     ref.num = rootNum;
     ref.gen = 0;
-    Object trailerDict = createTrailerDict(rootNum + 3, false, 0, &ref, getXRef(), name->c_str(), uxrefOffset);
-    writeXRefTableTrailer(std::move(trailerDict), yRef, false /* do not write unnecessary entries */, uxrefOffset, outStr, getXRef());
+    Object trailerDict = createTrailerDict(rootNum + 3, false, 0, &ref, getXRef(), name.c_str(), uxrefOffset);
+    writeXRefTableTrailer(std::move(trailerDict), yRef.get(), false /* do not write unnecessary entries */, uxrefOffset, outStr.get(), getXRef());
 
     outStr->close();
-    fclose(f);
-    delete yRef;
-    delete countRef;
-    delete outStr;
 
     return errNone;
 }
 
-int PDFDoc::saveAs(const GooString *name, PDFWriteMode mode)
+int PDFDoc::saveAs(const GooString &name, PDFWriteMode mode)
 {
     FILE *f;
     OutStream *outStr;
     int res;
 
-    if (!(f = openFile(name->c_str(), "wb"))) {
-        error(errIO, -1, "Couldn't open file '{0:t}'", name);
+    if (!(f = openFile(name.c_str(), "wb"))) {
+        error(errIO, -1, "Couldn't open file '{0:t}'", &name);
         return errOpenFile;
     }
     outStr = new FileOutStream(f, 0);
@@ -1023,8 +1014,9 @@ int PDFDoc::saveAs(const GooString *name, PDFWriteMode mode)
 
 int PDFDoc::saveAs(OutStream *outStr, PDFWriteMode mode)
 {
-    if (file && file->modificationTimeChangedSinceOpen())
+    if (file && file->modificationTimeChangedSinceOpen()) {
         return errFileChangedSinceOpen;
+    }
 
     if (!xref->isModified() && mode == writeStandard) {
         // simply copy the original file
@@ -1038,14 +1030,14 @@ int PDFDoc::saveAs(OutStream *outStr, PDFWriteMode mode)
     return errNone;
 }
 
-int PDFDoc::saveWithoutChangesAs(const GooString *name)
+int PDFDoc::saveWithoutChangesAs(const GooString &name)
 {
     FILE *f;
     OutStream *outStr;
     int res;
 
-    if (!(f = openFile(name->c_str(), "wb"))) {
-        error(errIO, -1, "Couldn't open file '{0:t}'", name);
+    if (!(f = openFile(name.c_str(), "wb"))) {
+        error(errIO, -1, "Couldn't open file '{0:t}'", &name);
         return errOpenFile;
     }
 
@@ -1062,8 +1054,9 @@ int PDFDoc::saveWithoutChangesAs(OutStream *outStr)
 {
     int c;
 
-    if (file && file->modificationTimeChangedSinceOpen())
+    if (file && file->modificationTimeChangedSinceOpen()) {
         return errFileChangedSinceOpen;
+    }
 
     BaseStream *copyStr = str->copy();
     copyStr->reset();
@@ -1098,8 +1091,9 @@ void PDFDoc::saveIncrementalUpdate(OutStream *outStr)
     uxref->add(0, 65535, 0, false);
     xref->lock();
     for (int i = 0; i < xref->getNumObjects(); i++) {
-        if ((xref->getEntry(i)->type == xrefEntryFree) && (xref->getEntry(i)->gen == 0)) // we skip the irrelevant free objects
+        if ((xref->getEntry(i)->type == xrefEntryFree) && (xref->getEntry(i)->gen == 0)) { // we skip the irrelevant free objects
             continue;
+        }
 
         if (xref->getEntry(i)->getFlag(XRefEntry::Updated)) { // we have an updated object
             Ref ref;
@@ -1174,8 +1168,9 @@ void PDFDoc::saveCompleteRewrite(OutStream *outStr)
             ref.gen = xref->getEntry(i)->gen;
             /* the XRef class adds a lot of irrelevant free entries, we only want the significant one
                 and we don't want the one with num=0 because it has already been added (gen = 65535)*/
-            if (ref.gen > 0 && ref.num > 0)
+            if (ref.gen > 0 && ref.num > 0) {
                 uxref->add(ref, 0, false);
+            }
         } else if (xref->getEntry(i)->getFlag(XRefEntry::DontRewrite)) {
             // This entry must not be written, put a free entry instead (with incremented gen)
             ref.num = i;
@@ -1210,7 +1205,24 @@ void PDFDoc::saveCompleteRewrite(OutStream *outStr)
     delete uxref;
 }
 
-void PDFDoc::writeDictionnary(Dict *dict, OutStream *outStr, XRef *xRef, unsigned int numOffset, unsigned char *fileKey, CryptAlgorithm encAlgorithm, int keyLength, Ref ref, std::set<Dict *> *alreadyWrittenDicts)
+std::string PDFDoc::sanitizedName(const std::string &name)
+{
+    std::string sanitizedName;
+
+    for (const auto c : name) {
+        if (c <= (char)0x20 || c >= (char)0x7f || c == ' ' || c == '(' || c == ')' || c == '<' || c == '>' || c == '[' || c == ']' || c == '{' || c == '}' || c == '/' || c == '%' || c == '#') {
+            char buf[8];
+            sprintf(buf, "#%02x", c & 0xff);
+            sanitizedName.append(buf);
+        } else {
+            sanitizedName.push_back(c);
+        }
+    }
+
+    return sanitizedName;
+}
+
+void PDFDoc::writeDictionary(Dict *dict, OutStream *outStr, XRef *xRef, unsigned int numOffset, unsigned char *fileKey, CryptAlgorithm encAlgorithm, int keyLength, Ref ref, std::set<Dict *> *alreadyWrittenDicts)
 {
     bool deleteSet = false;
     if (!alreadyWrittenDicts) {
@@ -1219,9 +1231,10 @@ void PDFDoc::writeDictionnary(Dict *dict, OutStream *outStr, XRef *xRef, unsigne
     }
 
     if (alreadyWrittenDicts->find(dict) != alreadyWrittenDicts->end()) {
-        error(errSyntaxWarning, -1, "PDFDoc::writeDictionnary: Found recursive dicts");
-        if (deleteSet)
+        error(errSyntaxWarning, -1, "PDFDoc::writeDictionary: Found recursive dicts");
+        if (deleteSet) {
             delete alreadyWrittenDicts;
+        }
         return;
     } else {
         alreadyWrittenDicts->insert(dict);
@@ -1230,9 +1243,7 @@ void PDFDoc::writeDictionnary(Dict *dict, OutStream *outStr, XRef *xRef, unsigne
     outStr->printf("<<");
     for (int i = 0; i < dict->getLength(); i++) {
         GooString keyName(dict->getKey(i));
-        GooString *keyNameToPrint = keyName.sanitizedName(false /* non ps mode */);
-        outStr->printf("/%s ", keyNameToPrint->c_str());
-        delete keyNameToPrint;
+        outStr->printf("/%s ", sanitizedName(keyName.toStr()).c_str());
         Object obj1 = dict->getValNF(i).copy();
         writeObject(&obj1, outStr, xRef, numOffset, fileKey, encAlgorithm, keyLength, ref, alreadyWrittenDicts);
     }
@@ -1262,10 +1273,11 @@ void PDFDoc::writeRawStream(Stream *str, OutStream *outStr)
     }
 
     Goffset length;
-    if (obj1.isInt())
+    if (obj1.isInt()) {
         length = obj1.getInt();
-    else
+    } else {
         length = obj1.getInt64();
+    }
 
     outStr->printf("stream\r\n");
     str->unfilteredReset();
@@ -1302,26 +1314,25 @@ void PDFDoc::writeString(const GooString *s, OutStream *outStr, const unsigned c
     if (s->hasUnicodeMarker()) {
         // unicode string don't necessary end with \0
         const char *c = s->c_str();
-        outStr->printf("(");
+        std::stringstream stream;
+        stream << std::setfill('0') << std::hex;
         for (int i = 0; i < s->getLength(); i++) {
-            char unescaped = *(c + i) & 0x000000ff;
-            // escape if needed
-            if (unescaped == '(' || unescaped == ')' || unescaped == '\\')
-                outStr->printf("%c", '\\');
-            outStr->printf("%c", unescaped);
+            stream << std::setw(2) << (0xff & (unsigned int)*(c + i));
         }
-        outStr->printf(") ");
+        outStr->printf("<");
+        outStr->printf("%s", stream.str().c_str());
+        outStr->printf("> ");
     } else {
         const char *c = s->c_str();
         outStr->printf("(");
         for (int i = 0; i < s->getLength(); i++) {
             char unescaped = *(c + i) & 0x000000ff;
             // escape if needed
-            if (unescaped == '\r')
+            if (unescaped == '\r') {
                 outStr->printf("\\r");
-            else if (unescaped == '\n')
+            } else if (unescaped == '\n') {
                 outStr->printf("\\n");
-            else {
+            } else {
                 if (unescaped == '(' || unescaped == ')' || unescaped == '\\') {
                     outStr->printf("%c", '\\');
                 }
@@ -1369,11 +1380,18 @@ void PDFDoc::writeObject(Object *obj, OutStream *outStr, XRef *xRef, unsigned in
     case objString:
         writeString(obj->getString(), outStr, fileKey, encAlgorithm, keyLength, ref);
         break;
+    case objHexString: {
+        const GooString *s = obj->getHexString();
+        outStr->printf("<");
+        for (int i = 0; i < s->getLength(); i++) {
+            outStr->printf("%02x", s->getChar(i) & 0xff);
+        }
+        outStr->printf("> ");
+        break;
+    }
     case objName: {
         GooString name(obj->getName());
-        GooString *nameToPrint = name.sanitizedName(false /* non ps mode */);
-        outStr->printf("/%s ", nameToPrint->c_str());
-        delete nameToPrint;
+        outStr->printf("/%s ", sanitizedName(name.toStr()).c_str());
         break;
     }
     case objNull:
@@ -1389,7 +1407,7 @@ void PDFDoc::writeObject(Object *obj, OutStream *outStr, XRef *xRef, unsigned in
         outStr->printf("] ");
         break;
     case objDict:
-        writeDictionnary(obj->getDict(), outStr, xRef, numOffset, fileKey, encAlgorithm, keyLength, ref, alreadyWrittenDicts);
+        writeDictionary(obj->getDict(), outStr, xRef, numOffset, fileKey, encAlgorithm, keyLength, ref, alreadyWrittenDicts);
         break;
     case objStream: {
         // We can't modify stream with the current implementation (no write functions in Stream API)
@@ -1399,8 +1417,8 @@ void PDFDoc::writeObject(Object *obj, OutStream *outStr, XRef *xRef, unsigned in
             // we write the stream unencoded => TODO: write stream encoder
 
             // Encrypt stream
-            EncryptStream *encStream = nullptr;
             bool removeFilter = true;
+            bool addEncryptstream = false;
             if (stream->getKind() == strWeird && fileKey) {
                 Object filter = stream->getDict()->lookup("Filter");
                 if (!filter.isName("Crypt")) {
@@ -1413,22 +1431,30 @@ void PDFDoc::writeObject(Object *obj, OutStream *outStr, XRef *xRef, unsigned in
                             }
                         }
                         if (removeFilter) {
-                            encStream = new EncryptStream(stream, fileKey, encAlgorithm, keyLength, ref);
-                            encStream->setAutoDelete(false);
-                            stream = encStream;
+                            addEncryptstream = true;
                         }
                     } else {
-                        encStream = new EncryptStream(stream, fileKey, encAlgorithm, keyLength, ref);
-                        encStream->setAutoDelete(false);
-                        stream = encStream;
+                        addEncryptstream = true;
                     }
                 } else {
                     removeFilter = false;
                 }
             } else if (fileKey != nullptr) { // Encrypt stream
-                encStream = new EncryptStream(stream, fileKey, encAlgorithm, keyLength, ref);
+                addEncryptstream = true;
+            }
+
+            std::unique_ptr<EncryptStream> encStream;
+            std::unique_ptr<Stream> compressStream;
+            Object filter = stream->getDict()->lookup("Filter");
+            if (filter.isName("FlateDecode")) {
+                compressStream = std::make_unique<FlateEncoder>(stream);
+                stream = compressStream.get();
+                removeFilter = false;
+            }
+            if (addEncryptstream) {
+                encStream = std::make_unique<EncryptStream>(stream, fileKey, encAlgorithm, keyLength, ref);
                 encStream->setAutoDelete(false);
-                stream = encStream;
+                stream = encStream.get();
             }
 
             stream->reset();
@@ -1440,18 +1466,21 @@ void PDFDoc::writeObject(Object *obj, OutStream *outStr, XRef *xRef, unsigned in
             stream->getDict()->set("Length", Object(tmp));
 
             // Remove Stream encoding
+            AutoFreeMemStream *internalStream = dynamic_cast<AutoFreeMemStream *>(stream);
+            if (internalStream && internalStream->isFilterRemovalForbidden()) {
+                removeFilter = false;
+            }
             if (removeFilter) {
                 stream->getDict()->remove("Filter");
             }
             stream->getDict()->remove("DecodeParms");
 
-            writeDictionnary(stream->getDict(), outStr, xRef, numOffset, fileKey, encAlgorithm, keyLength, ref, alreadyWrittenDicts);
+            writeDictionary(stream->getDict(), outStr, xRef, numOffset, fileKey, encAlgorithm, keyLength, ref, alreadyWrittenDicts);
             writeStream(stream, outStr);
-            delete encStream;
         } else if (fileKey != nullptr && stream->getKind() == strFile && static_cast<FileStream *>(stream)->getNeedsEncryptionOnSave()) {
             EncryptStream *encStream = new EncryptStream(stream, fileKey, encAlgorithm, keyLength, ref);
             encStream->setAutoDelete(false);
-            writeDictionnary(encStream->getDict(), outStr, xRef, numOffset, fileKey, encAlgorithm, keyLength, ref, alreadyWrittenDicts);
+            writeDictionary(encStream->getDict(), outStr, xRef, numOffset, fileKey, encAlgorithm, keyLength, ref, alreadyWrittenDicts);
             writeStream(encStream, outStr);
             delete encStream;
         } else {
@@ -1467,7 +1496,7 @@ void PDFDoc::writeObject(Object *obj, OutStream *outStr, XRef *xRef, unsigned in
                     }
                 }
             }
-            writeDictionnary(stream->getDict(), outStr, xRef, numOffset, fileKey, encAlgorithm, keyLength, ref, alreadyWrittenDicts);
+            writeDictionary(stream->getDict(), outStr, xRef, numOffset, fileKey, encAlgorithm, keyLength, ref, alreadyWrittenDicts);
             writeRawStream(stream, outStr);
         }
         break;
@@ -1507,14 +1536,15 @@ Object PDFDoc::createTrailerDict(int uxrefSize, bool incrUpdate, Goffset startxR
     // - current time
     // - file name
     // - file size
-    // - values of entry in information dictionnary
+    // - values of entry in information dictionary
     GooString message;
     char buffer[256];
     sprintf(buffer, "%i", (int)time(nullptr));
     message.append(buffer);
 
-    if (fileName)
+    if (fileName) {
         message.append(fileName);
+    }
 
     sprintf(buffer, "%lli", (long long)fileSize);
     message.append(buffer);
@@ -1551,7 +1581,9 @@ Object PDFDoc::createTrailerDict(int uxrefSize, bool incrUpdate, Goffset startxR
         // only update the second part of the array
         Object obj4 = xRef->getTrailerDict()->getDict()->lookup("ID");
         if (!obj4.isArray()) {
-            error(errSyntaxWarning, -1, "PDFDoc::createTrailerDict original file's ID entry isn't an array. Trying to continue");
+            if (hasEncrypt) {
+                error(errSyntaxWarning, -1, "PDFDoc::createTrailerDict original file's ID entry isn't an array. Trying to continue");
+            }
         } else {
             Array *array = new Array(xRef);
             // Get the first part of the ID
@@ -1587,7 +1619,7 @@ void PDFDoc::writeXRefTableTrailer(Object &&trailerDict, XRef *uxref, bool write
 {
     uxref->writeTableToFile(outStr, writeAllEntries);
     outStr->printf("trailer\r\n");
-    writeDictionnary(trailerDict.getDict(), outStr, xRef, 0, nullptr, cryptRC4, 0, { 0, 0 }, nullptr);
+    writeDictionary(trailerDict.getDict(), outStr, xRef, 0, nullptr, cryptRC4, 0, { 0, 0 }, nullptr);
     outStr->printf("\r\nstartxref\r\n");
     outStr->printf("%lli\r\n", uxrefOffset);
     outStr->printf("%%%%EOF\r\n");
@@ -1636,7 +1668,7 @@ void PDFDoc::writeHeader(OutStream *outStr, int major, int minor)
     outStr->printf("%%%c%c%c%c\n", 0xE2, 0xE3, 0xCF, 0xD3);
 }
 
-void PDFDoc::markDictionnary(Dict *dict, XRef *xRef, XRef *countRef, unsigned int numOffset, int oldRefNum, int newRefNum, std::set<Dict *> *alreadyMarkedDicts)
+bool PDFDoc::markDictionary(Dict *dict, XRef *xRef, XRef *countRef, unsigned int numOffset, int oldRefNum, int newRefNum, std::set<Dict *> *alreadyMarkedDicts)
 {
     bool deleteSet = false;
     if (!alreadyMarkedDicts) {
@@ -1645,10 +1677,11 @@ void PDFDoc::markDictionnary(Dict *dict, XRef *xRef, XRef *countRef, unsigned in
     }
 
     if (alreadyMarkedDicts->find(dict) != alreadyMarkedDicts->end()) {
-        error(errSyntaxWarning, -1, "PDFDoc::markDictionnary: Found recursive dicts");
-        if (deleteSet)
+        error(errSyntaxWarning, -1, "PDFDoc::markDictionary: Found recursive dicts");
+        if (deleteSet) {
             delete alreadyMarkedDicts;
-        return;
+        }
+        return true;
     } else {
         alreadyMarkedDicts->insert(dict);
     }
@@ -1657,7 +1690,10 @@ void PDFDoc::markDictionnary(Dict *dict, XRef *xRef, XRef *countRef, unsigned in
         const char *key = dict->getKey(i);
         if (strcmp(key, "Annots") != 0) {
             Object obj1 = dict->getValNF(i).copy();
-            markObject(&obj1, xRef, countRef, numOffset, oldRefNum, newRefNum, alreadyMarkedDicts);
+            const bool success = markObject(&obj1, xRef, countRef, numOffset, oldRefNum, newRefNum, alreadyMarkedDicts);
+            if (unlikely(!success)) {
+                return false;
+            }
         } else {
             Object annotsObj = dict->getValNF(i).copy();
             if (!annotsObj.isNull()) {
@@ -1669,9 +1705,11 @@ void PDFDoc::markDictionnary(Dict *dict, XRef *xRef, XRef *countRef, unsigned in
     if (deleteSet) {
         delete alreadyMarkedDicts;
     }
+
+    return true;
 }
 
-void PDFDoc::markObject(Object *obj, XRef *xRef, XRef *countRef, unsigned int numOffset, int oldRefNum, int newRefNum, std::set<Dict *> *alreadyMarkedDicts)
+bool PDFDoc::markObject(Object *obj, XRef *xRef, XRef *countRef, unsigned int numOffset, int oldRefNum, int newRefNum, std::set<Dict *> *alreadyMarkedDicts)
 {
     Array *array;
 
@@ -1680,22 +1718,34 @@ void PDFDoc::markObject(Object *obj, XRef *xRef, XRef *countRef, unsigned int nu
         array = obj->getArray();
         for (int i = 0; i < array->getLength(); i++) {
             Object obj1 = array->getNF(i).copy();
-            markObject(&obj1, xRef, countRef, numOffset, oldRefNum, newRefNum, alreadyMarkedDicts);
+            const bool success = markObject(&obj1, xRef, countRef, numOffset, oldRefNum, newRefNum, alreadyMarkedDicts);
+            if (unlikely(!success)) {
+                return false;
+            }
         }
         break;
-    case objDict:
-        markDictionnary(obj->getDict(), xRef, countRef, numOffset, oldRefNum, newRefNum, alreadyMarkedDicts);
-        break;
+    case objDict: {
+        const bool success = markDictionary(obj->getDict(), xRef, countRef, numOffset, oldRefNum, newRefNum, alreadyMarkedDicts);
+        if (unlikely(!success)) {
+            return false;
+        }
+    } break;
     case objStream: {
         Stream *stream = obj->getStream();
-        markDictionnary(stream->getDict(), xRef, countRef, numOffset, oldRefNum, newRefNum, alreadyMarkedDicts);
+        const bool success = markDictionary(stream->getDict(), xRef, countRef, numOffset, oldRefNum, newRefNum, alreadyMarkedDicts);
+        if (unlikely(!success)) {
+            return false;
+        }
     } break;
     case objRef: {
         if (obj->getRef().num + (int)numOffset >= xRef->getNumObjects() || xRef->getEntry(obj->getRef().num + numOffset)->type == xrefEntryFree) {
             if (getXRef()->getEntry(obj->getRef().num)->type == xrefEntryFree) {
-                return; // already marked as free => should be replaced
+                return true; // already marked as free => should be replaced
             }
-            xRef->add(obj->getRef().num + numOffset, obj->getRef().gen, 0, true);
+            const bool success = xRef->add(obj->getRef().num + numOffset, obj->getRef().gen, 0, true);
+            if (unlikely(!success)) {
+                return false;
+            }
             if (getXRef()->getEntry(obj->getRef().num)->type == xrefEntryCompressed) {
                 xRef->getEntry(obj->getRef().num + numOffset)->type = xrefEntryCompressed;
             }
@@ -1705,21 +1755,30 @@ void PDFDoc::markObject(Object *obj, XRef *xRef, XRef *countRef, unsigned int nu
         } else {
             XRefEntry *entry = countRef->getEntry(obj->getRef().num + numOffset);
             entry->gen++;
-            if (entry->gen > 9)
+            if (entry->gen > 9) {
                 break;
+            }
         }
         Object obj1 = getXRef()->fetch(obj->getRef());
-        markObject(&obj1, xRef, countRef, numOffset, oldRefNum, newRefNum);
+        const bool success = markObject(&obj1, xRef, countRef, numOffset, oldRefNum, newRefNum);
+        if (unlikely(!success)) {
+            return false;
+        }
     } break;
     default:
         break;
     }
+
+    return true;
 }
 
-void PDFDoc::replacePageDict(int pageNo, int rotate, const PDFRectangle *mediaBox, const PDFRectangle *cropBox)
+bool PDFDoc::replacePageDict(int pageNo, int rotate, const PDFRectangle *mediaBox, const PDFRectangle *cropBox)
 {
     Ref *refPage = getCatalog()->getPageRef(pageNo);
     Object page = getXRef()->fetch(*refPage);
+    if (!page.isDict()) {
+        return false;
+    }
     Dict *pageDict = page.getDict();
     pageDict->remove("MediaBoxssdf");
     pageDict->remove("MediaBox");
@@ -1749,9 +1808,10 @@ void PDFDoc::replacePageDict(int pageNo, int rotate, const PDFRectangle *mediaBo
     pageDict->add("TrimBox", std::move(trimBoxObject));
     pageDict->add("Rotate", Object(rotate));
     getXRef()->setModifiedObject(&page, *refPage);
+    return true;
 }
 
-void PDFDoc::markPageObjects(Dict *pageDict, XRef *xRef, XRef *countRef, unsigned int numOffset, int oldRefNum, int newRefNum, std::set<Dict *> *alreadyMarkedDicts)
+bool PDFDoc::markPageObjects(Dict *pageDict, XRef *xRef, XRef *countRef, unsigned int numOffset, int oldRefNum, int newRefNum, std::set<Dict *> *alreadyMarkedDicts)
 {
     pageDict->remove("OpenAction");
     pageDict->remove("Outlines");
@@ -1761,9 +1821,13 @@ void PDFDoc::markPageObjects(Dict *pageDict, XRef *xRef, XRef *countRef, unsigne
         const char *key = pageDict->getKey(n);
         Object value = pageDict->getValNF(n).copy();
         if (strcmp(key, "Parent") != 0 && strcmp(key, "Pages") != 0 && strcmp(key, "AcroForm") != 0 && strcmp(key, "Annots") != 0 && strcmp(key, "P") != 0 && strcmp(key, "Root") != 0) {
-            markObject(&value, xRef, countRef, numOffset, oldRefNum, newRefNum, alreadyMarkedDicts);
+            const bool success = markObject(&value, xRef, countRef, numOffset, oldRefNum, newRefNum, alreadyMarkedDicts);
+            if (unlikely(!success)) {
+                return false;
+            }
         }
     }
+    return true;
 }
 
 bool PDFDoc::markAnnotations(Object *annotsObj, XRef *xRef, XRef *countRef, unsigned int numOffset, int oldPageNum, int newPageNum, std::set<Dict *> *alreadyMarkedDicts)
@@ -1923,19 +1987,20 @@ Outline *PDFDoc::getOutline()
     if (!outline) {
         pdfdocLocker();
         // read outline
-        outline = new Outline(catalog->getOutline(), xref);
+        outline = new Outline(catalog->getOutline(), xref, this);
     }
 
     return outline;
 }
 
-PDFDoc *PDFDoc::ErrorPDFDoc(int errorCode, const GooString *fileNameA)
+std::unique_ptr<PDFDoc> PDFDoc::ErrorPDFDoc(int errorCode, std::unique_ptr<GooString> &&fileNameA)
 {
+    // We cannot call std::make_unique here because the PDFDoc constructor is private
     PDFDoc *doc = new PDFDoc();
     doc->errCode = errorCode;
-    doc->fileName = fileNameA;
+    doc->fileName = std::move(fileNameA);
 
-    return doc;
+    return std::unique_ptr<PDFDoc>(doc);
 }
 
 long long PDFDoc::strToLongLong(const char *s)
@@ -1978,8 +2043,9 @@ Goffset PDFDoc::getStartXRef(bool tryingToReconstruct)
                 if (!strncmp("endobj", &buf[i], 6)) {
                     i += 6;
                     // skip whitespace
-                    while (buf[i] && Lexer::isSpace(buf[i]))
+                    while (buf[i] && Lexer::isSpace(buf[i])) {
                         ++i;
+                    }
                     startXRefPos = i;
                     break;
                 }
@@ -1992,8 +2058,9 @@ Goffset PDFDoc::getStartXRef(bool tryingToReconstruct)
             // read last xrefSearchSize bytes
             int segnum = 0;
             int maxXRefSearch = 24576;
-            if (str->getLength() < maxXRefSearch)
-                maxXRefSearch = str->getLength();
+            if (str->getLength() < maxXRefSearch) {
+                maxXRefSearch = static_cast<int>(str->getLength());
+            }
             for (; (xrefSearchSize - 16) * segnum < maxXRefSearch; segnum++) {
                 str->setPos((xrefSearchSize - 16) * segnum + xrefSearchSize, -1);
                 for (n = 0; n < xrefSearchSize; ++n) {
@@ -2013,8 +2080,9 @@ Goffset PDFDoc::getStartXRef(bool tryingToReconstruct)
                 if (i < 0) {
                     startXRefPos = 0;
                 } else {
-                    for (p = &buf[i + 9]; isspace(*p); ++p)
+                    for (p = &buf[i + 9]; isspace(*p); ++p) {
                         ;
+                    }
                     startXRefPos = strToLongLong(p);
                     break;
                 }
@@ -2077,8 +2145,9 @@ Page *PDFDoc::parsePage(int page)
 
 Page *PDFDoc::getPage(int page)
 {
-    if ((page < 1) || page > getNumPages())
+    if ((page < 1) || page > getNumPages()) {
         return nullptr;
+    }
 
     if (isLinearized() && checkLinearization()) {
         pdfdocLocker();
@@ -2106,4 +2175,97 @@ bool PDFDoc::hasJavascript()
     JSInfo jsInfo(this);
     jsInfo.scanJS(getNumPages(), true);
     return jsInfo.containsJS();
+}
+
+bool PDFDoc::sign(const std::string &saveFilename, const std::string &certNickname, const std::string &password, GooString *partialFieldName, int page, const PDFRectangle &rect, const GooString &signatureText,
+                  const GooString &signatureTextLeft, double fontSize, double leftFontSize, std::unique_ptr<AnnotColor> &&fontColor, double borderWidth, std::unique_ptr<AnnotColor> &&borderColor,
+                  std::unique_ptr<AnnotColor> &&backgroundColor, const GooString *reason, const GooString *location, const std::string &imagePath, const std::optional<GooString> &ownerPassword, const std::optional<GooString> &userPassword)
+{
+    ::Page *destPage = getPage(page);
+    if (destPage == nullptr) {
+        return false;
+    }
+    Ref imageResourceRef = Ref::INVALID();
+    if (!imagePath.empty()) {
+        imageResourceRef = ImageEmbeddingUtils::embed(xref, imagePath);
+        if (imageResourceRef == Ref::INVALID()) {
+            return false;
+        }
+    }
+
+    Form *form = catalog->getCreateForm();
+    const std::string pdfFontName = form->findPdfFontNameToUseForSigning();
+    if (pdfFontName.empty()) {
+        return false;
+    }
+
+    const DefaultAppearance da { { objName, pdfFontName.c_str() }, fontSize, std::move(fontColor) };
+
+    Object annotObj = Object(new Dict(getXRef()));
+    annotObj.dictSet("Type", Object(objName, "Annot"));
+    annotObj.dictSet("Subtype", Object(objName, "Widget"));
+    annotObj.dictSet("FT", Object(objName, "Sig"));
+    annotObj.dictSet("T", Object(partialFieldName));
+    Array *rectArray = new Array(getXRef());
+    rectArray->add(Object(rect.x1));
+    rectArray->add(Object(rect.y1));
+    rectArray->add(Object(rect.x2));
+    rectArray->add(Object(rect.y2));
+    annotObj.dictSet("Rect", Object(rectArray));
+
+    const std::string daStr = da.toAppearanceString();
+    annotObj.dictSet("DA", Object(new GooString(daStr)));
+
+    const Ref ref = getXRef()->addIndirectObject(annotObj);
+    catalog->addFormToAcroForm(ref);
+    // say that there a now signatures and that we should append only
+    catalog->getAcroForm()->dictSet("SigFlags", Object(3));
+    form->ensureFontsForAllCharacters(&signatureText, pdfFontName);
+    form->ensureFontsForAllCharacters(&signatureTextLeft, pdfFontName);
+
+    std::unique_ptr<::FormFieldSignature> field = std::make_unique<::FormFieldSignature>(this, std::move(annotObj), ref, nullptr, nullptr);
+    field->setCustomAppearanceContent(signatureText);
+    field->setCustomAppearanceLeftContent(signatureTextLeft);
+    field->setCustomAppearanceLeftFontSize(leftFontSize);
+    field->setImageResource(imageResourceRef);
+
+    Object refObj(ref);
+    AnnotWidget *signatureAnnot = new AnnotWidget(this, field->getObj(), &refObj, field.get());
+    signatureAnnot->setFlags(signatureAnnot->getFlags() | Annot::flagPrint | Annot::flagLocked | Annot::flagNoRotate);
+    Dict dummy(getXRef());
+    auto appearCharacs = std::make_unique<AnnotAppearanceCharacs>(&dummy);
+    appearCharacs->setBorderColor(std::move(borderColor));
+    appearCharacs->setBackColor(std::move(backgroundColor));
+    signatureAnnot->setAppearCharacs(std::move(appearCharacs));
+
+    signatureAnnot->generateFieldAppearance();
+    signatureAnnot->updateAppearanceStream();
+
+    FormWidget *formWidget = field->getWidget(field->getNumWidgets() - 1);
+    formWidget->setWidgetAnnotation(signatureAnnot);
+
+    destPage->addAnnot(signatureAnnot);
+
+    std::unique_ptr<AnnotBorder> border(new AnnotBorderArray());
+    border->setWidth(borderWidth);
+    signatureAnnot->setBorder(std::move(border));
+
+    FormWidgetSignature *fws = dynamic_cast<FormWidgetSignature *>(formWidget);
+    if (fws) {
+        const bool res = fws->signDocument(saveFilename, certNickname, password, reason, location, ownerPassword, userPassword);
+
+        // Now remove the signature stuff in case the user wants to continue editing stuff
+        // So the document object is clean
+        const Object &vRefObj = field->getObj()->dictLookupNF("V");
+        if (vRefObj.isRef()) {
+            getXRef()->removeIndirectObject(vRefObj.getRef());
+        }
+        destPage->removeAnnot(signatureAnnot);
+        catalog->removeFormFromAcroForm(ref);
+        getXRef()->removeIndirectObject(ref);
+
+        return res;
+    }
+
+    return false;
 }

@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2008, 2012 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2012, 2021 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2012 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2012 Even Rouault <even.rouault@mines-paris.org>
 // Copyright (C) 2019 Robert Niemi <robert.den.klurige@gmail.com>
@@ -476,7 +476,7 @@ GooString *JPXStream::getPSFilter(int psLevel, const char *indent)
     return nullptr;
 }
 
-bool JPXStream::isBinary(bool last)
+bool JPXStream::isBinary(bool last) const
 {
     return str->isBinary(true);
 }

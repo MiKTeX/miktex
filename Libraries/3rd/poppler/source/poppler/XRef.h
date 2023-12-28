@@ -14,17 +14,20 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
-// Copyright (C) 2006, 2008, 2010-2013, 2017-2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2008, 2010-2013, 2017-2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007-2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2007 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2010 Ilya Gorenbein <igorenbein@finjan.com>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2012, 2013, 2016 Thomas Freitag <Thomas.Freitag@kabelmail.de>
 // Copyright (C) 2012, 2013 Fabio D'Urso <fabiodurso@hotmail.it>
-// Copyright (C) 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2013, 2017, 2019 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2016 Jakub Alba <jakubalba@gmail.com>
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
 // Copyright (C) 2018 Marek Kasik <mkasik@redhat.com>
+// Copyright (C) 2021 Mahmoud Khalil <mahmoudkhalil11@gmail.com>
+// Copyright (C) 2021 Georgiy Sgibnev <georgiy@sgibnev.com>. Work sponsored by lab50.net.
+// Copyright (C) 2023 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -34,7 +37,10 @@
 #ifndef XREF_H
 #define XREF_H
 
+#include <functional>
+
 #include "poppler-config.h"
+#include "poppler_private_export.h"
 #include "Object.h"
 #include "Stream.h"
 #include "PopplerCache.h"
@@ -92,15 +98,22 @@ struct XRefEntry
     }
 };
 
-class XRef
+// How to compress the a added stream
+enum class StreamCompression
+{
+    None, /* No compression */
+    Compress, /* Compresses the stream */
+};
+
+class POPPLER_PRIVATE_EXPORT XRef
 {
 public:
     // Constructor, create an empty XRef, used for PDF writing
     XRef();
     // Constructor, create an empty XRef but with info dict, used for PDF writing
-    XRef(const Object *trailerDictA);
+    explicit XRef(const Object *trailerDictA);
     // Constructor.  Read xref table from stream.
-    XRef(BaseStream *strA, Goffset pos, Goffset mainXRefEntriesOffsetA = 0, bool *wasReconstructed = nullptr, bool reconstruct = false);
+    XRef(BaseStream *strA, Goffset pos, Goffset mainXRefEntriesOffsetA = 0, bool *wasReconstructed = nullptr, bool reconstruct = false, const std::function<void()> &xrefReconstructedCallback = {});
 
     // Destructor.
     ~XRef();
@@ -149,15 +162,19 @@ public:
 
     // Fetch an indirect reference.
     Object fetch(const Ref ref, int recursion = 0);
-    Object fetch(int num, int gen, int recursion = 0);
+    // If endPos is not null, returns file position after parsing the object. This will
+    // be a few bytes after the end of the object due to the parser reading ahead.
+    // Returns -1 if object is in compressed stream.
+    Object fetch(int num, int gen, int recursion = 0, Goffset *endPos = nullptr);
 
     // Return the document's Info dictionary (if any).
     Object getDocInfo();
     Object getDocInfoNF();
 
-    // Create and return the document's Info dictionary if none exists.
+    // Create and return the document's Info dictionary if needed.
     // Otherwise return the existing one.
-    Object createDocInfoIfNoneExists();
+    // Returns in the given parameter the Ref the Info is in
+    Object createDocInfoIfNeeded(Ref *ref);
 
     // Remove the document's Info dictionary and update the trailer dictionary.
     void removeDocInfo();
@@ -196,10 +213,16 @@ public:
 
     // Write access
     void setModifiedObject(const Object *o, Ref r);
-    Ref addIndirectObject(const Object *o);
+    Ref addIndirectObject(const Object &o);
     void removeIndirectObject(Ref r);
-    void add(int num, int gen, Goffset offs, bool used);
+    bool add(int num, int gen, Goffset offs, bool used);
     void add(Ref ref, Goffset offs, bool used);
+    // Adds a stream object using AutoFreeMemStream.
+    // The function takes ownership over dict and buffer.
+    // The buffer should be created using gmalloc().
+    // Returns ref to a new object.
+    Ref addStreamObject(Dict *dict, char *buffer, const Goffset bufferSize, StreamCompression compression = StreamCompression::None);
+    Ref addStreamObject(Dict *dict, uint8_t *buffer, const Goffset bufferSize, StreamCompression compression = StreamCompression::None);
 
     // Output XRef table to stream
     void writeTableToFile(OutStream *outStr, bool writeAllEntries);
@@ -242,6 +265,7 @@ private:
     bool scannedSpecialFlags; // true if scanSpecialFlags has been called
     bool strOwner; // true if str is owned by the instance
     mutable std::recursive_mutex mutex;
+    std::function<void()> xrefReconstructedCb;
 
     int reserve(int newSize);
     int resize(int newSize);
@@ -260,7 +284,7 @@ private:
         XRefWriter() = default;
         virtual void startSection(int first, int count) = 0;
         virtual void writeEntry(Goffset offset, int gen, XRefEntryType type) = 0;
-        virtual ~XRefWriter() {};
+        virtual ~XRefWriter();
 
         XRefWriter(const XRefWriter &) = delete;
         XRefWriter &operator=(const XRefWriter &other) = delete;
@@ -270,7 +294,7 @@ private:
     class XRefTableWriter : public XRefWriter
     {
     public:
-        XRefTableWriter(OutStream *outStrA);
+        explicit XRefTableWriter(OutStream *outStrA);
         void startSection(int first, int count) override;
         void writeEntry(Goffset offset, int gen, XRefEntryType type) override;
 

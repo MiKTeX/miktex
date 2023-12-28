@@ -7,6 +7,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright (C) 2016 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2022 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -42,7 +43,7 @@ static time_t getLocalTimeZoneOffset()
     time(&utc);
     gmtime_r(&utc, &tm_utc);
     local = mktime(&tm_utc);
-    return difftime(utc, local);
+    return static_cast<time_t>(difftime(utc, local));
 }
 
 time_t timegm(struct tm *tm)

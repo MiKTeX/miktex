@@ -18,7 +18,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2008 Boris Toloknov <tlknv@yandex.ru>
-// Copyright (C) 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010, 2021, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2013 Julien Nabet <serval2412@yahoo.fr>
 //
 // To see a description of the changes please see the Changelog file that
@@ -71,8 +71,9 @@ bool HtmlLink::isEqualDest(const HtmlLink &x) const
 bool HtmlLink::inLink(double xmin, double ymin, double xmax, double ymax) const
 {
     double y = (ymin + ymax) / 2;
-    if (y > Ymax)
+    if (y > Ymax) {
         return false;
+    }
     return (y > Ymin) && (xmin < Xmax) && (xmax > Xmin);
 }
 
@@ -98,8 +99,9 @@ static GooString *EscapeSpecialChars(GooString *s)
             continue;
         }
         if (replace) {
-            if (!tmp)
+            if (!tmp) {
                 tmp = new GooString(s);
+            }
             if (tmp) {
                 tmp->del(j, 1);
                 int l = strlen(replace);
@@ -111,13 +113,14 @@ static GooString *EscapeSpecialChars(GooString *s)
     return tmp ? tmp : s;
 }
 
-GooString *HtmlLink::getLinkStart()
+GooString *HtmlLink::getLinkStart() const
 {
     GooString *res = new GooString("<a href=\"");
     GooString *d = xml ? EscapeSpecialChars(dest) : dest;
     res->append(d);
-    if (d != dest)
+    if (d != dest) {
         delete d;
+    }
     res->append("\">");
     return res;
 }
@@ -133,30 +136,23 @@ GooString *HtmlLink::getLinkStart()
   return tmp;
   }*/
 
-HtmlLinks::HtmlLinks()
-{
-    accu = new std::vector<HtmlLink>();
-}
+HtmlLinks::HtmlLinks() { }
 
-HtmlLinks::~HtmlLinks()
-{
-    delete accu;
-    accu = nullptr;
-}
+HtmlLinks::~HtmlLinks() { }
 
-bool HtmlLinks::inLink(double xmin, double ymin, double xmax, double ymax, int &p) const
+bool HtmlLinks::inLink(double xmin, double ymin, double xmax, double ymax, size_t &p) const
 {
 
-    for (std::vector<HtmlLink>::iterator i = accu->begin(); i != accu->end(); ++i) {
+    for (std::vector<HtmlLink>::const_iterator i = accu.begin(); i != accu.end(); ++i) {
         if (i->inLink(xmin, ymin, xmax, ymax)) {
-            p = (i - accu->begin());
+            p = (i - accu.begin());
             return true;
         }
     }
     return false;
 }
 
-HtmlLink *HtmlLinks::getLink(int i) const
+const HtmlLink *HtmlLinks::getLink(size_t i) const
 {
-    return &(*accu)[i];
+    return &accu[i];
 }

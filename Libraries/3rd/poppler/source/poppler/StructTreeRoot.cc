@@ -7,7 +7,7 @@
 // Copyright 2013, 2014 Igalia S.L.
 // Copyright 2014 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright 2017 Jan-Erik S <janerik234678@gmail.com>
-// Copyright 2017-2019 Albert Astals Cid <aacid@kde.org>
+// Copyright 2017-2019, 2023 Albert Astals Cid <aacid@kde.org>
 // Copyright 2017, 2018 Adrian Johnson <ajohnson@redneon.com>
 // Copyright 2018, Adam Reichold <adam.reichold@t-online.de>
 //
@@ -31,8 +31,9 @@ StructTreeRoot::StructTreeRoot(PDFDoc *docA, Dict *structTreeRootDict) : doc(doc
 
 StructTreeRoot::~StructTreeRoot()
 {
-    for (StructElement *element : elements)
+    for (StructElement *element : elements) {
         delete element;
+    }
 }
 
 void StructTreeRoot::parse(Dict *root)
@@ -53,7 +54,7 @@ void StructTreeRoot::parse(Dict *root)
         parseNumberTreeNode(parentTreeObj.getDict());
     }
 
-    std::set<int> seenElements;
+    RefRecursionChecker seenElements;
 
     // Parse the children StructElements
     const bool marked = doc->getCatalog()->getMarkInfo() & Catalog::markInfoMarked;
@@ -65,7 +66,7 @@ void StructTreeRoot::parse(Dict *root)
         for (int i = 0; i < kids.arrayGetLength(); i++) {
             const Object &ref = kids.arrayGetNF(i);
             if (ref.isRef()) {
-                seenElements.insert(ref.getRefNum());
+                seenElements.insert(ref.getRef());
             }
             Object obj = kids.arrayGet(i);
             if (obj.isDict()) {
@@ -91,8 +92,9 @@ void StructTreeRoot::parse(Dict *root)
         if (child->isOk()) {
             appendChild(child);
             const Object &ref = root->lookupNF("K");
-            if (ref.isRef())
+            if (ref.isRef()) {
                 parentTreeAdd(ref.getRef(), child);
+            }
         } else {
             error(errSyntaxWarning, -1, "StructTreeRoot element could not be parsed");
             delete child;
@@ -172,6 +174,7 @@ void StructTreeRoot::parseNumberTreeNode(Dict *node)
 void StructTreeRoot::parentTreeAdd(const Ref objectRef, StructElement *element)
 {
     auto range = refToParentMap.equal_range(objectRef);
-    for (auto it = range.first; it != range.second; ++it)
+    for (auto it = range.first; it != range.second; ++it) {
         it->second->element = element;
+    }
 }

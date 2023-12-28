@@ -16,10 +16,10 @@
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
 // Copyright (C) 2006 Thorkild Stray <thorkild@ifi.uio.no>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
-// Copyright (C) 2007, 2011, 2017 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2007, 2011, 2017, 2021, 2023 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2009-2013, 2015 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009, 2011 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2009, 2012, 2013, 2018, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2012, 2013, 2018, 2019, 2021 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2012 William Bader <williambader@hotmail.com>
@@ -37,6 +37,7 @@
 #define OUTPUTDEV_H
 
 #include "poppler-config.h"
+#include "poppler_private_export.h"
 #include "CharTypes.h"
 #include "Object.h"
 #include "PopplerCache.h"
@@ -61,7 +62,7 @@ class Function;
 // OutputDev
 //------------------------------------------------------------------------
 
-class OutputDev
+class POPPLER_PRIVATE_EXPORT OutputDev
 {
 public:
     // Constructor.
@@ -138,6 +139,31 @@ public:
     {
 #ifdef USE_CMS
         state->setDisplayProfile(displayprofile);
+
+        auto invalidref = Ref::INVALID();
+        if (defaultGrayProfile) {
+            auto cs = new GfxICCBasedColorSpace(1, new GfxDeviceGrayColorSpace(), &invalidref);
+
+            cs->setProfile(defaultGrayProfile);
+            cs->buildTransforms(state); // needs to happen after state->setDisplayProfile has been called
+            state->setDefaultGrayColorSpace(cs);
+        }
+
+        if (defaultRGBProfile) {
+            auto cs = new GfxICCBasedColorSpace(3, new GfxDeviceRGBColorSpace(), &invalidref);
+
+            cs->setProfile(defaultRGBProfile);
+            cs->buildTransforms(state); // needs to happen after state->setDisplayProfile has been called
+            state->setDefaultRGBColorSpace(cs);
+        }
+
+        if (defaultCMYKProfile) {
+            auto cs = new GfxICCBasedColorSpace(4, new GfxDeviceCMYKColorSpace(), &invalidref);
+
+            cs->setProfile(defaultCMYKProfile);
+            cs->buildTransforms(state); // needs to happen after state->setDisplayProfile has been called
+            state->setDefaultCMYKColorSpace(cs);
+        }
 #endif
     }
 
@@ -204,8 +230,7 @@ public:
     virtual void stroke(GfxState * /*state*/) { }
     virtual void fill(GfxState * /*state*/) { }
     virtual void eoFill(GfxState * /*state*/) { }
-    virtual bool tilingPatternFill(GfxState * /*state*/, Gfx * /*gfx*/, Catalog * /*cat*/, Object * /*str*/, const double * /*pmat*/, int /*paintType*/, int /*tilingType*/, Dict * /*resDict*/, const double * /*mat*/,
-                                   const double * /*bbox*/, int /*x0*/, int /*y0*/, int /*x1*/, int /*y1*/, double /*xStep*/, double /*yStep*/)
+    virtual bool tilingPatternFill(GfxState * /*state*/, Gfx * /*gfx*/, Catalog * /*cat*/, GfxTilingPattern * /*tPat*/, const double * /*mat*/, int /*x0*/, int /*y0*/, int /*x1*/, int /*y1*/, double /*xStep*/, double /*yStep*/)
     {
         return false;
     }
@@ -295,7 +320,9 @@ public:
     virtual void type3D1(GfxState * /*state*/, double /*wx*/, double /*wy*/, double /*llx*/, double /*lly*/, double /*urx*/, double /*ury*/) { }
 
     //----- form XObjects
+    virtual void beginForm(Object * /* obj */, Ref /*id*/) { }
     virtual void drawForm(Ref /*id*/) { }
+    virtual void endForm(Object * /* obj */, Ref /*id*/) { }
 
     //----- PostScript XObjects
     virtual void psXObject(Stream * /*psStream*/, Stream * /*level1Stream*/) { }
@@ -323,6 +350,13 @@ public:
 
 #ifdef USE_CMS
     void setDisplayProfile(const GfxLCMSProfilePtr &profile) { displayprofile = profile; }
+    GfxLCMSProfilePtr getDisplayProfile() const { return displayprofile; }
+    void setDefaultGrayProfile(const GfxLCMSProfilePtr &profile) { defaultGrayProfile = profile; }
+    GfxLCMSProfilePtr getDefaultGrayProfile() const { return defaultGrayProfile; }
+    void setDefaultRGBProfile(const GfxLCMSProfilePtr &profile) { defaultRGBProfile = profile; }
+    GfxLCMSProfilePtr getDefaultRGBProfile() const { return defaultRGBProfile; }
+    void setDefaultCMYKProfile(const GfxLCMSProfilePtr &profile) { defaultCMYKProfile = profile; }
+    GfxLCMSProfilePtr getDefaultCMYKProfile() const { return defaultCMYKProfile; }
 
     PopplerCache<Ref, GfxICCBasedColorSpace> *getIccColorSpaceCache() { return &iccColorSpaceCache; }
 #endif
@@ -334,6 +368,9 @@ private:
 
 #ifdef USE_CMS
     GfxLCMSProfilePtr displayprofile;
+    GfxLCMSProfilePtr defaultGrayProfile;
+    GfxLCMSProfilePtr defaultRGBProfile;
+    GfxLCMSProfilePtr defaultCMYKProfile;
 
     PopplerCache<Ref, GfxICCBasedColorSpace> iccColorSpaceCache;
 #endif

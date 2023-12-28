@@ -1,6 +1,6 @@
 /* poppler-form.h: qt interface to poppler
  * Copyright (C) 2007-2008, Pino Toscano <pino@kde.org>
- * Copyright (C) 2008, 2011, 2016, 2017, 2019, 2020, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2008, 2011, 2016, 2017, 2019-2022, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2012, Adam Reichold <adamreichold@myopera.com>
  * Copyright (C) 2016, Hanno Meyer-Thurow <h.mth@web.de>
  * Copyright (C) 2017, Hans-Ulrich Jüttner <huj@froreich-bioscientia.de>
@@ -9,6 +9,11 @@
  * Copyright (C) 2018, Chinmoy Ranjan Pradhan <chinmoyrp65@protonmail.com>
  * Copyright (C) 2018, Oliver Sander <oliver.sander@tu-dresden.de>
  * Copyright (C) 2019 João Netto <joaonetto901@gmail.com>
+ * Copyright (C) 2019, Adrian Johnson <ajohnson@redneon.com>
+ * Copyright (C) 2020, Thorsten Behrens <Thorsten.Behrens@CIB.de>
+ * Copyright (C) 2020, Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by Technische Universität Dresden
+ * Copyright (C) 2021, Theofilos Intzoglou <int.teo@gmail.com>
+ * Copyright (C) 2023, g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,16 +33,21 @@
 #ifndef _POPPLER_QT5_FORM_H_
 #define _POPPLER_QT5_FORM_H_
 
+#include <functional>
 #include <memory>
 #include <ctime>
+#include <optional>
 #include <QtCore/QDateTime>
+#include <QtCore/QVector>
 #include <QtCore/QList>
 #include <QtCore/QRectF>
 #include <QtCore/QStringList>
 #include <QtCore/QSharedPointer>
 #include "poppler-export.h"
 #include "poppler-annotation.h"
+#include "poppler-qt5.h"
 
+class Object;
 class Page;
 class FormWidget;
 class FormWidgetButton;
@@ -65,7 +75,7 @@ class POPPLER_QT5_EXPORT FormFieldIcon
     friend class FormFieldIconData;
 
 public:
-    FormFieldIcon(FormFieldIconData *data);
+    explicit FormFieldIcon(FormFieldIconData *data);
     FormFieldIcon(const FormFieldIcon &ffIcon);
     ~FormFieldIcon();
 
@@ -206,7 +216,7 @@ public:
 
 protected:
     /// \cond PRIVATE
-    FormField(std::unique_ptr<FormFieldData> dd);
+    explicit FormField(std::unique_ptr<FormFieldData> dd);
 
     std::unique_ptr<FormFieldData> m_formData;
     /// \endcond
@@ -525,7 +535,26 @@ public:
         Organization,
     };
 
-    CertificateInfo(CertificateInfoPrivate *priv);
+    /** A signing key can be located in different places
+     sometimes. For the user, it might be easier to pick
+     the key located on a card if it has some visual
+     indicator that it is somehow removable.
+
+     \note a keylocation for a certificate without a private
+     key (cannot be used for signing) will likely be "Unknown"
+
+     \since 23.09
+     */
+    enum class KeyLocation
+    {
+        Unknown, /** We don't know the location */
+        Other, /** We know the location, but it is somehow not covered by this enum */
+        Computer, /** The key is on this computer */
+        HardwareToken /** The key is on a dedicated hardware token, either a smartcard or a dedicated usb token (e.g. gnuk, nitrokey or yubikey) */
+    };
+
+    CertificateInfo();
+    explicit CertificateInfo(CertificateInfoPrivate *priv);
     ~CertificateInfo();
 
     /**
@@ -552,6 +581,13 @@ public:
       Information about the subject
      */
     QString subjectInfo(EntityInfoKey key) const;
+
+    /**
+      The certificate internal database nickname
+
+      \since 21.01
+     */
+    QString nickName() const;
 
     /**
       The date-time when certificate becomes valid.
@@ -592,6 +628,20 @@ public:
       The DER encoded certificate.
      */
     QByteArray certificateData() const;
+
+    /**
+      Checks if the given password is the correct one for this certificate
+
+      \since 21.01
+     */
+    bool checkPassword(const QString &password) const;
+
+    /**
+     The storage location for this key
+
+     \since 23.09
+     */
+    KeyLocation keyLocation() const;
 
     CertificateInfo(const CertificateInfo &other);
     CertificateInfo &operator=(const CertificateInfo &other);
@@ -657,7 +707,7 @@ public:
     };
 
     /// \cond PRIVATE
-    SignatureValidationInfo(SignatureValidationInfoPrivate *priv);
+    explicit SignatureValidationInfo(SignatureValidationInfoPrivate *priv);
     /// \endcond
     ~SignatureValidationInfo();
 
@@ -756,7 +806,8 @@ public:
         AdbePkcs7sha1,
         AdbePkcs7detached,
         EtsiCAdESdetached,
-        UnknownSignatureType ///< \since 0.90
+        UnknownSignatureType, ///< \since 0.90
+        UnsignedSignature ///< \since 22.02
     };
 
     /**
@@ -766,6 +817,8 @@ public:
     {
         ValidateVerifyCertificate = 1, ///< Validate the certificate.
         ValidateForceRevalidation = 2, ///< Force revalidation of the certificate.
+        ValidateWithoutOCSPRevocationCheck = 4, ///< Do not contact OCSP servers to check for certificate revocation status \since 21.10
+        ValidateUseAIACertFetch = 8 ///< Use the AIA extension for certificate fetching \since 21.10
     };
 
     /// \cond PRIVATE
@@ -785,6 +838,12 @@ public:
       Validate the signature with now as validation time.
 
       Reset signature validatation info of scoped instance.
+
+      \note depending on the backend, some options are only
+      partially respected. In case of the NSS backend, the two options
+      requiring network access, AIAFetch and OCSP,
+      can be toggled individually. In case of the GPG backend, if either
+      OCSP is used or AIAFetch is used, the other one is also used.
      */
     SignatureValidationInfo validate(ValidateOptions opt) const;
 
@@ -794,13 +853,124 @@ public:
       Reset signature validatation info of scoped instance.
 
       \since 0.58
+
+      \note depending on the backend, some options are only
+      partially respected. In case of the NSS backend, the two options
+      requiring network access, AIAFetch and OCSP,
+      can be toggled individually. In case of the GPG backend, if either
+      OCSP is used or AIAFetch is used, the other one is also used.
      */
     SignatureValidationInfo validate(int opt, const QDateTime &validationTime) const;
+
+    /**
+     * \since 22.02
+     */
+    enum SigningResult
+    {
+        FieldAlreadySigned, ///< Trying to sign a field that is already signed
+        GenericSigningError,
+        SigningSuccess
+    };
+
+    /**
+      Signs a field of UnsignedSignature type.
+
+      Ignores data.page(), data.fieldPartialName() and data.boundingRectangle()
+
+      \since 22.02
+     */
+    SigningResult sign(const QString &outputFileName, const PDFConverter::NewSignatureData &data) const;
 
 private:
     Q_DISABLE_COPY(FormFieldSignature)
 };
 
+/**
+ * Possible compiled in backends for signature handling
+ *
+ * \since 23.06
+ */
+enum class CryptoSignBackend
+{
+    NSS,
+    GPG
+};
+
+/**
+ * The available compiled-in backends
+ *
+ * \since 23.06
+ */
+QVector<CryptoSignBackend> POPPLER_QT5_EXPORT availableCryptoSignBackends();
+
+/**
+ * Returns current active backend or nullopt if none is active
+ *
+ * \note there will always be an active backend if there is available backends
+ *
+ * \since 23.06
+ */
+std::optional<CryptoSignBackend> POPPLER_QT5_EXPORT activeCryptoSignBackend();
+
+/**
+ * Sets active backend
+ *
+ * \return true on success
+ *
+ * \since 23.06
+ */
+bool POPPLER_QT5_EXPORT setActiveCryptoSignBackend(CryptoSignBackend backend);
+
+enum class CryptoSignBackendFeature
+{
+    /// If the backend itself out of band requests passwords
+    /// or if the host applicaion somehow must do it
+    BackendAsksPassphrase
+};
+
+/**
+ * Queries if a backend supports or not supports a given feature.
+ *
+ * \since 23.06
+ */
+bool POPPLER_QT5_EXPORT hasCryptoSignBackendFeature(CryptoSignBackend, CryptoSignBackendFeature);
+
+/**
+  Returns is poppler was compiled with NSS support
+
+  \deprecated Use availableBackends instead
+
+  \since 21.01
+*/
+bool POPPLER_QT5_DEPRECATED POPPLER_QT5_EXPORT hasNSSSupport();
+
+/**
+  Return vector of suitable signing certificates
+
+  \since 21.01
+*/
+QVector<CertificateInfo> POPPLER_QT5_EXPORT getAvailableSigningCertificates();
+
+/**
+  Gets the current NSS CertDB directory
+
+  \since 21.01
+*/
+QString POPPLER_QT5_EXPORT getNSSDir();
+
+/**
+  Set a custom NSS CertDB directory. Needs to be called before doing any other signature operation
+
+  \since 21.01
+*/
+void POPPLER_QT5_EXPORT setNSSDir(const QString &pathURL);
+
+/**
+  Sets the callback for NSS password requests
+
+  \since 21.01
+*/
+void POPPLER_QT5_EXPORT setNSSPasswordCallback(const std::function<char *(const char *)> &f);
 }
 
 #endif

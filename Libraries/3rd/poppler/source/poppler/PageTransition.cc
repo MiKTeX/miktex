@@ -50,30 +50,31 @@ PageTransition::PageTransition(Object *trans)
     if (obj.isName()) {
         const char *s = obj.getName();
 
-        if (strcmp("R", s) == 0)
+        if (strcmp("R", s) == 0) {
             type = transitionReplace;
-        else if (strcmp("Split", s) == 0)
+        } else if (strcmp("Split", s) == 0) {
             type = transitionSplit;
-        else if (strcmp("Blinds", s) == 0)
+        } else if (strcmp("Blinds", s) == 0) {
             type = transitionBlinds;
-        else if (strcmp("Box", s) == 0)
+        } else if (strcmp("Box", s) == 0) {
             type = transitionBox;
-        else if (strcmp("Wipe", s) == 0)
+        } else if (strcmp("Wipe", s) == 0) {
             type = transitionWipe;
-        else if (strcmp("Dissolve", s) == 0)
+        } else if (strcmp("Dissolve", s) == 0) {
             type = transitionDissolve;
-        else if (strcmp("Glitter", s) == 0)
+        } else if (strcmp("Glitter", s) == 0) {
             type = transitionGlitter;
-        else if (strcmp("Fly", s) == 0)
+        } else if (strcmp("Fly", s) == 0) {
             type = transitionFly;
-        else if (strcmp("Push", s) == 0)
+        } else if (strcmp("Push", s) == 0) {
             type = transitionPush;
-        else if (strcmp("Cover", s) == 0)
+        } else if (strcmp("Cover", s) == 0) {
             type = transitionCover;
-        else if (strcmp("Uncover", s) == 0)
+        } else if (strcmp("Uncover", s) == 0) {
             type = transitionUncover;
-        else if (strcmp("Fade", s) == 0)
+        } else if (strcmp("Fade", s) == 0) {
             type = transitionFade;
+        }
     }
 
     // get duration
@@ -87,10 +88,11 @@ PageTransition::PageTransition(Object *trans)
     if (obj.isName()) {
         const char *dm = obj.getName();
 
-        if (strcmp("H", dm) == 0)
+        if (strcmp("H", dm) == 0) {
             alignment = transitionHorizontal;
-        else if (strcmp("V", dm) == 0)
+        } else if (strcmp("V", dm) == 0) {
             alignment = transitionVertical;
+        }
     }
 
     // get direction
@@ -98,10 +100,11 @@ PageTransition::PageTransition(Object *trans)
     if (obj.isName()) {
         const char *m = obj.getName();
 
-        if (strcmp("I", m) == 0)
+        if (strcmp("I", m) == 0) {
             direction = transitionInward;
-        else if (strcmp("O", m) == 0)
+        } else if (strcmp("O", m) == 0) {
             direction = transitionOutward;
+        }
     }
 
     // get angle
@@ -112,8 +115,9 @@ PageTransition::PageTransition(Object *trans)
 
     obj = dict->lookup("Di");
     if (obj.isName()) {
-        if (strcmp("None", obj.getName()) == 0)
+        if (strcmp("None", obj.getName()) == 0) {
             angle = 0;
+        }
     }
 
     // get scale

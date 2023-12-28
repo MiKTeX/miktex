@@ -1,5 +1,5 @@
 /* poppler-link-private.h: qt interface to poppler
- * Copyright (C) 2016, 2018, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2016, 2018, 2020, 2021 Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2018 Intevation GmbH <intevation@intevation.de>
  * Copyright (C) 2020 Oliver Sander <oliver.sander@tu-dresden.de>
  *
@@ -34,9 +34,9 @@ class Link;
 class LinkPrivate
 {
 public:
-    LinkPrivate(const QRectF &area) : linkArea(area) { }
+    explicit LinkPrivate(const QRectF &area) : linkArea(area) { }
 
-    virtual ~LinkPrivate() { qDeleteAll(nextLinks); }
+    virtual ~LinkPrivate();
 
     static LinkPrivate *get(Link *link) { return link->d_ptr; }
 
@@ -51,6 +51,7 @@ class LinkOCGStatePrivate : public LinkPrivate
 {
 public:
     LinkOCGStatePrivate(const QRectF &area, const std::vector<::LinkOCGState::StateList> &sList, bool pRB) : LinkPrivate(area), stateList(sList), preserveRB(pRB) { }
+    ~LinkOCGStatePrivate() override;
 
     std::vector<::LinkOCGState::StateList> stateList;
     bool preserveRB;
@@ -60,6 +61,7 @@ class LinkHidePrivate : public LinkPrivate
 {
 public:
     LinkHidePrivate(const QRectF &area, const QString &tName, bool show) : LinkPrivate(area), targetName(tName), isShow(show) { }
+    ~LinkHidePrivate() override;
 
     QString targetName;
     bool isShow;

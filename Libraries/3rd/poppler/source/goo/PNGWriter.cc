@@ -6,7 +6,7 @@
 //
 // Copyright (C) 2009 Warren Toomey <wkt@tuhs.org>
 // Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
-// Copyright (C) 2009, 2011 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2011-2023 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright (C) 2010, 2011, 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2011 Thomas Klausner <wiz@danbala.tuwien.ac.at>
@@ -29,23 +29,23 @@
 
 struct PNGWriterPrivate
 {
+    explicit PNGWriterPrivate(PNGWriter::Format f) : format(f) { }
+
     PNGWriter::Format format;
-    png_structp png_ptr;
-    png_infop info_ptr;
-    unsigned char *icc_data;
-    int icc_data_size;
-    char *icc_name;
-    bool sRGB_profile;
+    png_structp png_ptr = nullptr;
+    png_infop info_ptr = nullptr;
+    unsigned char *icc_data = nullptr;
+    int icc_data_size = 0;
+    char *icc_name = nullptr;
+    bool sRGB_profile = false;
+
+    PNGWriterPrivate(const PNGWriterPrivate &) = delete;
+    PNGWriterPrivate &operator=(const PNGWriterPrivate &) = delete;
 };
 
 PNGWriter::PNGWriter(Format formatA)
 {
-    priv = new PNGWriterPrivate;
-    priv->format = formatA;
-    priv->icc_data = nullptr;
-    priv->icc_data_size = 0;
-    priv->icc_name = nullptr;
-    priv->sRGB_profile = false;
+    priv = new PNGWriterPrivate(formatA);
 }
 
 PNGWriter::~PNGWriter()
@@ -73,7 +73,7 @@ void PNGWriter::setSRGBProfile()
     priv->sRGB_profile = true;
 }
 
-bool PNGWriter::init(FILE *f, int width, int height, int hDPI, int vDPI)
+bool PNGWriter::init(FILE *f, int width, int height, double hDPI, double vDPI)
 {
     /* libpng changed the png_set_iCCP() prototype in 1.5.0 */
 #    if PNG_LIBPNG_VER < 10500
@@ -81,6 +81,18 @@ bool PNGWriter::init(FILE *f, int width, int height, int hDPI, int vDPI)
 #    else
     png_const_bytep icc_data_ptr = (png_const_bytep)priv->icc_data;
 #    endif
+
+    if (hDPI < 0 || vDPI < 0) {
+        error(errInternal, -1, "PNGWriter::init: hDPI or vDPI values are invalid {0:f} {1:f}", hDPI, vDPI);
+        return false;
+    }
+
+    const double png_res_x = hDPI / 0.0254;
+    const double png_res_y = vDPI / 0.0254;
+    if (png_res_x > std::numeric_limits<png_uint_32>::max() || png_res_y > std::numeric_limits<png_uint_32>::max()) {
+        error(errInternal, -1, "PNGWriter::init: hDPI or vDPI values are invalid {0:f} {1:f}", hDPI, vDPI);
+        return false;
+    }
 
     /* initialize stuff */
     priv->png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
@@ -139,12 +151,13 @@ bool PNGWriter::init(FILE *f, int width, int height, int hDPI, int vDPI)
 
     png_set_IHDR(priv->png_ptr, priv->info_ptr, width, height, bit_depth, color_type, interlace_type, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
-    png_set_pHYs(priv->png_ptr, priv->info_ptr, hDPI / 0.0254, vDPI / 0.0254, PNG_RESOLUTION_METER);
+    png_set_pHYs(priv->png_ptr, priv->info_ptr, static_cast<png_uint_32>(png_res_x), static_cast<png_uint_32>(png_res_y), PNG_RESOLUTION_METER);
 
-    if (priv->icc_data)
+    if (priv->icc_data) {
         png_set_iCCP(priv->png_ptr, priv->info_ptr, priv->icc_name, PNG_COMPRESSION_TYPE_BASE, icc_data_ptr, priv->icc_data_size);
-    else if (priv->sRGB_profile)
+    } else if (priv->sRGB_profile) {
         png_set_sRGB(priv->png_ptr, priv->info_ptr, PNG_sRGB_INTENT_RELATIVE);
+    }
 
     png_write_info(priv->png_ptr, priv->info_ptr);
     if (setjmp(png_jmpbuf(priv->png_ptr))) {

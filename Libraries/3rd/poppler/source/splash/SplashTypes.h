@@ -163,8 +163,9 @@ static inline void splashClearColor(SplashColorPtr dest)
     dest[1] = 0;
     dest[2] = 0;
     dest[3] = 0;
-    for (int i = 4; i < SPOT_NCOMPS + 4; i++)
+    for (int i = 4; i < SPOT_NCOMPS + 4; i++) {
         dest[i] = 0;
+    }
 }
 
 static inline void splashColorCopy(SplashColorPtr dest, SplashColorConstPtr src)
@@ -173,15 +174,18 @@ static inline void splashColorCopy(SplashColorPtr dest, SplashColorConstPtr src)
     dest[1] = src[1];
     dest[2] = src[2];
     dest[3] = src[3];
-    for (int i = 4; i < SPOT_NCOMPS + 4; i++)
+    for (int i = 4; i < SPOT_NCOMPS + 4; i++) {
         dest[i] = src[i];
+    }
 }
 
 static inline bool splashColorEqual(SplashColorConstPtr dest, SplashColorConstPtr src)
 {
-    for (int i = 0; i < SPOT_NCOMPS + 4; i++)
-        if (dest[i] != src[i])
+    for (int i = 0; i < SPOT_NCOMPS + 4; i++) {
+        if (dest[i] != src[i]) {
             return false;
+        }
+    }
     return true;
 }
 
@@ -191,8 +195,9 @@ static inline void splashColorXor(SplashColorPtr dest, SplashColorConstPtr src)
     dest[1] ^= src[1];
     dest[2] ^= src[2];
     dest[3] ^= src[3];
-    for (int i = 4; i < SPOT_NCOMPS + 4; i++)
+    for (int i = 4; i < SPOT_NCOMPS + 4; i++) {
         dest[i] ^= src[i];
+    }
 }
 
 //------------------------------------------------------------------------

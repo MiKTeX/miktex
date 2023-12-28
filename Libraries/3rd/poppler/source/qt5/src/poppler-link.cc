@@ -1,5 +1,5 @@
 /* poppler-link.cc: qt interface to poppler
- * Copyright (C) 2006-2007, 2013, 2016-2019, Albert Astals Cid
+ * Copyright (C) 2006-2007, 2013, 2016-2021, Albert Astals Cid
  * Copyright (C) 2007-2008, Pino Toscano <pino@kde.org>
  * Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
  * Copyright (C) 2012, Tobias Koenig <tokoe@kdab.com>
@@ -25,6 +25,10 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
 #include <poppler-qt5.h>
 #include <poppler-link-private.h>
 #include <poppler-private.h>
@@ -69,52 +73,69 @@ LinkDestinationPrivate::LinkDestinationPrivate()
     changeZoom = false;
 }
 
+LinkPrivate::~LinkPrivate()
+{
+    qDeleteAll(nextLinks);
+}
+
+LinkOCGStatePrivate::~LinkOCGStatePrivate() = default;
+
+LinkHidePrivate::~LinkHidePrivate() = default;
+
 class LinkGotoPrivate : public LinkPrivate
 {
 public:
     LinkGotoPrivate(const QRectF &area, const LinkDestination &dest);
+    ~LinkGotoPrivate() override;
 
     QString extFileName;
     LinkDestination destination;
 };
 
 LinkGotoPrivate::LinkGotoPrivate(const QRectF &area, const LinkDestination &dest) : LinkPrivate(area), destination(dest) { }
+LinkGotoPrivate::~LinkGotoPrivate() = default;
 
 class LinkExecutePrivate : public LinkPrivate
 {
 public:
-    LinkExecutePrivate(const QRectF &area);
+    explicit LinkExecutePrivate(const QRectF &area);
+    ~LinkExecutePrivate() override;
 
     QString fileName;
     QString parameters;
 };
 
 LinkExecutePrivate::LinkExecutePrivate(const QRectF &area) : LinkPrivate(area) { }
+LinkExecutePrivate::~LinkExecutePrivate() = default;
 
 class LinkBrowsePrivate : public LinkPrivate
 {
 public:
-    LinkBrowsePrivate(const QRectF &area);
+    explicit LinkBrowsePrivate(const QRectF &area);
+    ~LinkBrowsePrivate() override;
 
     QString url;
 };
 
 LinkBrowsePrivate::LinkBrowsePrivate(const QRectF &area) : LinkPrivate(area) { }
+LinkBrowsePrivate::~LinkBrowsePrivate() = default;
 
 class LinkActionPrivate : public LinkPrivate
 {
 public:
-    LinkActionPrivate(const QRectF &area);
+    explicit LinkActionPrivate(const QRectF &area);
+    ~LinkActionPrivate() override;
 
     LinkAction::ActionType type;
 };
 
 LinkActionPrivate::LinkActionPrivate(const QRectF &area) : LinkPrivate(area) { }
+LinkActionPrivate::~LinkActionPrivate() = default;
 
 class LinkSoundPrivate : public LinkPrivate
 {
 public:
-    LinkSoundPrivate(const QRectF &area);
+    explicit LinkSoundPrivate(const QRectF &area);
     ~LinkSoundPrivate() override;
 
     double volume;
@@ -134,7 +155,7 @@ LinkSoundPrivate::~LinkSoundPrivate()
 class LinkRenditionPrivate : public LinkPrivate
 {
 public:
-    LinkRenditionPrivate(const QRectF &area, ::MediaRendition *rendition, ::LinkRendition::RenditionOperation operation, const QString &script, const Ref ref);
+    explicit LinkRenditionPrivate(const QRectF &area, ::MediaRendition *rendition, ::LinkRendition::RenditionOperation operation, const QString &script, const Ref ref);
     ~LinkRenditionPrivate() override;
 
     MediaRendition *rendition;
@@ -173,17 +194,20 @@ LinkRenditionPrivate::~LinkRenditionPrivate()
 class LinkJavaScriptPrivate : public LinkPrivate
 {
 public:
-    LinkJavaScriptPrivate(const QRectF &area);
+    explicit LinkJavaScriptPrivate(const QRectF &area);
+    ~LinkJavaScriptPrivate() override;
 
     QString js;
 };
 
 LinkJavaScriptPrivate::LinkJavaScriptPrivate(const QRectF &area) : LinkPrivate(area) { }
+LinkJavaScriptPrivate::~LinkJavaScriptPrivate() = default;
 
 class LinkMoviePrivate : public LinkPrivate
 {
 public:
     LinkMoviePrivate(const QRectF &area, LinkMovie::Operation operation, const QString &title, const Ref reference);
+    ~LinkMoviePrivate() override;
 
     LinkMovie::Operation operation;
     QString annotationTitle;
@@ -191,6 +215,8 @@ public:
 };
 
 LinkMoviePrivate::LinkMoviePrivate(const QRectF &area, LinkMovie::Operation _operation, const QString &title, const Ref reference) : LinkPrivate(area), operation(_operation), annotationTitle(title), annotationReference(reference) { }
+
+LinkMoviePrivate::~LinkMoviePrivate() = default;
 
 static void cvtUserToDev(::Page *page, double xu, double yu, int *xd, int *yd)
 {
@@ -215,29 +241,31 @@ LinkDestination::LinkDestination(const LinkDestinationData &data) : d(new LinkDe
         d->name = QString::fromLatin1(data.namedDest->c_str());
     }
 
-    if (!ld)
+    if (!ld) {
         return;
+    }
 
-    if (ld->getKind() == ::destXYZ)
+    if (ld->getKind() == ::destXYZ) {
         d->kind = destXYZ;
-    else if (ld->getKind() == ::destFit)
+    } else if (ld->getKind() == ::destFit) {
         d->kind = destFit;
-    else if (ld->getKind() == ::destFitH)
+    } else if (ld->getKind() == ::destFitH) {
         d->kind = destFitH;
-    else if (ld->getKind() == ::destFitV)
+    } else if (ld->getKind() == ::destFitV) {
         d->kind = destFitV;
-    else if (ld->getKind() == ::destFitR)
+    } else if (ld->getKind() == ::destFitR) {
         d->kind = destFitR;
-    else if (ld->getKind() == ::destFitB)
+    } else if (ld->getKind() == ::destFitB) {
         d->kind = destFitB;
-    else if (ld->getKind() == ::destFitBH)
+    } else if (ld->getKind() == ::destFitBH) {
         d->kind = destFitBH;
-    else if (ld->getKind() == ::destFitBV)
+    } else if (ld->getKind() == ::destFitBV) {
         d->kind = destFitBV;
+    }
 
-    if (!ld->isPageRef())
+    if (!ld->isPageRef()) {
         d->pageNum = ld->getPageNum();
-    else {
+    } else {
         const Ref ref = ld->getPageRef();
         d->pageNum = data.doc->doc->findPage(ref);
     }
@@ -262,12 +290,14 @@ LinkDestination::LinkDestination(const LinkDestinationData &data) : d(new LinkDe
             d->top = topAux / (double)page->getCropHeight();
             d->right = rightAux / (double)page->getCropWidth();
             d->bottom = bottomAux / (double)page->getCropHeight();
-        } else
+        } else {
             d->pageNum = 0;
+        }
     }
 
-    if (deleteDest)
+    if (deleteDest) {
         delete ld;
+    }
 }
 
 LinkDestination::LinkDestination(const QString &description) : d(new LinkDestinationPrivate)
@@ -363,8 +393,9 @@ QString LinkDestination::destinationName() const
 
 LinkDestination &LinkDestination::operator=(const LinkDestination &other)
 {
-    if (this == &other)
+    if (this == &other) {
         return *this;
+    }
 
     d = other.d;
     return *this;

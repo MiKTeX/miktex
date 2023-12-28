@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005, 2007 Jeff Muizelaar <jeff@infidigm.net>
-// Copyright (C) 2005, 2018 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2018, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2012 Marek Kasik <mkasik@redhat.com>
 // Copyright (C) 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
@@ -47,36 +47,33 @@ void setErrorCallback(ErrorCallback cbk)
 void CDECL error(ErrorCategory category, Goffset pos, const char *msg, ...)
 {
     va_list args;
-    GooString *s, *sanitized;
 
     // NB: this can be called before the globalParams object is created
     if (!errorCbk && globalParams && globalParams->getErrQuiet()) {
         return;
     }
     va_start(args, msg);
-    s = GooString::formatv(msg, args);
+    const std::unique_ptr<GooString> s = GooString::formatv(msg, args);
     va_end(args);
 
-    sanitized = new GooString();
+    GooString sanitized;
     for (int i = 0; i < s->getLength(); ++i) {
         const char c = s->getChar(i);
         if (c < (char)0x20 || c >= (char)0x7f) {
-            sanitized->appendf("<{0:02x}>", c & 0xff);
+            sanitized.appendf("<{0:02x}>", c & 0xff);
         } else {
-            sanitized->append(c);
+            sanitized.append(c);
         }
     }
 
     if (errorCbk) {
-        (*errorCbk)(category, pos, sanitized->c_str());
+        (*errorCbk)(category, pos, sanitized.c_str());
     } else {
         if (pos >= 0) {
-            fprintf(stderr, "%s (%lld): %s\n", errorCategoryNames[category], (long long)pos, sanitized->c_str());
+            fprintf(stderr, "%s (%lld): %s\n", errorCategoryNames[category], (long long)pos, sanitized.c_str());
         } else {
-            fprintf(stderr, "%s: %s\n", errorCategoryNames[category], sanitized->c_str());
+            fprintf(stderr, "%s: %s\n", errorCategoryNames[category], sanitized.c_str());
         }
         fflush(stderr);
     }
-    delete s;
-    delete sanitized;
 }

@@ -15,15 +15,17 @@
 //
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Kees Cook <kees@outflux.net>
-// Copyright (C) 2008, 2010, 2017-2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010, 2017-2021, 2023 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Jakub Wilk <jwilk@jwilk.net>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2013, 2017, 2018 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 Adrian Perez de Castro <aperez@igalia.com>
-// Copyright (C) 2016 Jakub Alba <jakubalba@gmail.com>
+// Copyright (C) 2016, 2020 Jakub Alba <jakubalba@gmail.com>
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
+// Copyright (C) 2020 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by Technische Universität Dresden
+// Copyright (C) 2023 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -42,6 +44,7 @@
 #include "goo/GooString.h"
 #include "goo/GooLikely.h"
 #include "Error.h"
+#include "poppler_private_export.h"
 
 #define OBJECT_TYPE_CHECK(wanted_type)                                                                                                                                                                                                         \
     if (unlikely(type != wanted_type)) {                                                                                                                                                                                                       \
@@ -105,10 +108,33 @@ inline bool operator!=(const Ref lhs, const Ref rhs) noexcept
 
 inline bool operator<(const Ref lhs, const Ref rhs) noexcept
 {
-    if (lhs.num != rhs.num)
+    if (lhs.num != rhs.num) {
         return lhs.num < rhs.num;
+    }
     return lhs.gen < rhs.gen;
 }
+
+struct RefRecursionChecker
+{
+    RefRecursionChecker() { }
+
+    RefRecursionChecker(const RefRecursionChecker &) = delete;
+    RefRecursionChecker &operator=(const RefRecursionChecker &) = delete;
+
+    bool insert(Ref ref)
+    {
+        if (ref == Ref::INVALID()) {
+            return true;
+        }
+
+        // insert returns std::pair<iterator,bool>
+        // where the bool is whether the insert succeeded
+        return alreadySeenRefs.insert(ref.num).second;
+    }
+
+private:
+    std::set<int> alreadySeenRefs;
+};
 
 namespace std {
 
@@ -151,16 +177,17 @@ enum ObjType
 
     // poppler-only objects
     objInt64, // integer with at least 64-bits
+    objHexString, // hex string
     objDead // and object after shallowCopy
 };
 
-constexpr int numObjTypes = 16; // total number of object types
+constexpr int numObjTypes = 17; // total number of object types
 
 //------------------------------------------------------------------------
 // Object
 //------------------------------------------------------------------------
 
-class Object
+class POPPLER_PRIVATE_EXPORT Object
 {
 public:
     Object() : type(objNone) { }
@@ -186,6 +213,18 @@ public:
     {
         assert(stringA);
         type = objString;
+        string = stringA;
+    }
+    explicit Object(std::string &&stringA)
+    {
+        type = objString;
+        string = new GooString(stringA);
+    }
+    Object(ObjType typeA, GooString *stringA)
+    {
+        assert(typeA == objHexString);
+        assert(stringA);
+        type = typeA;
         string = stringA;
     }
     Object(ObjType typeA, const char *stringA)
@@ -253,8 +292,13 @@ public:
         type = objNull;
     }
 
-    // Copy this to obj
+    // Copies all object types except
+    // objArray, objDict, objStream whose refcount is increased by 1
     Object copy() const;
+
+    // Deep copies all object types (recursively)
+    // except objStream whose refcount is increased by 1
+    Object deepCopy() const;
 
     // If object is a Ref, fetch and return the referenced object.
     // Otherwise, return a copy of the object.
@@ -290,6 +334,11 @@ public:
     {
         CHECK_NOT_DEAD;
         return type == objString;
+    }
+    bool isHexString() const
+    {
+        CHECK_NOT_DEAD;
+        return type == objHexString;
     }
     bool isName() const
     {
@@ -394,11 +443,9 @@ public:
         OBJECT_TYPE_CHECK(objString);
         return string;
     }
-    // After takeString() the only method that should be called for the object is free().
-    GooString *takeString()
+    const GooString *getHexString() const
     {
-        OBJECT_TYPE_CHECK(objString);
-        type = objDead;
+        OBJECT_TYPE_CHECK(objHexString);
         return string;
     }
     const char *getName() const
@@ -475,8 +522,8 @@ public:
     // Stream accessors.
     void streamReset();
     void streamClose();
-    int streamGetChar() const;
-    int streamGetChars(int nChars, unsigned char *buffer) const;
+    int streamGetChar();
+    int streamGetChars(int nChars, unsigned char *buffer);
     void streamSetPos(Goffset pos, int dir = 0);
     Dict *streamGetDict() const;
 
@@ -504,7 +551,7 @@ private:
         int intg; //   integer
         long long int64g; //   64-bit integer
         double real; //   real
-        GooString *string; //   string
+        GooString *string; // [hex] string
         char *cString; //   name or command, depending on objType
         Array *array; //   array
         Dict *dict; //   dictionary
@@ -638,13 +685,13 @@ inline void Object::streamClose()
     stream->close();
 }
 
-inline int Object::streamGetChar() const
+inline int Object::streamGetChar()
 {
     OBJECT_TYPE_CHECK(objStream);
     return stream->getChar();
 }
 
-inline int Object::streamGetChars(int nChars, unsigned char *buffer) const
+inline int Object::streamGetChars(int nChars, unsigned char *buffer)
 {
     OBJECT_TYPE_CHECK(objStream);
     return stream->doGetChars(nChars, buffer);

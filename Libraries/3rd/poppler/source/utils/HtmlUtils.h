@@ -46,10 +46,12 @@ inline bool isMatRotOrSkew(const double *const mat)
 inline void normalizeRotMat(double *mat)
 {
     double scale = fabs(mat[0] + mat[1]);
-    if (!scale)
+    if (!scale) {
         return;
-    for (int i = 0; i < 4; i++)
+    }
+    for (int i = 0; i < 4; i++) {
         mat[i] /= scale;
+    }
 }
 
 #endif /* HTMLUTILS_H_ */

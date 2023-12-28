@@ -11,7 +11,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006, 2009, 2010, 2012, 2015, 2018, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2009, 2010, 2012, 2015, 2018, 2019, 2021, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007 Ilmari Heikkinen <ilmari.heikkinen@gmail.com>
 // Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
@@ -43,6 +43,7 @@
 #include "SplashErrorCodes.h"
 #include "SplashBitmap.h"
 #include "poppler/Error.h"
+#include "poppler/GfxState.h"
 #include "goo/JpegWriter.h"
 #include "goo/PNGWriter.h"
 #include "goo/TiffWriter.h"
@@ -52,7 +53,7 @@
 // SplashBitmap
 //------------------------------------------------------------------------
 
-SplashBitmap::SplashBitmap(int widthA, int heightA, int rowPadA, SplashColorMode modeA, bool alphaA, bool topDown, std::vector<GfxSeparationColorSpace *> *separationListA)
+SplashBitmap::SplashBitmap(int widthA, int heightA, int rowPadA, SplashColorMode modeA, bool alphaA, bool topDown, const std::vector<GfxSeparationColorSpace *> *separationListA)
 {
     width = widthA;
     height = heightA;
@@ -114,7 +115,7 @@ SplashBitmap::SplashBitmap(int widthA, int heightA, int rowPadA, SplashColorMode
             rowSize = -rowSize;
         }
         if (alphaA) {
-            alpha = (unsigned char *)gmallocn(width, height);
+            alpha = (unsigned char *)gmallocn_checkoverflow(width, height);
         } else {
             alpha = nullptr;
         }
@@ -122,15 +123,17 @@ SplashBitmap::SplashBitmap(int widthA, int heightA, int rowPadA, SplashColorMode
         alpha = nullptr;
     }
     separationList = new std::vector<GfxSeparationColorSpace *>();
-    if (separationListA != nullptr)
-        for (const GfxSeparationColorSpace *separation : *separationListA)
+    if (separationListA != nullptr) {
+        for (const GfxSeparationColorSpace *separation : *separationListA) {
             separationList->push_back((GfxSeparationColorSpace *)separation->copy());
+        }
+    }
 }
 
-SplashBitmap *SplashBitmap::copy(SplashBitmap *src)
+SplashBitmap *SplashBitmap::copy(const SplashBitmap *src)
 {
     SplashBitmap *result = new SplashBitmap(src->getWidth(), src->getHeight(), src->getRowPad(), src->getMode(), src->getAlphaPtr() != nullptr, src->getRowSize() >= 0, src->getSeparationList());
-    unsigned char *dataSource = src->getDataPtr();
+    SplashColorConstPtr dataSource = src->getDataPtr();
     unsigned char *dataDest = result->getDataPtr();
     int amount = src->getRowSize();
     if (amount < 0) {
@@ -316,8 +319,9 @@ void SplashBitmap::getPixel(int x, int y, SplashColorPtr pixel)
         break;
     case splashModeDeviceN8:
         p = &data[y * rowSize + (SPOT_NCOMPS + 4) * x];
-        for (int cp = 0; cp < SPOT_NCOMPS + 4; cp++)
+        for (int cp = 0; cp < SPOT_NCOMPS + 4; cp++) {
             pixel[cp] = p[cp];
+        }
         break;
     }
 }
@@ -336,7 +340,7 @@ SplashColorPtr SplashBitmap::takeData()
     return data2;
 }
 
-SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, const char *fileName, int hDPI, int vDPI, WriteImgParams *params)
+SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, const char *fileName, double hDPI, double vDPI, WriteImgParams *params)
 {
     FILE *f;
     SplashError e;
@@ -357,13 +361,14 @@ void SplashBitmap::setJpegParams(ImgWriter *writer, WriteImgParams *params)
     if (params) {
         static_cast<JpegWriter *>(writer)->setProgressive(params->jpegProgressive);
         static_cast<JpegWriter *>(writer)->setOptimize(params->jpegOptimize);
-        if (params->jpegQuality >= 0)
+        if (params->jpegQuality >= 0) {
             static_cast<JpegWriter *>(writer)->setQuality(params->jpegQuality);
+        }
     }
 #endif
 }
 
-SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, int hDPI, int vDPI, WriteImgParams *params)
+SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, double hDPI, double vDPI, WriteImgParams *params)
 {
     ImgWriter *writer;
     SplashError e;
@@ -460,14 +465,18 @@ void SplashBitmap::getRGBLine(int yl, SplashColorPtr line)
                     k += byteToDbl(col[3]);
                 }
             }
-            if (c > 1)
+            if (c > 1) {
                 c = 1;
-            if (m > 1)
+            }
+            if (m > 1) {
                 m = 1;
-            if (y > 1)
+            }
+            if (y > 1) {
                 y = 1;
-            if (k > 1)
+            }
+            if (k > 1) {
                 k = 1;
+            }
         }
         c1 = 1 - c;
         m1 = 1 - m;
@@ -509,14 +518,18 @@ void SplashBitmap::getXBGRLine(int yl, SplashColorPtr line, ConversionMode conve
                     k += byteToDbl(col[3]);
                 }
             }
-            if (c > 1)
+            if (c > 1) {
                 c = 1;
-            if (m > 1)
+            }
+            if (m > 1) {
                 m = 1;
-            if (y > 1)
+            }
+            if (y > 1) {
                 y = 1;
-            if (k > 1)
+            }
+            if (k > 1) {
                 k = 1;
+            }
         }
         c1 = 1 - c;
         m1 = 1 - m;
@@ -640,7 +653,7 @@ void SplashBitmap::getCMYKLine(int yl, SplashColorPtr line)
     }
 }
 
-SplashError SplashBitmap::writeImgFile(ImgWriter *writer, FILE *f, int hDPI, int vDPI, SplashColorMode imageWriterFormat)
+SplashError SplashBitmap::writeImgFile(ImgWriter *writer, FILE *f, double hDPI, double vDPI, SplashColorMode imageWriterFormat)
 {
     if (mode != splashModeRGB8 && mode != splashModeMono8 && mode != splashModeMono1 && mode != splashModeXBGR8 && mode != splashModeBGR8 && mode != splashModeCMYK8 && mode != splashModeDeviceN8) {
         error(errInternal, -1, "unsupported SplashBitmap mode");

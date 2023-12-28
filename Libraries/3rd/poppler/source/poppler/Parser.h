@@ -33,7 +33,7 @@
 // Parser
 //------------------------------------------------------------------------
 
-class Parser
+class POPPLER_PRIVATE_EXPORT Parser
 {
 public:
     // Constructor.
@@ -49,7 +49,8 @@ public:
     // Get the next object from the input stream.  If <simpleOnly> is
     // true, do not parse compound objects (arrays, dictionaries, or
     // streams).
-    Object getObj(bool simpleOnly = false, const unsigned char *fileKey = nullptr, CryptAlgorithm encAlgorithm = cryptRC4, int keyLength = 0, int objNum = 0, int objGen = 0, int recursion = 0, bool strict = false);
+    Object getObj(bool simpleOnly = false, const unsigned char *fileKey = nullptr, CryptAlgorithm encAlgorithm = cryptRC4, int keyLength = 0, int objNum = 0, int objGen = 0, int recursion = 0, bool strict = false,
+                  bool decryptString = true);
 
     Object getObj(int recursion);
     template<typename T>

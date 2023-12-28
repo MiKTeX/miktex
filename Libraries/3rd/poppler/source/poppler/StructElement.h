@@ -6,8 +6,9 @@
 //
 // Copyright 2013, 2014 Igalia S.L.
 // Copyright 2014 Luigi Scarso <luigi.scarso@gmail.com>
-// Copyright 2014, 2018, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright 2014, 2018, 2019, 2021, 2023 Albert Astals Cid <aacid@kde.org>
 // Copyright 2018 Adam Reichold <adam.reichold@t-online.de>
+// Copyright 2021, 2023 Adrian Johnson <ajohnson@redneon.com>
 //
 //========================================================================
 
@@ -17,6 +18,7 @@
 #include "goo/GooString.h"
 #include "MarkedContentOutputDev.h"
 #include "Object.h"
+#include "poppler_private_export.h"
 #include <vector>
 #include <set>
 
@@ -25,7 +27,7 @@ class Dict;
 class StructElement;
 class StructTreeRoot;
 
-class Attribute
+class POPPLER_PRIVATE_EXPORT Attribute
 {
 public:
     enum Type
@@ -123,11 +125,11 @@ public:
     Owner getOwner() const { return owner; }
     const char *getTypeName() const;
     const char *getOwnerName() const;
-    Object *getValue() const { return &value; }
+    const Object *getValue() const { return &value; }
     static Object *getDefaultValue(Type type);
 
     // The caller gets the ownership of the return GooString and is responsible of deleting it
-    GooString *getName() const { return type == UserProperty ? name.copy() : new GooString(getTypeName()); }
+    std::unique_ptr<GooString> getName() const { return std::make_unique<GooString>(type == UserProperty ? name.c_str() : getTypeName()); }
 
     // The revision is optional, and defaults to zero.
     unsigned int getRevision() const { return revision; }
@@ -148,8 +150,8 @@ private:
     Type type;
     Owner owner;
     unsigned int revision;
-    mutable GooString name;
-    mutable Object value;
+    GooString name;
+    Object value;
     bool hidden;
     GooString *formatted;
 
@@ -160,7 +162,7 @@ private:
     friend class StructElement;
 };
 
-class StructElement
+class POPPLER_PRIVATE_EXPORT StructElement
 {
 public:
     enum Type
@@ -240,9 +242,12 @@ public:
 
     int getMCID() const { return c->mcid; }
     Ref getObjectRef() const { return c->ref; }
-    Ref getParentRef() { return isContent() ? parent->getParentRef() : s->parentRef; }
+    Ref getParentRef() const { return isContent() ? parent->getParentRef() : s->parentRef; }
+    StructElement *getParent() const { return parent; } // returns NULL if parent is StructTreeRoot
     bool hasPageRef() const;
     bool getPageRef(Ref &ref) const;
+    bool hasStmRef() const { return stmRef.isRef(); }
+    bool getStmRef(Ref &ref) const;
     StructTreeRoot *getStructTreeRoot() { return treeRoot; }
 
     // Optional element identifier.
@@ -252,14 +257,16 @@ public:
     // Optional ISO language name, e.g. en_US
     GooString *getLanguage()
     {
-        if (!isContent() && s->language)
+        if (!isContent() && s->language) {
             return s->language;
+        }
         return parent ? parent->getLanguage() : nullptr;
     }
     const GooString *getLanguage() const
     {
-        if (!isContent() && s->language)
+        if (!isContent() && s->language) {
             return s->language;
+        }
         return parent ? parent->getLanguage() : nullptr;
     }
 
@@ -267,8 +274,9 @@ public:
     unsigned int getRevision() const { return isContent() ? 0 : s->revision; }
     void setRevision(unsigned int revision)
     {
-        if (isContent())
+        if (isContent()) {
             s->revision = revision;
+        }
     }
 
     // Optional element title, in human-readable form.
@@ -326,9 +334,10 @@ public:
 
     const TextSpanArray getTextSpans() const
     {
-        if (!isContent())
+        if (!isContent()) {
             return TextSpanArray();
-        MarkedContentOutputDev mcdev(getMCID());
+        }
+        MarkedContentOutputDev mcdev(getMCID(), stmRef);
         return getTextSpansInternal(mcdev);
     }
 
@@ -369,8 +378,8 @@ private:
             Ref ref;
         };
 
-        ContentData(int mcidA) : mcid(mcidA) { }
-        ContentData(const Ref r) { ref = r; }
+        explicit ContentData(int mcidA) : mcid(mcidA) { }
+        explicit ContentData(const Ref r) { ref = r; }
     };
 
     // Common data
@@ -378,19 +387,20 @@ private:
     StructTreeRoot *treeRoot;
     StructElement *parent;
     mutable Object pageRef;
+    Object stmRef;
 
     union {
         StructData *s;
         ContentData *c;
     };
 
-    StructElement(Dict *elementDict, StructTreeRoot *treeRootA, StructElement *parentA, std::set<int> &seen);
+    StructElement(Dict *elementDict, StructTreeRoot *treeRootA, StructElement *parentA, RefRecursionChecker &seen);
     StructElement(int mcid, StructTreeRoot *treeRootA, StructElement *parentA);
     StructElement(const Ref ref, StructTreeRoot *treeRootA, StructElement *parentA);
 
     void parse(Dict *elementDict);
-    StructElement *parseChild(const Object *ref, Object *childObj, std::set<int> &seen);
-    void parseChildren(Dict *element, std::set<int> &seen);
+    StructElement *parseChild(const Object *ref, Object *childObj, RefRecursionChecker &seen);
+    void parseChildren(Dict *element, RefRecursionChecker &seen);
     void parseAttributes(Dict *attributes, bool keepExisting = false);
 
     friend class StructTreeRoot;

@@ -4,6 +4,8 @@
 //
 // Copyright (C) 2016, William Bader <williambader@hotmail.com>
 // Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2021 Even Rouault <even.rouault@spatialys.com>
+// Copyright (C) 2022 Albert Astals Cid <aacid@kde.org>
 //
 // This file is under the GPLv2 or later license
 //
@@ -24,9 +26,15 @@ FlateEncoder::FlateEncoder(Stream *strA) : FilterStream(strA)
     outBufPtr = outBufEnd = outBuf;
     inBufEof = outBufEof = false;
 
-    zlib_stream.zalloc = Z_NULL;
-    zlib_stream.zfree = Z_NULL;
-    zlib_stream.opaque = Z_NULL;
+    // We used to assign Z_NULL to the 3 following members of zlib_stream,
+    // but as Z_NULL is a #define to 0, using it triggers the
+    // -Wzero-as-null-pointer-constant warning.
+    // For safety, check that the Z_NULL definition is equivalent to
+    // 0 / null pointer.
+    static_assert(Z_NULL == 0);
+    zlib_stream.zalloc = nullptr;
+    zlib_stream.zfree = nullptr;
+    zlib_stream.opaque = nullptr;
 
     zlib_status = deflateInit(&zlib_stream, Z_DEFAULT_COMPRESSION);
 
@@ -71,7 +79,6 @@ void FlateEncoder::reset()
 
 bool FlateEncoder::fillBuf()
 {
-    int n;
     unsigned int starting_avail_out;
     int zlib_status;
 
@@ -85,7 +92,7 @@ bool FlateEncoder::fillBuf()
     /* If it is not empty, push any processed data to the start. */
 
     if (outBufPtr > outBuf && outBufPtr < outBufEnd) {
-        n = outBufEnd - outBufPtr;
+        const ptrdiff_t n = outBufEnd - outBufPtr;
         memmove(outBuf, outBufPtr, n);
         outBufEnd = &outBuf[n];
     } else {
@@ -107,7 +114,7 @@ bool FlateEncoder::fillBuf()
 
             /* Fill the input buffer */
 
-            n = (inBufEof ? 0 : str->doGetChars(inBufSize, inBuf));
+            const int n = (inBufEof ? 0 : str->doGetChars(inBufSize, inBuf));
 
             if (n == 0) {
                 inBufEof = true;
@@ -120,7 +127,7 @@ bool FlateEncoder::fillBuf()
         /* Ask zlib for output. */
 
         zlib_stream.next_out = outBufEnd;
-        starting_avail_out = &outBuf[outBufSize] - outBufEnd;
+        starting_avail_out = static_cast<unsigned int>(&outBuf[outBufSize] - outBufEnd);
         zlib_stream.avail_out = starting_avail_out;
 
         zlib_status = deflate(&zlib_stream, (inBufEof ? Z_FINISH : Z_NO_FLUSH));

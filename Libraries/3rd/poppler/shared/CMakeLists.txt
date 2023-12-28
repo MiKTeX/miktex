@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2017-2022 Christian Schenk
+## Copyright (C) 2017-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -91,14 +91,6 @@ if(ENABLE_LIBJPEG)
         target_link_libraries(${poppler_dll_name} PRIVATE MiKTeX::Imported::JPEG)
     else()
         target_link_libraries(${poppler_dll_name} PRIVATE ${jpeg_dll_name})
-    endif()
-endif()
-
-if(ENABLE_ZLIB)
-    if(USE_SYSTEM_ZLIB)
-        target_link_libraries(${poppler_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
-    else()
-        target_link_libraries(${poppler_dll_name} PRIVATE ${zlib_dll_name})
     endif()
 endif()
 

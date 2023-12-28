@@ -3,7 +3,7 @@
  * Copyright (C) 2007, Brad Hards <bradh@kde.org>
  * Copyright (C) 2008, 2014, Pino Toscano <pino@kde.org>
  * Copyright (C) 2008, Carlos Garcia Campos <carlosgc@gnome.org>
- * Copyright (C) 2015-2019, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2015-2019, 2022, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2017, Hubert Figuière <hub@figuiere.net>
  * Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
  * Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
@@ -24,6 +24,10 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
 #include "poppler-optcontent.h"
 
 #include "poppler-optcontent-private.h"
@@ -38,13 +42,6 @@
 #include "poppler/Link.h"
 
 namespace Poppler {
-// TODO use qAsConst when we can depend on Qt 5.7
-//      or std::as_const when we can depend on C++17
-template<class T>
-constexpr std::add_const_t<T> &as_const(T &t) noexcept
-{
-    return t;
-}
 
 RadioButtonGroup::RadioButtonGroup(OptContentModelPrivate *ocModel, Array *rbarray)
 {
@@ -57,7 +54,7 @@ RadioButtonGroup::RadioButtonGroup(OptContentModelPrivate *ocModel, Array *rbarr
         OptContentItem *item = ocModel->itemFromRef(QString::number(ref.getRefNum()));
         itemsInGroup.append(item);
     }
-    for (OptContentItem *item : as_const(itemsInGroup)) {
+    for (OptContentItem *item : std::as_const(itemsInGroup)) {
         item->appendRBGroup(this);
     }
 }
@@ -67,7 +64,7 @@ RadioButtonGroup::~RadioButtonGroup() { }
 QSet<OptContentItem *> RadioButtonGroup::setItemOn(OptContentItem *itemToSetOn)
 {
     QSet<OptContentItem *> changedItems;
-    for (OptContentItem *thisItem : as_const(itemsInGroup)) {
+    for (OptContentItem *thisItem : std::as_const(itemsInGroup)) {
         if (thisItem != itemToSetOn) {
             QSet<OptContentItem *> newChangedItems;
             thisItem->setState(OptContentItem::Off, false /*obeyRadioGroups*/, newChangedItems);
@@ -112,8 +109,9 @@ void OptContentItem::appendRBGroup(RadioButtonGroup *rbgroup)
 
 void OptContentItem::setState(ItemState state, bool obeyRadioGroups, QSet<OptContentItem *> &changedItems)
 {
-    if (state == m_state)
+    if (state == m_state) {
         return;
+    }
 
     m_state = state;
     m_stateBackup = m_state;
@@ -131,7 +129,7 @@ void OptContentItem::setState(ItemState state, bool obeyRadioGroups, QSet<OptCon
     if (state == OptContentItem::On) {
         m_group->setState(OptionalContentGroup::On);
         if (obeyRadioGroups) {
-            for (RadioButtonGroup *rbgroup : as_const(m_rbGroups)) {
+            for (RadioButtonGroup *rbgroup : std::as_const(m_rbGroups)) {
                 changedItems += rbgroup->setItemOn(this);
             }
         }

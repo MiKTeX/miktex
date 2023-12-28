@@ -5,7 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright (C) 2011, 2012, 2015 Thomas Freitag <Thomas.Freitag@alfa.de>
-// Copyright (C) 2012-2014, 2017, 2018 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2012-2014, 2017, 2018, 2021, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2013, 2016 Pino Toscano <pino@kde.org>
 // Copyright (C) 2013 Daniel Kahn Gillmor <dkg@fifthhorseman.net>
 // Copyright (C) 2013 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
@@ -46,8 +46,7 @@ static const ArgDesc argDesc[] = { { "-f", argInt, &firstPage, 0, "first page to
 static bool extractPages(const char *srcFileName, const char *destFileName)
 {
     char pathName[4096];
-    GooString *gfileName = new GooString(srcFileName);
-    PDFDoc *doc = new PDFDoc(gfileName, nullptr, nullptr, nullptr);
+    PDFDoc *doc = new PDFDoc(std::make_unique<GooString>(srcFileName));
 
     if (!doc->isOk()) {
         error(errSyntaxError, -1, "Could not extract page(s) from damaged file ('{0:s}')", srcFileName);
@@ -64,10 +63,12 @@ static bool extractPages(const char *srcFileName, const char *destFileName)
         firstPage = 1;
         lastPage = doc->getNumPages();
     }
-    if (lastPage == 0)
+    if (lastPage == 0) {
         lastPage = doc->getNumPages();
-    if (firstPage == 0)
+    }
+    if (firstPage == 0) {
         firstPage = 1;
+    }
     if (lastPage < firstPage) {
         error(errCommandLine, -1, "Wrong page range given: the first page ({0:d}) can not be after the last page ({1:d}).", firstPage, lastPage);
         delete doc;
@@ -118,21 +119,20 @@ static bool extractPages(const char *srcFileName, const char *destFileName)
 
     for (int pageNo = firstPage; pageNo <= lastPage; pageNo++) {
         snprintf(pathName, sizeof(pathName) - 1, destFileName, pageNo);
-        GooString *gpageName = new GooString(pathName);
-        PDFDoc *pagedoc = new PDFDoc(new GooString(srcFileName), nullptr, nullptr, nullptr);
-        int errCode = pagedoc->savePageAs(gpageName, pageNo);
+        PDFDoc *pagedoc = new PDFDoc(std::make_unique<GooString>(srcFileName));
+        int errCode = pagedoc->savePageAs(GooString(pathName), pageNo);
         if (errCode != errNone) {
-            delete gpageName;
             delete doc;
             delete pagedoc;
             return false;
         }
         delete pagedoc;
-        delete gpageName;
     }
     delete doc;
     return true;
 }
+
+static constexpr int kOtherError = 99;
 
 #if defined(MIKTEX)
 int Main(int argc, char** argv)
@@ -140,32 +140,23 @@ int Main(int argc, char** argv)
 int main(int argc, char *argv[])
 #endif
 {
-    bool ok;
-    int exitCode;
-
-    exitCode = 99;
-
     // parse args
     Win32Console win32console(&argc, &argv);
-    ok = parseArgs(argDesc, &argc, argv);
-    if (!ok || argc != 3 || printVersion || printHelp) {
+    const bool parseOK = parseArgs(argDesc, &argc, argv);
+    if (!parseOK || argc != 3 || printVersion || printHelp) {
         fprintf(stderr, "pdfseparate version %s\n", PACKAGE_VERSION);
         fprintf(stderr, "%s\n", popplerCopyright);
         fprintf(stderr, "%s\n", xpdfCopyright);
         if (!printVersion) {
             printUsage("pdfseparate", "<PDF-sourcefile> <PDF-pattern-destfile>", argDesc);
         }
-        if (printVersion || printHelp)
-            exitCode = 0;
-        goto err0;
+        if (printVersion || printHelp) {
+            return 0;
+        } else {
+            return kOtherError;
+        }
     }
     globalParams = std::make_unique<GlobalParams>();
-    ok = extractPages(argv[1], argv[2]);
-    if (ok) {
-        exitCode = 0;
-    }
-
-err0:
-
-    return exitCode;
+    const bool extractOK = extractPages(argv[1], argv[2]);
+    return extractOK ? 0 : kOtherError;
 }

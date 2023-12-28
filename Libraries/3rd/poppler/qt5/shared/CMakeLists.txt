@@ -1,12 +1,10 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2009-2022 Christian Schenk
+## Copyright (C) 2009-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
-
-add_definitions(-Dpoppler_qt5_EXPORTS)
 
 set(CMAKE_AUTOMOC ON)
 
@@ -43,16 +41,14 @@ set(${poppler_qt_dll_name}_sources
     ${projdir}/source/qt5/src/poppler-page-transition.cc
     ${projdir}/source/qt5/src/poppler-media.cc
     ${projdir}/source/qt5/src/poppler-outline.cc
-    ${projdir}/source/qt5/src/ArthurOutputDev.cc
+    ${projdir}/source/qt5/src/QPainterOutputDev.cc
     ${projdir}/source/qt5/src/poppler-version.cpp
 
-    ${projdir}/source/qt5/src/ArthurOutputDev.h
     ${projdir}/source/qt5/src/poppler-annotation-helper.h
     ${projdir}/source/qt5/src/poppler-annotation-private.h
     ${projdir}/source/qt5/src/poppler-annotation.h
     ${projdir}/source/qt5/src/poppler-converter-private.h
     ${projdir}/source/qt5/src/poppler-embeddedfile-private.h
-    ${projdir}/source/qt5/src/poppler-export.h
     ${projdir}/source/qt5/src/poppler-form.h
     ${projdir}/source/qt5/src/poppler-link-extractor-private.h
     ${projdir}/source/qt5/src/poppler-link-private.h
@@ -68,9 +64,15 @@ set(${poppler_qt_dll_name}_sources
     ${projdir}/source/qt5/src/poppler-qiodeviceinstream-private.h
     ${projdir}/source/qt5/src/poppler-qiodeviceoutstream-private.h
     ${projdir}/source/qt5/src/poppler-qt5.h
+    ${projdir}/source/qt5/src/QPainterOutputDev.h
 )
 
 add_library(${poppler_qt_dll_name} SHARED ${${poppler_qt_dll_name}_sources})
+
+generate_export_header(${poppler_qt_dll_name}
+    BASE_NAME poppler-qt5
+    EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/poppler-export.h
+)
 
 set_property(TARGET ${poppler_qt_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
@@ -82,6 +84,7 @@ set_shared_library_version_properties(
 
 target_include_directories(${poppler_qt_dll_name}
     PUBLIC
+        ${CMAKE_CURRENT_BINARY_DIR}
         ${projdir}/source/qt5/src
 )
 

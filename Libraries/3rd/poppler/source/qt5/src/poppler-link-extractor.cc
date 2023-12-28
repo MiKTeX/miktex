@@ -36,8 +36,9 @@ LinkExtractorOutputDev::LinkExtractorOutputDev(PageData *data) : m_data(data)
     ::Page *popplerPage = m_data->page;
     m_pageCropWidth = popplerPage->getCropWidth();
     m_pageCropHeight = popplerPage->getCropHeight();
-    if (popplerPage->getRotate() == 90 || popplerPage->getRotate() == 270)
+    if (popplerPage->getRotate() == 90 || popplerPage->getRotate() == 270) {
         qSwap(m_pageCropWidth, m_pageCropHeight);
+    }
     GfxState gfxState(72.0, 72.0, popplerPage->getCropBox(), popplerPage->getRotate(), true);
     setDefaultCTM(gfxState.getCTM());
 }
@@ -49,8 +50,9 @@ LinkExtractorOutputDev::~LinkExtractorOutputDev()
 
 void LinkExtractorOutputDev::processLink(::AnnotLink *link)
 {
-    if (!link->isOk())
+    if (!link->isOk()) {
         return;
+    }
 
     double left, top, right, bottom;
     int leftAux, topAux, rightAux, bottomAux;

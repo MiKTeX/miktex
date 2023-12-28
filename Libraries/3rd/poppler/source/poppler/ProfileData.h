@@ -4,6 +4,7 @@
 //
 // Copyright 2005 Jonathan Blandford <jrb@gnome.org>
 // Copyright 2018 Adam Reichold <adam.reichold@t-online.de>
+// Copyright 2021 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -21,7 +22,7 @@ public:
 
     int getCount() const { return count; }
     double getTotal() const { return total; }
-    double getMin() const { return max; }
+    double getMin() const { return min; }
     double getMax() const { return max; }
 
 private:

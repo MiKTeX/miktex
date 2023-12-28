@@ -13,7 +13,7 @@
 //
 // Copyright (C) 2009, 2011, 2012, 2015 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
-// Copyright (C) 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2019, 2021, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2020 Peter Wang <novalazy@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
@@ -64,8 +64,6 @@ SplashState::SplashState(int width, int height, bool vectorAntialias, SplashScre
     lineJoin = splashLineJoinMiter;
     miterLimit = 10;
     flatness = 1;
-    lineDash = nullptr;
-    lineDashLength = 0;
     lineDashPhase = 0;
     strokeAdjust = false;
     clip = new SplashClip(0, 0, width - 0.001, height - 0.001, vectorAntialias);
@@ -119,8 +117,6 @@ SplashState::SplashState(int width, int height, bool vectorAntialias, SplashScre
     lineJoin = splashLineJoinMiter;
     miterLimit = 10;
     flatness = 1;
-    lineDash = nullptr;
-    lineDashLength = 0;
     lineDashPhase = 0;
     strokeAdjust = false;
     clip = new SplashClip(0, 0, width - 0.001, height - 0.001, vectorAntialias);
@@ -148,7 +144,7 @@ SplashState::SplashState(int width, int height, bool vectorAntialias, SplashScre
     next = nullptr;
 }
 
-SplashState::SplashState(SplashState *state)
+SplashState::SplashState(const SplashState *state)
 {
     memcpy(matrix, state->matrix, 6 * sizeof(SplashCoord));
     strokePattern = state->strokePattern->copy();
@@ -165,14 +161,7 @@ SplashState::SplashState(SplashState *state)
     lineJoin = state->lineJoin;
     miterLimit = state->miterLimit;
     flatness = state->flatness;
-    if (state->lineDash) {
-        lineDashLength = state->lineDashLength;
-        lineDash = (SplashCoord *)gmallocn(lineDashLength, sizeof(SplashCoord));
-        memcpy(lineDash, state->lineDash, lineDashLength * sizeof(SplashCoord));
-    } else {
-        lineDash = nullptr;
-        lineDashLength = 0;
-    }
+    lineDash = state->lineDash;
     lineDashPhase = state->lineDashPhase;
     strokeAdjust = state->strokeAdjust;
     clip = state->clip->copy();
@@ -190,8 +179,9 @@ SplashState::SplashState(SplashState *state)
     memcpy(cmykTransferM, state->cmykTransferM, 256);
     memcpy(cmykTransferY, state->cmykTransferY, 256);
     memcpy(cmykTransferK, state->cmykTransferK, 256);
-    for (int cp = 0; cp < SPOT_NCOMPS + 4; cp++)
+    for (int cp = 0; cp < SPOT_NCOMPS + 4; cp++) {
         memcpy(deviceNTransfer[cp], state->deviceNTransfer[cp], 256);
+    }
     overprintMask = state->overprintMask;
     overprintAdditive = state->overprintAdditive;
     next = nullptr;
@@ -202,7 +192,6 @@ SplashState::~SplashState()
     delete strokePattern;
     delete fillPattern;
     delete screen;
-    gfree(lineDash);
     delete clip;
     if (deleteSoftMask && softMask) {
         delete softMask;
@@ -227,16 +216,9 @@ void SplashState::setScreen(SplashScreen *screenA)
     screen = screenA;
 }
 
-void SplashState::setLineDash(SplashCoord *lineDashA, int lineDashLengthA, SplashCoord lineDashPhaseA)
+void SplashState::setLineDash(std::vector<SplashCoord> &&lineDashA, SplashCoord lineDashPhaseA)
 {
-    gfree(lineDash);
-    lineDashLength = lineDashLengthA;
-    if (lineDashLength > 0) {
-        lineDash = (SplashCoord *)gmallocn(lineDashLength, sizeof(SplashCoord));
-        memcpy(lineDash, lineDashA, lineDashLength * sizeof(SplashCoord));
-    } else {
-        lineDash = nullptr;
-    }
+    lineDash = lineDashA;
     lineDashPhase = lineDashPhaseA;
 }
 

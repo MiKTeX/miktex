@@ -3,7 +3,7 @@
 // FlateStream.h
 //
 // Copyright (C) 2005, Jeff Muizelaar <jeff@infidigm.net>
-// Copyright (C) 2010, 2011, 2019, Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010, 2011, 2019, 2021, Albert Astals Cid <aacid@kde.org>
 //
 // This file is under the GPLv2 or later license
 //
@@ -44,7 +44,7 @@ public:
     int getRawChar() override;
     void getRawChars(int nChars, int *buffer) override;
     GooString *getPSFilter(int psLevel, const char *indent) override;
-    bool isBinary(bool last = true) override;
+    bool isBinary(bool last = true) const override;
 
 private:
     inline int doGetRawChar()

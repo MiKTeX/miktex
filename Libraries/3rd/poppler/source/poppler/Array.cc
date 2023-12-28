@@ -16,7 +16,7 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
-// Copyright (C) 2013, 2017, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2013, 2017, 2019, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2018, 2019 Adam Reichold <adam.reichold@t-online.de>
 //
@@ -36,7 +36,7 @@
 // Array
 //------------------------------------------------------------------------
 
-#define arrayLocker() std::unique_lock<std::recursive_mutex> locker(mutex)
+#define arrayLocker() const std::scoped_lock locker(mutex)
 
 Array::Array(XRef *xrefA)
 {
@@ -53,6 +53,17 @@ Array *Array::copy(XRef *xrefA) const
     a->elems.reserve(elems.size());
     for (const auto &elem : elems) {
         a->elems.push_back(elem.copy());
+    }
+    return a;
+}
+
+Array *Array::deepCopy() const
+{
+    arrayLocker();
+    Array *a = new Array(xref);
+    a->elems.reserve(elems.size());
+    for (const auto &elem : elems) {
+        a->elems.push_back(elem.deepCopy());
     }
     return a;
 }

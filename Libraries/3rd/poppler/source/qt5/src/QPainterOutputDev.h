@@ -1,6 +1,6 @@
 //========================================================================
 //
-// ArthurOutputDev.h
+// QPainterOutputDev.h
 //
 // Copyright 2003 Glyph & Cog, LLC
 //
@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
-// Copyright (C) 2005, 2018, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2018, 2019, 2021 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009, 2011 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2010 Pino Toscano <pino@kde.org>
 // Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
@@ -27,8 +27,8 @@
 //
 //========================================================================
 
-#ifndef ARTHUROUTPUTDEV_H
-#define ARTHUROUTPUTDEV_H
+#ifndef QPAINTEROUTPUTDEV_H
+#define QPAINTEROUTPUTDEV_H
 
 #include <memory>
 #include <map>
@@ -47,20 +47,20 @@ class PDFDoc;
 
 class QRawFont;
 
-class ArthurType3Font;
+class QPainterOutputDevType3Font;
 
 //------------------------------------------------------------------------
-// ArthurOutputDev - Qt 5 QPainter renderer
+// QPainterOutputDev - Qt 5 QPainter renderer
 //------------------------------------------------------------------------
 
-class ArthurOutputDev : public OutputDev
+class QPainterOutputDev : public OutputDev
 {
 public:
     // Constructor.
-    ArthurOutputDev(QPainter *painter);
+    explicit QPainterOutputDev(QPainter *painter);
 
     // Destructor.
-    ~ArthurOutputDev() override;
+    ~QPainterOutputDev() override;
 
     void setHintingPreference(QFont::HintingPreference hintingPreference) { m_hintingPreference = hintingPreference; }
 
@@ -185,13 +185,13 @@ private:
     QRawFont *m_rawFont;
     std::stack<QRawFont *> m_rawFontStack;
 
-    ArthurType3Font *m_currentType3Font;
-    std::stack<ArthurType3Font *> m_type3FontStack;
+    QPainterOutputDevType3Font *m_currentType3Font;
+    std::stack<QPainterOutputDevType3Font *> m_type3FontStack;
 
     // Cache all fonts by their Ref and font size
-    using ArthurFontID = std::pair<Ref, double>;
-    std::map<ArthurFontID, std::unique_ptr<QRawFont>> m_rawFontCache;
-    std::map<ArthurFontID, std::unique_ptr<ArthurType3Font>> m_type3FontCache;
+    using QPainterFontID = std::pair<Ref, double>;
+    std::map<QPainterFontID, std::unique_ptr<QRawFont>> m_rawFontCache;
+    std::map<QPainterFontID, std::unique_ptr<QPainterOutputDevType3Font>> m_type3FontCache;
     std::map<Ref, const int *> m_codeToGIDCache;
 
     // The table that maps character codes to glyph indexes

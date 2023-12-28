@@ -14,7 +14,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006, 2007, 2009, 2012, 2018-2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2007, 2009, 2012, 2018-2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008, 2009 Warren Toomey <wkt@tuhs.org>
 // Copyright (C) 2009, 2011 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
@@ -80,13 +80,13 @@ public:
 
     // Add a character to the string.
     void addChar(GfxState *state, double x, double y, double dx, double dy, Unicode u);
-    HtmlLink *getLink() { return link; }
+    const HtmlLink *getLink() const { return link; }
     const HtmlFont &getFont() const { return *fonts->Get(fontpos); }
     void endString(); // postprocessing
 
 private:
     // aender die text variable
-    HtmlLink *link;
+    const HtmlLink *link;
     double xMin, xMax; // bounding box x coordinates
     double yMin, yMax; // bounding box y coordinates
     int col; // starting column
@@ -112,7 +112,7 @@ class HtmlPage
 {
 public:
     // Constructor.
-    HtmlPage(bool rawOrder);
+    explicit HtmlPage(bool rawOrder);
 
     // Destructor.
     ~HtmlPage();
@@ -144,10 +144,10 @@ public:
     void AddLink(const HtmlLink &x) { links->AddLink(x); }
 
     // add an image to the current page
-    void addImage(GooString *fname, GfxState *state);
+    void addImage(std::unique_ptr<GooString> &&fname, GfxState *state);
 
     // number of images on the current page
-    int getNumImages() { return imgList->size(); }
+    int getNumImages() { return imgList.size(); }
 
     void dump(FILE *f, int pageNum, const std::vector<std::string> &backgroundImages);
 
@@ -177,7 +177,7 @@ private:
     int fontsPageMarker;
     HtmlFontAccu *fonts;
     HtmlLinks *links;
-    std::vector<HtmlImage *> *imgList;
+    std::vector<HtmlImage *> imgList;
 
     GooString *DocName;
     int pageWidth;
@@ -294,7 +294,7 @@ private:
     int getOutlinePageNum(OutlineItem *item);
     void drawJpegImage(GfxState *state, Stream *str);
     void drawPngImage(GfxState *state, Stream *str, int width, int height, GfxImageColorMap *colorMap, bool isMask = false);
-    GooString *createImageFileName(const char *ext);
+    std::unique_ptr<GooString> createImageFileName(const char *ext);
 
     FILE *fContentsFrame;
     FILE *page; // html file
@@ -311,7 +311,7 @@ private:
     int maxPageHeight;
     GooString *Docname;
     GooString *docTitle;
-    std::vector<HtmlMetaVar *> *glMetaVars;
+    std::vector<HtmlMetaVar *> glMetaVars;
     Catalog *catalog;
     Page *docPage;
     std::vector<std::string> backgroundImages;

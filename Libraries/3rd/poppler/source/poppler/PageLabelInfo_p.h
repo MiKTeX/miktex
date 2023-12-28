@@ -3,7 +3,7 @@
 // This file is under the GPLv2 or later license
 //
 // Copyright (C) 2005-2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005, 2009, 2014, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2009, 2014, 2019, 2020, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2011 Simon Kellner <kellner@kit.edu>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
@@ -21,36 +21,37 @@
 
 #include "config.h"
 
-#ifdef HAVE_CODECVT
-#    include <locale>
-#    include <codecvt>
-#endif
-
 #include "goo/GooString.h"
 #include "Error.h"
 
-static std::pair<int, bool> fromDecimal(const char *const begin, const char *const end, const bool unicode)
+static std::pair<int, bool> fromDecimal(const std::string &str, const bool unicode)
 {
-#ifdef HAVE_CODECVT
-    if (unicode) {
-        std::wstring_convert<std::codecvt_utf16<wchar_t>> converter;
-        const auto str = converter.from_bytes(begin, end);
-
-        // Skip BOM since wcstol seems unable to handle it.
-        const wchar_t *c_str = str.c_str();
-        if (*c_str == wchar_t { 0xfeff }) {
-            ++c_str;
+    if (unicode && (str.size() % 2 == 0)) {
+        if (GooString::hasUnicodeMarker(str)) {
+            // strip the marker if it is there
+            return fromDecimal(str.substr(2), true /*unicode*/);
         }
 
-        wchar_t *parsed;
-        const int number = std::wcstol(c_str, &parsed, 10);
-        if (parsed >= str.data() + str.size()) {
-            return std::make_pair(number, true);
+        // Since we only care about numbers here, the first byte needs to be
+        // 0 and second will be the actual ascii number, so we're going to reconstruct a
+        // non unicode string that then we will use strtol to "translate"
+        std::string newString;
+        bool allGood = true;
+        for (size_t i = 0; allGood && i < str.size(); i += 2) {
+            if (str[i] == 0) {
+                newString += str[i + 1];
+            } else {
+                allGood = false;
+            }
+        }
+
+        if (allGood) {
+            return fromDecimal(newString, false /*unicode*/);
         }
     }
-#else
-    (void)unicode;
-#endif
+
+    const char *const begin = str.data();
+    const char *const end = begin + str.size();
 
     char *parsed;
     const int number = std::strtol(begin, &parsed, 10);
@@ -98,10 +99,11 @@ static int fromRoman(const char *buffer)
             return -1;
         }
 
-        if (digit_value <= prev_digit_value)
+        if (digit_value <= prev_digit_value) {
             value += digit_value;
-        else
+        } else {
             value += digit_value - prev_digit_value * 2;
+        }
         prev_digit_value = digit_value;
     }
 
@@ -121,10 +123,11 @@ static void toRoman(int number, GooString *str, bool uppercase)
         return;
     }
 
-    if (uppercase)
+    if (uppercase) {
         wh = uppercaseNumerals;
-    else
+    } else {
         wh = lowercaseNumerals;
+    }
 
     divisor = 1000;
     for (k = 3; k >= 0; k--) {
@@ -161,19 +164,26 @@ static void toRoman(int number, GooString *str, bool uppercase)
 
 static int fromLatin(const char *buffer)
 {
-    int count;
     const char *p;
 
     for (p = buffer; *p; p++) {
-        if (*p != buffer[0])
+        if (*p != buffer[0]) {
             return -1;
+        }
     }
 
-    count = p - buffer;
-    if (buffer[0] >= 'a' && buffer[0] <= 'z')
+    const intptr_t diff = p - buffer;
+    if (unlikely(diff > std::numeric_limits<int>::max() / 100)) {
+        error(errUnimplemented, -1, "Something went wrong in fromLatin conversion");
+        return -1;
+    }
+    const int count = static_cast<int>(diff);
+    if (buffer[0] >= 'a' && buffer[0] <= 'z') {
         return 26 * (count - 1) + buffer[0] - 'a' + 1;
-    if (buffer[0] >= 'A' && buffer[0] <= 'Z')
+    }
+    if (buffer[0] >= 'A' && buffer[0] <= 'Z') {
         return 26 * (count - 1) + buffer[0] - 'A' + 1;
+    }
 
     return -1;
 }
@@ -183,16 +193,18 @@ static void toLatin(int number, GooString *str, bool uppercase)
     char base, letter;
     int i, count;
 
-    if (uppercase)
+    if (uppercase) {
         base = 'A';
-    else
+    } else {
         base = 'a';
+    }
 
     count = (number - 1) / 26 + 1;
     letter = base + (number - 1) % 26;
 
-    for (i = 0; i < count; i++)
+    for (i = 0; i < count; i++) {
         str->append(letter);
+    }
 }
 
 #endif

@@ -13,6 +13,7 @@
 //
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2008, 2010, 2018 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2022 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -22,9 +23,12 @@
 #ifndef SPLASHFONTFILE_H
 #define SPLASHFONTFILE_H
 
-#include "SplashTypes.h"
+#include <string>
+#include <vector>
 
-class GooString;
+#include "SplashTypes.h"
+#include "poppler_private_export.h"
+
 class SplashFontEngine;
 class SplashFont;
 class SplashFontFileID;
@@ -33,7 +37,7 @@ class SplashFontFileID;
 // SplashFontFile
 //------------------------------------------------------------------------
 
-class SplashFontSrc
+class POPPLER_PRIVATE_EXPORT SplashFontSrc
 {
 public:
     SplashFontSrc();
@@ -41,22 +45,20 @@ public:
     SplashFontSrc(const SplashFontSrc &) = delete;
     SplashFontSrc &operator=(const SplashFontSrc &) = delete;
 
-    void setFile(GooString *file, bool del);
-    void setFile(const char *file, bool del);
-    void setBuf(char *bufA, int buflenA, bool del);
+    void setFile(const std::string &file);
+    void setBuf(char *bufA, int buflenA);
+    void setBuf(std::vector<unsigned char> &&bufA);
 
     void ref();
     void unref();
 
     bool isFile;
-    GooString *fileName;
-    char *buf;
-    int bufLen;
+    std::string fileName;
+    std::vector<unsigned char> buf;
 
 private:
     ~SplashFontSrc();
     int refcnt;
-    bool deleteSrc;
 };
 
 class SplashFontFile

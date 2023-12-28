@@ -4,7 +4,7 @@
 //
 // A JPX stream decoder using OpenJPEG
 //
-// Copyright 2008, 2010, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright 2008, 2010, 2019, 2021 Albert Astals Cid <aacid@kde.org>
 // Copyright 2011 Daniel Glöckner <daniel-gl@gmx.net>
 // Copyright 2013, 2014 Adrian Johnson <ajohnson@redneon.com>
 // Copyright 2015 Adam Reichold <adam.reichold@t-online.de>
@@ -25,7 +25,7 @@ struct JPXStreamPrivate;
 class JPXStream : public FilterStream
 {
 public:
-    JPXStream(Stream *strA);
+    explicit JPXStream(Stream *strA);
     ~JPXStream() override;
 
     JPXStream(const JPXStream &other) = delete;
@@ -38,7 +38,7 @@ public:
     int getChar() override;
     int lookChar() override;
     GooString *getPSFilter(int psLevel, const char *indent) override;
-    bool isBinary(bool last = true) override;
+    bool isBinary(bool last = true) const override;
     void getImageParams(int *bitsPerComponent, StreamColorSpaceMode *csMode) override;
 
     int readStream(int nChars, unsigned char *buffer) { return str->doGetChars(nChars, buffer); }

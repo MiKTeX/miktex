@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2009, 2010, 2018, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2010, 2018, 2019, 2021 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2011 Andrea Canciani <ranma42@gmail.com>
 // Copyright (C) 2012 Thomas Freitag <Thomas.Freitag@alfa.de>
@@ -43,7 +43,7 @@ class PSStack;
 #define funcMaxOutputs 32
 #define sampledFuncMaxInputs 16
 
-class Function
+class POPPLER_PRIVATE_EXPORT Function
 {
 public:
     Function();
@@ -88,7 +88,7 @@ public:
 protected:
     static Function *parse(Object *funcObj, std::set<int> *usedParents);
 
-    Function(const Function *func);
+    explicit Function(const Function *func);
 
     int m, n; // size of input and output tuples
     double // min and max values for function domain
@@ -139,7 +139,7 @@ public:
     int getSampleNumber() const { return nSamples; }
 
 private:
-    SampledFunction(const SampledFunction *func);
+    explicit SampledFunction(const SampledFunction *func);
 
     int // number of samples for each domain element
             sampleSize[funcMaxInputs];
@@ -177,7 +177,7 @@ public:
     double getE() const { return e; }
 
 private:
-    ExponentialFunction(const ExponentialFunction *func);
+    explicit ExponentialFunction(const ExponentialFunction *func);
 
     double c0[funcMaxOutputs];
     double c1[funcMaxOutputs];
@@ -207,7 +207,7 @@ public:
     const double *getScale() const { return scale; }
 
 private:
-    StitchingFunction(const StitchingFunction *func);
+    explicit StitchingFunction(const StitchingFunction *func);
 
     int k;
     Function **funcs;
@@ -234,9 +234,9 @@ public:
     const GooString *getCodeString() const { return codeString; }
 
 private:
-    PostScriptFunction(const PostScriptFunction *func);
+    explicit PostScriptFunction(const PostScriptFunction *func);
     bool parseCode(Stream *str, int *codePtr);
-    GooString getToken(Stream *str);
+    std::unique_ptr<GooString> getToken(Stream *str);
     void resizeCode(int newSize);
     void exec(PSStack *stack, int codePtr) const;
 

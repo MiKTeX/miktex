@@ -15,7 +15,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2018 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2018, 2021 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2019 Volker Krause <vkrause@kde.org>
 // Copyright (C) 2020 Even Rouault <even.rouault@spatialys.com>
 //
@@ -36,7 +36,7 @@ class Stream;
 class JArithmeticDecoderStats
 {
 public:
-    JArithmeticDecoderStats(int contextSizeA);
+    explicit JArithmeticDecoderStats(int contextSizeA);
     ~JArithmeticDecoderStats();
     JArithmeticDecoderStats(const JArithmeticDecoderStats &) = delete;
     JArithmeticDecoderStats &operator=(const JArithmeticDecoderStats &) = delete;

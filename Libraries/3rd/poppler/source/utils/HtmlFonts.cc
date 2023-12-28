@@ -30,7 +30,8 @@
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 // Copyright (C) 2018 Steven Boswell <ulatekh@yahoo.com>
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
-// Copyright (C) 2019 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2019, 2022 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2020 Eddie Kohler <ekohler@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -69,17 +70,20 @@ void removeStyleSuffix(std::string &familyName)
 extern bool xml;
 extern bool fontFullName;
 
-HtmlFontColor::HtmlFontColor(GfxRGB rgb)
+HtmlFontColor::HtmlFontColor(GfxRGB rgb, double opacity_)
 {
     r = static_cast<int>(rgb.r / 65535.0 * 255.0);
     g = static_cast<int>(rgb.g / 65535.0 * 255.0);
     b = static_cast<int>(rgb.b / 65535.0 * 255.0);
-    if (!(Ok(r) && Ok(b) && Ok(g))) {
-        if (!globalParams->getErrQuiet())
-            fprintf(stderr, "Error : Bad color (%d,%d,%d) reset to (0,0,0)\n", r, g, b);
+    opacity = static_cast<int>(opacity_ * 255.999);
+    if (!(Ok(r) && Ok(b) && Ok(g) && Ok(opacity))) {
+        if (!globalParams->getErrQuiet()) {
+            fprintf(stderr, "Error : Bad color (%d,%d,%d,%d) reset to (0,0,0,255)\n", r, g, b, opacity);
+        }
         r = 0;
         g = 0;
         b = 0;
+        opacity = 255;
     }
 }
 
@@ -89,16 +93,18 @@ GooString *HtmlFontColor::convtoX(unsigned int xcol) const
     char tmp;
     unsigned int k;
     k = (xcol / 16);
-    if (k < 10)
+    if (k < 10) {
         tmp = (char)('0' + k);
-    else
+    } else {
         tmp = (char)('a' + k - 10);
+    }
     xret->append(tmp);
     k = (xcol % 16);
-    if (k < 10)
+    if (k < 10) {
         tmp = (char)('0' + k);
-    else
+    } else {
         tmp = (char)('a' + k - 10);
+    }
     xret->append(tmp);
     return xret;
 }
@@ -118,9 +124,9 @@ GooString *HtmlFontColor::toString() const
     return tmp;
 }
 
-HtmlFont::HtmlFont(GfxFont *font, int _size, GfxRGB rgb)
+HtmlFont::HtmlFont(const GfxFont &font, int _size, GfxRGB rgb, double opacity)
 {
-    color = HtmlFontColor(rgb);
+    color = HtmlFontColor(rgb, opacity);
 
     lineSize = -1;
 
@@ -129,15 +135,17 @@ HtmlFont::HtmlFont(GfxFont *font, int _size, GfxRGB rgb)
     bold = false;
     rotOrSkewed = false;
 
-    if (font->isBold() || font->getWeight() >= GfxFont::W700)
+    if (font.isBold() || font.getWeight() >= GfxFont::W700) {
         bold = true;
-    if (font->isItalic())
+    }
+    if (font.isItalic()) {
         italic = true;
+    }
 
-    if (const GooString *fontname = font->getName()) {
-        FontName = new GooString(fontname);
+    if (const std::optional<std::string> &fontname = font.getName()) {
+        FontName = new GooString(*fontname);
 
-        GooString fontnameLower(fontname);
+        GooString fontnameLower(*fontname);
         fontnameLower.lowerCase();
 
         if (!bold && strstr(fontnameLower.c_str(), "bold")) {
@@ -178,8 +186,9 @@ HtmlFont::~HtmlFont()
 
 HtmlFont &HtmlFont::operator=(const HtmlFont &x)
 {
-    if (this == &x)
+    if (this == &x) {
         return *this;
+    }
     size = x.size;
     lineSize = x.lineSize;
     italic = x.italic;
@@ -236,8 +245,9 @@ GooString *HtmlFont::HtmlFilter(const Unicode *u, int uLen)
     for (int i = 0; i < uLen; ++i) {
         // skip control characters.  W3C disallows them and they cause a warning
         // with PHP.
-        if (u[i] <= 31 && u[i] != '\t')
+        if (u[i] <= 31 && u[i] != '\t') {
             continue;
+        }
 
         switch (u[i]) {
         case '"':
@@ -310,6 +320,10 @@ GooString *HtmlFontAccu::CSStyle(int i, int j)
         tmp->append(fontName); // font.getFontName());
         tmp->append(";color:");
         tmp->append(colorStr);
+        if (font.getColor().getOpacity() != 1.0) {
+            tmp->append(";opacity:");
+            tmp->append(std::to_string(font.getColor().getOpacity()));
+        }
         // if there is rotation or skew, include the matrix
         if (font.isRotOrSkewed()) {
             const double *const text_mat = font.getRotMat();
@@ -343,6 +357,10 @@ GooString *HtmlFontAccu::CSStyle(int i, int j)
         tmp->append(fontName);
         tmp->append("\" color=\"");
         tmp->append(colorStr);
+        if (font.getColor().getOpacity() != 1.0) {
+            tmp->append("\" opacity=\"");
+            tmp->append(std::to_string(font.getColor().getOpacity()));
+        }
         tmp->append("\"/>");
     }
 

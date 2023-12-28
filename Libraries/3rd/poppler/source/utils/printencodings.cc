@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, 2019, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2008, 2019, 2021, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2017, Adrian Johnson <ajohnson@redneon.com>
  * Copyright (C) 2018, Adam Reichold <adam.reichold@t-online.de>
  * Copyright (C) 2019, Oliver Sander <oliver.sander@tu-dresden.de>
@@ -28,14 +28,12 @@
 
 void printEncodings()
 {
-    std::vector<GooString *> *encNames = globalParams->getEncodingNames();
+    std::vector<std::string> encNames = globalParams->getEncodingNames();
 
-    std::sort(encNames->begin(), encNames->end(), [](void *lhs, void *rhs) { return static_cast<GooString *>(lhs)->cmp(static_cast<GooString *>(rhs)) < 0; });
+    std::sort(encNames.begin(), encNames.end());
 
     printf("Available encodings are:\n");
-    for (const GooString *enc : *encNames) {
-        printf("%s\n", enc->c_str());
+    for (const std::string &enc : encNames) {
+        printf("%s\n", enc.c_str());
     }
-
-    delete encNames;
 }

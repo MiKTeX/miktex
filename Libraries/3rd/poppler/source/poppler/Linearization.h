@@ -5,7 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
-// Copyright 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright 2019, 2021 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -22,7 +22,7 @@ class BaseStream;
 class Linearization
 {
 public:
-    Linearization(BaseStream *str);
+    explicit Linearization(BaseStream *str);
     ~Linearization();
 
     unsigned int getLength() const;

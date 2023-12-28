@@ -1,6 +1,8 @@
 /* poppler-qiodevicestream-private.h: Qt5 interface to poppler
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
  * Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+ * Copyright (C) 2021, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2021, Even Rouault <even.rouault@spatialys.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,13 +32,13 @@ namespace Poppler {
 class QIODeviceOutStream : public OutStream
 {
 public:
-    QIODeviceOutStream(QIODevice *device);
+    explicit QIODeviceOutStream(QIODevice *device);
     ~QIODeviceOutStream() override;
 
     void close() override;
     Goffset getPos() override;
     void put(char c) override;
-    void printf(const char *format, ...) override;
+    void printf(const char *format, ...) override GCC_PRINTF_FORMAT(2, 3);
 
 private:
     QIODevice *m_device;

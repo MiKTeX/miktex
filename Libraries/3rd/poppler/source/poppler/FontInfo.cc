@@ -3,7 +3,7 @@
 // FontInfo.cc
 //
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005-2008, 2010, 2017-2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2008, 2010, 2017-2020, 2023 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
 // Copyright (C) 2006 Kouhei Sutou <kou@cozmixng.org>
 // Copyright (C) 2009 Pino Toscano <pino@kde.org>
@@ -14,7 +14,7 @@
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 // Copyright (C) 2018, 2019 Adam Reichold <adam.reichold@t-online.de>
-// Copyright (C) 2019 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2019, 2021, 2022 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -73,16 +73,17 @@ std::vector<FontInfo *> FontInfoScanner::scan(int nPages)
     std::unique_ptr<XRef> xrefA(doc->getXRef()->copy());
     for (int pg = currentPage; pg < lastPage; ++pg) {
         page = doc->getPage(pg);
-        if (!page)
+        if (!page) {
             continue;
+        }
 
         if ((resDict = page->getResourceDictCopy(xrefA.get()))) {
             scanFonts(xrefA.get(), resDict, &result);
             delete resDict;
         }
         annots = page->getAnnots();
-        for (int i = 0; i < annots->getNumAnnots(); ++i) {
-            Object obj1 = annots->getAnnot(i)->getAppearanceResDict();
+        for (Annot *annot : annots->getAnnots()) {
+            Object obj1 = annot->getAppearanceResDict();
             if (obj1.isDict()) {
                 scanFonts(xrefA.get(), obj1.getDict(), &result);
             }
@@ -97,7 +98,6 @@ std::vector<FontInfo *> FontInfoScanner::scan(int nPages)
 void FontInfoScanner::scanFonts(XRef *xrefA, Dict *resDict, std::vector<FontInfo *> *fontsList)
 {
     GfxFontDict *gfxFontDict;
-    GfxFont *font;
 
     // scan the fonts in this resource dictionary
     gfxFontDict = nullptr;
@@ -113,12 +113,12 @@ void FontInfoScanner::scanFonts(XRef *xrefA, Dict *resDict, std::vector<FontInfo
     }
     if (gfxFontDict) {
         for (int i = 0; i < gfxFontDict->getNumFonts(); ++i) {
-            if ((font = gfxFontDict->getFont(i))) {
+            if (const std::shared_ptr<GfxFont> &font = gfxFontDict->getFont(i)) {
                 Ref fontRef = *font->getID();
 
                 // add this font to the list if not already found
                 if (fonts.insert(fontRef.num).second) {
-                    fontsList->push_back(new FontInfo(font, xrefA));
+                    fontsList->push_back(new FontInfo(font.get(), xrefA));
                 }
             }
         }
@@ -129,26 +129,25 @@ void FontInfoScanner::scanFonts(XRef *xrefA, Dict *resDict, std::vector<FontInfo
     // resource dictionary
     const char *resTypes[] = { "XObject", "Pattern" };
     for (const char *resType : resTypes) {
-        Object objDict = resDict->lookup(resType);
+        Ref objDictRef;
+        Object objDict = resDict->lookup(resType, &objDictRef);
+        if (!visitedObjects.insert(objDictRef)) {
+            continue;
+        }
         if (objDict.isDict()) {
             for (int i = 0; i < objDict.dictGetLength(); ++i) {
                 Ref obj2Ref;
                 const Object obj2 = objDict.getDict()->getVal(i, &obj2Ref);
-                if (obj2Ref != Ref::INVALID()) {
-                    // check for an already-seen object
-                    if (!visitedObjects.insert(obj2Ref.num).second) {
-                        continue;
-                    }
+                // check for an already-seen object
+                if (!visitedObjects.insert(obj2Ref)) {
+                    continue;
                 }
 
                 if (obj2.isStream()) {
                     Ref resourcesRef;
                     const Object resObj = obj2.streamGetDict()->lookup("Resources", &resourcesRef);
-
-                    if (resourcesRef != Ref::INVALID()) {
-                        if (!visitedObjects.insert(resourcesRef.num).second) {
-                            continue;
-                        }
+                    if (!visitedObjects.insert(resourcesRef)) {
+                        continue;
                     }
 
                     if (resObj.isDict() && resObj.getDict() != resDict) {
@@ -162,16 +161,12 @@ void FontInfoScanner::scanFonts(XRef *xrefA, Dict *resDict, std::vector<FontInfo
 
 FontInfo::FontInfo(GfxFont *font, XRef *xref)
 {
-    const GooString *origName;
-
     fontRef = *font->getID();
 
     // font name
-    origName = font->getName();
-    if (origName != nullptr) {
-        name = font->getName()->copy();
-    } else {
-        name = nullptr;
+    const std::optional<std::string> &origName = font->getName();
+    if (origName) {
+        name = *font->getName();
     }
 
     // font type
@@ -184,17 +179,17 @@ FontInfo::FontInfo(GfxFont *font, XRef *xref)
         emb = font->getEmbeddedFontID(&embRef);
     }
 
-    file = nullptr;
-    substituteName = nullptr;
     if (!emb) {
-        SysFontType dummy;
-        int dummy2;
         GooString substituteNameAux;
-        file = globalParams->findSystemFontFile(font, &dummy, &dummy2, &substituteNameAux);
-        if (substituteNameAux.getLength() > 0)
-            substituteName = substituteNameAux.copy();
+        const std::optional<GfxFontLoc> fontLoc = font->locateFont(xref, nullptr, &substituteNameAux);
+        if (fontLoc && fontLoc->locType == gfxFontLocExternal) {
+            file = fontLoc->path;
+        }
+        if (substituteNameAux.getLength() > 0) {
+            substituteName = substituteNameAux.toStr();
+        }
     }
-    encoding = font->getEncodingName()->copy();
+    encoding = font->getEncodingName();
 
     // look for a ToUnicode map
     hasToUnicode = false;
@@ -205,37 +200,5 @@ FontInfo::FontInfo(GfxFont *font, XRef *xref)
 
     // check for a font subset name: capital letters followed by a '+'
     // sign
-    subset = false;
-    if (name) {
-        int i;
-        for (i = 0; i < name->getLength(); ++i) {
-            if (name->getChar(i) < 'A' || name->getChar(i) > 'Z') {
-                break;
-            }
-        }
-        subset = i > 0 && i < name->getLength() && name->getChar(i) == '+';
-    }
-}
-
-FontInfo::FontInfo(const FontInfo &f)
-{
-    name = f.name ? f.name->copy() : nullptr;
-    file = f.file ? f.file->copy() : nullptr;
-    encoding = f.encoding ? f.encoding->copy() : nullptr;
-    substituteName = f.substituteName ? f.substituteName->copy() : nullptr;
-    type = f.type;
-    emb = f.emb;
-    subset = f.subset;
-    hasToUnicode = f.hasToUnicode;
-    fontRef = f.fontRef;
-    embRef = f.embRef;
-}
-
-FontInfo::~FontInfo()
-{
-    delete name;
-    delete file;
-    delete encoding;
-    if (substituteName)
-        delete substituteName;
+    subset = font->isSubset();
 }

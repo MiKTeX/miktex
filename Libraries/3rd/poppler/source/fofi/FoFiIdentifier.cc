@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2013 Christoph Duelli <duelli@melosgmbh.de>
-// Copyright (C) 2018 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2018, 2021 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2019 Christian Persch <chpe@src.gnome.org>
 // Copyright (C) 2019 LE GARREC Vincent <legarrec.vincent@gmail.com>
 //
@@ -175,7 +175,7 @@ public:
     bool cmp(int pos, const char *s) override;
 
 private:
-    FileReader(FILE *fA);
+    explicit FileReader(FILE *fA);
     bool fillBuf(int pos, int len);
 
     FILE *f;

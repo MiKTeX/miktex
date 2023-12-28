@@ -12,8 +12,9 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
-// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2019 Christian Persch <chpe@src.gnome.org>
+// Copyright (C) 2022 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -21,10 +22,6 @@
 //========================================================================
 
 #include <config.h>
-#if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
-#endif
 
 #include <cstdio>
 #ifdef HAVE_UNISTD_H
@@ -71,27 +68,10 @@ void SplashFontFile::decRefCnt()
 SplashFontSrc::SplashFontSrc()
 {
     isFile = false;
-    deleteSrc = false;
-    fileName = nullptr;
-    buf = nullptr;
     refcnt = 1;
 }
 
-SplashFontSrc::~SplashFontSrc()
-{
-    if (deleteSrc) {
-        if (isFile) {
-            if (fileName)
-                unlink(fileName->c_str());
-        } else {
-            if (buf)
-                gfree(buf);
-        }
-    }
-
-    if (isFile && fileName)
-        delete fileName;
-}
+SplashFontSrc::~SplashFontSrc() = default;
 
 void SplashFontSrc::ref()
 {
@@ -100,28 +80,19 @@ void SplashFontSrc::ref()
 
 void SplashFontSrc::unref()
 {
-    if (!--refcnt)
+    if (!--refcnt) {
         delete this;
+    }
 }
 
-void SplashFontSrc::setFile(GooString *file, bool del)
+void SplashFontSrc::setFile(const std::string &file)
 {
     isFile = true;
-    fileName = file->copy();
-    deleteSrc = del;
+    fileName = file;
 }
 
-void SplashFontSrc::setFile(const char *file, bool del)
-{
-    isFile = true;
-    fileName = new GooString(file);
-    deleteSrc = del;
-}
-
-void SplashFontSrc::setBuf(char *bufA, int bufLenA, bool del)
+void SplashFontSrc::setBuf(std::vector<unsigned char> &&bufA)
 {
     isFile = false;
-    buf = bufA;
-    bufLen = bufLenA;
-    deleteSrc = del;
+    buf = std::move(bufA);
 }

@@ -5,7 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
-// Copyright (C) 2017, 2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2017, 2020, 2021 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 // Copyright (C) 2020 Oliver Sander <oliver.sander@tu-dresden.de>
 // Copyright (C) 2020 Nelson Benítez León <nbenitezl@gmail.com>
@@ -42,10 +42,11 @@ void JSInfo::printJS(const GooString *js)
     char buf[8];
     int i, n, len;
 
-    if (!js || !js->c_str())
+    if (!js || !js->c_str()) {
         return;
+    }
 
-    len = TextStringToUCS4(js, &u);
+    len = TextStringToUCS4(js->toStr(), &u);
     for (i = 0; i < len; i++) {
         n = uniMap->mapUnicode(u[i], buf, sizeof(buf));
         fwrite(buf, 1, n, file);
@@ -55,8 +56,9 @@ void JSInfo::printJS(const GooString *js)
 
 void JSInfo::scanLinkAction(LinkAction *link, const char *action)
 {
-    if (!link)
+    if (!link) {
         return;
+    }
 
     if (link->getKind() == actionJavaScript) {
         hasJS = true;
@@ -179,8 +181,9 @@ void JSInfo::scan(int nPages)
 
     for (int pg = currentPage; pg < lastPage; ++pg) {
         page = doc->getPage(pg);
-        if (!page)
+        if (!page) {
             continue;
+        }
 
         // page actions (open, close)
         scanLinkAction(page->getAdditionalAction(Page::actionOpenPage).get(), "Page Open");
@@ -191,15 +194,15 @@ void JSInfo::scan(int nPages)
         }
         // annotation actions (links, screen, widget)
         annots = page->getAnnots();
-        for (int i = 0; i < annots->getNumAnnots(); ++i) {
-            if (annots->getAnnot(i)->getType() == Annot::typeLink) {
-                AnnotLink *annot = static_cast<AnnotLink *>(annots->getAnnot(i));
+        for (Annot *a : annots->getAnnots()) {
+            if (a->getType() == Annot::typeLink) {
+                AnnotLink *annot = static_cast<AnnotLink *>(a);
                 scanLinkAction(annot->getAction(), "Link Annotation Activated");
                 if (onlyFirstJS && hasJS) {
                     return;
                 }
-            } else if (annots->getAnnot(i)->getType() == Annot::typeScreen) {
-                AnnotScreen *annot = static_cast<AnnotScreen *>(annots->getAnnot(i));
+            } else if (a->getType() == Annot::typeScreen) {
+                AnnotScreen *annot = static_cast<AnnotScreen *>(a);
                 scanLinkAction(annot->getAction(), "Screen Annotation Activated");
                 scanLinkAction(annot->getAdditionalAction(Annot::actionCursorEntering).get(), "Screen Annotation Cursor Enter");
                 scanLinkAction(annot->getAdditionalAction(Annot::actionCursorLeaving).get(), "Screen Annotation Cursor Leave");
@@ -215,8 +218,8 @@ void JSInfo::scan(int nPages)
                 if (onlyFirstJS && hasJS) {
                     return;
                 }
-            } else if (annots->getAnnot(i)->getType() == Annot::typeWidget) {
-                AnnotWidget *annot = static_cast<AnnotWidget *>(annots->getAnnot(i));
+            } else if (a->getType() == Annot::typeWidget) {
+                AnnotWidget *annot = static_cast<AnnotWidget *>(a);
                 scanLinkAction(annot->getAction(), "Widget Annotation Activated");
                 scanLinkAction(annot->getAdditionalAction(Annot::actionCursorEntering).get(), "Widget Annotation Cursor Enter");
                 scanLinkAction(annot->getAdditionalAction(Annot::actionCursorLeaving).get(), "Widget Annotation Cursor Leave");

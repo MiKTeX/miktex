@@ -12,7 +12,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2010, 2011, 2014 Thomas Freitag <Thomas.Freitag@alfa.de>
-// Copyright (C) 2018, 2020 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2018, 2020, 2021 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -23,6 +23,7 @@
 #define SPLASHPATTERN_H
 
 #include "SplashTypes.h"
+#include "poppler_private_export.h"
 
 class SplashScreen;
 
@@ -30,12 +31,12 @@ class SplashScreen;
 // SplashPattern
 //------------------------------------------------------------------------
 
-class SplashPattern
+class POPPLER_PRIVATE_EXPORT SplashPattern
 {
 public:
     SplashPattern();
 
-    virtual SplashPattern *copy() = 0;
+    virtual SplashPattern *copy() const = 0;
 
     virtual ~SplashPattern();
 
@@ -62,12 +63,12 @@ private:
 // SplashSolidColor
 //------------------------------------------------------------------------
 
-class SplashSolidColor : public SplashPattern
+class POPPLER_PRIVATE_EXPORT SplashSolidColor : public SplashPattern
 {
 public:
-    SplashSolidColor(SplashColorPtr colorA);
+    explicit SplashSolidColor(SplashColorConstPtr colorA);
 
-    SplashPattern *copy() override { return new SplashSolidColor(color); }
+    SplashPattern *copy() const override { return new SplashSolidColor(color); }
 
     ~SplashSolidColor() override;
 
@@ -90,6 +91,8 @@ private:
 class SplashGouraudColor : public SplashPattern
 {
 public:
+    ~SplashGouraudColor() override;
+
     virtual bool isParameterized() = 0;
 
     virtual int getNTriangles() = 0;
