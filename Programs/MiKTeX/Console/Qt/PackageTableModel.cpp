@@ -1,6 +1,6 @@
 /* PackageTableModel.cpp:
 
-   Copyright (C) 2018-2021 Christian Schenk
+   Copyright (C) 2018-2023 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -76,11 +76,11 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
         return static_cast<qlonglong>(packageInfo.GetSize());
 #endif
       case 3:
-        return QDateTime::fromTime_t(packageInfo.timePackaged).date();
+        return QDateTime::fromSecsSinceEpoch(packageInfo.timePackaged).date();
       case 4:
         if (packageInfo.IsInstalled())
         {
-          return QDateTime::fromTime_t(packageInfo.GetTimeInstalled()).date();
+          return QDateTime::fromSecsSinceEpoch(packageInfo.GetTimeInstalled()).date();
         }
         break;
       case 5:

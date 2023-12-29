@@ -1,6 +1,6 @@
 /* RepositoryTableModel.cpp:
 
-   Copyright (C) 2008-2018 Christian Schenk
+   Copyright (C) 2008-2023 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -68,7 +68,7 @@ QVariant RepositoryTableModel::data(const QModelIndex& index, int role) const
       return url.host();
     }
     case 4:
-      return QDateTime::fromTime_t(repositoryInfo.timeDate).date();
+      return QDateTime::fromSecsSinceEpoch(repositoryInfo.timeDate).date();
     case 5:
       if (repositoryInfo.dataTransferRate != 0.0)
       {

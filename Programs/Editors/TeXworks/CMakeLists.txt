@@ -22,7 +22,9 @@ set(projdir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(TW_BUILD_ID "MiKTeX")
 
-set(WITH_QTSCRIPT TRUE)
+if(QT_SERIES STREQUAL "5")
+  set(WITH_QTSCRIPT TRUE)
+endif()
 
 set(CMAKE_AUTOMOC TRUE)
 
@@ -41,6 +43,12 @@ endif()
 
 add_definitions(
     -DHAVE_POPPLER_XPDF_HEADERS
+    -DPOPPLER_GLOBALPARAMS_IS_UNIQUE
+    -DPOPPLER_HAS_DURATION_REAL
+    -DPOPPLER_HAS_GLOBALPARAMSINITER
+    -DPOPPLER_HAS_OUTLINE
+    -DPOPPLER_HAS_RUNTIME_VERSION
+    -DPOPPLER_HAS_SEARCH_FLAGS
     -DQT_STATICPLUGIN
     -DQT_VERSION_MAJOR=5
     -DTW_BUILD_ID=${TW_BUILD_ID}
@@ -280,10 +288,21 @@ set(libs
     Qt${QT_SERIES}::Qml
     Qt${QT_SERIES}::UiTools
     Qt${QT_SERIES}::Widgets
-    Qt${QT_SERIES}::Script
-    Qt${QT_SERIES}::ScriptTools
     Qt${QT_SERIES}::Xml
 )
+
+if(QT_SERIES STREQUAL "6")
+    list(APPEND libs 
+        Qt${QT_SERIES}::Core5Compat
+    )
+endif()
+
+if(QT_SERIES STREQUAL "5")
+    list(APPEND libs 
+        Qt${QT_SERIES}::Script
+        Qt${QT_SERIES}::ScriptTools
+    )
+endif()
 
 if (USE_SYSTEM_FMT)
     list(APPEND libs MiKTeX::Imported::FMT)

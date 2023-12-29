@@ -1,6 +1,6 @@
 /* PackageInfoDialog.cpp:
 
-   Copyright (C) 2017-2021 Christian Schenk
+   Copyright (C) 2017-2023 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -37,7 +37,7 @@ using namespace MiKTeX::UI::Qt;
 
 QDateTime ToDateTime(time_t t)
 {
-  return QDateTime::fromTime_t(t);
+  return QDateTime::fromSecsSinceEpoch(t);
 }
 
 PackageInfoDialogImpl::PackageInfoDialogImpl(QWidget* parent, const PackageInfo& packageInfo) :

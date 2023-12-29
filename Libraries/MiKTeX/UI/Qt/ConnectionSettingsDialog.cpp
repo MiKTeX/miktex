@@ -1,6 +1,6 @@
 /* ConnectionSettingsDialog.cpp:
 
-   Copyright (C) 2008-2018 Christian Schenk
+   Copyright (C) 2008-2023 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -36,7 +36,7 @@ ConnectionSettingsDialog::ConnectionSettingsDialog(QWidget* parent) :
   QDialog(parent)
 {
   setupUi(this);
-  leAddress->setValidator(new QRegExpValidator(QRegExp(".+"), this));
+  leAddress->setValidator(new QRegularExpressionValidator(QRegularExpression(".+"), this));
   leAddress->setText("127.0.0.1");
   lePort->setValidator(new QIntValidator(1, 65535, this));
   lePort->setText("8080");

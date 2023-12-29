@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## next
+
+### Fixed issues
+
+- [1414](https://github.com/MiKTeX/miktex/issues/1414): CVE-2022-25634 in Qt library
+
 ## 23.12 - 2023-12-27
 
 ### Upgraded programs

@@ -597,7 +597,7 @@ if(WITH_ASYMPTOTE AND MIKTEX_NATIVE_WINDOWS)
     set(USE_SYSTEM_OPENGL TRUE)
 endif()
 
-set(QT_SERIES "5" CACHE STRING "The Qt series to be used.")
+set(QT_SERIES "6" CACHE STRING "The Qt series to be used.")
   
 ###############################################################################
 ## fixed values
@@ -1091,13 +1091,22 @@ if(WITH_UI_QT)
         LinguistTools
         PrintSupport
         Qml
-        Script
-        ScriptTools
         UiTools
         Widgets
         Xml
     )
-    if(MIKTEX_NATIVE_WINDOWS)
+    if(QT_SERIES EQUAL 6)
+        list(APPEND required_qt_components
+            Core5Compat
+        )
+    endif()
+    if(QT_SERIES EQUAL 5)
+        list(APPEND required_qt_components
+            Script
+            ScriptTools
+        )
+    endif()
+    if(MIKTEX_NATIVE_WINDOWS AND QT_SERIES EQUAL 5)
         list(APPEND required_qt_components
             WinExtras
         )

@@ -352,7 +352,18 @@ Script::MethodResult Script::doCallMethod(QObject * obj, const QString& name,
 		}
 		else if (typeName == QString::fromLatin1("QVariant")) {
 			// QMetaType can't construct QVariant objects
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
 			retValArg = Q_RETURN_ARG(QVariant, result);
+#else
+			// Starting Qt 6.5, Q_RETURN_ARG returns a QMetaMethodReturnArgument
+			// which is incompatible with the QGenericReturnArgument used here
+			// FIXME: the QGeneric*Argument approach is deprecated and may be
+			// removed in the future (Qt 7?). Porting to the
+			// QMetaMethod*Argument route could be beneficial, but doesn't seem
+			// to work with variable length lists of arguments (as it uses
+			// variadic templates which need to be known at compile-time)
+			retValArg = QGenericReturnArgument("QVariant", &result);
+#endif
 		}
 		else {
 			// Note: These two lines are a hack!

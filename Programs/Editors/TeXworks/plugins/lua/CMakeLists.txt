@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2010-2022 Christian Schenk
+## Copyright (C) 2010-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -28,3 +28,10 @@ target_link_libraries(twluaplugin-static
         Qt${QT_SERIES}::UiTools
         Qt${QT_SERIES}::Widgets
 )
+
+if(QT_SERIES STREQUAL "6")
+    target_link_libraries(twluaplugin-static
+        PRIVATE
+            Qt${QT_SERIES}::Core5Compat
+    )
+endif()

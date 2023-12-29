@@ -1,6 +1,6 @@
 /* mainwindow.cpp:
 
-   Copyright (C) 2017-2022 Christian Schenk
+   Copyright (C) 2017-2023 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -1123,7 +1123,7 @@ void MainWindow::SetupUiUpdates()
     session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_CHECK : MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_CHECK,
     lastUpdateCheck))
   {
-    ui->labelUpdateSummary->setText(tr("Last checked: %1").arg(QLocale::system().toString(QDateTime::fromTime_t(std::stoi(lastUpdateCheck)).date())));
+    ui->labelUpdateSummary->setText(tr("Last checked: %1").arg(QLocale::system().toString(QDateTime::fromSecsSinceEpoch(std::stoi(lastUpdateCheck)).date())));
   }
   else
   {

@@ -1,6 +1,6 @@
 /* InstallPackageDialog.cpp:
 
-   Copyright (C) 2008-2021 Christian Schenk
+   Copyright (C) 2008-2023 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -28,7 +28,7 @@
 
 #include <QtWidgets>
 
-#if defined(MIKTEX_WINDOWS)
+#if defined(MIKTEX_WINDOWS) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #  include <QtWinExtras/qwinfunctions.h>
 #endif
 
@@ -170,6 +170,11 @@ void InstallPackageDialog::on_cbInstallationDirectory_currentIndexChanged(int id
     if (SUCCEEDED(SHGetStockIconInfo(SIID_SHIELD, SHGSI_ICON | SHGSI_SMALLICON, &sii)))
     {
       HICON hiconShield = sii.hIcon;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+      QPixmap pixmapShield =  QPixmap::fromImage(QImage::fromHICON(hiconShield));
+      okayButton->setIcon(QIcon(pixmapShield));
+      iconSet = true;
+#else
       ICONINFO iconInfo;
       if (GetIconInfo(hiconShield, &iconInfo))
       {
@@ -179,6 +184,7 @@ void InstallPackageDialog::on_cbInstallationDirectory_currentIndexChanged(int id
         okayButton->setIcon(QIcon(pixmapShield));
         iconSet = true;
       }
+#endif
       DestroyIcon(hiconShield);
     }
 #endif

@@ -90,8 +90,6 @@ set(qtpdf_ts_files
     ${projdir}/source/modules/QtPDF/trans/QtPDF_zh_CN.ts
 )
 
-add_definitions(-DUSE_POPPLERQT)
-
 if(QT_SERIES STREQUAL "5")
     qt5_add_translation(qtpdf_qm_sources ${qtpdf_ts_files})
 else()
@@ -144,3 +142,10 @@ target_link_libraries(qtpdf-static
         Qt${QT_SERIES}::Gui
         Qt${QT_SERIES}::Widgets
 )
+
+if(QT_SERIES STREQUAL "6")
+    target_link_libraries(qtpdf-static
+        PRIVATE
+            Qt${QT_SERIES}::Core5Compat
+    )
+endif()

@@ -1,6 +1,6 @@
 /* UpdateDialog.cpp:
 
-   Copyright (C) 2008-2021 Christian Schenk
+   Copyright (C) 2008-2023 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -118,7 +118,7 @@ void UpdateDialogImpl::Report(bool immediate, const char* format, ...)
   QString str;
   va_list args;
   va_start(args, format);
-  str.vsprintf(format, args);
+  str.vasprintf(format, args);
   va_end(args);
   {
     lock_guard<mutex> lockGuard(sharedDataMutex);

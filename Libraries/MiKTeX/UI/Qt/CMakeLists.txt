@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2022 Christian Schenk
+## Copyright (C) 2008-2023 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -203,8 +203,14 @@ target_link_libraries(${ui_qt_dll_name}
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${ui_qt_dll_name}
     PRIVATE
-      Qt${QT_SERIES}::WinExtras
       Secur32
+  )
+endif()
+
+if(MIKTEX_NATIVE_WINDOWS AND QT_SERIES STREQUAL "5")
+  target_link_libraries(${ui_qt_dll_name}
+    PRIVATE
+      Qt${QT_SERIES}::WinExtras
   )
 endif()
 
