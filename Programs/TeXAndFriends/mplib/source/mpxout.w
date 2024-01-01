@@ -34,15 +34,15 @@ in order to prevent name clashes.
 
 @c
 #if defined(MIKTEX)
-#  include <miktex/mpost.h>
+#include <miktex/mpost.h>
 #endif
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
 #endif
 #include <w2c/config.h>
 #if defined(MIKTEX_WINDOWS)
-#  include <miktex/unxemu.h>
+#include <miktex/unxemu.h>
 #endif
 #include <stdio.h>
 #include <stdlib.h>

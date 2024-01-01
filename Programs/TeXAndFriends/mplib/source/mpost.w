@@ -39,12 +39,12 @@ have our customary command-line interface.
  
 @c
 #if defined(MIKTEX)
-#  if defined(MIKTEX_WINDOWS)
-#    define MIKTEX_UTF8_WRAP_ALL 1
-#    include <miktex/utf8wrap.h>
-#  endif
-#  include <miktex/mpost.h>
-#  include <miktex/Core/c/api.h>
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
+#include <miktex/mpost.h>
+#include <miktex/Core/c/api.h>
 #endif
 #include <w2c/config.h>
 #include <stdio.h>
@@ -63,13 +63,13 @@ have our customary command-line interface.
 #include <mpxout.h>
 #include <kpathsea/kpathsea.h>
 #if defined(MIKTEX_WINDOWS)
-#  include <miktex/unxemu.h>
+#include <miktex/unxemu.h>
 #endif
 @= /*@@null@@*/ @> static char *mpost_tex_program = NULL;
 static int debug = 0; /* debugging for \.{makempx} */
 static int nokpse = 0;
 #if defined(MIKTEX) && defined(recorder_enabled)
-#  undef recorder_enabled
+#undef recorder_enabled
 #endif
 static boolean recorder_enabled = false;
 static string recorder_name = NULL;

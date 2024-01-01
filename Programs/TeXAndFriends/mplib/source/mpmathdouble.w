@@ -26,7 +26,7 @@
 #include <string.h>
 #include <math.h>
 #if defined(MIKTEX)
-#  include <float.h>
+#include <float.h>
 #endif
 #include "mpmathdouble.h" /* internal header */
 #define ROUND(a) floor((a)+0.5)
