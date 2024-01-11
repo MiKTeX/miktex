@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2022 Christian Schenk
+   Copyright (C) 1996-2023 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -53,6 +53,7 @@ BEGIN_TEST_FUNCTION(1);
   PathName path2 = path;
   path2.RemoveDirectorySpec();
   TEST(path2 == PathName("ghi.jkl"));
+  TEST(PathName::Compare(PathName("/a/b/c"), PathName("/a/////b/c")) == 0);
 }
 END_TEST_FUNCTION();
 
