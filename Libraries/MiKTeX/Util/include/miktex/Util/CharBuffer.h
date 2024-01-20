@@ -1,28 +1,17 @@
-/* miktex/Util/CharBuffer.h:                            -*- C++ -*-
-
-   Copyright (C) 1996-2021 Christian Schenk
-
-   This file is part of the MiKTeX Util Library.
-
-   The MiKTeX Util Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-
-   The MiKTeX Util Library is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX Util Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file miktex/Util/CharBuffer.h
+ * @author Christian Schenk
+ * @brief CharBuffer class
+ *
+ * @copyright Copyright © 1996-2024 Christian Schenk
+ *
+ * This file is part of the MiKTeX Util Library.
+ *
+ * The MiKTeX Util Library is licensed under GNU General Public License version
+ * 2 or any later version.
+ */
 
 #pragma once
-
-#if !defined(DB7B495A23094E01B9F135FC1AAF0D71)
-#define DB7B495A23094E01B9F135FC1AAF0D71
 
 #include <miktex/Util/config.h>
 
@@ -39,332 +28,294 @@ MIKTEX_UTIL_BEGIN_NAMESPACE;
 /// Instances of this class store characters.
 template<typename CharType, int BUFSIZE = 512> class CharBuffer
 {
-public:
-  CharBuffer() = default;
 
 public:
-  CharBuffer(const CharBuffer& other)
-  {
-    Set(other);
-  }
 
-public:
-  CharBuffer(CharBuffer&& other) noexcept
-  {
-    if (other.buffer == other.smallBuffer)
+    CharBuffer() = default;
+
+    CharBuffer(const CharBuffer& other)
     {
-      memcpy(this->smallBuffer, other.smallBuffer, BUFSIZE);
-      this->buffer = this->smallBuffer;
+        Set(other);
     }
-    else
+
+    CharBuffer(CharBuffer&& other) noexcept
     {
-      this->buffer = other.buffer;
+        if (other.buffer == other.smallBuffer)
+        {
+            memcpy(this->smallBuffer, other.smallBuffer, BUFSIZE);
+            this->buffer = this->smallBuffer;
+        }
+        else
+        {
+            this->buffer = other.buffer;
+        }
+        this->capacity = other.capacity;
+        other.buffer = other.smallBuffer;
+        other.capacity = BUFSIZE;
+        other.Clear();
     }
-    this->capacity = other.capacity;
-    other.buffer = other.smallBuffer;
-    other.capacity = BUFSIZE;
-    other.Clear();
-  }
 
-public:
-  CharBuffer& operator=(const CharBuffer& other)
-  {
-    Set(other);
-    return *this;
-  }
-
-public:
-  CharBuffer& operator=(CharBuffer&& other) noexcept
-  {
-    if (this != &other)
+    CharBuffer& operator=(const CharBuffer& other)
     {
-      Reset();
-      if (other.buffer == other.smallBuffer)
-      {
-        memcpy(this->smallBuffer, other.smallBuffer, BUFSIZE);
-        this->buffer = this->smallBuffer;
-      }
-      else
-      {
-        this->buffer = other.buffer;
-      }
-      this->capacity = other.capacity;
-      other.buffer = other.smallBuffer;
-      other.capacity = BUFSIZE;
-      other.Clear();
+        Set(other);
+        return *this;
     }
-    return *this;
-  }
 
-public:
-  virtual ~CharBuffer() noexcept
-  {
-    try
+    CharBuffer& operator=(CharBuffer&& other) noexcept
     {
-      Reset();
+        if (this != &other)
+        {
+            Reset();
+            if (other.buffer == other.smallBuffer)
+            {
+                memcpy(this->smallBuffer, other.smallBuffer, BUFSIZE);
+                this->buffer = this->smallBuffer;
+            }
+            else
+            {
+                this->buffer = other.buffer;
+            }
+            this->capacity = other.capacity;
+            other.buffer = other.smallBuffer;
+            other.capacity = BUFSIZE;
+            other.Clear();
+        }
+        return *this;
     }
-    catch (const std::exception&)
+
+    virtual ~CharBuffer() noexcept
     {
+        try
+        {
+            Reset();
+        }
+        catch (const std::exception&)
+        {
+        }
     }
-  }
 
-public:
-  explicit CharBuffer(const char* lpsz)
-  {
-    Set(lpsz);
-  }
-
-public:
-  explicit CharBuffer(const char16_t* lpsz)
-  {
-    Set(lpsz);
-  }
-
-public:
-  explicit CharBuffer(const wchar_t* lpsz)
-  {
-    Set(lpsz);
-  }
-
-public:
-  explicit CharBuffer(const std::basic_string<char>& other)
-  {
-    Set(other);
-  }
-
-public:
-  explicit CharBuffer(const std::basic_string<char16_t>& other)
-  {
-    Set(other);
-  }
-
-public:
-  explicit CharBuffer(const std::basic_string<wchar_t>& other)
-  {
-    Set(other);
-  }
-
-public:
-  explicit CharBuffer(std::size_t n)
-  {
-    Clear();
-    Reserve(n);
-  }
-
-public:
-  void Set(const CharBuffer& other)
-  {
-    if (this != &other)
+    explicit CharBuffer(const char* lpsz)
     {
-      Reserve(other.capacity);
-      memcpy(this->buffer, other.buffer, other.capacity * sizeof(CharType));
+        Set(lpsz);
     }
-  }
 
-public:
-  template<typename OtherCharType> void Set(const OtherCharType* lpsz)
-  {
-    // TODO: MIKTEX_ASSERT_STRING_OR_NIL(lpsz);
-    if (lpsz == nullptr)
+    explicit CharBuffer(const char16_t* lpsz)
     {
-      Reset();
+        Set(lpsz);
     }
-    else
+
+    explicit CharBuffer(const wchar_t* lpsz)
     {
-      std::size_t requiredSize;
-      if (sizeof(CharType) < sizeof(OtherCharType))
-      {
-        requiredSize = StrLen(lpsz) * 4 + 1; // worst case: wchar_t to UTF-8
-      }
-      else
-      {
-        requiredSize = StrLen(lpsz) + 1;
-      }
-      Reserve(requiredSize);
-      StringUtil::CopyString(buffer, GetCapacity(), lpsz);
+        Set(lpsz);
     }
-  }
 
-public:
-  template<typename OtherCharType> void Set(const std::basic_string<OtherCharType>& s)
-  {
-    Set(s.c_str());
-  }
-
-public:
-  void Append(const std::basic_string<CharType>& s)
-  {
-     Reserve(GetLength() + s.length() + 1);
-     StringUtil::AppendString(buffer, GetCapacity(), s.c_str());
-  }
-
-public:
-  void Append(const CharType* lpsz)
-  {
-    // TODO: MIKTEX_ASSERT_STRING(lpsz);
-    Reserve(GetLength() + StrLen(lpsz) + 1);
-    StringUtil::AppendString(buffer, GetCapacity(), lpsz);
-  }
-
-public:
-  void Append(const CharType* s, std::size_t len)
-  {
-    std::size_t idx = GetLength();
-    Reserve(idx + len + 1);
-    for (; len > 0; --len, ++idx, ++s)
+    explicit CharBuffer(const std::basic_string<char>& other)
     {
-      buffer[idx] = *s;
+        Set(other);
     }
-    buffer[idx] = 0;
-  }
 
-public:
-  void Append(CharType ch)
-  {
-    std::size_t len = GetLength();
-    Reserve(len + 2);
-    buffer[len] = ch;
-    buffer[len + 1] = 0;
-  }
-
-public:
-  void Clear()
-  {
-    buffer[0] = 0;
-  }
-
-  /// Tests if the character sequence is empty.
-  /// @return Returns true if the character sequence is empty.
-public:
-  bool Empty() const
-  {
-    return buffer[0] == 0;
-  }
-
-public:
-  void Reset()
-  {
-    if (buffer != smallBuffer)
+    explicit CharBuffer(const std::basic_string<char16_t>& other)
     {
-      delete[] buffer;
-      buffer = smallBuffer;
-      capacity = BUFSIZE;
+        Set(other);
     }
-    Clear();
-  }
 
-public:
-  void Reserve(std::size_t newSize)
-  {
-    if (newSize > BUFSIZE && newSize > capacity)
+    explicit CharBuffer(const std::basic_string<wchar_t>& other)
     {
-      CharType* newBuffer = new CharType[newSize];
-      memcpy(newBuffer, buffer, capacity * sizeof(CharType));
-      if (buffer != smallBuffer)
-      {
-        delete[] buffer;
-      }
-      buffer = newBuffer;
-      capacity = newSize;
+        Set(other);
     }
-  }
 
-  /// Converts this CharBuffer object into a string object.
-  /// @return Returns a string object.
-public:
-  std::basic_string<CharType> ToString() const
-  {
-    return std::basic_string<CharType>(buffer);
-  }
-
-public:
-  const CharType* GetData() const
-  {
-    return buffer;
-  }
-
-public:
-  CharType* GetData()
-  {
-    return buffer;
-  }
-
-public:
-  std::size_t GetLength() const
-  {
-    std::size_t idx;
-    for (idx = 0; idx < capacity && buffer[idx] != 0; ++idx)
+    explicit CharBuffer(std::size_t n)
     {
-      ;
+        Clear();
+        Reserve(n);
     }
-    return idx;
-  }
 
-public:
-  std::size_t GetCapacity() const
-  {
-    return capacity;
-  }
+    void Set(const CharBuffer& other)
+    {
+        if (this != &other)
+        {
+            Reserve(other.capacity);
+            memcpy(this->buffer, other.buffer, other.capacity * sizeof(CharType));
+        }
+    }
 
-public:
-  const CharType& operator[](std::size_t idx) const
-  {
-    // TODO: MIKTEX_ASSERT(idx < GetCapacity());
-    return buffer[idx];
-  }
+    template<typename OtherCharType> void Set(const OtherCharType* lpsz)
+    {
+        // TODO: MIKTEX_ASSERT_STRING_OR_NIL(lpsz);
+        if (lpsz == nullptr)
+        {
+            Reset();
+        }
+        else
+        {
+            std::size_t requiredSize;
+            if (sizeof(CharType) < sizeof(OtherCharType))
+            {
+                requiredSize = StrLen(lpsz) * 4 + 1; // worst case: wchar_t to UTF-8
+            }
+            else
+            {
+                requiredSize = StrLen(lpsz) + 1;
+            }
+            Reserve(requiredSize);
+            StringUtil::CopyString(buffer, GetCapacity(), lpsz);
+        }
+    }
 
-public:
-  CharType& operator[](std::size_t idx)
-  {
-    // TODO: MIKTEX_ASSERT(idx < GetCapacity());
-    return buffer[idx];
-  }
+    template<typename OtherCharType> void Set(const std::basic_string<OtherCharType>& s)
+    {
+        Set(s.c_str());
+    }
 
-public:
-  template<typename OtherCharType> CharBuffer& operator=(const OtherCharType* lpsz)
-  {
-    Set(lpsz);
-    return *this;
-  }
+    void Append(const std::basic_string<CharType>& s)
+    {
+        Reserve(GetLength() + s.length() + 1);
+        StringUtil::AppendString(buffer, GetCapacity(), s.c_str());
+    }
 
-public:
-  template<typename OtherCharType> CharBuffer& operator=(const std::basic_string<OtherCharType>& s)
-  {
-    Set(s);
-    return *this;
-  }
+    void Append(const CharType* lpsz)
+    {
+        // TODO: MIKTEX_ASSERT_STRING(lpsz);
+        Reserve(GetLength() + StrLen(lpsz) + 1);
+        StringUtil::AppendString(buffer, GetCapacity(), lpsz);
+    }
 
-public:
-  CharBuffer& operator+=(const CharType* lpsz)
-  {
-    Append(lpsz);
-    return *this;
-  }
+    void Append(const CharType* s, std::size_t len)
+    {
+        std::size_t idx = GetLength();
+        Reserve(idx + len + 1);
+        for (; len > 0; --len, ++idx, ++s)
+        {
+            buffer[idx] = *s;
+        }
+        buffer[idx] = 0;
+    }
 
-public:
-  CharBuffer& operator+=(const std::basic_string<CharType>& s)
-  {
-    Append(s);
-    return *this;
-  }
+    void Append(CharType ch)
+    {
+        std::size_t len = GetLength();
+        Reserve(len + 2);
+        buffer[len] = ch;
+        buffer[len + 1] = 0;
+    }
 
-public:
-  CharBuffer& operator+=(CharType ch)
-  {
-    Append(ch);
-    return *this;
-  }
+    void Clear()
+    {
+        buffer[0] = 0;
+    }
+
+    /// Tests if the character sequence is empty.
+    /// @return Returns true if the character sequence is empty.
+    bool Empty() const
+    {
+        return buffer[0] == 0;
+    }
+
+    void Reset()
+    {
+        if (buffer != smallBuffer)
+        {
+            delete[] buffer;
+            buffer = smallBuffer;
+            capacity = BUFSIZE;
+        }
+        Clear();
+    }
+
+    void Reserve(std::size_t newSize)
+    {
+        if (newSize > BUFSIZE && newSize > capacity)
+        {
+            CharType* newBuffer = new CharType[newSize];
+            memcpy(newBuffer, buffer, capacity * sizeof(CharType));
+            if (buffer != smallBuffer)
+            {
+                delete[] buffer;
+            }
+            buffer = newBuffer;
+            capacity = newSize;
+        }
+    }
+
+    /// Converts this CharBuffer object into a string object.
+    /// @return Returns a string object.
+    std::basic_string<CharType> ToString() const
+    {
+        return std::basic_string<CharType>(buffer);
+    }
+
+    const CharType* GetData() const
+    {
+        return buffer;
+    }
+
+    CharType* GetData()
+    {
+        return buffer;
+    }
+
+    std::size_t GetLength() const
+    {
+        std::size_t idx;
+        for (idx = 0; idx < capacity && buffer[idx] != 0; ++idx)
+        {
+            ;
+        }
+        return idx;
+    }
+
+    std::size_t GetCapacity() const
+    {
+        return capacity;
+    }
+
+    const CharType& operator[](std::size_t idx) const
+    {
+        // TODO: MIKTEX_ASSERT(idx < GetCapacity());
+        return buffer[idx];
+    }
+
+    CharType& operator[](std::size_t idx)
+    {
+        // TODO: MIKTEX_ASSERT(idx < GetCapacity());
+        return buffer[idx];
+    }
+
+    template<typename OtherCharType> CharBuffer& operator=(const OtherCharType* lpsz)
+    {
+        Set(lpsz);
+        return *this;
+    }
+
+    template<typename OtherCharType> CharBuffer& operator=(const std::basic_string<OtherCharType>& s)
+    {
+        Set(s);
+        return *this;
+    }
+
+    CharBuffer& operator+=(const CharType* lpsz)
+    {
+        Append(lpsz);
+        return *this;
+    }
+
+    CharBuffer& operator+=(const std::basic_string<CharType>& s)
+    {
+        Append(s);
+        return *this;
+    }
+
+    CharBuffer& operator+=(CharType ch)
+    {
+        Append(ch);
+        return *this;
+    }
 
 private:
-  CharType smallBuffer[BUFSIZE] = { 0 };
 
-private:
-  CharType* buffer = smallBuffer;
-
-private:
-  std::size_t capacity = BUFSIZE;
+    CharType* buffer = smallBuffer;
+    std::size_t capacity = BUFSIZE;
+    CharType smallBuffer[BUFSIZE] = { 0 };
 };
 
 MIKTEX_UTIL_END_NAMESPACE;
-
-#endif
