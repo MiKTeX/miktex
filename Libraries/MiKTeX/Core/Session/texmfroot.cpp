@@ -1,6 +1,6 @@
 /* texmfroot.cpp: managing TEXMF root directories
 
-   Copyright (C) 1996-2022 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -902,7 +902,7 @@ unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName& path)
   {
     PathName pathRoot = GetRootDirectoryPath(idx);
     size_t rootlen = pathRoot.GetLength();
-    if (PathName::Compare(pathRoot, path, rootlen) == 0 && (pathRoot.EndsWithDirectoryDelimiter() || path[rootlen] == 0 || PathNameUtil::IsDirectoryDelimiter(path[rootlen])))
+    if (PathName::ComparePrefixes(pathRoot, path, rootlen) == 0 && (pathRoot.EndsWithDirectoryDelimiter() || path[rootlen] == 0 || PathNameUtil::IsDirectoryDelimiter(path[rootlen])))
     {
       if (rootDirectoryIndex == INVALID_ROOT_INDEX)
       {
@@ -985,7 +985,7 @@ bool SessionImpl::IsTEXMFFile(const PathName& path, PathName& relPath, unsigned&
   {
     PathName pathRoot = GetRootDirectoryPath(r);
     size_t cchRoot = pathRoot.GetLength();
-    if (PathName::Compare(pathRoot, path, cchRoot) == 0 && (path[cchRoot] == 0 || PathNameUtil::IsDirectoryDelimiter(path[cchRoot])))
+    if (PathName::ComparePrefixes(pathRoot, path, cchRoot) == 0 && (path[cchRoot] == 0 || PathNameUtil::IsDirectoryDelimiter(path[cchRoot])))
     {
       const char* lpsz = &path[cchRoot];
       if (PathNameUtil::IsDirectoryDelimiter(*lpsz))
@@ -1006,7 +1006,7 @@ unsigned SessionImpl::SplitTEXMFPath(const PathName& path, PathName& root, PathN
   {
     PathName rootDir = GetRootDirectoryPath(r);
     size_t rootDirLen = rootDir.GetLength();
-    if (PathName::Compare(rootDir, path, rootDirLen) == 0 && (path[rootDirLen] == 0 || PathNameUtil::IsDirectoryDelimiter(path[rootDirLen])))
+    if (PathName::ComparePrefixes(rootDir, path, rootDirLen) == 0 && (path[rootDirLen] == 0 || PathNameUtil::IsDirectoryDelimiter(path[rootDirLen])))
     {
       root = rootDir;
       root[rootDirLen] = 0;
@@ -1035,7 +1035,7 @@ bool SessionImpl::IsManagedRoot(unsigned root)
 
 bool SessionImpl::IsMpmFile(const char* lpszPath)
 {
-  return (PathName::Compare(MPM_ROOT_PATH, lpszPath, static_cast<unsigned long>(MPM_ROOT_PATH_LEN)) == 0
+  return (PathName::ComparePrefixes(PathName(MPM_ROOT_PATH), PathName(lpszPath), static_cast<unsigned long>(MPM_ROOT_PATH_LEN)) == 0
     && (lpszPath[MPM_ROOT_PATH_LEN] == 0 || PathNameUtil::IsDirectoryDelimiter(lpszPath[MPM_ROOT_PATH_LEN])));
 }
 

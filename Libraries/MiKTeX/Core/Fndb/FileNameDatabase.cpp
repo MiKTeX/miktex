@@ -1,6 +1,6 @@
 /* FileNameDatabase.cpp: file name database
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -282,7 +282,7 @@ bool FileNameDatabase::FileExists(const PathName& path)
   pair<FileNameHashTable::const_iterator, FileNameHashTable::const_iterator> range = fileNames.equal_range(MakeKey(fileName));
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
-    if (PathName::Compare(it->second.GetDirectory(), directory) == 0)
+    if (PathName::Equals(PathName(it->second.GetDirectory()), PathName(directory)))
     {
       return true;
     }
@@ -326,7 +326,7 @@ bool FileNameDatabase::InsertRecord(FileNameDatabase::Record&& record)
   pair<FileNameHashTable::const_iterator, FileNameHashTable::const_iterator> range = fileNames.equal_range(key);
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
-    if (PathName::Compare(it->second.GetDirectory(), record.GetDirectory()) == 0)
+    if (PathName::Equals(PathName(it->second.GetDirectory()), PathName(record.GetDirectory())) == 0)
     {
       return false;
     }
@@ -357,7 +357,7 @@ void FileNameDatabase::EraseRecord(const FileNameDatabase::Record& record)
   vector<FileNameHashTable::const_iterator> toBeRemoved;
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
-    if (PathName::Compare(it->second.GetDirectory(), record.GetDirectory()) == 0)
+    if (PathName::Equals(PathName(it->second.GetDirectory()), PathName(record.GetDirectory())) == 0)
     {
       toBeRemoved.push_back(it);
     }

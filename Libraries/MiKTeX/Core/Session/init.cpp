@@ -1,6 +1,6 @@
 /* init.cpp: session initialization
 
-   Copyright (C) 1996-2022 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -493,7 +493,7 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
     vector<string> origGsLibDirectories = StringUtil::Split(it->second, PathNameUtil::PathNameDelimiter);
     for (const string& d1 : origGsLibDirectories)
     {
-      auto it = find_if(gsDirectories.begin(), gsDirectories.end(), [d1](const string& d2) { return PathName::Compare(d1, d2) == 0; });
+      auto it = find_if(gsDirectories.begin(), gsDirectories.end(), [d1](const string& d2) { return PathName::Equals(PathName(d1), PathName(d2)); });
       if (it == gsDirectories.end())
       {
         gsDirectories.push_back(d1);

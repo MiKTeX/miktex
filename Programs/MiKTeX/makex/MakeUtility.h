@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX Make Utility Collection
  *
- * @copyright Copyright © 1998-2022 Christian Schenk
+ * @copyright Copyright © 1998-2024 Christian Schenk
  *
  * This file is part of the MiKTeX Make Utility Collection.
  *
@@ -52,7 +52,7 @@
 
 inline bool HasPrefix(const std::string& s1, const std::string& s2)
 {
-    return MiKTeX::Util::PathName::Compare(MiKTeX::Util::PathName(s1), MiKTeX::Util::PathName(s2), s2.length()) == 0;
+    return MiKTeX::Util::PathName::ComparePrefixes(MiKTeX::Util::PathName(s1), MiKTeX::Util::PathName(s2), s2.length()) == 0;
 }
 
 class ProcessOutputTrash :

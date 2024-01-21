@@ -1,6 +1,6 @@
 /* arctrl.cpp: Acrobat Reader (AR) Controller
 
-   Written in the years 2006-2022 by Christian Schenk.
+   Written in the years 2006-2024 by Christian Schenk.
 
    This file is based on public domain work by Fabrice Popineau.
 
@@ -610,17 +610,17 @@ void ArCtrl::Run(int argc, const char** argv)
   string nameDest;
   bool all = false;
 
-  if (PathName::Compare(program, "pdfopen") == 0)
+  if (PathName::Equals(PathName(program), PathName("pdfopen")))
   {
     mode = Open;
     pOption = &aoptionOpen[0];
   }
-  else if (PathName::Compare(program, "pdfclose") == 0)
+  else if (PathName::Equals(PathName(program), PathName("pdfclose")))
   {
     mode = Close;
     pOption = &aoptionClose[0];
   }
-  else if (PathName::Compare(program, "pdfdde") == 0)
+  else if (PathName::Equals(PathName(program), PathName("pdfdde")))
   {
     mode = CommandLoop;
     pOption = &aoptionCommandLoop[0];

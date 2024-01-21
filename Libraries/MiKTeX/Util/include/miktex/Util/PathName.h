@@ -350,7 +350,7 @@ public:
         {
             extension += 1;
         }
-        return PathName::Compare(currentExtension.substr(1), extension) == 0;
+        return PathName::Equals(PathName(currentExtension.substr(1)), PathName(extension));
     }
 
     /// Gets the file name extension.
@@ -486,27 +486,13 @@ public:
     }
 
     /// Compares the prefixes of two path names.
-    /// @param lpszPath1 The first path name.
-    /// @param lpszPath1 The second path name.
+    /// @param path1 The first path name.
+    /// @param path1 The second path name.
     /// @param count Number of characters to compare.
     /// @return Returns -1, if the first prefix compares lesser than the second.
     /// Returns 0, if both prefixes compare equal.
     /// Returns 1, if the first prefix compares greater than the second.
-    static MIKTEXUTILCEEAPI(int) Compare(const char* lpszPath1, const char* lpszPath2, std::size_t count);
-
-    static int Compare(const PathName& path1, const PathName& path2, std::size_t count)
-    {
-        return Compare(path1.GetData(), path2.GetData(), count);
-    }
-
-    /// Compares two path names.
-    /// @param lpszPath1 The first path name.
-    /// @param lpszPath1 The second path name.
-    /// @return Returns -1, if the first path name compares
-    /// lesser than the second.
-    /// Returns 0, if both path names compare equal.
-    /// Returns 1, if the first path name compares greater than the second.
-    static MIKTEXUTILCEEAPI(int) Compare(const char* lpszPath1, const char* lpszPath2);
+    static MIKTEXUTILCEEAPI(int) ComparePrefixes(const PathName& path1, const PathName& path2, std::size_t count);
 
     /// Compares two path names.
     /// @param path1 The first path name.
@@ -515,22 +501,7 @@ public:
     /// lesser than the second.
     /// Returns 0, if both path names compare equal.
     /// Returns 1, if the first path name compares greater than the second.
-    static int Compare(const PathName& path1, const PathName& path2)
-    {
-        return Compare(path1.GetData(), path2.GetData());
-    }
-
-    /// Compares two path names.
-    /// @param path1 The first path name.
-    /// @param path1 The second path name.
-    /// @return Returns -1, if the first path name compares
-    /// lesser than the second.
-    /// Returns 0, if both path names compare equal.
-    /// Returns 1, if the first path name compares greater than the second.
-    static int Compare(const std::string& path1, const std::string& path2)
-    {
-        return Compare(path1.c_str(), path2.c_str());
-    }
+    static MIKTEXUTILCEEAPI(int) Compare(const PathName& path1, const PathName& path2);
 
     static bool Equals(const PathName& path1, const PathName& path2)
     {
@@ -565,7 +536,7 @@ inline bool operator<(const PathName& lhs, const PathName& rhs)
 /// @return Returns true, if both path names compare equal.
 inline bool operator==(const PathName& lhs, const PathName& rhs)
 {
-    return PathName::Compare(lhs, rhs) == 0;
+    return PathName::Equals(lhs, rhs);
 }
 
 /// Compares two path names.
@@ -574,7 +545,7 @@ inline bool operator==(const PathName& lhs, const PathName& rhs)
 /// @return Returns true, if both path names compare unequal.
 inline bool operator!=(const PathName& lhs, const PathName& rhs)
 {
-    return PathName::Compare(lhs, rhs) != 0;
+    return !PathName::Equals(lhs, rhs);
 }
 
 inline PathName operator/(const PathName& lhs, const PathName& rhs)

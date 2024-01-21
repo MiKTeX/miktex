@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Build TeX format files
  *
- * @copyright Copyright © 2002-2022 Christian Schenk
+ * @copyright Copyright © 2002-2024 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -70,7 +70,7 @@ void FormatsManager::Build(const string& formatKey)
 
     if (!formatInfo.preloaded.empty())
     {
-        if (PathName::Compare(formatInfo.preloaded, formatKey) == 0)
+        if (PathName::Equals(PathName(formatInfo.preloaded), PathName(formatKey)))
         {
             this->ctx->ui->FatalError(fmt::format(T_("{0}: rule recursion"), formatKey));
         }

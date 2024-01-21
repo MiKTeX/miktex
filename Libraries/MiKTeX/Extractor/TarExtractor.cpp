@@ -1,6 +1,6 @@
 /* TarExtractor.cpp:
 
-   Copyright (C) 2001-2021 Christian Schenk
+   Copyright (C) 2001-2024 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -377,7 +377,7 @@ void TarExtractor::Extract(Stream* streamIn_, const PathName& destDir, bool make
       }
 
       // skip directory prefix
-      if (PathName::Compare(PathName(prefix), dest, prefixLen) == 0)
+      if (PathName::ComparePrefixes(PathName(prefix), dest, prefixLen) == 0)
       {
         PathName tmp(dest);
         dest = tmp.GetData() + prefixLen;

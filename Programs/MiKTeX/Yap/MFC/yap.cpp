@@ -1,6 +1,6 @@
 /* yap.cpp: Yet Another Previewer
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of Yap.
 
@@ -1214,7 +1214,7 @@ bool AllowShellCommand(const char* lpszCommand)
     string name = trim(lpszCommand);
     for (Tokenizer tok(g_pYapConfig->secureCommands, " ,;"); tok; ++tok)
     {
-      if (PathName::Compare(*tok, name) == 0)
+      if (PathName::Equals(PathName(*tok), PathName(name)))
       {
         return true;
       }

@@ -1,7 +1,7 @@
 /* cjklatex.cpp: call latex after preprocessing of the .tex file by
    the cjk conversion tool
 
-   Written in the years 2004-2021 by Christian Schenk.
+   Written in the years 2004-2024 by Christian Schenk.
 
    This file is based on public domain work (cjklatex.c, 2001) by
    Fabrice Popineau.
@@ -232,7 +232,7 @@ const char* CJKLaTeXApp::GetConverterProgram(const char* lpszName)
 {
   for (const CONVERTER& conv : Converters)
   {
-    if (PathName::Compare(lpszName, conv.lpszName) == 0)
+    if (PathName::Equals(PathName(lpszName), PathName(conv.lpszName)))
     {
       return conv.lpszProgram;
     }

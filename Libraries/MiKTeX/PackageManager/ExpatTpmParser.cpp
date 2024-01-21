@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief TpmParser implementation using Expat
  *
- * @copyright Copyright © 2001-2022 Christian Schenk
+ * @copyright Copyright © 2001-2024 Christian Schenk
  *
  * This file is part of MiKTeX Package Manager.
  *
@@ -76,7 +76,7 @@ void ExpatTpmParser::GetFiles(const XML_Char* text, vector<string>& files)
 #if defined(MIKTEX_UNIX)
         path.ConvertToUnix();
 #endif
-        if (texMFPrefix.empty() || (PathName::Compare(PathName(texMFPrefix), path, texMFPrefix.length()) == 0))
+        if (texMFPrefix.empty() || (PathName::ComparePrefixes(PathName(texMFPrefix), path, texMFPrefix.length()) == 0))
         {
             files.push_back(path.ToString());
         }
@@ -249,7 +249,7 @@ void ExpatTpmParser::OnEndElement(void* pv, const XML_Char* name)
             bool haveManifestFile = false;
             for (const auto& file : This->packageInfo.runFiles)
             {
-                if (PathName::Compare(PathName(file), manifestFile) == 0)
+                if (PathName::Equals(PathName(file), manifestFile))
                 {
                     haveManifestFile = true;
                     break;

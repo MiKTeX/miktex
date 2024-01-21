@@ -1,6 +1,6 @@
 /* findfile.cpp: finding files
 
-   Copyright (C) 1996-2022 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -156,7 +156,7 @@ bool SessionImpl::FindFileInDirectories(const string& fileName, const vector<Pat
         // 2015-01-15
         if (idx == 0)
         {
-          MIKTEX_ASSERT(PathName::Compare(pathWD, PathName().SetToCurrentDirectory()) == 0);
+          MIKTEX_ASSERT(PathName::Equals(pathWD, PathName().SetToCurrentDirectory()));
           path = fileName;
         }
 #endif

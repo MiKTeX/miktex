@@ -39,16 +39,16 @@ using namespace std;
 
 using namespace MiKTeX::Util;
 
-int PathName::Compare(const char* lpszPath1, const char* lpszPath2)
+int PathName::Compare(const PathName& path1_, const PathName& path2_)
 {
+    PathName path1(path1_);
+    PathName path2(path2_);
 #if defined(MIKTEX_WINDOWS)
-    PathName path1(lpszPath1);
     path1.TransformForComparison();
-    lpszPath1 = path1.GetData();
-    PathName path2(lpszPath2);
     path2.TransformForComparison();
-    lpszPath2 = path2.GetData();
 #endif
+    const char* lpszPath1 = path1.GetData();
+    const char* lpszPath2 = path2.GetData();
 
     int ret;
     int cmp;
@@ -85,21 +85,21 @@ int PathName::Compare(const char* lpszPath1, const char* lpszPath2)
     return ret;
 }
 
-int PathName::Compare(const char* lpszPath1, const char* lpszPath2, size_t count)
+int PathName::ComparePrefixes(const PathName& path1_, const PathName& path2_, size_t count)
 {
     if (count == 0)
     {
         return 0;
     }
 
+    PathName path1(path1_);
+    PathName path2(path2_);
 #if defined(MIKTEX_WINDOWS)
-    PathName path1(lpszPath1);
     path1.TransformForComparison();
-    lpszPath1 = path1.GetData();
-    PathName path2(lpszPath2);
     path2.TransformForComparison();
-    lpszPath2 = path2.GetData();
 #endif
+    const char* lpszPath1 = path1.GetData();
+    const char* lpszPath2 = path2.GetData();
 
     for (size_t i = 0; i < count; ++i, ++lpszPath1, ++lpszPath2)
     {
@@ -149,11 +149,11 @@ PathName GetFullyQualifiedPath(const char* lpszPath)
     PathName fixme(lpszPath);
     for (PathNameParser parser(fixme); parser; ++parser)
     {
-        if (PathName::Compare(PathName(*parser), PathName(PARENT_DIRECTORY)) == 0)
+        if (PathName::Equals(PathName(*parser), PathName(PARENT_DIRECTORY)))
         {
             path.CutOffLastComponent();
         }
-        else if (PathName::Compare(PathName(*parser), PathName(CURRENT_DIRECTORY)) != 0)
+        else if (!PathName::Equals(PathName(*parser), PathName(CURRENT_DIRECTORY)))
         {
             path /= *parser;
         }

@@ -1,6 +1,6 @@
 /* FormatDefinitionDialog.cpp:
 
-   Copyright (C) 2018-2021 Christian Schenk
+   Copyright (C) 2018-2024 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -59,7 +59,7 @@ FormatDefinitionDialog::FormatDefinitionDialog(QWidget* parent, const FormatInfo
   for (const FormatInfo& f : session->GetFormats())
   {
     compilers.insert(f.compiler);
-    if (PathName::Compare(f.key, format.key) == 0)
+    if (PathName::Equals(PathName(f.key), PathName(format.key)))
     {
       continue;
     }

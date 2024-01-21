@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief packages list
  *
- * @copyright Copyright © 2022 Christian Schenk
+ * @copyright Copyright © 2022-2024 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -63,7 +63,7 @@ class PackageInfoComparer
 public:
     bool operator() (const MiKTeX::Packages::PackageInfo& pi1, const MiKTeX::Packages::PackageInfo& pi2) const
     {
-        return MiKTeX::Util::PathName::Compare(pi1.id, pi2.id) < 0;
+        return MiKTeX::Util::PathName::Compare(MiKTeX::Util::PathName(pi1.id), MiKTeX::Util::PathName(pi2.id)) < 0;
     }
 };
 

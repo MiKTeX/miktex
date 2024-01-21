@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Utility functions
  *
- * @copyright Copyright © 1996-2023 Christian Schenk
+ * @copyright Copyright © 1996-2024 Christian Schenk
  *
  * This file is part of the MiKTeX Core Library.
  *
@@ -219,7 +219,7 @@ bool Utils::IsSafeFileName(const PathName& path)
     MIKTEX_ASSERT(!fileName.Empty());
     for (const string& forbidden : forbiddenFileNames)
     {
-        if (PathName::Compare(PathName(forbidden), fileName) == 0)
+        if (PathName::Equals(PathName(forbidden), fileName))
         {
             return false;
         }
@@ -231,7 +231,7 @@ bool Utils::IsSafeFileName(const PathName& path)
     {
         for (CsvList ext(forbiddenExtensions, PathNameUtil::PathNameDelimiter); ext; ++ext)
         {
-            if (!(*ext).empty() && PathName::Compare(*ext, extension) == 0)
+            if (!(*ext).empty() && PathName::Equals(PathName(*ext), PathName(extension)))
             {
                 return false;
             }
@@ -244,7 +244,7 @@ bool Utils::IsSafeFileName(const PathName& path)
 bool Utils::IsParentDirectoryOf(const PathName& parentDir, const PathName& fileName)
 {
     size_t len1 = parentDir.GetLength();
-    if (PathName::Compare(parentDir, fileName, len1) != 0)
+    if (PathName::ComparePrefixes(parentDir, fileName, len1) != 0)
     {
         return false;
     }
@@ -326,7 +326,7 @@ bool Utils::GetPathNamePrefix(const PathName& path, const PathName& suffix, Path
 
     while (!suffix_.Empty())
     {
-        if (PathName::Compare(path_.GetFileName(), suffix_.GetFileName()) != 0)
+        if (!PathName::Equals(path_.GetFileName(), suffix_.GetFileName()))
         {
             return false;
         }

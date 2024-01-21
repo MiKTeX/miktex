@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Run a texlua script
  *
- * @copyright Copyright © 2010-2023 Christian Schenk
+ * @copyright Copyright © 2010-2024 Christian Schenk
  *
  * This file is free software; the copyright holder gives unlimited permission
  * to copy and/or distribute it, with or without modifications, as long as this
@@ -71,9 +71,9 @@ int MAIN(int argc, MAINCHAR** argv)
         std::string scriptName;
 
 #if defined(MTXRUN)
-        bool isLuatools = (PathName::Compare(programName, "luatools") == 0);
-        bool isMtxrun = (PathName::Compare(programName, "mtxrun") == 0);
-        bool isTexmfstart = (PathName::Compare(programName, "texmfstart") == 0);
+        bool isLuatools = (PathName::Equals(programName, PathName("luatools")));
+        bool isMtxrun = (PathName::Equals(programName, PathName("mtxrun")));
+        bool isTexmfstart = (PathName::Equals(programName, PathName("texmfstart")));
         if (isLuatools)
         {
             scriptName = "luatools";

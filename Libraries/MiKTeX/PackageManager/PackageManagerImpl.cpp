@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief PackageManager implementation
  *
- * @copyright Copyright © 2001-2022 Christian Schenk
+ * @copyright Copyright © 2001-2024 Christian Schenk
  *
  * This file is part of MiKTeX Package Manager.
  *
@@ -969,7 +969,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
 #if defined(MIKTEX_UNIX)
                 path.ConvertToUnix();
 #endif
-                if (texmfPrefix.empty() || (PathName::Compare(PathName(texmfPrefix), path, texmfPrefix.length()) == 0))
+                if (texmfPrefix.empty() || (PathName::ComparePrefixes(PathName(texmfPrefix), path, texmfPrefix.length()) == 0))
                 {
                     packageInfo.runFiles.push_back(path.ToString());
                 }
@@ -987,7 +987,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
 #if defined(MIKTEX_UNIX)
                 path.ConvertToUnix();
 #endif
-                if (texmfPrefix.empty() || (PathName::Compare(PathName(texmfPrefix), path, texmfPrefix.length()) == 0))
+                if (texmfPrefix.empty() || (PathName::ComparePrefixes(PathName(texmfPrefix), path, texmfPrefix.length()) == 0))
                 {
                     packageInfo.docFiles.push_back(path.ToString());
                 }
@@ -1005,7 +1005,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
 #if defined(MIKTEX_UNIX)
                 path.ConvertToUnix();
 #endif
-                if (texmfPrefix.empty() || (PathName::Compare(PathName(texmfPrefix), path, texmfPrefix.length()) == 0))
+                if (texmfPrefix.empty() || (PathName::ComparePrefixes(PathName(texmfPrefix), path, texmfPrefix.length()) == 0))
                 {
                     packageInfo.sourceFiles.push_back(path.ToString());
                 }

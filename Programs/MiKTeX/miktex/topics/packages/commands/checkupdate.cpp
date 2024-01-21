@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief packages check-update
  *
- * @copyright Copyright © 2022 Christian Schenk
+ * @copyright Copyright © 2022-2024 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -40,7 +40,7 @@ namespace
     public:
         bool operator() (const MiKTeX::Packages::PackageInstaller::UpdateInfo& ui1, const MiKTeX::Packages::PackageInstaller::UpdateInfo& ui2) const
         {
-            return MiKTeX::Util::PathName::Compare(ui1.packageId, ui2.packageId) < 0;
+            return MiKTeX::Util::PathName::Compare(MiKTeX::Util::PathName(ui1.packageId), MiKTeX::Util::PathName(ui2.packageId)) < 0;
         }
     };
 

@@ -1,6 +1,6 @@
 /* mkocp.cpp:
 
-   Copyright (C) 2002-2021 Christian Schenk
+   Copyright (C) 2002-2024 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -81,7 +81,7 @@ int main(int argc, char ** argv)
     }
     PathName argv1(argv[1]);
     PathName outputName;
-    if (PathName::Compare(argv1.GetExtension(), ".ocp") == 0)
+    if (PathName::Equals(PathName(argv1.GetExtension()), PathName(".ocp")))
     {
       outputName = argv1.GetFileNameWithoutExtension();
     }

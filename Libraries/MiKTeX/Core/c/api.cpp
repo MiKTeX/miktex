@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX core C API
  *
- * @copyright Copyright © 1996-2023 Christian Schenk
+ * @copyright Copyright © 1996-2024 Christian Schenk
  *
  * This file is part of the MiKTeX Core Library.
  *
@@ -100,7 +100,7 @@ MIKTEXCORECEEAPI(char*) miktex_core_strdup(const char* lpsz, const char* fileNam
 
 MIKTEXCORECEEAPI(int) miktex_pathcmp(const char* path1, const char* path2)
 {
-    return MiKTeX::Util::PathName::Compare(path1, path2);
+    return MiKTeX::Util::PathName::Compare(MiKTeX::Util::PathName(path1), MiKTeX::Util::PathName(path2));
 }
 
 MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_exit(int status)

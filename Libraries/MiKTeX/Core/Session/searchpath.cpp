@@ -1,6 +1,6 @@
 /* searchpath.cpp: managing search paths
 
-   Copyright (C) 1996-2022 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -117,7 +117,7 @@ void SessionImpl::PushBackPath(vector<PathName>& pathNames, const PathName& path
         trace_error->WriteLine("core", TraceLevel::Error, fmt::format(T_("{0} is not fully qualified"), Q_(pathFQ)));
         continue;
       }
-      if (PathName::Compare(path, PathName(CURRENT_DIRECTORY)) != 0)
+      if (!PathName::Equals(path, PathName(CURRENT_DIRECTORY)))
       {
         pathFQ /= path;
       }
@@ -127,7 +127,7 @@ void SessionImpl::PushBackPath(vector<PathName>& pathNames, const PathName& path
         // 2015-01-15
         if (idx == 0)
         {
-          MIKTEX_ASSERT(PathName::Compare(pathFQ, PathName().SetToCurrentDirectory()) == 0);
+          MIKTEX_ASSERT(PathName::Equals(pathFQ, PathName().SetToCurrentDirectory()));
           pathFQ = CURRENT_DIRECTORY;
         }
 #endif

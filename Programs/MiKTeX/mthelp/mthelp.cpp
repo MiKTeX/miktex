@@ -1,6 +1,6 @@
 /* mthelp.cpp:
 
-   Copyright (C) 2004-2021 Christian Schenk
+   Copyright (C) 2004-2024 Christian Schenk
 
    This file is a part of MTHelp.
 
@@ -249,7 +249,7 @@ void MiKTeXHelp::FindDocFilesByPackage(const string& packageName, vector<string>
     while (it != vec.end())
     {
       PathName name = PathName(*it).GetFileNameWithoutExtension();
-      if (PathName::Compare(name, PathName(packageName)) == 0)
+      if (PathName::Equals(name, PathName(packageName)))
       {
         files.push_back(*it);
         it = vec.erase(it);
@@ -358,23 +358,23 @@ void MiKTeXHelp::ViewFile(const PathName& fileName)
     {
       viewer = pager + " %f";
     }
-    else if (PathName::Compare(ext, ".dvi") == 0)
+    else if (PathName::Equals(PathName(ext), PathName(".dvi")))
     {
       viewer = "xdvi %f &";
     }
-    else if (PathName::Compare(ext, ".pdf") == 0)
+    else if (PathName::Equals(PathName(ext), PathName(".pdf")))
     {
       viewer = "xpdf %f &";
     }
-    else if (PathName::Compare(ext, ".ps") == 0)
+    else if (PathName::Equals(PathName(ext), PathName(".ps")))
     {
       viewer = "gv %f &";
     }
-    else if (PathName::Compare(ext, ".html") == 0)
+    else if (PathName::Equals(PathName(ext), PathName(".html")))
     {
       viewer = "firefox %f &";
     }
-    else if (PathName::Compare(ext, ".txt") == 0)
+    else if (PathName::Equals(PathName(ext), PathName(".txt")))
     {
       viewer = pager + " %f";
     }

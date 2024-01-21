@@ -906,7 +906,7 @@ void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
   bool haveConfigFile = false;
   for (const auto& shortCut : configShortcuts)
   {
-    if (PathName::Compare(relPath, shortCut.lpszShortcut) == 0)
+    if (PathName::Equals(PathName(relPath), PathName(shortCut.lpszShortcut)))
     {
       configFile /= shortCut.lpszFile;
       haveConfigFile = true;

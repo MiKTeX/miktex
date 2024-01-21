@@ -1,6 +1,6 @@
 /* fontinfo.cpp: font information
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -213,7 +213,7 @@ void SessionImpl::SplitFontPath(const PathName& fontPath, string* fontType, stri
         {
           string d1 = *tok;
           ++tok;
-          if (PathName::Compare(d1, "fonts") == 0 && tok)
+          if (PathName::Equals(PathName(d1), PathName("fonts")) && tok)
           {
             string d2 = *tok;
             ++tok;

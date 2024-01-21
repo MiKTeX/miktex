@@ -1,7 +1,7 @@
 /* kpsemu.cpp: kpathsea emulation
 
    Copyright (C) 1994, 95 Karl Berry
-   Copyright (C) 2000-2021 Christian Schenk
+   Copyright (C) 2000-2024 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -693,7 +693,7 @@ MIKTEXSTATICFUNC(std::string) HideMpmRoot(const std::string& searchPath)
   std::string result;
   for (const std::string& path : StringUtil::Split(searchPath, PathNameUtil::PathNameDelimiter))
   {
-    if ((PathName::Compare(PathName(path), mpmRootPath, mpmRootPathLen) == 0) && (path.length() == mpmRootPathLen || PathNameUtil::IsDirectoryDelimiter(path[mpmRootPathLen])))
+    if ((PathName::ComparePrefixes(PathName(path), mpmRootPath, mpmRootPathLen) == 0) && (path.length() == mpmRootPathLen || PathNameUtil::IsDirectoryDelimiter(path[mpmRootPathLen])))
     {
       continue;
     }

@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2001-2020 Christian Schenk
+   Copyright (C) 2001-2024 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -81,7 +81,7 @@ struct equal_path
 public:
   bool operator()(const std::string& str1, const std::string& str2) const
   {
-    return MiKTeX::Util::PathName::Compare(str1, str2) == 0;
+    return MiKTeX::Util::PathName::Equals(MiKTeX::Util::PathName(str1), MiKTeX::Util::PathName(str2));
   }
 };
 
@@ -95,7 +95,7 @@ inline void DbgView(const std::string& s)
 inline bool StripPrefix(const std::string& str, const char* lpszPrefix, std::string& result)
 {
   std::size_t n = MiKTeX::Util::StrLen(lpszPrefix);
-  if (MiKTeX::Util::PathName::Compare(str.c_str(), lpszPrefix, n) != 0)
+  if (MiKTeX::Util::PathName::ComparePrefixes(MiKTeX::Util::PathName(str), MiKTeX::Util::PathName(lpszPrefix), n) != 0)
   {
     return false;
   }

@@ -1,6 +1,6 @@
 /* winProcess.cpp: executing secondary processes
 
-   Copyright (C) 1996-2022 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -558,7 +558,7 @@ constexpr int PREFIX_LENGTH = 4;
 bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* workingDirectory)
 {
   PathName workingDirectoryNonUNC;
-  if (workingDirectory != nullptr && PathName::Compare(workingDirectory, PREFIX, PREFIX_LENGTH) == 0)
+  if (workingDirectory != nullptr && PathName::ComparePrefixes(PathName(workingDirectory), PathName(PREFIX), PREFIX_LENGTH) == 0)
   {
     workingDirectoryNonUNC = &workingDirectory[PREFIX_LENGTH];
   }
@@ -566,7 +566,7 @@ bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRu
   {
     PathName cwd;
     cwd.SetToCurrentDirectory();
-    if (PathName::Compare(cwd, PathName(PREFIX), PREFIX_LENGTH) == 0)
+    if (PathName::ComparePrefixes(cwd, PathName(PREFIX), PREFIX_LENGTH) == 0)
     {
       workingDirectoryNonUNC = &cwd[PREFIX_LENGTH];
     }
@@ -585,7 +585,7 @@ unique_ptr<Process> Process::StartSystemCommand(const string& commandLine, FILE*
   PathName workingDirectoryNonUNC;
   PathName cwd;
   cwd.SetToCurrentDirectory();
-  if (PathName::Compare(cwd, PathName(PREFIX), PREFIX_LENGTH) == 0)
+  if (PathName::ComparePrefixes(cwd, PathName(PREFIX), PREFIX_LENGTH) == 0)
   {
     workingDirectoryNonUNC = &cwd[PREFIX_LENGTH];
   }

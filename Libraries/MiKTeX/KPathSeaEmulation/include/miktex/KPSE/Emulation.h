@@ -1,7 +1,7 @@
 /* miktex/KPSE/Emulation.h:                             -*- C++ -*-
 
    Copyright 1993, 1995, 1996, 2005, 2008, 2009, 2010 Karl Berry
-   Copyright (C) 2000-2020 Christian Schenk
+   Copyright (C) 2000-2024 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -484,7 +484,7 @@ MIKTEXNORETURN inline void FATAL_PERROR(const char* str)
 #if defined(__cplusplus)
 inline int FILESTRCASEEQ(const char* s1, const char* s2)
 {
-  return MiKTeX::Util::PathName::Compare(s1, s2) == 0;
+  return MiKTeX::Util::PathName::Equals(MiKTeX::Util::PathName(s1), MiKTeX::Util::PathName(s2)) == 0;
 }
 #else
 #define FILESTRCASEEQ(s1, s2) (miktex_pathcmp(s1, s2) == 0)

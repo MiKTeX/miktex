@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Calculate the MD5 of a file tree
  *
- * @copyright Copyright © 2005-2022 Christian Schenk
+ * @copyright Copyright © 2005-2024 Christian Schenk
  *
  * This file is part of MD5Walk.
  *
@@ -295,7 +295,7 @@ void Main(int argc, const char** argv)
 
     TASK task;
 
-    if (PathName::Compare(Utils::GetExeName().c_str(), NAME_CHECK_INTEGRITY) == 0)
+    if (PathName::Equals(PathName(Utils::GetExeName()), PathName(NAME_CHECK_INTEGRITY)))
     {
         task = Check;
         optVerbose = true;

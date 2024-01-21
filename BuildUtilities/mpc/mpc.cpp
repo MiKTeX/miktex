@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Creating MiKTeX packages
  *
- * @copyright Copyright © 2006-2022 Christian Schenk
+ * @copyright Copyright © 2006-2024 Christian Schenk
  *
  * This file is part of MPC.
  *
@@ -815,7 +815,7 @@ bool PackageCreator::IsInTeXMFDirectory(const PathName& relPath, const char* dir
 {
     PathName texmfDirectory(texmfPrefix);
     texmfDirectory /= dir;
-    return PathName::Compare(texmfDirectory, relPath, texmfDirectory.GetLength()) == 0;
+    return PathName::ComparePrefixes(texmfDirectory, relPath, texmfDirectory.GetLength()) == 0;
 }
 
 void PackageCreator::CollectFiles(const PathName& rootDir, const PathName& subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles)
@@ -1895,7 +1895,7 @@ void PackageCreator::DisassemblePackage(const PathName& packageManifestFile, con
         vector<string>::iterator it;
         for (it = packageInfo.runFiles.begin(); it != packageInfo.runFiles.end(); ++it)
         {
-            if (PathName::Compare(it->c_str(), lpszRelPath) == 0)
+            if (PathName::Equals(PathName(*it), PathName(lpszRelPath)))
             {
                 break;
             }
