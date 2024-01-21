@@ -164,7 +164,7 @@ BEGIN_TEST_FUNCTION(6);
     MiKTeX::Core::File::Delete(myself);
     TESTX(MiKTeX::Core::File::Move(clone, myself));
     TEST(MiKTeX::Core::File::Exists(myself));
-    TEST(MiKTeX::Core::File::Exists(PathName(".\\nul.x")));
+    TEST(MiKTeX::Core::File::Exists(PathName("nul")));
 }
 END_TEST_FUNCTION();
 #endif
