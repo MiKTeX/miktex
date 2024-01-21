@@ -45,7 +45,9 @@ BEGIN_TEST_FUNCTION(1);
     PathName path2 = path;
     path2.RemoveDirectorySpec();
     TEST(path2 == PathName("ghi.jkl"));
-    TEST(PathName::Compare(PathName("/a/b/c"), PathName("/a/////b/c")) == 0);
+    auto path3 = PathName("/a/////b/../b/c");
+    path3.Convert({ConvertPathNameOption::CleanUp});
+    TEST(PathName::Compare(PathName("/a/b/c"), path3) == 0);
 }
 END_TEST_FUNCTION();
 
