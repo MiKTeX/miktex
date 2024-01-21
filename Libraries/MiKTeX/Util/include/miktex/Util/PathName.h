@@ -45,6 +45,8 @@ enum class ConvertPathNameOption
     MakeFullyQualified,
     /// Resolve symbolic links.
     Canonicalize,
+    /// Clean up the path name.
+    CleanUp,
 };
 
 /// Path name conversion options.

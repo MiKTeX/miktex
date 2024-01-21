@@ -188,6 +188,39 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
     }
 #endif
 
+    if (options[ConvertPathNameOption::CleanUp])
+    {
+        vector<string> components = Split(*this);
+        for (auto it = components.begin(); it != components.end();)
+        {
+            if (*it == CURRENT_DIRECTORY)
+            {
+                it = components.erase(it);
+            }
+            else if (*it == PARENT_DIRECTORY)
+            {
+                if (it != components.begin())
+                {
+                    it = components.erase(--it);
+                    it = components.erase(it);
+                }
+                else
+                {
+                    ++it;
+                }
+            }
+            else
+            {
+                ++it;
+            }
+        }
+        *this = "";
+        for (auto it = components.begin(); it != components.end(); ++it)
+        {
+            *this /= *it;
+        }
+    }
+
     if (options[ConvertPathNameOption::Canonicalize])
     {
         Helpers::CanonicalizePathName(*this);
