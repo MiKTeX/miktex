@@ -237,7 +237,7 @@ protected:
             return true;
         }
         Verbose(T_("METAFONT failed for some reason"));
-        MiKTeX::Util::PathName pathLogFile = workingDirectory / MiKTeX::Util::PathName(name);
+        MiKTeX::Util::PathName pathLogFile = workingDirectory / name;
         pathLogFile.AppendExtension(".log");
         bool noError = true;
         size_t nStrangePaths = 0;

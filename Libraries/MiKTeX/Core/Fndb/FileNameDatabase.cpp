@@ -87,11 +87,28 @@ FileNameDatabase::~FileNameDatabase()
   }
 }
 
+bool IsComparable(const PathName& path)
+{
+#if defined(MIKTEX_WINDOWS)
+    for (const char* lpsz = path.GetData(); *lpsz != 0; ++lpsz)
+    {
+        if (*lpsz == MiKTeX::Util::PathNameUtil::DosDirectoryDelimiter || (*lpsz >= 'A' && *lpsz <= 'Z'))
+        {
+            return false;
+        }
+    }
+    return true;
+#else
+    return true;
+#endif
+}
+
+
 // FIXME: not UTF-8 safe
 MIKTEXSTATICFUNC(bool) Match(const char* pathPattern, const char* path)
 {
-  MIKTEX_ASSERT(PathName(pathPattern).IsComparable());
-  MIKTEX_ASSERT(PathName(path).IsComparable());
+  MIKTEX_ASSERT(IsComparable(PathName(pathPattern)));
+  MIKTEX_ASSERT(IsComparable(PathName(path)));
   int lastch = 0;
   for (; *pathPattern != 0 && *path != 0; ++pathPattern, ++path)
   {
@@ -156,7 +173,7 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
       --l;
     }
     scratch1 = pathPattern;
-    scratch1 /= dir;
+    scratch1 /= dir.ToString();
     pathPattern = scratch1.ToString();
   }
 
@@ -189,8 +206,8 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
     {
       PathName path;
       path = rootDirectory;
-      path /= relativeDirectory;
-      path /= fileName;
+      path /= relativeDirectory.ToString();
+      path /= fileName.ToString();
       trace_fndb->WriteLine("core", fmt::format(T_("found: {0} ({1})"), Q_(path), Q_(it->second.GetInfo())));
       result.push_back({ path, it->second.GetInfo() });
       if (!all)

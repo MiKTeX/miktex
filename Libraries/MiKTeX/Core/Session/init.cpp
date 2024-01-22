@@ -296,7 +296,7 @@ void SessionImpl::StartFinishScript(int delay)
 #endif
 #endif
   };
-  PathName script = tmpdir->GetPathName() / GetMyProgramFile(false).GetFileNameWithoutExtension();
+  PathName script = tmpdir->GetPathName() / GetMyProgramFile(false).GetFileNameWithoutExtension().ToString();
   script += "-finish";
 #if defined(MIKTEX_WINDOWS)
   script.SetExtension(".cmd");
@@ -355,7 +355,7 @@ SetupConfig SessionImpl::GetSetupConfig()
     }
     for (const auto& name : { "miktexstartup.ini" })
     {
-      PathName file = configDir / PathName(name);
+      PathName file = configDir / name;
       if (File::Exists(file))
       {
         ret.setupDate = File::GetLastWriteTime(file);
@@ -440,7 +440,7 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
   vector<string> gsDirectories;
   if (IsSharedSetup())
   {
-    PathName gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName("ghostscript") / PathName("base");
+    PathName gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / "ghostscript" / "base";
     if (Directory::Exists(gsDir))
     {
 #if defined(MIKTEX_WINDOWS)
@@ -451,7 +451,7 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
   }
   if (!IsAdminMode() && (!IsSharedSetup() || GetUserInstallRoot() != GetCommonInstallRoot()))
   {
-    PathName gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / PathName("ghostscript") / PathName("base");
+    PathName gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / "ghostscript" / "base";
     if (Directory::Exists(gsDir))
     {
 #if defined(MIKTEX_WINDOWS)
@@ -462,7 +462,7 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
   }
   if (IsSharedSetup())
   {
-    PathName gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName("fonts");
+    PathName gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / "fonts";
     if (Directory::Exists(gsDir))
     {
 #if defined(MIKTEX_WINDOWS)
@@ -473,7 +473,7 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
   }
   if (!IsAdminMode() && (!IsSharedSetup() || GetUserInstallRoot() != GetCommonInstallRoot()))
   {
-    PathName gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / PathName("fonts");
+    PathName gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / "fonts";
     if (Directory::Exists(gsDir))
     {
 #if defined(MIKTEX_WINDOWS)

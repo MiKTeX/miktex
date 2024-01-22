@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX Setup Wizard
  *
- * @copyright Copyright © 1999-2023 Christian Schenk
+ * @copyright Copyright © 1999-2024 Christian Schenk
  *
  * This file is part of MiKTeX Setup Wizard.
  *
@@ -80,7 +80,7 @@ public:
         SetupOptions options = Service->GetOptions();
         if (options.IsPortable)
         {
-            return options.PortableRoot / PathName(MIKTEX_PORTABLE_REL_INSTALL_DIR);
+            return options.PortableRoot / MIKTEX_PORTABLE_REL_INSTALL_DIR;
         }
         else
         {

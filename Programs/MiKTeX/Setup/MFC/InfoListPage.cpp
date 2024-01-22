@@ -1,6 +1,6 @@
 /* InfoListPage.cpp:
 
-   Copyright (C) 1999-2020 Christian Schenk
+   Copyright (C) 1999-2024 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -176,7 +176,7 @@ void InfoListPage::CreateReport()
     break;
   case SetupTask::PrepareMiKTeXDirect:
     info += T_("Prepare to run MiKTeX from ");
-    info += PathName(SetupApp::Instance->Service->GetOptions().MiKTeXDirectRoot, PathName("texmf")).GetData();
+    info += PathName(SetupApp::Instance->Service->GetOptions().MiKTeXDirectRoot / "texmf").GetData();
     break;
   default:
     MIKTEX_ASSERT(false);

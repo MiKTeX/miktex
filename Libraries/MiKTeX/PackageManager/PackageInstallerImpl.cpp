@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief PackageInstaller implementation
  *
- * @copyright Copyright © 2001-2022 Christian Schenk
+ * @copyright Copyright © 2001-2024 Christian Schenk
  *
  * This file is part of MiKTeX Package Manager.
  *
@@ -294,14 +294,14 @@ void PackageInstallerImpl::InstallRepositoryManifest(bool fromCache)
     {
         // find the newest mpm.ini
         PathName userCacheDirectory = session->GetSpecialPath(SpecialPath::UserDataRoot)
-            / PathName(MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR)
-            / PathName(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX);
+            / MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR
+            / MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX;
         if (session->IsSharedSetup())
         {
             PathName commonCacheDirectory = session->GetSpecialPath(SpecialPath::CommonDataRoot)
-                / PathName(MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR)
-                / PathName(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX);
-            cacheDirectory = !Directory::Exists(userCacheDirectory) || IsNewer(commonCacheDirectory / PathName(MIKTEX_MPM_INI_FILENAME), userCacheDirectory / PathName(MIKTEX_MPM_INI_FILENAME))
+                / MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR
+                / MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX;
+            cacheDirectory = !Directory::Exists(userCacheDirectory) || IsNewer(commonCacheDirectory / MIKTEX_MPM_INI_FILENAME, userCacheDirectory / MIKTEX_MPM_INI_FILENAME)
                 ? commonCacheDirectory
                 : userCacheDirectory;
         }
@@ -313,8 +313,8 @@ void PackageInstallerImpl::InstallRepositoryManifest(bool fromCache)
     else
     {
         cacheDirectory = session->GetSpecialPath(SpecialPath::DataRoot)
-            / PathName(MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR)
-            / PathName(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX);
+            / MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR
+            / MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX;
     }
 
     // prepare the cache directory for writing
@@ -363,7 +363,7 @@ void PackageInstallerImpl::InstallRepositoryManifest(bool fromCache)
         else
         {
             MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-            pathZzdb1 = PathName(repository) / PathName(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME);
+            pathZzdb1 = PathName(repository) / MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME;
         }
 
         MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(pathZzdb1, cacheDirectory);
@@ -371,12 +371,12 @@ void PackageInstallerImpl::InstallRepositoryManifest(bool fromCache)
     else if (repositoryType == RepositoryType::MiKTeXDirect)
     {
         size_t size;
-        MyCopyFile(PathName(repository) / PathName(MIKTEXDIRECT_PREFIX_DIR) / PathName(MIKTEX_PATH_MPM_INI), cacheDirectory / PathName(MIKTEX_MPM_INI_FILENAME), size);
+        MyCopyFile(PathName(repository) / MIKTEXDIRECT_PREFIX_DIR / MIKTEX_PATH_MPM_INI, cacheDirectory / MIKTEX_MPM_INI_FILENAME, size);
     }
     else if (repositoryType == RepositoryType::MiKTeXInstallation)
     {
         size_t size;
-        MyCopyFile(PathName(repository) / PathName(MIKTEX_PATH_MPM_INI), cacheDirectory / PathName(MIKTEX_MPM_INI_FILENAME), size);
+        MyCopyFile(PathName(repository) / MIKTEX_PATH_MPM_INI, cacheDirectory / MIKTEX_MPM_INI_FILENAME, size);
     }
     else
     {
@@ -384,7 +384,7 @@ void PackageInstallerImpl::InstallRepositoryManifest(bool fromCache)
     }
 
     size_t size;
-    MyCopyFile(cacheDirectory / PathName(MIKTEX_MPM_INI_FILENAME), session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_MPM_INI), size);
+    MyCopyFile(cacheDirectory / MIKTEX_MPM_INI_FILENAME, session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_MPM_INI, size);
 }
 
 void PackageInstallerImpl::LoadRepositoryManifest(bool download)
@@ -392,7 +392,7 @@ void PackageInstallerImpl::LoadRepositoryManifest(bool download)
     repositoryManifest.Clear();
 
     // path to mpm.ini
-    PathName pathMpmIni(session->GetSpecialPath(SpecialPath::InstallRoot), PathName(MIKTEX_PATH_MPM_INI));
+    PathName pathMpmIni(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_MPM_INI);
 
     // install (if necessary)
     time_t ONE_DAY_IN_SECONDS = 86400;
@@ -705,7 +705,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
         }
 
         // make an absolute path name
-        PathName path(session->GetSpecialPath(SpecialPath::InstallRoot), PathName(fileName));
+        PathName path(session->GetSpecialPath(SpecialPath::InstallRoot) / fileName);
 
         // only delete if the reference count reached zero
         if (refCount > 0)
@@ -889,13 +889,13 @@ void PackageInstallerImpl::CopyFiles(const PathName& pathSourceRoot, const vecto
         }
 
         // make sure the source file exists
-        PathName pathSource(pathSourceRoot, PathName(fileName));
+        PathName pathSource(pathSourceRoot / fileName);
         if (!File::Exists(pathSource))
         {
             MIKTEX_FATAL_ERROR_2(FatalError(ERROR_SOURCE_FILE_NOT_FOUND), "file", pathSource.ToString());
         }
 
-        PathName pathDest(session->GetSpecialPath(SpecialPath::InstallRoot), PathName(fileName));
+        PathName pathDest(session->GetSpecialPath(SpecialPath::InstallRoot) / fileName);
 
         PathName pathDestFolder(pathDest);
         pathDestFolder.RemoveFileSpec();
@@ -959,7 +959,7 @@ MPMSTATICFUNC(unordered_set<PathName>) GetFiles(const PathName& rootDir, const P
         string fileName;
         if (PackageManager::StripTeXMFPrefix(s, fileName))
         {
-            files.insert((rootDir / PathName(fileName)));
+            files.insert((rootDir / fileName));
         }
     }
     for (const string& s : package.docFiles)
@@ -967,7 +967,7 @@ MPMSTATICFUNC(unordered_set<PathName>) GetFiles(const PathName& rootDir, const P
         string fileName;
         if (PackageManager::StripTeXMFPrefix(s, fileName))
         {
-            files.insert((rootDir / PathName(fileName)));
+            files.insert((rootDir / fileName));
         }
     }
     for (const string& s : package.sourceFiles)
@@ -975,7 +975,7 @@ MPMSTATICFUNC(unordered_set<PathName>) GetFiles(const PathName& rootDir, const P
         string fileName;
         if (PackageManager::StripTeXMFPrefix(s, fileName))
         {
-            files.insert((rootDir / PathName(fileName)));
+            files.insert((rootDir / fileName));
         }
     }
     return files;
@@ -1058,7 +1058,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
         else
         {
             MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-            pathArchiveFile = PathName(repository) / PathName(packageId);
+            pathArchiveFile = PathName(repository) / packageId;
             pathArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
         }
 
@@ -1112,7 +1112,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
     }
 
     // parse the new package manifest file
-    PathName pathPackageFile = session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFEST_DIR) / PathName(packageId);
+    PathName pathPackageFile = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR / packageId;
     pathPackageFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
     unique_ptr<TpmParser> tpmparser = TpmParser::Create();
     tpmparser->Parse(pathPackageFile);
@@ -1179,7 +1179,7 @@ void PackageInstallerImpl::DownloadPackage(const string& packageId)
     Download(pathArchiveFile, expectedSize);
 
     // check to see whether the archive file is ok
-    CheckArchiveFile(packageId, downloadDirectory / pathArchiveFile, true);
+    CheckArchiveFile(packageId, downloadDirectory / pathArchiveFile.ToString(), true);
 
     // notify client: end of package download
     Notify(Notification::DownloadPackageEnd);
@@ -1432,7 +1432,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
                         continue;
                     }
                     PathName pathIn = session->GetSpecialPath(SpecialPath::InstallRoot);
-                    pathIn /= relPathIn;
+                    pathIn /= relPathIn.ToString();
                     if (File::Exists(pathIn))
                     {
                         ReportLine(fmt::format(T_("configuring {0}"), Q_(relPath.ToDisplayString())));
@@ -1482,7 +1482,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
         {
             PathName relPath(comp);
             PathName pathIn(session->GetSpecialPath(SpecialPath::InstallRoot));
-            pathIn /= relPath;
+            pathIn /= relPath.ToString();
             pathIn.AppendExtension(".in");
             if (File::Exists(pathIn))
             {
@@ -1702,7 +1702,7 @@ void PackageInstallerImpl::InstallRemove(Role role)
 
                     // check to see whether the archive file exists
                     ArchiveFileType aft = repositoryManifest.GetArchiveFileType(packageId);
-                    PathName pathLocalArchiveFile = PathName(repository) / PathName(packageId);
+                    PathName pathLocalArchiveFile = PathName(repository) / packageId;
                     pathLocalArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
                     if (!File::Exists(pathLocalArchiveFile))
                     {
@@ -1737,7 +1737,7 @@ void PackageInstallerImpl::InstallRemove(Role role)
         RegisterComponents(false, toBeInstalled, toBeRemoved);
 
         unique_ptr<Cfg> packageManifests = Cfg::Create();
-        PathName packageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
+        PathName packageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
         if (File::Exists(packageManifestsIni))
         {
             packageManifests->Read(packageManifestsIni);
@@ -1865,7 +1865,7 @@ void PackageInstallerImpl::InstallRemoveThread()
 
 void PackageInstallerImpl::Download(const PathName& fileName, size_t expectedSize)
 {
-    unique_ptr<TemporaryFile> temporaryFile = TemporaryFile::Create(downloadDirectory / fileName);
+    unique_ptr<TemporaryFile> temporaryFile = TemporaryFile::Create(downloadDirectory / fileName.ToString());
     Download(MakeUrl(fileName.ToString()), temporaryFile->GetPathName(), expectedSize);
     temporaryFile->Keep();
 }
@@ -1915,7 +1915,7 @@ void PackageInstallerImpl::Download()
 
             // check to see whether the file was downloaded previously
             ArchiveFileType aft = repositoryManifest.GetArchiveFileType(packageId);
-            PathName pathLocalArchiveFile = downloadDirectory / PathName(packageId);
+            PathName pathLocalArchiveFile = downloadDirectory / packageId;
             pathLocalArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
             if (File::Exists(pathLocalArchiveFile))
             {
@@ -1996,8 +1996,8 @@ void PackageInstallerImpl::CleanUpUserDatabase()
 {
     MIKTEX_ASSERT(session->IsSharedSetup() && !session->IsAdminMode());
 
-    PathName userManifestsPath(session->GetSpecialPath(SpecialPath::UserInstallRoot), PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI));
-    PathName commonManifestsPath(session->GetSpecialPath(SpecialPath::CommonInstallRoot), PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI));
+    PathName userManifestsPath(session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
+    PathName commonManifestsPath(session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
 
     if (!File::Exists(userManifestsPath) || !File::Exists(commonManifestsPath))
     {
@@ -2154,14 +2154,14 @@ void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
     {
         // find the newest package-manifests.ini
         PathName userCacheDirectory = session->GetSpecialPath(SpecialPath::UserDataRoot)
-            / PathName(MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR)
-            / PathName(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX);
+            / MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR
+            / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
         if (session->IsSharedSetup())
         {
             PathName commonCacheDirectory = session->GetSpecialPath(SpecialPath::CommonDataRoot)
-                / PathName(MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR)
-                / PathName(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX);
-            cacheDirectory = !Directory::Exists(userCacheDirectory) || IsNewer(commonCacheDirectory / PathName(MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME), userCacheDirectory / PathName(MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME))
+                / MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR
+                / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
+            cacheDirectory = !Directory::Exists(userCacheDirectory) || IsNewer(commonCacheDirectory / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME, userCacheDirectory / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME)
                 ? commonCacheDirectory
                 : userCacheDirectory;
         }
@@ -2173,8 +2173,8 @@ void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
     else
     {
         cacheDirectory = session->GetSpecialPath(SpecialPath::DataRoot)
-            / PathName(MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR)
-            / PathName(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX);
+            / MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR
+            / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
     }
 
     // prepare the cache directory for writing
@@ -2204,7 +2204,7 @@ void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
         else
         {
             MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-            archivePath = PathName(repository) / PathName(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME);
+            archivePath = PathName(repository) / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
         }
 
         // extract package-manifests.ini into cache directory
@@ -2218,12 +2218,12 @@ void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
 #else
     bool mustBeSigned = false;
 #endif
-    newManifests->Read(cacheDirectory / PathName(MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME), mustBeSigned);
+    newManifests->Read(cacheDirectory / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME, mustBeSigned);
 
     // load existing package-manifests.ini
     unique_ptr<Cfg> existingManifests = Cfg::Create();
     packageDataStore->NeedPackageManifestsIni();
-    PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
+    PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
     if (File::Exists(existingPackageManifestsIni))
     {
         existingManifests->Read(existingPackageManifestsIni);

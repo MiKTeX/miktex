@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Refresh TeX font map files
  *
- * @copyright Copyright © 2002-2022 Christian Schenk
+ * @copyright Copyright © 2002-2024 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -254,7 +254,7 @@ void FontMapManager::SetOption(const std::string& optionName, const std::string&
         this->ctx->ui->FatalError(fmt::format(T_("{0}: unknown configuration option"), optionName));
     }
     it->second = value;
-    auto configFile = this->ctx->session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR MIKTEX_PATH_DIRECTORY_DELIMITER_STRING "updmap.cfg");
+    auto configFile = this->ctx->session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR MIKTEX_PATH_DIRECTORY_DELIMITER_STRING "updmap.cfg";
     Configuration partialConfiguration;
     if (File::Exists(configFile))
     {
@@ -518,7 +518,7 @@ PathName FontMapManager::FontMapDirectory(const string& relPath)
     }
     else
     {
-        path = this->ctx->session->GetSpecialPath(SpecialPath::DataRoot) / PathName("fonts") / PathName("map") / PathName(relPath);
+        path = this->ctx->session->GetSpecialPath(SpecialPath::DataRoot) / "fonts" / "map" / relPath;
     }
     if (!Directory::Exists(path))
     {
@@ -980,13 +980,13 @@ void FontMapManager::SymlinkOrCopyFiles()
 
     PathName pathSrc;
 
-    pathSrc = dvipsOutputDir / PathName(this->ToBool(this->Option("dvipsPreferOutline")) ? "psfonts_t1" : "psfonts_pk");
+    pathSrc = dvipsOutputDir / (this->ToBool(this->Option("dvipsPreferOutline")) ? "psfonts_t1" : "psfonts_pk");
     pathSrc.AppendExtension(".map");
-    CopyFile(pathSrc, PathName(dvipsOutputDir, PathName("psfonts.map")));
+    CopyFile(pathSrc, PathName(dvipsOutputDir / "psfonts.map"));
 
-    pathSrc = pdftexOutputDir / PathName(this->ToBool(this->Option("pdftexDownloadBase14")) ? "pdftex_dl14" : "pdftex_ndl14");
+    pathSrc = pdftexOutputDir / (this->ToBool(this->Option("pdftexDownloadBase14")) ? "pdftex_dl14" : "pdftex_ndl14");
     pathSrc.AppendExtension(".map");
-    CopyFile(pathSrc, PathName(pdftexOutputDir, PathName("pdftex.map")));
+    CopyFile(pathSrc, PathName(pdftexOutputDir / "pdftex.map"));
 }
 
 static const char* const topDirs[] = {
@@ -1171,14 +1171,14 @@ void FontMapManager::WriteMapFiles(bool force, const string& outputDirectory)
 
     set<DvipsFontMapEntry> empty;
 
-    WriteDvipdfmxFontMapFile(FontMapDirectory("dvipdfmx") / PathName("kanjix.map"), kanjiMaps);
-    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("builtin35.map"), transLW35_dvips35, empty, empty, empty);
-    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("download35.map"), transLW35_ps2pk35, empty, empty, empty);
-    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("ps2pk.map"), transLW35_ps2pk35, mixedMaps, nonMixedMaps, empty);
-    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("psfonts_pk.map"), transLW35_dftdvips, empty, nonMixedMaps, fromKanji);
-    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("psfonts_t1.map"), transLW35_dftdvips, mixedMaps, nonMixedMaps, fromKanji);
-    WriteDvipsFontMapFile(FontMapDirectory("pdftex") / PathName("pdftex_dl14.map"), GeneratePdfTeXFontMap(transLW35_ps2pk35, mixedMaps, nonMixedMaps), empty, empty, empty);
-    WriteDvipsFontMapFile(FontMapDirectory("pdftex") / PathName("pdftex_ndl14.map"), GeneratePdfTeXFontMap(transLW35_pdftex35, mixedMaps, nonMixedMaps), empty, empty, empty);
+    WriteDvipdfmxFontMapFile(FontMapDirectory("dvipdfmx") / "kanjix.map", kanjiMaps);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / "builtin35.map", transLW35_dvips35, empty, empty, empty);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / "download35.map", transLW35_ps2pk35, empty, empty, empty);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / "ps2pk.map", transLW35_ps2pk35, mixedMaps, nonMixedMaps, empty);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / "psfonts_pk.map", transLW35_dftdvips, empty, nonMixedMaps, fromKanji);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / "psfonts_t1.map", transLW35_dftdvips, mixedMaps, nonMixedMaps, fromKanji);
+    WriteDvipsFontMapFile(FontMapDirectory("pdftex") / "pdftex_dl14.map", GeneratePdfTeXFontMap(transLW35_ps2pk35, mixedMaps, nonMixedMaps), empty, empty, empty);
+    WriteDvipsFontMapFile(FontMapDirectory("pdftex") / "pdftex_ndl14.map", GeneratePdfTeXFontMap(transLW35_pdftex35, mixedMaps, nonMixedMaps), empty, empty, empty);
 
     SymlinkOrCopyFiles();
 

@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX LuaTeX helpers
  *
- * @copyright Copyright © 2016-2023 Christian Schenk
+ * @copyright Copyright © 2016-2024 Christian Schenk
  *
  * This file is free software; the copyright holder gives unlimited permission
  * to copy and/or distribute it, with or without modifications, as long as this
@@ -113,7 +113,7 @@ int miktex_is_output_file(const char* pathArg)
     PathName path(pathArg);
     if (path.HasExtension(".gz"))
     {
-        path.SetExtension(nullptr);
+        path.SetExtension("");
     }
     return path.HasExtension(".dvi")
         || path.HasExtension(".pdf")
@@ -407,11 +407,11 @@ int miktex_hack__is_luaotfload_file(const char* path)
 {
     shared_ptr<Session> session = Application::GetApplication()->GetSession();
     auto varDir = session->GetSpecialPath(session->IsAdminMode() ? SpecialPath::CommonDataRoot : SpecialPath::UserDataRoot);
-    if (PathName::Equals(varDir / PathName("m_t_x_t_e_s_t.tmp"), PathName(path)))
+    if (PathName::Equals(varDir / "m_t_x_t_e_s_t.tmp", PathName(path)))
     {
         return 1;
     }
-    if (Utils::IsParentDirectoryOf(varDir / PathName("luatex-cache"), PathName(path)))
+    if (Utils::IsParentDirectoryOf(varDir / "luatex-cache", PathName(path)))
     {
         return 1;
     }

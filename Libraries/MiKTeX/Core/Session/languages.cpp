@@ -1,6 +1,6 @@
 /* LanguageInfo.cpp: language information
 
-   Copyright (C) 2010-2021 Christian Schenk
+   Copyright (C) 2010-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -178,7 +178,7 @@ void SessionImpl::WriteLanguagesIni()
       cfgLanguages->PutValue(it->key, "attributes", "");
     }
   }
-  PathName pathLocalLanguagesIni(GetSpecialPath(SpecialPath::ConfigRoot), PathName(MIKTEX_PATH_LANGUAGES_INI));
+  PathName pathLocalLanguagesIni(GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_LANGUAGES_INI);
   Directory::Create(PathName(pathLocalLanguagesIni).RemoveFileSpec());
   cfgLanguages->Write(pathLocalLanguagesIni);
   if (!Fndb::FileExists(pathLocalLanguagesIni))

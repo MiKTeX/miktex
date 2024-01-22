@@ -1,6 +1,6 @@
 /* Recipe.cpp:                                          -*- C++ -*-
 
-   Copyright (C) 2016-2022 Christian Schenk
+   Copyright (C) 2016-2024 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -62,7 +62,7 @@ void CollectPathNames(vector<PathName>& pathNames, const PathName& dir, const st
   DirectoryEntry2 entry;
   while (lister->GetNext(entry))
   {
-    pathNames.push_back(dir / PathName(entry.name));
+    pathNames.push_back(dir / entry.name);
   }
 }
 
@@ -75,11 +75,11 @@ void GetSnapshot(unordered_set<PathName>& pathNames, const PathName& dir, const 
   {
     if (entry.isDirectory)
     {
-      subDirectories.push_back(dir / PathName(entry.name));
+      subDirectories.push_back(dir / entry.name);
     }
     else
     {
-      pathNames.insert(dir / PathName(entry.name));
+      pathNames.insert(dir / entry.name);
     }
   }
   for (const PathName& subDir : subDirectories)
@@ -208,12 +208,12 @@ void Recipe::SetupWorkingDirectory()
   }
   else
   {
-    workDir = destDir / tds.GetSourceDir();
+    workDir = destDir / tds.GetSourceDir().ToString();
   }
   if (File::Exists(source))
   {
     Directory::Create(workDir);
-    File::Copy(source, workDir / source.GetFileName());
+    File::Copy(source, workDir / source.GetFileName().ToString());
   }
   else
   {
@@ -277,7 +277,7 @@ void Recipe::WriteFiles()
     {
       MIKTEX_FATAL_ERROR(T_("missing lines"));
     }
-    StreamWriter writer(workDir / PathName(fileName));
+    StreamWriter writer(workDir / fileName);
     for (const string& line : lines)
     {
       writer.WriteLine(line);
@@ -300,8 +300,8 @@ void Recipe::DoAction(const string& action, const PathName& actionDir)
     {
       MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
     }
-    PathName existingName = PathName(actionDir) / PathName(argv[1]);
-    PathName newName = PathName(actionDir) / PathName(argv[2]);
+    PathName existingName = actionDir / argv[1];
+    PathName newName = actionDir / argv[2];
     if (File::Exists(existingName))
     {
       Verbose("copying '" + argv[1] + "' to '" + argv[2] + "'");
@@ -315,8 +315,8 @@ void Recipe::DoAction(const string& action, const PathName& actionDir)
     {
       MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
     }
-    PathName oldName = PathName(actionDir) / PathName(argv[1]);
-    PathName newName = PathName(actionDir) / PathName(argv[2]);
+    PathName oldName = actionDir / argv[1];
+    PathName newName = actionDir / argv[2];
     if (File::Exists(oldName))
     {
       Verbose("moving file '" + argv[1] + "' to '" + argv[2] + "'");
@@ -336,7 +336,7 @@ void Recipe::DoAction(const string& action, const PathName& actionDir)
     {
       MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
     }
-    PathName name = PathName(actionDir) / PathName(argv[1]);
+    PathName name = actionDir / argv[1];
     if (File::Exists(name))
     {
       Verbose("removing file '" + argv[1] + "'");
@@ -356,7 +356,7 @@ void Recipe::DoAction(const string& action, const PathName& actionDir)
     {
       MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
     }
-    PathName name = PathName(actionDir) / PathName(argv[1]);
+    PathName name = actionDir / argv[1];
     if (!File::Exists(name))
     {
       MIKTEX_FATAL_ERROR(T_("cannot run unpack action because the file does not exist"));
@@ -474,7 +474,7 @@ void Recipe::RunDtxUnpacker()
   {
     PathName pattern(session->Expand(pat, this));
     PathName dir(workDir);
-    dir /= pattern;
+    dir /= pattern.ToString();
     dir.RemoveFileSpec();
     pattern.RemoveDirectorySpec();
     CollectPathNames(insFiles, dir, pattern.ToString());
@@ -489,7 +489,7 @@ void Recipe::RunDtxUnpacker()
     {
       PathName pattern(session->Expand(pat, this));
       PathName dir(workDir);
-      dir /= pattern;
+      dir /= pattern.ToString();
       dir.RemoveFileSpec();
       pattern.RemoveDirectorySpec();
       CollectPathNames(insFiles, dir, pattern.ToString());
@@ -542,13 +542,13 @@ void Recipe::InstallFileSets()
 void Recipe::Install(const vector<string>& patterns, const PathName& tdsDir)
 {
   PathName destPath(destDir);
-  destPath /= tdsDir;
+  destPath /= tdsDir.ToString();
   bool madeDestDirectory = false;
   for (const string& pat : patterns)
   {
     PathName pattern(session->Expand(pat, this));
     PathName dir(workDir);
-    dir /= pattern;
+    dir /= pattern.ToString();
     dir.RemoveFileSpec();
     pattern.RemoveDirectorySpec();
     vector<PathName> files;
@@ -564,7 +564,7 @@ void Recipe::Install(const vector<string>& patterns, const PathName& tdsDir)
     }
     for (const PathName& file : files)
     {
-      PathName toPath(destPath / file.GetFileName());
+      PathName toPath(destPath / file.GetFileName().ToString());
       if (PrintOnly(fmt::format("install <SRCDIR>/{0} <DSTDIR>/{1}", Q_(PrettyPath(file, workDir)), Q_(PrettyPath(toPath, destDir)))))
       {
         if (Directory::Exists(file))

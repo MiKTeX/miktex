@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX MakeTFM
  *
- * @copyright Copyright © 1998-2022 Christian Schenk
+ * @copyright Copyright © 1998-2024 Christian Schenk
  *
  * This file is part of the MiKTeX Make Utility Collection.
  *
@@ -168,7 +168,7 @@ void MakeTfm::Run(int argc, const char** argv)
     PathName pathTFMName(name + ".tfm");
 
     // make fully qualified destination path name
-    PathName pathDest(destinationDirectory, pathTFMName);
+    PathName pathDest(destinationDirectory / pathTFMName.ToString());
 
     // quit, if destination font file already exists
     if (File::Exists(pathDest))
@@ -219,7 +219,7 @@ void MakeTfm::Run(int argc, const char** argv)
     }
 
     // install TFM font file in destination directory
-    Install(wrkDir->GetPathName() / pathTFMName, pathDest);
+    Install(wrkDir->GetPathName() / pathTFMName.ToString(), pathDest);
 }
 
 #if defined(_UNICODE)

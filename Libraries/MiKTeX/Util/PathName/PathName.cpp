@@ -284,9 +284,10 @@ static bool InternalMatch(const char* lpszPattern, const char* lpszPath)
     }
 }
 
-bool PathName::Match(const char* lpszPattern, const char* lpszPath)
+bool PathName::Match(const std::string& pattern, const PathName& path_)
 {
-    return InternalMatch(PathName(lpszPattern).TransformForComparison().GetData(), PathName(lpszPath).TransformForComparison().GetData());
+    PathName path(path_);
+    return InternalMatch(PathName(pattern).TransformForComparison().GetData(), path.TransformForComparison().GetData());
 }
 
 vector<string> PathName::Split(const PathName& path)
@@ -345,7 +346,7 @@ string PathName::GetExtension() const
     return e == nullptr ? string() : string(e);
 }
 
-PathName& PathName::SetExtension(const char* extension, bool override)
+PathName& PathName::SetExtension(const std::string& extension, bool override)
 {
     string directory;
     string fileNameWithoutExtension;
@@ -356,11 +357,11 @@ PathName& PathName::SetExtension(const char* extension, bool override)
     if (oldExtension.empty() || override)
     {
         *this = directory;
-        AppendComponent(fileNameWithoutExtension.c_str());
-        if (extension != nullptr && *extension != 0)
+        AppendComponent(fileNameWithoutExtension);
+        if (!extension.empty())
         {
             size_t n = GetLength();
-            if (*extension != '.')
+            if (extension[0] != '.')
             {
                 if (n + 1 >= GetCapacity())
                 {
@@ -369,7 +370,7 @@ PathName& PathName::SetExtension(const char* extension, bool override)
                 (*this)[n] = '.';
                 ++n;
             }
-            n += StringUtil::CopyString(&(*this)[n], GetCapacity() - n, extension);
+            n += StringUtil::CopyString(&(*this)[n], GetCapacity() - n, extension.c_str());
         }
     }
 

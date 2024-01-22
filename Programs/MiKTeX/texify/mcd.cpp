@@ -1,6 +1,6 @@
 /* mcd.cpp: MiKTeX compiler driver
 
-   Copyright (C) 1998-2023 Christian Schenk
+   Copyright (C) 1998-2024 Christian Schenk
 
    Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2001,
    2002, 2003, 2004, 2005 Free Software Foundation, Inc.
@@ -158,7 +158,7 @@ void CopyFiles(const vector<string>& fileNames, const PathName& destDir)
 {
   for (const string& fileName : fileNames)
   {
-    File::Copy(PathName(fileName), PathName(destDir, PathName(fileName)));
+    File::Copy(PathName(fileName), destDir / fileName);
   }
 }
 
@@ -795,21 +795,21 @@ void Driver::Initialize(McdApp* app, Options* options, const char* fileName)
   tempDirectory = TemporaryDirectory::Create();
 
   // create scratch directory
-  workingDirectory = tempDirectory->GetPathName() / PathName("_src");
+  workingDirectory = tempDirectory->GetPathName() / "_src";
   Directory::Create(workingDirectory);
   workingDirectory.ConvertToUnix();
   app->MyTrace(fmt::format(T_("working directory: {}"), Q_(workingDirectory)));
 
 #if defined(WITH_TEXINFO)
   // create extra directory
-  extraDirectory = tempDirectory->GetPathName() / PathName("_xtr");
+  extraDirectory = tempDirectory->GetPathName() / "_xtr";
   Directory::Create(extraDirectory);
   extraDirectory.ConvertToUnix();
   app->MyTrace(fmt::format(T_("extra directory: {}"), Q_(extraDirectory)));
 #endif
 
   // create aux directory
-  auxDirectory = tempDirectory->GetPathName() / PathName("_aux");
+  auxDirectory = tempDirectory->GetPathName() / "_aux";
   Directory::Create(auxDirectory);
   auxDirectory.ConvertToUnix();
   app->MyTrace(fmt::format(T_("aux directory: {}"), Q_(auxDirectory)));
@@ -830,7 +830,7 @@ void Driver::Initialize(McdApp* app, Options* options, const char* fileName)
   }
   else
   {
-    pathInputFile = options->startDirectory / givenFileName;
+    pathInputFile = options->startDirectory / givenFileName.ToString();
   }
 
   originalInputDirectory = pathInputFile;
@@ -1103,7 +1103,7 @@ bool Driver::Check_texinfo_tex()
 
   unique_ptr<TemporaryDirectory> tmpdir = TemporaryDirectory::Create();
 
-  PathName fileName = tmpdir->GetPathName() / PathName("txiversion.tex");
+  PathName fileName = tmpdir->GetPathName() / "txiversion.tex";
   StreamWriter writer(fileName);
   writer.WriteLine("\\input texinfo.tex @bye");
   writer.Close();
@@ -1173,7 +1173,7 @@ void Driver::ExpandMacros()
   pathTmpFile1.SetToTempFile();
   pathTmpFile2.SetToTempFile();
 
-  PathName path(workingDirectory, inputName);
+  PathName path(workingDirectory / inputName.ToString());
 
   app->Verbose(fmt::format(T_("macro-expanding {} to {}..."), Q_(givenFileName), Q_(path)));
 
@@ -1216,7 +1216,7 @@ void Driver::InsertCommands()
   }
   string extra = FlattenStringVector(options->texinfoCommands, '\n');
   app->Verbose(fmt::format(T_("inserting extra commands: {}"), extra));
-  PathName path(extraDirectory, inputName);
+  PathName path(extraDirectory / inputName.ToString());
   StreamWriter writer(path);
   bool inserted = false;
   StreamReader reader(pathInputFile);
@@ -1554,7 +1554,7 @@ void Driver::RunTeX()
     {
       try
       {
-        File::Copy(logName, PathName(options->startDirectory, logName));
+        File::Copy(logName, options->startDirectory / logName.ToString());
       }
       catch (const exception &)
       {
@@ -1603,7 +1603,7 @@ bool Driver::Ready()
   // a difference.
   for (const string& aux : auxFiles)
   {
-    PathName auxFile(auxDirectory, PathName(aux));
+    PathName auxFile(auxDirectory / aux);
     app->Verbose(fmt::format(T_("comparing xref file {}..."), Q_(aux)));
     // We only need to keep comparing until we find one that
     // differs, because we'll have to run texindex & tex again no
@@ -1622,17 +1622,17 @@ void Driver::InstallOutputFile()
 {
   const char* ext = options->outputType == OutputType::PDF ? ".pdf" : ".dvi";
   app->Verbose(fmt::format(T_("copying {} file from {} to {}..."), ext, Q_(workingDirectory), Q_(options->startDirectory)));
-  PathName pathSource(workingDirectory, jobName);
+  PathName pathSource(workingDirectory / jobName.ToString());
   pathSource.AppendExtension(ext);
-  PathName pathDest(options->startDirectory, jobName);
+  PathName pathDest(options->startDirectory / jobName.ToString());
   pathDest.AppendExtension(ext);
   File::Copy(pathSource, pathDest);
   if (options->synctex != SyncTeXOption::Disabled)
   {
     const char* synctexExt = options->synctex == SyncTeXOption::Compressed ? ".synctex.gz" : ".synctex";
-    PathName pathSyncTeXSource(workingDirectory, jobName);
+    PathName pathSyncTeXSource(workingDirectory / jobName.ToString());
     pathSyncTeXSource.AppendExtension(synctexExt);
-    PathName pathSyncTeXDest(options->startDirectory, jobName);
+    PathName pathSyncTeXDest(options->startDirectory / jobName.ToString());
     pathSyncTeXDest.AppendExtension(synctexExt);
     File::Copy(pathSyncTeXSource, pathSyncTeXDest);
   }
@@ -1727,7 +1727,7 @@ void Driver::RunViewer()
   PathName pathFileName(jobName);
   pathFileName.AppendExtension(ext);
 
-  PathName pathDest(options->startDirectory, pathFileName);
+  PathName pathDest(options->startDirectory / pathFileName.ToString());
 
   if (options->viewerOptions.empty())
   {
@@ -2113,7 +2113,7 @@ void McdApp::Run(int argc, const char** argv)
       }
       else
       {
-        path = options.startDirectory / PathName(optArg);
+        path = options.startDirectory / optArg;
       }
       path.ConvertToUnix();
       options.includeDirectories.push_back(path.GetData());

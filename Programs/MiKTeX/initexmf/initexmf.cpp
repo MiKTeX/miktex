@@ -1,6 +1,6 @@
 /* initexmf.cpp: MiKTeX configuration utility
 
-   Copyright (C) 1996-2023 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of IniTeXMF.
 
@@ -189,7 +189,7 @@ private:
     if (!Process::Run(fileName, arguments, &output, &exitCode, &miktexException, nullptr) || exitCode != 0)
     {
       auto outputBytes = output.GetStandardOutput();
-      PathName outfile = GetLogDir() / fileName.GetFileNameWithoutExtension();
+      PathName outfile = GetLogDir() / fileName.GetFileNameWithoutExtension().ToString();
       outfile += "_";
       outfile += Timestamp().c_str();
       outfile.SetExtension(".out");

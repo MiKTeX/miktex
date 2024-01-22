@@ -100,7 +100,7 @@ void PackageManagerImpl::Lock(chrono::milliseconds timeout)
 {
     if (lockFile == nullptr)
     {
-        lockFile = LockFile::Create(session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANAGER_LOCK));
+        lockFile = LockFile::Create(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANAGER_LOCK);
     }
     if (!lockFile->TryLock(timeout))
     {
@@ -156,7 +156,7 @@ void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)
         unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
         extractor->Extract(absPath, tempDir->GetPathName());
 
-        packageManifestsPath = tempDir->GetPathName() / PathName(MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME);
+        packageManifestsPath = tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME;
     }
     else
     {
@@ -533,8 +533,8 @@ bool PackageManager::IsLocalPackageRepository(const PathName& path)
     }
 
     // local mirror of remote package repository?
-    PathName file1 = PathName(path, PathName(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME));
-    PathName file2 = PathName(path, PathName(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME));
+    PathName file1 = PathName(path / MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME);
+    PathName file2 = PathName(path / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME);
     if (File::Exists(file1) && File::Exists(file2))
     {
         return true;

@@ -173,16 +173,16 @@ BEGIN_TEST_FUNCTION(7);
 {
     MiKTeX::Util::PathName cd;
     cd.SetToCurrentDirectory();
-    MiKTeX::Util::PathName dir = cd / PathName("long-path-parent-directory");
+    MiKTeX::Util::PathName dir = cd / "long-path-parent-directory";
     MiKTeX::Util::PathName longPath(dir);
     const int minLength = 900;
     for (int n = 0; longPath.GetLength() < minLength; ++n)
     {
-        longPath /= PathName("abcdefghij-"s + std::to_string(n));
+        longPath /= ("abcdefghij-"s + std::to_string(n));
     }
     TESTX(MiKTeX::Core::Directory::Create(longPath));
     TEST(MiKTeX::Core::Directory::Exists(longPath));
-    MiKTeX::Util::PathName file = longPath / PathName("file.txt");
+    MiKTeX::Util::PathName file = longPath / "file.txt";
     Touch(file.GetData());
     TEST(MiKTeX::Core::File::Exists(file));
     TESTX(MiKTeX::Core::File::Delete(file));

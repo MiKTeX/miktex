@@ -1,6 +1,6 @@
 /* mainwindow.cpp:
 
-   Copyright (C) 2017-2023 Christian Schenk
+   Copyright (C) 2017-2024 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -677,7 +677,7 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
 #if defined(MIKTEX_WINDOWS)
   PathName meAdmin(me);
   meAdmin.RemoveFileSpec();
-  meAdmin /= me.GetFileNameWithoutExtension();
+  meAdmin /= me.GetFileNameWithoutExtension().ToString();
   meAdmin += MIKTEX_ADMIN_SUFFIX;
   meAdmin.SetExtension(me.GetExtension());
   CharBuffer<wchar_t> file(meAdmin.GetData());
@@ -1054,7 +1054,7 @@ void BackgroundWorker::RunOneMiKTeXUtility(const std::vector<std::string>& args)
   if (exitCode != 0)
   {
     auto outputBytes = output.GetStandardOutput();
-    PathName outfile = session->GetSpecialPath(SpecialPath::LogDirectory) / oneMiKTeXUtility.GetFileNameWithoutExtension();
+    PathName outfile = session->GetSpecialPath(SpecialPath::LogDirectory) / oneMiKTeXUtility.GetFileNameWithoutExtension().ToString();
     outfile += "_";
     outfile += Timestamp().c_str();
     outfile.SetExtension(".out");
@@ -1720,7 +1720,7 @@ bool CheckRoot(const PathName& root)
 {
   for (const string& dir : tdsDirs)
   {
-    if (Directory::Exists(root / PathName(dir)))
+    if (Directory::Exists(root / dir))
     {
       return true;
     }
@@ -2451,7 +2451,7 @@ void MainWindow::on_pushButtonShowLogDirectory_clicked()
 
 PathName MainWindow::GetReportFileName()
 {
-  return session->GetSpecialPath(SpecialPath::LogDirectory) / PathName("miktex-report.txt");
+  return session->GetSpecialPath(SpecialPath::LogDirectory) / "miktex-report.txt";
 }
 
 void MainWindow::CreateReport()
@@ -2786,7 +2786,7 @@ void MainWindow::Uninstall()
 
 void MainWindow::ReadSettings()
 {
-  PathName consoleIni = session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR) / PathName("console.ini");
+  PathName consoleIni = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / "console.ini";
   if (!File::Exists(consoleIni))
   {
     return;
@@ -2805,7 +2805,7 @@ void MainWindow::WriteSettings()
 {
   unique_ptr<Cfg> settings = Cfg::Create();
   settings->PutValue("MainWindow", "geometry", saveGeometry().toHex().constData());
-  settings->Write(session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR) / PathName("console.ini"));
+  settings->Write(session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / "console.ini");
 }
 
 void MainWindow::Exit()

@@ -1,6 +1,6 @@
 /* PackageRepositoryDataStore.cpp
 
-   Copyright (C) 2018-2022 Christian Schenk
+   Copyright (C) 2018-2024 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -48,8 +48,8 @@ PackageRepositoryDataStore::PackageRepositoryDataStore(std::shared_ptr<WebSessio
 {
   MIKTEX_ASSERT(webSession != nullptr);
   comboCfg.Load(
-    session->IsAdminMode() ? PathName() : session->GetSpecialPath(SpecialPath::UserConfigRoot) / PathName(MIKTEX_PATH_REPOSITORIES_INI),
-    session->IsSharedSetup() ? session->GetSpecialPath(SpecialPath::CommonConfigRoot) / PathName(MIKTEX_PATH_REPOSITORIES_INI) : PathName());
+    session->IsAdminMode() ? PathName() : session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI,
+    session->IsSharedSetup() ? session->GetSpecialPath(SpecialPath::CommonConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI : PathName());
 }
 
 void PackageRepositoryDataStore::Download()

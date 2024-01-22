@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Application class
  *
- * @copyright Copyright © 2005-2023 Christian Schenk
+ * @copyright Copyright © 2005-2024 Christian Schenk
  *
  * This file is part of the MiKTeX Application Framework.
  *
@@ -330,9 +330,9 @@ void Application::AutoMaintenance()
     // must build language.dat if:
     //   (1) in user mode and an admin just modified the MiKTeX configuration
     //   (2) in user mode and languages.ini is newer than languages.dat
-    PathName userLanguageDat = pimpl->session->IsAdminMode() ? PathName() : pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / PathName(MIKTEX_PATH_LANGUAGE_DAT);
+    PathName userLanguageDat = pimpl->session->IsAdminMode() ? PathName() : pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT;
     bool mustRefreshUserLanguageDat = !pimpl->session->IsAdminMode() && File::Exists(userLanguageDat) && lastAdminMaintenance > File::GetLastWriteTime(userLanguageDat);
-    PathName userLanguagesIni = pimpl->session->IsAdminMode() ? PathName() : pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / PathName(MIKTEX_PATH_LANGUAGES_INI);
+    PathName userLanguagesIni = pimpl->session->IsAdminMode() ? PathName() : pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGES_INI;
     mustRefreshUserLanguageDat = mustRefreshUserLanguageDat || (!pimpl->session->IsAdminMode() && IsNewer(userLanguagesIni, userLanguageDat));
 
     // must update package db if:
@@ -341,14 +341,14 @@ void Application::AutoMaintenance()
     if (!pimpl->session->IsAdminMode())
     {
         time_t lastAdminUpdateDb = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_DB, ConfigValue("0")).GetTimeT();
-        PathName userPackageManifestsIni = pimpl->session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
+        PathName userPackageManifestsIni = pimpl->session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
         mustUpdateDb = File::Exists(userPackageManifestsIni) && lastAdminUpdateDb > File::GetLastWriteTime(userPackageManifestsIni);
     }
 
     PathName oneMiKTeXUtility;
     if ((mustRefreshFndb || mustRefreshUserLanguageDat || mustUpdateDb) && pimpl->session->FindFile(MIKTEX_MIKTEX_EXE, FileType::EXE, oneMiKTeXUtility))
     {
-        unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(pimpl->session->GetSpecialPath(SpecialPath::DataRoot) / PathName(MIKTEX_PATH_AUTO_MAINTENANCE_LOCK));
+        unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(pimpl->session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_AUTO_MAINTENANCE_LOCK);
         if (!lockFile->TryLock(0ms))
         {
             return;
@@ -429,7 +429,7 @@ constexpr time_t ONE_WEEK = 7 * ONE_DAY;
 void Application::AutoDiagnose()
 {
     time_t now = time(nullptr);
-    PathName issuesJson = pimpl->session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_ISSUES_JSON);
+    PathName issuesJson = pimpl->session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_ISSUES_JSON;
     vector<Setup::Issue> issues;
     auto setupService = MiKTeX::Setup::SetupService::Create();
     if (!File::Exists(issuesJson) || now > File::GetLastWriteTime(issuesJson) + ONE_WEEK)
@@ -994,7 +994,7 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
     {
         // read information from yap.ini
         // FIXME: use FindFile()
-        PathName yapIni = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR) / PathName(MIKTEX_YAP_INI_FILENAME);
+        PathName yapIni = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / MIKTEX_YAP_INI_FILENAME;
         if (File::Exists(yapIni))
         {
             unique_ptr<Cfg> yapConfig(Cfg::Create());

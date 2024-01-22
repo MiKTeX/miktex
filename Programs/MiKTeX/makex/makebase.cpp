@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX MakeBase
  *
- * @copyright Copyright © 1998-2022 Christian Schenk
+ * @copyright Copyright © 1998-2024 Christian Schenk
  *
  * This file is part of the MiKTeX Make Utility Collection.
  *
@@ -118,7 +118,7 @@ void MakeBase::Run(int argc, const char** argv)
     if (destinationName.Empty())
     {
         destinationName = name;
-        destinationName.SetExtension(nullptr);
+        destinationName.SetExtension("");
     }
 
     // create destination directory
@@ -129,7 +129,7 @@ void MakeBase::Run(int argc, const char** argv)
     baseFile.AppendExtension(".base");
 
     // make fully qualified destination file name
-    PathName pathDest(destinationDirectory, destinationName);
+    PathName pathDest(destinationDirectory / destinationName.ToString());
     pathDest.AppendExtension(".base");
 
     Verbose(fmt::format(T_("Creating the {0} base file..."), Q_(destinationName)));
@@ -157,7 +157,7 @@ void MakeBase::Run(int argc, const char** argv)
     }
 
     // install the result
-    Install(wrkDir->GetPathName() / baseFile, pathDest);
+    Install(wrkDir->GetPathName() / baseFile.ToString(), pathDest);
 }
 
 #if defined(_UNICODE)

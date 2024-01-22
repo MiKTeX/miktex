@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Startup configuration (Windows specials)
  *
- * @copyright Copyright © 1996-2023 Christian Schenk
+ * @copyright Copyright © 1996-2024 Christian Schenk
  *
  * This file is part of the MiKTeX Core Library.
  *
@@ -72,8 +72,8 @@ InternalStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, Ver
             ret.commonInstallRoot = commonPrefix;
             if (!isLegacy)
             {
-                ret.commonConfigRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_CONFIG_DIR);
-                ret.commonDataRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_DATA_DIR);
+                ret.commonConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
+                ret.commonDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
             }
             else
             {
@@ -88,8 +88,8 @@ InternalStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, Ver
             ret.userInstallRoot = userPrefix;
             if (!isLegacy)
             {
-                ret.userConfigRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_CONFIG_DIR);
-                ret.userDataRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_DATA_DIR);
+                ret.userConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
+                ret.userDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
             }
             else
             {
@@ -112,8 +112,8 @@ InternalStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, Ver
                     ret.commonInstallRoot = prefix;
                     if (!isLegacy)
                     {
-                        ret.commonConfigRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_CONFIG_DIR);
-                        ret.commonDataRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_DATA_DIR);
+                        ret.commonConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
+                        ret.commonDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
                     }
                     else
                     {
@@ -126,8 +126,8 @@ InternalStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, Ver
                     ret.userInstallRoot = prefix;
                     if (!isLegacy)
                     {
-                        ret.userConfigRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_CONFIG_DIR);
-                        ret.userDataRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_DATA_DIR);
+                        ret.userConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
+                        ret.userDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
                     }
                     else
                     {

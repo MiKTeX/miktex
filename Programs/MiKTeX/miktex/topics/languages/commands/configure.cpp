@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief languages configure
  *
- * @copyright Copyright © 2021-2022 Christian Schenk
+ * @copyright Copyright © 2021-2024 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -101,13 +101,13 @@ int ConfigureCommand::Execute(ApplicationContext& ctx, const vector<string>& arg
 
     ctx.ui->Verbose(1, T_("Creating language.dat, language.dat.lua and language.def..."));
 
-    PathName languageDatPath = ctx.session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_LANGUAGE_DAT);
+    PathName languageDatPath = ctx.session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT;
     ofstream languageDat = File::CreateOutputStream(languageDatPath);
 
-    PathName languageDatLuaPath = ctx.session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_LANGUAGE_DAT_LUA);
+    PathName languageDatLuaPath = ctx.session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT_LUA;
     ofstream languageDatLua = File::CreateOutputStream(languageDatLuaPath);
 
-    PathName languageDefPath = ctx.session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_LANGUAGE_DEF);
+    PathName languageDefPath = ctx.session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_LANGUAGE_DEF;
     ofstream languageDef = File::CreateOutputStream(languageDefPath);
 
     languageDatLua << "return {" << "\n";

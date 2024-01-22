@@ -106,47 +106,27 @@ public:
 
     PathName(size_t n) = delete;
 
-    /// Combines path name components into a new PathName object.
-    /// @param component1 The first component (fully qualified directory path).
-    /// @param component2 The second component (relative file name path).
-    PathName(const char* component1, const char* component2) :
-        Base(component1)
-    {
-        if (component2 != nullptr)
-        {
-            AppendComponent(component2);
-        }
-    }
-
-    /// Combines path name components into a new PathName object.
-    /// @param component1 The first component (fully qualified directory path).
-    /// @param component2 The second component (relative file name path).
-    PathName(const PathName& component1, const PathName& component2) :
-        PathName(component1.GetData(), component2.GetData())
-    {
-    }
-
     PathName& operator=(const char* path)
     {
-        Base::operator= (path);
+        Base::operator=(path);
         return *this;
     }
 
     PathName& operator=(const wchar_t* path)
     {
-        Base::operator= (path);
+        Base::operator=(path);
         return *this;
     }
 
     PathName& operator=(const std::string& path)
     {
-        Base::operator= (path);
+        Base::operator=(path);
         return *this;
     }
 
     PathName& operator=(const std::wstring& path)
     {
-        Base::operator= (path);
+        Base::operator=(path);
         return *this;
     }
 
@@ -303,22 +283,6 @@ public:
         return MiKTeX::Util::PathNameUtil::IsAbsolutePath(ToString());
     }
 
-    bool IsComparable() const
-    {
-#if defined(MIKTEX_WINDOWS)
-        for (const char* lpsz = GetData(); *lpsz != 0; ++lpsz)
-        {
-            if (*lpsz == MiKTeX::Util::PathNameUtil::DosDirectoryDelimiter || (*lpsz >= 'A' && *lpsz <= 'Z'))
-            {
-                return false;
-            }
-        }
-        return true;
-#else
-        return true;
-#endif
-    }
-
     PathName& Canonicalize()
     {
         return Convert({ ConvertPathNameOption::Canonicalize });
@@ -339,18 +303,27 @@ public:
     /// Checks to see whether this path name has the specified extension.
     /// @param lpszExtension File name extension.
     /// @return Returns true, if this path name has the specified extension.
-    bool HasExtension(const char* extension) const
+    bool HasExtension(const std::string& extension_) const
     {
+        if (extension_.empty())
+        {
+            return false;
+        }
         std::string currentExtension = GetExtension();
         if (currentExtension.empty())
         {
             return false;
         }
+        auto extension = extension_;
         if (extension[0] == '.')
         {
-            extension += 1;
+            extension.erase(0, 1);
         }
-        return PathName::Equals(PathName(currentExtension.substr(1)), PathName(extension));
+        if (currentExtension[0] == '.')
+        {
+            currentExtension.erase(0, 1);
+        }
+        return PathName::Equals(PathName(currentExtension), PathName(extension));
     }
 
     /// Gets the file name extension.
@@ -363,42 +336,28 @@ public:
     /// @param override Indicates whether an existing file name extension
     /// shall be overridden.
     /// @return Returns a reference to this object.
-    MIKTEXUTILTHISAPI(PathName&) SetExtension(const char* extension, bool override);
+    MIKTEXUTILTHISAPI(PathName&) SetExtension(const std::string& extension, bool override);
 
     /// Sets the file name extension.
-    /// @param lpszExtension The file name extension to set. Can be 0,
-    /// if the extension is to be removed.
-    /// @return Returns a reference to this object.
-    PathName& SetExtension(const char* extension)
-    {
-        return SetExtension(extension, true);
-    }
-
-    /// Sets the file name extension.
-    /// @param lpszExtension The file name extension to set. Can be 0,
+    /// @param extension The file name extension to set. Can be 0,
     /// if the extension is to be removed.
     /// @return Returns a reference to this object.
     PathName& SetExtension(const std::string& extension)
     {
-        return SetExtension(extension.c_str(), true);
+        return SetExtension(extension, true);
     }
 
-    PathName& AppendExtension(const char* extension)
+    PathName& AppendExtension(const std::string& extension)
     {
         if (!HasExtension(extension))
         {
-            if (*extension != '.')
+            if (!extension.empty() && extension[0] != '.')
             {
                 Base::Append('.');
             }
             Base::Append(extension);
         }
         return *this;
-    }
-
-    PathName& AppendExtension(const std::string& extension)
-    {
-        return AppendExtension(extension.c_str());
     }
 
     /// Checks to see whether this path name ends with a directory delimiter.
@@ -409,56 +368,35 @@ public:
         return l > 0 && (MiKTeX::Util::PathNameUtil::IsDirectoryDelimiter(Base::operator[](l - 1)));
     }
 
-    /// Appends a character string to this path name.
-    /// @param lpsz The null-terminated character string to add.
+    /// Appends a string to this path name.
+    /// @param s The string to add.
     /// @param appendDirectoryDelimiter Indicates whether a directory delimiter
     /// shall be appended before the string.
     /// @return Returns a reference to this object.
-    PathName& Append(const char* lpsz, bool appendDirectoryDelimiter)
+    PathName& Append(const std::string& s, bool appendDirectoryDelimiter)
     {
-        if (appendDirectoryDelimiter && !Empty() && !MiKTeX::Util::PathNameUtil::IsDirectoryDelimiter(lpsz[0]))
+        if (appendDirectoryDelimiter && !Empty() && !s.empty() && !MiKTeX::Util::PathNameUtil::IsDirectoryDelimiter(s[0]))
         {
             AppendDirectoryDelimiter();
         }
-        Base::Append(lpsz);
+        Base::Append(s);
         return *this;
     }
 
-    PathName& Append(const std::string& str, bool appendDirectoryDelimiter)
-    {
-        return Append(str.c_str(), appendDirectoryDelimiter);
-    }
-
     /// Appends a path name component to this path name.
-    /// @param lpszComponent The null-terminated component to add.
+    /// @param component The component to add.
     /// @return Returns a reference to this object.
-    PathName& AppendComponent(const char* component)
+    PathName& AppendComponent(const std::string& component)
     {
         return Append(component, true);
     }
 
     /// Appends a path name component to this path name.
-    /// @param lpszComponent The null-terminated component to add.
-    /// @return Returns a reference to this object.
-    PathName& operator/=(const char* component)
-    {
-        return AppendComponent(component);
-    }
-
-    /// Appends a path name component to this path name.
-    /// @param component The component to be appended.
-    /// @return Returns a reference to this object.
-    PathName& operator/=(const PathName& component)
-    {
-        return AppendComponent(component.GetData());
-    }
-
-    /// Appends a path name component to this path name.
-    /// @param component The component to be appended.
+    /// @param component The component to add.
     /// @return Returns a reference to this object.
     PathName& operator/=(const std::string& component)
     {
-        return AppendComponent(component.c_str());
+        return AppendComponent(component);
     }
 
     /// Cuts off the last component from the path name.
@@ -509,15 +447,10 @@ public:
     }
 
     /// Matches a path name against a wildcard pattern.
-    /// @param lpszPattern The wildcard pattern.
-    /// @param lpszPath The path name to test.
+    /// @param pattern The wildcard pattern.
+    /// @param path The path name to test.
     /// @return Returns true, if the pattern matches.
-    static MIKTEXUTILCEEAPI(bool) Match(const char* lpszPattern, const char* lpszPath);
-
-    static bool Match(const char* lpszPattern, const PathName& path)
-    {
-        return Match(lpszPattern, path.GetData());
-    }
+    static MIKTEXUTILCEEAPI(bool) Match(const std::string& pattern, const PathName& path);
 
 private:
 
@@ -548,7 +481,7 @@ inline bool operator!=(const PathName& lhs, const PathName& rhs)
     return !PathName::Equals(lhs, rhs);
 }
 
-inline PathName operator/(const PathName& lhs, const PathName& rhs)
+inline PathName operator/(const PathName& lhs, const std::string& rhs)
 {
     PathName result = lhs;
     result /= rhs;

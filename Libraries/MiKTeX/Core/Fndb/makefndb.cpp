@@ -1,6 +1,6 @@
 /* makefndb.cpp: creating the file name database
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -254,7 +254,7 @@ void FndbManager::AlignMem(size_t align)
 
 void FndbManager::GetIgnorableFiles(const PathName& dirPath, vector<string>& filesToBeIgnored)
 {
-  PathName ignoreFile(dirPath, PathName(FN_MIKTEXIGNORE));
+  PathName ignoreFile(dirPath / FN_MIKTEXIGNORE);
   if (!File::Exists(ignoreFile))
   {
     return;
@@ -311,7 +311,7 @@ void FndbManager::ReadDirectory(const PathName& dirPath, vector<string>& subDire
   {
     try
     {
-      PathName path(dirPath, PathName(e.name));
+      PathName path(dirPath / e.name);
       if (e.isDirectory)
       {
         Directory::Delete(path, true);
@@ -339,7 +339,7 @@ void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folde
 
   bool done = false;
 
-  PathName path(parentPath, folderName);
+  PathName path(parentPath / folderName.ToString());
   path.MakeFullyQualified();
 
   PathName directory(Utils::GetRelativizedPath(path.GetData(), rootPath.GetData()));
@@ -378,7 +378,7 @@ void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folde
   numDirectories += subDirectoryNames.size();
 
   // recurse into sub-directories
-  PathName pathFolder(parentPath, folderName);
+  PathName pathFolder(parentPath / folderName.ToString());
   size_t i = 0;
   ++currentLevel;
   for (const string& s : subDirectoryNames)

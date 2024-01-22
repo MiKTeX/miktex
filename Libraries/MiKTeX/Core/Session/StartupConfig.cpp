@@ -1,6 +1,6 @@
 /* startupconfig.cpp: startup configuration
 
-   Copyright (C) 1996-2022 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -56,7 +56,7 @@ void Absolutize(string& paths, const PathName& relativeFrom)
     {
 #if MIKTEX_WINDOWS
       MIKTEX_ASSERT(PathNameUtil::IsAbsolutePath(relativeFrom.ToString()));
-      PathName absPath(relativeFrom / PathName(path));
+      PathName absPath(relativeFrom / path);
       PathName absPath2;
       MIKTEX_ASSERT(absPath2.GetCapacity() >= MAX_PATH);
       // FIXME: use wchar_t API
@@ -157,7 +157,7 @@ void SessionImpl::InitializeStartupConfig()
     }
 
     PathName miKTeXConfig;
-    miKTeXConfig = DefaultConfig().userConfigRoot / PathName(MIKTEX_PATH_MIKTEX_INI);
+    miKTeXConfig = DefaultConfig().userConfigRoot / MIKTEX_PATH_MIKTEX_INI;
     if (File::Exists(miKTeXConfig))
     {
       MergeStartupConfig(initStartupConfig, ReadMiKTeXConfig(miKTeXConfig));
@@ -197,7 +197,7 @@ bool SessionImpl::FindBinRelative(const PathName& relPath, PathName& path)
   PathName prefix;
   if (Utils::GetPathNamePrefix(myloc, internalBindir, prefix))
   {
-    path = prefix / relPath;
+    path = prefix / relPath.ToString();
     if (File::Exists(path))
     {
       return true;
@@ -208,7 +208,7 @@ bool SessionImpl::FindBinRelative(const PathName& relPath, PathName& path)
   RemoveDirectoryDelimiter(bindir.GetData());
   if (Utils::GetPathNamePrefix(myloc, bindir, prefix))
   {
-    path = prefix / relPath;
+    path = prefix / relPath.ToString();
     if (File::Exists(path))
     {
       return true;
@@ -248,7 +248,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
       return true;
     }
     // try /var/lib/miktex-texmf/miktex/config/miktexstartup.ini
-    path = defaultStartupConfig.commonConfigRoot / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
+    path = defaultStartupConfig.commonConfigRoot / MIKTEX_PATH_STARTUP_CONFIG_FILE;
     if (File::Exists(path))
     {
       return true;
@@ -256,7 +256,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
 #if defined(MIKTEX_UNIX) && !defined(MIKTEX_MACOS_BUNDLE)
     // try /usr/share/miktex-texmf/miktex/config/miktexstartup.ini
     auto prefix = GetMyPrefix(true);
-    path = prefix / PathName(MIKTEX_INSTALL_DIR) / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
+    path = prefix / MIKTEX_INSTALL_DIR / MIKTEX_PATH_STARTUP_CONFIG_FILE;
     if (File::Exists(path))
     {
       return true;
@@ -267,7 +267,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
   if (scope == ConfigurationScope::User)
   {
     // try $HOME/.miktex/miktex/config/miktexstartup.ini
-    path = defaultStartupConfig.userConfigRoot / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
+    path = defaultStartupConfig.userConfigRoot / MIKTEX_PATH_STARTUP_CONFIG_FILE;
     if (File::Exists(path))
     {
       return true;
@@ -529,7 +529,7 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
 #endif
     else
     {
-      return defaultConfig.userConfigRoot / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
+      return defaultConfig.userConfigRoot / MIKTEX_PATH_STARTUP_CONFIG_FILE;
     }
   }
   else
@@ -559,7 +559,7 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
       {
         MIKTEX_UNEXPECTED();
       }
-      return prefix / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
+      return prefix / MIKTEX_PATH_STARTUP_CONFIG_FILE;
 #else
       // TODO: /etc/miktex/miktexstartup.ini
       return defaultConfig.commonConfigRoot / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);

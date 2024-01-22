@@ -367,7 +367,7 @@ void CabExtractor::Extract(const PathName& cabinetPath, const PathName& destDir,
       {
         dest.RemoveDirectorySpec();
       }
-      path /= dest;
+      path /= dest.ToString();
 
       // notify the client
       if (callback != nullptr)

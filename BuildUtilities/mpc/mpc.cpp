@@ -547,10 +547,10 @@ void PackageCreator::MD5WildCopy(const PathName& sourceTemplate, const PathName&
         }
 
         // path to source file
-        PathName sourcePath(sourceDir, PathName(direntry.name));
+        PathName sourcePath(sourceDir / direntry.name);
 
         // path to destination file
-        PathName destPath(destDir, PathName(direntry.name));
+        PathName destPath(destDir / direntry.name);
 
         // copy file and calculate its digest
         MD5 digest = MD5CopyFile(sourcePath, destPath);
@@ -580,18 +580,18 @@ void PackageCreator::MD5WildCopy(const PathName& sourceTemplate, const PathName&
 void PackageCreator::MD5CopyFiles(const vector<string>& files, const PathName& sourceDir, const char* sourceSubDir, const PathName& destDir, const char* destSubDir, FileDigestTable& fileDigests)
 {
     // path to source root directory
-    PathName sourceRootDir(sourceDir, PathName(sourceSubDir));
+    PathName sourceRootDir(sourceDir / sourceSubDir);
 
     // path to destination root directory
-    PathName destRootDir(destDir, PathName(destSubDir));
+    PathName destRootDir(destDir / destSubDir);
 
     for (const string& fileName : files)
     {
         // source template
-        PathName sourceTemplate(sourceRootDir, PathName(fileName));
+        PathName sourceTemplate(sourceRootDir / fileName);
 
         // path to destination directory
-        PathName destDir(destRootDir, PathName(fileName));
+        PathName destDir(destRootDir / fileName);
         destDir.RemoveFileSpec();
 
         // copy file
@@ -601,7 +601,7 @@ void PackageCreator::MD5CopyFiles(const vector<string>& files, const PathName& s
 
 void PackageCreator::WriteDescriptionFile(const string& description, const PathName& stagingDir)
 {
-    ofstream stream = File::CreateOutputStream(stagingDir / PathName("Description"));
+    ofstream stream = File::CreateOutputStream(stagingDir / "Description");
     stream << description;
     stream.close();
 }
@@ -611,7 +611,7 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
     ofstream stream;
 
     // write package.ini
-    stream = File::CreateOutputStream(stagingDir / PathName("package.ini"));
+    stream = File::CreateOutputStream(stagingDir / "package.ini");
     stream
         << "id=" << packageInfo.id << "\n"
         << "name=" << packageInfo.displayName << "\n"
@@ -637,7 +637,7 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
     stream.close();
 
     // write md5sums.txt
-    stream = File::CreateOutputStream(stagingDir / PathName("md5sums.txt"));
+    stream = File::CreateOutputStream(stagingDir / "md5sums.txt");
     for (const pair<string, MD5>& p : fileDigests)
     {
         stream << p.second << " " << PathName(p.first).ToUnix() << "\n";
@@ -657,13 +657,13 @@ void PackageCreator::CopyPackage(const MpcPackageInfo& packageinfo, const PathNa
 
     // path to package manifest directory, e.g.:
     // /miktex/texmf/tpm/packages/
-    PathName packageManifestDirectory = destDir / PathName(texmfPrefix) / PathName(MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
+    PathName packageManifestDirectory = destDir / texmfPrefix / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
 
     // create package manifest directory
     Directory::Create(packageManifestDirectory);
 
     // create the package manifest file...
-    PackageManager::WritePackageManifestFile(PathName(packageManifestDirectory, PathName(packageinfo.id)).AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX), packageinfo, programStartTime);
+    PackageManager::WritePackageManifestFile((packageManifestDirectory / packageinfo.id).AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX), packageinfo, programStartTime);
 
     // copy files and calculate digests
     FileDigestTable fileDigests;
@@ -680,7 +680,7 @@ void PackageCreator::CopyPackage(const MpcPackageInfo& packageinfo, const PathNa
 
 void PackageCreator::ReadDescriptionFile(const char* stagingDir, string& description)
 {
-    PathName descriptionFileName(stagingDir, "Description");
+    PathName descriptionFileName = PathName(stagingDir) / "Description";
     if (!File::Exists(descriptionFileName))
     {
         description = "";
@@ -698,7 +698,7 @@ MpcPackageInfo PackageCreator::InitializePackageInfo(const char* stagingDir)
     unique_ptr<Cfg> cfg(Cfg::Create());
 
     // read package.ini
-    cfg->Read(PathName(stagingDir, "package.ini"));
+    cfg->Read(PathName(stagingDir) / "package.ini");
 
     // get package ID (mandatory value)
     if (!cfg->TryGetValueAsString("", "id", packageInfo.id))
@@ -822,7 +822,7 @@ void PackageCreator::CollectFiles(const PathName& rootDir, const PathName& subDi
 {
     // directory to be inspected, e.g.:
     // /mypackages/a0poster/RunFiles/texmf/tex/latex/a0poster/
-    PathName directory(rootDir, subDir);
+    PathName directory(rootDir / subDir.ToString());
 
     if (!Directory::Exists(directory))
     {
@@ -873,7 +873,7 @@ void PackageCreator::CollectFiles(const PathName& rootDir, const PathName& subDi
 
 void PackageCreator::CollectSubTree(const PathName& path, const char* subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles)
 {
-    PathName sourceDir(path, PathName(subDir));
+    PathName sourceDir(path / subDir);
     CollectFiles(sourceDir, PathName(), runFiles, sizeRunFiles, docFiles, sizeDocFiles, sourceFiles, sizeSourceFiles);
 }
 
@@ -910,10 +910,10 @@ void PackageCreator::CollectPackages(const PathName& stagingRoot, map<string, Mp
         }
 
         // path to staging directory
-        PathName stagingDir(stagingRoot, PathName(dirEntry.name));
+        PathName stagingDir(stagingRoot / dirEntry.name);
 
         // check to see if package.ini exists
-        if (!File::Exists(PathName(stagingDir, PathName("package.ini"))))
+        if (!File::Exists(stagingDir / "package.ini"))
         {
             continue;
         }
@@ -994,7 +994,7 @@ void PackageCreator::WritePackageManifestFiles(const map<string, MpcPackageInfo>
         }
 
         // path to package manifest file
-        PathName packageManifestFile(destDir, PathName(p.second.id));
+        PathName packageManifestFile(destDir / p.second.id);
         packageManifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
 
         // remove existing package manifest file
@@ -1309,7 +1309,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
     }
 
     // create temporary mpm.ini
-    unique_ptr<TemporaryFile> tempIni = TemporaryFile::Create(PathName(repository, PathName(MIKTEX_MPM_INI_FILENAME)));
+    unique_ptr<TemporaryFile> tempIni = TemporaryFile::Create(repository / MIKTEX_MPM_INI_FILENAME);
     if (privateKeyProvider.GetPrivateKeyFile().Empty())
     {
         repositoryManifest.Write(tempIni->GetPathName());
@@ -1327,7 +1327,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
     tempIni = nullptr;
 
     // create temporary package manifest directory
-    unique_ptr<TemporaryDirectory> tempDir = TemporaryDirectory::Create(PathName(repository, PathName(texmfPrefix)));
+    unique_ptr<TemporaryDirectory> tempDir = TemporaryDirectory::Create(repository / texmfPrefix);
     PathName packageManifestDir = tempDir->GetPathName();
     packageManifestDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
     Directory::Create(packageManifestDir);
@@ -1343,7 +1343,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
     tempDir = nullptr;
 
     // create temporary package-manifests.ini
-    tempIni = TemporaryFile::Create(PathName(repository, PathName("package-manifests.ini")));
+    tempIni = TemporaryFile::Create(repository / "package-manifests.ini");
     DumpPackageManifests(packageTable, tempIni->GetPathName(), repositoryManifest);
 
     // create package-manifests.ini archive
@@ -1442,7 +1442,7 @@ bool PackageCreator::HavePackageArchiveFile(const PathName& repository, const st
     archiveFileType = ArchiveFileType::None;
 
     // check to see whether a cabinet file exists
-    archiveFile2 = repository / PathName(packageId);
+    archiveFile2 = repository / packageId;
     archiveFile2.AppendExtension(MIKTEX_CABINET_FILE_SUFFIX);
     if (File::Exists(archiveFile2))
     {
@@ -1451,7 +1451,7 @@ bool PackageCreator::HavePackageArchiveFile(const PathName& repository, const st
     }
 
     // check to see whether a .tar.bz2 file exists
-    archiveFile2 = repository / PathName(packageId);
+    archiveFile2 = repository / packageId;
     archiveFile2.AppendExtension(MIKTEX_TARBZIP2_FILE_SUFFIX);
     if (File::Exists(archiveFile2))
     {
@@ -1460,7 +1460,7 @@ bool PackageCreator::HavePackageArchiveFile(const PathName& repository, const st
     }
 
     // check to see whether a .tar.lzma file exists
-    archiveFile2 = repository / PathName(packageId);
+    archiveFile2 = repository / packageId;
     archiveFile2.AppendExtension(MIKTEX_TARLZMA_FILE_SUFFIX);
     if (File::Exists(archiveFile2))
     {
@@ -1558,7 +1558,7 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
 
         // path to package manifest file, e.g.:
         // /mypackages/a0poster/Files/texmf/tpm/packages/a0poster.tpm
-        PathName packageManifestFile(packageManifestDir, PathName(packageInfo.id));
+        PathName packageManifestFile(packageManifestDir / packageInfo.id);
         packageManifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
 
 #if 1
@@ -1583,11 +1583,11 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
         string command;
 
         // path to .tar file
-        PathName tarFile(repository, PathName(packageInfo.id));
+        PathName tarFile(repository / packageInfo.id);
         tarFile.AppendExtension(MIKTEX_TAR_FILE_SUFFIX);
 
         // path to compressed .tar file
-        archiveFile = repository / PathName(packageInfo.id);
+        archiveFile = repository / packageInfo.id;
         archiveFile.AppendExtension(PackageCreator::GetFileNameExtension(archiveFileType));
 
 #if defined(MIKTEX_WINDOWS)
@@ -1641,7 +1641,7 @@ unique_ptr<Cfg> PackageCreator::LoadRepositoryManifest(const PathName& repositor
 {
     // path to the repository manifest archive file
     PathName pathRepositoryManifestArchive = repository;
-    pathRepositoryManifestArchive /= GetRepositoryManifestArchiveFileName();
+    pathRepositoryManifestArchive /= GetRepositoryManifestArchiveFileName().ToString();
 #if defined(MIKTEX_WINDOWS)
     pathRepositoryManifestArchive.ConvertToUnix();
 #endif
@@ -1671,7 +1671,7 @@ map<string, MpcPackageInfo> PackageCreator::LoadPackageManifests(const PathName&
 
     // path to the TPM archive file
     PathName pathTpmArchive = repository;
-    pathTpmArchive /= GetTpmArchiveFileName();
+    pathTpmArchive /= GetTpmArchiveFileName().ToString();
 #if defined(MIKTEX_WINDOWS)
     pathTpmArchive.ConvertToUnix();
 #endif
@@ -1689,7 +1689,7 @@ map<string, MpcPackageInfo> PackageCreator::LoadPackageManifests(const PathName&
     Extract(pathTpmArchive, GetDbArchiveFileType(), tempDir->GetPathName());
 
     // parse all package manifest files
-    PathName directory = tempDir->GetPathName() / PathName(texmfPrefix) / PathName(MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
+    PathName directory = tempDir->GetPathName() / texmfPrefix / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
     unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(directory, "*" MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
     DirectoryEntry direntry;
     while (pLister->GetNext(direntry))
@@ -1939,7 +1939,7 @@ void PackageCreator::DisassemblePackage(const PathName& packageManifestFile, con
     packageManifestDir /= texmfPrefix;
     packageManifestDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
     Directory::Create(packageManifestDir);
-    PackageManager::WritePackageManifestFile(PathName(packageManifestDir, PathName(packageInfo.id)).AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX), mpcPackageInfo, 0);
+    PackageManager::WritePackageManifestFile((packageManifestDir / packageInfo.id).AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX), mpcPackageInfo, 0);
 }
 
 void PackageCreator::Run(int argc, const char** argv)

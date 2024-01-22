@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Main program
  *
- * @copyright Copyright © 2021-2023 Christian Schenk
+ * @copyright Copyright © 2021-2024 Christian Schenk
  * @copyright Copyright © 1998-2001 by Sebastian Rahtz et al.
  *
  * This file is part of MiKTeX EPStoPDF.
@@ -939,7 +939,7 @@ void EpsToPdfApp::Run(int argc, const char **argv)
         }
         else
         {
-            outFile.SetExtension(nullptr);
+            outFile.SetExtension("");
             outFile.Append("2", false);
             outFile.AppendExtension(".eps");
         }

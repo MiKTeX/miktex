@@ -119,7 +119,7 @@ void SessionImpl::PushBackPath(vector<PathName>& pathNames, const PathName& path
       }
       if (!PathName::Equals(path, PathName(CURRENT_DIRECTORY)))
       {
-        pathFQ /= path;
+        pathFQ /= path.ToString();
       }
       else
       {
@@ -251,7 +251,7 @@ void SessionImpl::ExpandPathPattern(const PathName& rootDirectory, const PathNam
     // no recursion; check to see whether the path pattern specifies an
     // existing sub directory
     PathName directory(rootDirectory);
-    directory /= pathPattern;
+    directory /= pathPattern.ToString();
     if (!IsMpmFile(directory.GetData()) && Directory::Exists(directory))
     {
       paths.push_back(directory);

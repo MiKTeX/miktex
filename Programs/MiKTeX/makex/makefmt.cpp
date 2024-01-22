@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX MakeFMT
  *
- * @copyright Copyright © 1998-2023 Christian Schenk
+ * @copyright Copyright © 1998-2024 Christian Schenk
  *
  * This file is part of the MiKTeX Make Utility Collection.
  *
@@ -392,7 +392,7 @@ void MakeFmt::Run(int argc, const char** argv)
     if (destinationName.Empty())
     {
         destinationName = name;
-        destinationName.SetExtension(nullptr);
+        destinationName.SetExtension("");
     }
 
     // pretend to be the engine / format
@@ -414,7 +414,7 @@ void MakeFmt::Run(int argc, const char** argv)
     formatFile.AppendExtension(MIKTEX_FORMAT_FILE_SUFFIX);
 
     // make fully qualified destination file name
-    PathName pathDest(destinationDirectory, destinationName);
+    PathName pathDest(destinationDirectory / destinationName.ToString());
     pathDest.AppendExtension(MIKTEX_FORMAT_FILE_SUFFIX);
 
     // make the log file name
@@ -427,7 +427,7 @@ void MakeFmt::Run(int argc, const char** argv)
     strftime(dateTime, 128, "%Y-%m-%d-%H-%M-%S", localtime(&t));
     PathName logDest(session->GetSpecialPath(SpecialPath::LogDirectory));
     logDest /= "makefmt";
-    logDest /= destinationName;
+    logDest /= destinationName.ToString();
     logDest /= dateTime;
     logDest.AppendExtension(".log");
 
@@ -488,9 +488,9 @@ void MakeFmt::Run(int argc, const char** argv)
     bool done = RunProcess(GetEngineExeName(), arguments, wrkDir->GetPathName());
 
     // install log file
-    if (File::Exists(wrkDir->GetPathName() / logFile))
+    if (File::Exists(wrkDir->GetPathName() / logFile.ToString()))
     {
-        Install(wrkDir->GetPathName() / logFile, logDest);
+        Install(wrkDir->GetPathName() / logFile.ToString(), logDest);
     }
 
     if (!done)
@@ -499,7 +499,7 @@ void MakeFmt::Run(int argc, const char** argv)
     }
 
     // install format file
-    Install(wrkDir->GetPathName() / formatFile, pathDest);
+    Install(wrkDir->GetPathName() / formatFile.ToString(), pathDest);
 }
 
 #if defined(_UNICODE)

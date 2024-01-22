@@ -1,6 +1,6 @@
 /* w2cemu.cpp: web2c compatibility functions
 
-   Copyright (C) 2010-2021 Christian Schenk
+   Copyright (C) 2010-2024 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -146,7 +146,7 @@ void miktex_web2c_record_file_name(const char* path, int reading)
 void Web2C::ChangeRecorderFileName(const char* fileName)
 {
   shared_ptr<Session> session = MIKTEX_SESSION();
-  PathName path(GetOutputDirectory(), PathName(fileName));
+  PathName path(GetOutputDirectory() / fileName);
   path.AppendExtension(".fls");
   session->SetRecorderPath(path);
 }

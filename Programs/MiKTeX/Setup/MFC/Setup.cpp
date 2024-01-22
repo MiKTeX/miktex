@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX Setup Wizard
  *
- * @copyright Copyright © 1999-2023 Christian Schenk
+ * @copyright Copyright © 1999-2024 Christian Schenk
  *
  * This file is part of MiKTeX Setup Wizard.
  *
@@ -529,7 +529,7 @@ bool FindFile(const PathName& fileName, PathName& result)
 
     // try my directory
     result = session->GetMyLocation(false);
-    result /= fileName;
+    result /= fileName.ToString();
     if (File::Exists(result))
     {
         return true;
@@ -537,7 +537,7 @@ bool FindFile(const PathName& fileName, PathName& result)
 
     // try the current directory
     result.SetToCurrentDirectory();
-    result /= fileName;
+    result /= fileName.ToString();
     if (File::Exists(result))
     {
         return true;
@@ -878,7 +878,7 @@ BOOL SetupApp::InitInstance()
 
         if (SetupApp::Instance->CheckUpdatesOnExit)
         {
-            PathName miktexConsole(GetInstallationDirectory() / PathName(MIKTEX_PATH_BIN_DIR) / PathName(MIKTEX_CONSOLE_EXE));
+            PathName miktexConsole(GetInstallationDirectory() / MIKTEX_PATH_BIN_DIR / MIKTEX_CONSOLE_EXE);
             vector<string> args{ "--hide", "--check-updates" };
             if (Service->GetOptions().IsCommonSetup)
             {
@@ -953,7 +953,7 @@ BOOL SetupApp::InitInstance()
             SHELLEXECUTEINFOW sei = SHELLEXECUTEINFOW();
             sei.cbSize = sizeof(sei);
             sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC;
-            CharBuffer<wchar_t> file((sfxDir->GetPathName() / PathName("miktex-setup-wizard" MIKTEX_EXE_FILE_SUFFIX)).GetData());
+            CharBuffer<wchar_t> file((sfxDir->GetPathName() / "miktex-setup-wizard" MIKTEX_EXE_FILE_SUFFIX).GetData());
             sei.lpFile = file.GetData();
             CharBuffer<wchar_t> parameters(CommandLineBuilder(args).ToString());
             sei.lpParameters = parameters.GetData();

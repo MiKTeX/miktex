@@ -1,6 +1,6 @@
 /* dvipdft.cpp: run dvipdfm-gswin32-dvipdfm
 
-   Copyright (C) 2000-2021 Christian Schenk
+   Copyright (C) 2000-2024 Christian Schenk
 
    This file is part of dvipdm.
 
@@ -99,7 +99,7 @@ void dvipdft(int argc, char** argv)
       ++i;
       arguments.push_back(argv[i]);
       fileNoExt = argv[i];
-      fileNoExt.SetExtension(nullptr);
+      fileNoExt.SetExtension("");
     }
   }
 
@@ -107,7 +107,7 @@ void dvipdft(int argc, char** argv)
   if (fileNoExt.Empty())
   {
     fileNoExt = lpszUserFilename;
-    fileNoExt.SetExtension(nullptr);
+    fileNoExt.SetExtension("");
   }
 
   // run dvipdfm with the fastest options for the first pass
@@ -125,7 +125,7 @@ void dvipdft(int argc, char** argv)
   }
 
   // run GhostScript to create thumbnails
-  PathName outFileTemplate = tempDir->GetPathName() / fileNoExt;
+  PathName outFileTemplate = tempDir->GetPathName() / fileNoExt.ToString();
   outFileTemplate.AppendExtension(".%d");
   arguments = { gsExe.GetFileNameWithoutExtension().ToString() };
   arguments.push_back("-r"s + "10");

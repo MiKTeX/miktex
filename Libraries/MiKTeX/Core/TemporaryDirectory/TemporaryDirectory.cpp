@@ -1,6 +1,6 @@
 /* TemporaryDirectory.cpp:
 
-   Copyright (C) 2016-2021 Christian Schenk
+   Copyright (C) 2016-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -59,7 +59,7 @@ public:
     for (size_t maxrounds = 10; maxrounds > 0; --maxrounds)
     {
       string fileName = "mik" + std::to_string(dist(gen));
-      path = parent / PathName(fileName);
+      path = parent / fileName;
       if (!NameExists(path))
       {
         Directory::Create(path);

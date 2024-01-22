@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX MakePK
  *
- * @copyright Copyright © 1998-2022 Christian Schenk
+ * @copyright Copyright © 1998-2024 Christian Schenk
  *
  * This file is part of the MiKTeX Make Utility Collection.
  *
@@ -528,7 +528,7 @@ void MakePk::Run(int argc, const char** argv)
     MakePKFilename(name.c_str(), bdpi, dpi, pkName);
 
     // make fully qualified destination file name
-    PathName pathDest(destinationDirectory.GetData(), pkName.GetData());
+    PathName pathDest(destinationDirectory / pkName.ToString());
 
     // quit, if destination file already exists
     if (File::Exists(pathDest))
@@ -589,7 +589,7 @@ void MakePk::Run(int argc, const char** argv)
     }
 
     // install PK font file
-    Install(wrkDir->GetPathName() / pkName, pathDest);
+    Install(wrkDir->GetPathName() / pkName.ToString(), pathDest);
 }
 
 #if defined(_UNICODE)

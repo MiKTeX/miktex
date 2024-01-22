@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Setup service implementation (Windows)
  *
- * @copyright Copyright © 2014-2023 Christian Schenk
+ * @copyright Copyright © 2014-2024 Christian Schenk
  *
  * This file is part of the MiKTeX Setup Library.
  *
@@ -95,7 +95,7 @@ PathName winSetupServiceImpl::CreateProgramFolder()
     {
         for (const string& folderName : { string(MIKTEX_PRODUCTNAME_STR), string(MIKTEX_PRODUCTNAME_STR " " MIKTEX_LEGACY_MAJOR_MINOR_STR) })
         {
-            PathName path = programFolder / PathName(folderName);
+            PathName path = programFolder / folderName;
             if (Directory::Exists(path))
             {
                 return path;
@@ -107,7 +107,7 @@ PathName winSetupServiceImpl::CreateProgramFolder()
     {
         folderName = options.FolderName;
     }
-    PathName path = programFolder / folderName;
+    PathName path = programFolder / folderName.ToString();
     Directory::Create(path);
     return path;
 }
@@ -419,7 +419,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
     if (!ld.folder.empty())
     {
-        PathName pathSubFolder(pathFolder, PathName(ld.folder));
+        PathName pathSubFolder(pathFolder / ld.folder);
         if (!ld.isObsolete)
         {
             Directory::Create(pathSubFolder);
@@ -640,7 +640,7 @@ constexpr auto REGSTR_PATH_UNINSTALL_U = "Software\\Microsoft\\Windows\\CurrentV
 void winSetupServiceImpl::RegisterUninstaller()
 {
     // make uninstall command line
-    PathName miktexConsole = GetInstallRoot() / PathName(MIKTEX_PATH_BIN_DIR) / PathName(options.IsCommonSetup ? MIKTEX_CONSOLE_ADMIN_EXE : MIKTEX_CONSOLE_EXE);
+    PathName miktexConsole = GetInstallRoot() / MIKTEX_PATH_BIN_DIR / (options.IsCommonSetup ? MIKTEX_CONSOLE_ADMIN_EXE : MIKTEX_CONSOLE_EXE);
     string commandLine = Q_(miktexConsole);
     if (options.IsCommonSetup)
     {
@@ -885,7 +885,7 @@ void winSetupServiceImpl::RemoveRegistryKey(HKEY hkeyRoot, const PathName& subKe
 
     while ((result = RegEnumKeyExW(hkeySub.Get(), 0, szName, &size, nullptr, nullptr, nullptr, &fileTime)) == ERROR_SUCCESS)
     {
-        RemoveRegistryKey(hkeyRoot, PathName(subKey, PathName(szName)));
+        RemoveRegistryKey(hkeyRoot, subKey / PathName(szName).ToString());
         size = BufferSizes::MaxPath;
     }
 

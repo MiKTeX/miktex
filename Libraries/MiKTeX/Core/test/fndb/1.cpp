@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2022 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -101,7 +101,7 @@ BEGIN_TEST_FUNCTION(3);
   {
     TEST(Fndb::FileExists(p));
   }
-  PathName path = pSession->GetSpecialPath(SpecialPath::InstallRoot) / PathName("abrakadabra") / PathName("hi.txt");
+  PathName path = pSession->GetSpecialPath(SpecialPath::InstallRoot) / "abrakadabra" / "hi.txt";
   TESTX(Fndb::Add({ {PathName(path)} }));
   TESTX(pSession->UnloadFilenameDatabase());
   TEST(Fndb::FileExists(path));

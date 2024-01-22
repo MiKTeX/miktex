@@ -1,6 +1,6 @@
 /* miktex/Core/test.h: test framework                   -*- C++ -*-
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -344,7 +344,7 @@ protected:
 protected:
   bool RunTestCommand(const char* lpszProgramName)
   {
-  std::string commandLine = MiKTeX::Util::PathName(pSession->GetMyLocation(false), MiKTeX::Util::PathName(lpszProgramName)).ToString();
+    std::string commandLine = MiKTeX::Util::PathName(pSession->GetMyLocation(false) / lpszProgramName).ToString();
     for (std::vector<std::string>::const_iterator it = argv.begin(); it != argv.end(); ++it)
     {
       if (it != argv.begin())

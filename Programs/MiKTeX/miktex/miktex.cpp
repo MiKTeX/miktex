@@ -407,7 +407,7 @@ void MiKTeXApp::RunProcess(const PathName& fileName, const vector<string>& argum
     if (!Process::Run(fileName, arguments, &output, &exitCode, &miktexException, nullptr) || exitCode != 0)
     {
         auto outputBytes = output.GetStandardOutput();
-        PathName outfile = this->session->GetSpecialPath(SpecialPath::LogDirectory) / fileName.GetFileNameWithoutExtension();
+        PathName outfile = this->session->GetSpecialPath(SpecialPath::LogDirectory) / fileName.GetFileNameWithoutExtension().ToString();
         outfile += "_";
         outfile += Timestamp().c_str();
         outfile.SetExtension(".out");

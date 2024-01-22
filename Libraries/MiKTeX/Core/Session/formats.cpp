@@ -1,6 +1,6 @@
 /* FormatInfo.cpp: format file info
 
-   Copyright (C) 1996-2022 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -217,7 +217,7 @@ void SessionImpl::WriteFormatsIni()
     }
   }
 
-  PathName pathLocalFormatsIni(GetSpecialPath(SpecialPath::ConfigRoot), PathName(MIKTEX_PATH_FORMATS_INI));
+  PathName pathLocalFormatsIni(GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_FORMATS_INI);
 
   Directory::Create(PathName(pathLocalFormatsIni).RemoveFileSpec());
 

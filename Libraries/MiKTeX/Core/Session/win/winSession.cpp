@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Windows specials
  *
- * @copyright Copyright © 1996-2023 Christian Schenk
+ * @copyright Copyright © 1996-2024 Christian Schenk
  *
  * This file is part of the MiKTeX Core Library.
  *
@@ -200,11 +200,11 @@ bool SessionImpl::GetAcrobatFontDir(PathName& path)
         PathName fontDir;
 
         // try Acrobat Reader 3.0
-        fontDir = dir / PathName("FONTS");
+        fontDir = dir / "FONTS";
         if (!Directory::Exists(fontDir))
         {
             // try Acrobat Reader 4.0
-            fontDir = dir / PathName("..") / PathName("Resource") / PathName("Font");
+            fontDir = dir / ".." / "Resource" / "Font";
             if (!Directory::Exists(fontDir))
             {
                 return false;
@@ -274,7 +274,7 @@ MIKTEXSTATICFUNC(bool) GetPsFontDirectory(PathName& path)
         MIKTEX_FATAL_WINDOWS_ERROR("GetWindowsDirectoryW");
     }
 
-    PathName path_ = PathName(szWinDir) / PathName("psfonts");
+    PathName path_ = PathName(szWinDir) / "psfonts";
 
     if (!Directory::Exists(path_))
     {

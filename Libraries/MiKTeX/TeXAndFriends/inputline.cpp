@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX WebApp input line base implementation
  *
- * @copyright Copyright © 1996-2022 Christian Schenk
+ * @copyright Copyright © 1996-2024 Christian Schenk
  *
  * This file is part of the MiKTeX TeXMF Framework.
  *
@@ -172,7 +172,7 @@ static bool IsOutputFile(const PathName& path)
     PathName path_(path);
     if (path_.HasExtension(".gz"))
     {
-        path_.SetExtension(nullptr);
+        path_.SetExtension("");
     }
     return path_.HasExtension(".dvi")
         || path_.HasExtension(".pdf")
@@ -283,12 +283,12 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileNameI
         PathName path;
         if (isAuxFile && !pimpl->auxDirectory.Empty())
         {
-            path = pimpl->auxDirectory / fileName;
+            path = pimpl->auxDirectory / fileName.ToString();
             fileName = path.GetData();
         }
         else if (!pimpl->outputDirectory.Empty())
         {
-            path = pimpl->outputDirectory / fileName;
+            path = pimpl->outputDirectory / fileName.ToString();
             fileName = path.GetData();
         }
         file = TryOpenFileInternal(fileName, FileMode::Create, FileAccess::Write);

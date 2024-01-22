@@ -232,7 +232,7 @@ vector<FileLink> LinksManager::CollectLinks(LinkCategoryOptions linkCategories)
       }
       else
       {
-        targetPath = pathBinDir / PathName(fileLink.target);
+        targetPath = pathBinDir / fileLink.target;
       }
       string extension = targetPath.GetExtension();
       if (File::Exists(targetPath))
@@ -240,7 +240,7 @@ vector<FileLink> LinksManager::CollectLinks(LinkCategoryOptions linkCategories)
         vector<string> linkNames;
         for (const string& linkName : fileLink.linkNames)
         {
-          PathName linkPath = linkTargetDirectory / PathName(linkName);
+          PathName linkPath = linkTargetDirectory / linkName;
           if (linkPath == targetPath)
           {
             continue;
@@ -275,7 +275,7 @@ vector<FileLink> LinksManager::CollectLinks(LinkCategoryOptions linkCategories)
         this->ctx->ui->Warning(fmt::format(T_("{0}: engine '{1}' not found"), formatInfo.key, engine));
         continue;
       }
-      PathName exePath(linkTargetDirectory, PathName(formatInfo.name));
+      PathName exePath(linkTargetDirectory / formatInfo.name);
       if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
       {
         exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
@@ -314,7 +314,7 @@ vector<FileLink> LinksManager::CollectLinks(LinkCategoryOptions linkCategories)
         {
           continue;
         }
-        PathName pathExe(linkTargetDirectory, PathName(name));
+        PathName pathExe(linkTargetDirectory / name);
         if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
         {
           pathExe.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);

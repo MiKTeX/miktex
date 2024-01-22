@@ -2764,7 +2764,7 @@ boolean open_dvi_output(C4P::FileRoot& dviFile)
       break;
     }
     processStartInfo.Arguments.insert(processStartInfo.Arguments.end(), dvipdfmxArgs.begin(), dvipdfmxArgs.end());
-    MiKTeX::Util::PathName outPath = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory() / MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile();
+    MiKTeX::Util::PathName outPath = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory() / MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile().ToString();
     processStartInfo.Arguments.push_back("-o");
     processStartInfo.Arguments.push_back(outPath.ToString());
     if (papersize != nullptr)

@@ -1,6 +1,6 @@
 /* Directory.cpp: directory operations
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -52,11 +52,11 @@ void Directory::Delete(const PathName& path, bool recursive)
     {
       if (entry.isDirectory)
       {
-        directoriesToBeDeleted.push_back(PathName(path, PathName(entry.name)));
+        directoriesToBeDeleted.push_back(PathName(path) / entry.name);
       }
       else
       {
-        filesToBeDeleted.push_back(PathName(path, PathName(entry.name)));
+        filesToBeDeleted.push_back(PathName(path) / entry.name);
       }
     }
     dirLister->Close();
@@ -112,10 +112,10 @@ void Directory::Copy(const PathName& source, const PathName& dest, DirectoryCopy
   {
     PathName sourceFile;
     sourceFile = source;
-    sourceFile /= file;
+    sourceFile /= file.ToString();
     PathName destFile;
     destFile = dest;
-    destFile /= file;
+    destFile /= file.ToString();
     File::Copy(sourceFile, destFile);
   }
 
@@ -125,10 +125,10 @@ void Directory::Copy(const PathName& source, const PathName& dest, DirectoryCopy
     {
       PathName sourceDir;
       sourceDir = source;
-      sourceDir /= dir;
+      sourceDir /= dir.ToString();
       PathName destDir;
       destDir = dest;
-      destDir /= dir;
+      destDir /= dir.ToString();
       // RECURSION
       Directory::Copy(sourceDir, destDir, options);
     }

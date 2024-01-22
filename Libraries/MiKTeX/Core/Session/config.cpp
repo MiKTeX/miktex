@@ -1,6 +1,6 @@
 /* config.cpp: MiKTeX configuration settings
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -133,7 +133,7 @@ pair<bool, PathName> SessionImpl::TryGetBinDirectory(bool canonicalized)
   auto distRoot = TryGetDistRootDirectory();
   if (distRoot.first)
   {
-    return make_pair<bool, PathName>(true, distRoot.second / PathName(MIKTEX_PATH_BIN_DIR));
+    return make_pair<bool, PathName>(true, distRoot.second / MIKTEX_PATH_BIN_DIR);
   }
   string env;
   if (!Utils::GetEnvironmentString(MIKTEX_ENV_BIN_DIR, env))
@@ -160,7 +160,7 @@ PathName SessionImpl::GetBinDirectory(bool canonicalized)
 
 void SessionImpl::ReadAllConfigFiles(const string& baseName, Cfg& cfg)
 {
-  PathName fileName = PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR) / PathName(baseName);
+  PathName fileName = PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR) / baseName;
   fileName.AppendExtension(".ini");
   vector<PathName> configFiles;
   if (!FindFile(fileName.ToString(), MIKTEX_PATH_TEXMF_PLACEHOLDER, { FindFileOption::All }, configFiles))
@@ -535,7 +535,7 @@ bool SessionImpl::IsSharedSetup()
 void SessionImpl::ConfigureFile(const PathName& pathRel, HasNamedValues* callback)
 {
   PathName pathOut(GetSpecialPath(SpecialPath::ConfigRoot));
-  pathOut /= pathRel;
+  pathOut /= pathRel.ToString();
   PathName relPathIn = pathRel;
   relPathIn.AppendExtension(".in");
   PathName pathIn;

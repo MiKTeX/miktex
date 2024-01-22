@@ -127,7 +127,7 @@ END_TEST_FUNCTION();
 BEGIN_TEST_FUNCTION(7);
 {
     PathName path("/abc/def/ghi.jkl/mno.pqr.stu");
-    PathName path2("/abc/def/", "ghi.jkl/mno.pqr.stu");
+    PathName path2(PathName("/abc/def/") / "ghi.jkl/mno.pqr.stu");
     TEST(PathName::Equals(path, path2));
     TEST(PathName::Equals(PathName(path.GetExtension()), PathName(".stu")));
     TEST(path.HasExtension(".stu"));
@@ -146,7 +146,7 @@ BEGIN_TEST_FUNCTION(8);
     path2 /= u8"xxx\U0000263Axxx";
     TEST(path1 == path2);
 #if defined(MIKTEX_WINDOWS)
-    path1 /= PathName(L"yyy\U000000C3yyy");
+    path1 /= PathName(L"yyy\U000000C3yyy").ToString();
     path2 /= u8"yyy\U000000E3yyy";
     TEST(path1 == path2);
 #endif
@@ -155,12 +155,12 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(9);
 {
-    TEST(PathName::Match("*/ka/*", "/abra/ka/da/bra"));
-    TEST(PathName::Match("*/?a/da/*", "/abra/ka/da/bra"));
-    TEST(PathName::Match("/abra/*", "/abra/ka/da/bra"));
-    TEST(PathName::Match("*/bra", "/abra/ka/da/bra"));
-    TEST(PathName::Match("/abra/*/br*", "/abra/ka/da/bra"));
-    TEST(PathName::Match("*ka*", "/abra/ka/da/bra"));
+    TEST(PathName::Match("*/ka/*", PathName("/abra/ka/da/bra")));
+    TEST(PathName::Match("*/?a/da/*", PathName("/abra/ka/da/bra")));
+    TEST(PathName::Match("/abra/*", PathName("/abra/ka/da/bra")));
+    TEST(PathName::Match("*/bra", PathName("/abra/ka/da/bra")));
+    TEST(PathName::Match("/abra/*/br*", PathName("/abra/ka/da/bra")));
+    TEST(PathName::Match("*ka*", PathName("/abra/ka/da/bra")));
 }
 END_TEST_FUNCTION();
 
@@ -171,7 +171,7 @@ BEGIN_TEST_FUNCTION(10);
     TEST(path.HasExtension("jkl"));
     path.AppendExtension(".jkl");
     TEST(PathName::Equals(path, PathName("/abc/def/ghi.jkl")));
-    path.SetExtension(nullptr);
+    path.SetExtension("");
     TEST(PathName::Equals(path, PathName("/abc/def/ghi")));
     path.AppendExtension(".jkl");
     TEST(PathName::Equals(path, PathName("/abc/def/ghi.jkl")));

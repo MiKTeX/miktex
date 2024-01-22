@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Package data store
  *
- * @copyright Copyright © 2018-2022 Christian Schenk
+ * @copyright Copyright © 2018-2024 Christian Schenk
  *
  * This file is part of MiKTeX Package Manager.
  *
@@ -192,12 +192,12 @@ unsigned long PackageDataStore::DecrementFileRefCount(const PathName& path)
 
 void PackageDataStore::NeedPackageManifestsIni()
 {
-    PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
+    PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
     if (File::Exists(existingPackageManifestsIni))
     {
         return;
     }
-    PathName tpmDir = session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
+    PathName tpmDir = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
     if (Directory::Exists(tpmDir))
     {
         trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format("starting migration: {} -> {}", Q_(tpmDir.ToDisplayString()), Q_(existingPackageManifestsIni.ToDisplayString())));
@@ -213,7 +213,7 @@ void PackageDataStore::NeedPackageManifestsIni()
             {
                 continue;
             }
-            tpmParser->Parse(tpmDir / name);
+            tpmParser->Parse(tpmDir / name.ToString());
             PackageInfo packageInfo = tpmParser->GetPackageInfo();
             PackageManager::PutPackageManifest(*cfgExisting, packageInfo, packageInfo.timePackaged);
             count++;
@@ -235,7 +235,7 @@ PackageDataStore& PackageDataStore::Load()
     unique_ptr<Cfg> cfg = Cfg::Create();
     if (!session->IsAdminMode())
     {
-        PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
+        PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
         if (File::Exists(userPath))
         {
             cfg->Read(userPath);
@@ -243,7 +243,7 @@ PackageDataStore& PackageDataStore::Load()
     }
     if (session->IsAdminMode() || session->IsSharedSetup() && session->GetSpecialPath(SpecialPath::UserInstallRoot).Canonicalize() != session->GetSpecialPath(SpecialPath::CommonInstallRoot).Canonicalize())
     {
-        PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
+        PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
         if (File::Exists(commonPath))
         {
             cfg->SetOptions({ Cfg::Option::NoOverwriteKeys });
@@ -389,8 +389,8 @@ void PackageDataStore::LoadVarData()
     if (!comboCfg.Loaded())
     {
         comboCfg.Load(
-            session->IsAdminMode() ? PathName() : session->GetSpecialPath(SpecialPath::UserInstallRoot) / PathName(MIKTEX_PATH_PACKAGES_INI),
-            session->IsSharedSetup() ? session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_PACKAGES_INI) : PathName());
+            session->IsAdminMode() ? PathName() : session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGES_INI,
+            session->IsSharedSetup() ? session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGES_INI : PathName());
     }
 }
 

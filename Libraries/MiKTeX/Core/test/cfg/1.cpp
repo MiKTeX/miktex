@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -110,7 +110,7 @@ class PrivateKeyProvider : public IPrivateKeyProvider
 public:
   PathName MIKTEXTHISCALL GetPrivateKeyFile() override
   {
-    return MiKTeX::Util::PathName(TEST_SOURCE_DIR) / PathName("cfg") / PathName("test.pkcs8.pem");
+    return MiKTeX::Util::PathName(TEST_SOURCE_DIR) / "cfg" / "test.pkcs8.pem";
   }
 public:
   bool GetPassphrase(std::string & passphrase) override
@@ -134,7 +134,7 @@ BEGIN_TEST_FUNCTION(6);
 {
   shared_ptr<Cfg> cfg;
   TESTX(cfg = Cfg::Create());
-  TESTX(cfg->Read(PathName("sigtest2.ini"), PathName(TEST_SOURCE_DIR) / PathName("cfg") / PathName("test.pub.pem")));
+  TESTX(cfg->Read(PathName("sigtest2.ini"), PathName(TEST_SOURCE_DIR) / "cfg" / "test.pub.pem"));
 }
 END_TEST_FUNCTION();
 

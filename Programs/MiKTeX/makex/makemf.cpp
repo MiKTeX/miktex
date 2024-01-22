@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX MakeMF
  *
- * @copyright Copyright © 1998-2022 Christian Schenk
+ * @copyright Copyright © 1998-2024 Christian Schenk
  *
  * This file is part of the MiKTeX Make Utility Collection.
  *
@@ -284,7 +284,7 @@ void MakeMf::Run(int argc, const char** argv)
     if (!(toStdout || printOnly))
     {
         // make fully qualified destination file name
-        pathDest = destinationDirectory / PathName(texFontname);
+        pathDest = destinationDirectory / texFontname;
         pathDest.AppendExtension(".mf");
         Verbose(fmt::format(T_("Writing on {0}..."), Q_(pathDest)));
         filestream = File::CreateOutputStream(pathDest);

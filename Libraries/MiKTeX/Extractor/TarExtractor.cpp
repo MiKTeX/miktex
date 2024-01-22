@@ -389,7 +389,7 @@ void TarExtractor::Extract(Stream* streamIn_, const PathName& destDir, bool make
       {
         dest.RemoveDirectorySpec();
       }
-      path /= dest;
+      path /= dest.ToString();
 
       // notify the client
       if (callback != nullptr)

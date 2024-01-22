@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Utility functions (Windows)
  *
- * @copyright Copyright © 1996-2023 Christian Schenk
+ * @copyright Copyright © 1996-2024 Christian Schenk
  *
  * This file is part of the MiKTeX Core Library.
  *
@@ -464,7 +464,7 @@ bool Utils::CheckPath(bool repair)
 
     if (session->IsSharedSetup())
     {
-        commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_BIN_DIR);
+        commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_BIN_DIR;
         systemPathOkay = !Directory::Exists(commonBinDir) || !FixProgramSearchPath(WU_(systemPath), commonBinDir, true, repairedSystemPath, systemPathCompetition);
     }
 
@@ -505,7 +505,7 @@ bool Utils::CheckPath(bool repair)
                 repaired = true;
             }
         }
-        PathName userBinDir = session->GetSpecialPath(SpecialPath::UserInstallRoot) / PathName(MIKTEX_PATH_BIN_DIR);
+        PathName userBinDir = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_BIN_DIR;
         string repairedUserPath;
         bool userPathCompetition;
         userPathOkay = !Directory::Exists(userBinDir) || !FixProgramSearchPath(WU_(userPath), userBinDir, true, repairedUserPath, userPathCompetition);

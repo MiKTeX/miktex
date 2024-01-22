@@ -103,7 +103,7 @@ bool SessionImpl::SearchFileSystem(const string& fileName, const char* pathPatte
 
   for (vector<PathName>::const_iterator it = directories.begin(); (!found || all) && it != directories.end(); ++it)
   {
-    PathName path(*it, PathName(fileName));
+    PathName path(*it / fileName);
     if (CheckCandidate(path, nullptr, callback))
     {
       found = true;
@@ -147,7 +147,7 @@ bool SessionImpl::FindFileInDirectories(const string& fileName, const vector<Pat
     PathName pathWD;
     for (unsigned idx = 0; (!found || all) && GetWorkingDirectory(idx, pathWD); ++idx)
     {
-      PathName path = pathWD / PathName(fileName);
+      PathName path = pathWD / fileName;
       path.MakeFullyQualified();
       if (CheckCandidate(path, nullptr, callback))
       {
@@ -359,12 +359,12 @@ bool SessionImpl::FindFileByType(const string& fileName, FileType fileType, bool
       bool renew = false;
       if (IsSharedSetup())
       {
-        PathName pathPackagesIni(GetSpecialPath(SpecialPath::CommonInstallRoot), PathName(MIKTEX_PATH_PACKAGES_INI));
+        PathName pathPackagesIni(GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGES_INI);
         renew = IsNewer(pathPackagesIni, result[0]);
       }
       if (!renew && !IsAdminMode() && (!IsSharedSetup() || GetUserConfigRoot() != GetCommonConfigRoot()))
       {
-        PathName pathPackagesIni(GetSpecialPath(SpecialPath::UserInstallRoot), PathName(MIKTEX_PATH_PACKAGES_INI));
+        PathName pathPackagesIni(GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGES_INI);
         renew = IsNewer(pathPackagesIni, result[0]);
       }
       if (renew)
