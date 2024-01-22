@@ -206,6 +206,13 @@ public:
 
     MIKTEXUTILTHISAPI(PathName&) Convert(ConvertPathNameOptions options);
 
+    /// Cleans up this path name.
+    /// @return Returns a reference to this object.
+    PathName& Clean()
+    {
+        return Convert({ ConvertPathNameOption::CleanUp });
+    }
+
     /// Replaces backslashes with normal slashes.
     /// @return Returns a reference to this object.
     PathName& ConvertToUnix()
