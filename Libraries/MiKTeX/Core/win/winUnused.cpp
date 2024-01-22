@@ -1,6 +1,6 @@
 /* winUnused.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -54,7 +54,7 @@ MIKTEXSTATICFUNC(bool) AddEventSource()
     return false;
   }
   res =
-    RegSetValueEx(hkey.Get(), "EventMessageFile", 0, REG_EXPAND_SZ, reinterpret_cast<unsigned char *>(&szModule), static_cast<unsigned long>((StrLen(szModule) + 1)
+    RegSetValueEx(hkey.Get(), "EventMessageFile", 0, REG_EXPAND_SZ, reinterpret_cast<unsigned char *>(&szModule), static_cast<unsigned long>((strlen(szModule) + 1)
       * sizeof(char)));
   if (res != ERROR_SUCCESS)
   {

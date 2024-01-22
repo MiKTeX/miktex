@@ -116,7 +116,7 @@ GString *getCurrentDir() {
 #elif defined(MIKTEX)
   MiKTeX::Util::PathName cwd;
   cwd.SetToCurrentDirectory();
-  MiKTeX::Util::StringUtil::CopyString(buf, sizeof(buf) / sizeof(buf[0]), cwd.GetData());
+  MiKTeX::Util::StringUtil::CopyCeeString(buf, sizeof(buf) / sizeof(buf[0]), cwd.GetData());
   if (true)
 #elif defined(_WIN32)
   if (GetCurrentDirectoryA(sizeof(buf), buf))

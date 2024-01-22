@@ -49,7 +49,7 @@ DEVMODEW* Printer::GetDevMode(const char* lpszPrinterName)
 {
   HANDLE hPrinter;
   wchar_t szPrinterName[_MAX_PATH];
-  StringUtil::CopyString(szPrinterName, _MAX_PATH, lpszPrinterName);
+  StringUtil::CopyCeeString(szPrinterName, _MAX_PATH, lpszPrinterName);
   if (!OpenPrinterW(szPrinterName, &hPrinter, nullptr))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("OpenPrinterW", "printerName", lpszPrinterName);
@@ -77,7 +77,7 @@ PRINTER_INFO_2* Printer::GetPrinterInfo(const char* lpszPrinterName, DEVMODE ** 
 {
   HANDLE hPrinter;
   wchar_t szPrinterName[_MAX_PATH];
-  StringUtil::CopyString(szPrinterName, _MAX_PATH, lpszPrinterName);
+  StringUtil::CopyCeeString(szPrinterName, _MAX_PATH, lpszPrinterName);
   if (!OpenPrinterW(szPrinterName, &hPrinter, nullptr))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("OpenPrinterW", "printerName", lpszPrinterName);

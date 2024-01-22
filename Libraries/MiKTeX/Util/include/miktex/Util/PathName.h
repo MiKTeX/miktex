@@ -245,7 +245,7 @@ public:
 
     std::wstring ToWideCharString() const
     {
-        return MiKTeX::Util::StringUtil::UTF8ToWideChar(GetData());
+        return MiKTeX::Util::StringUtil::UTF8ToWideChar(ToString());
     }
 
 #if defined(MIKTEX_WINDOWS)

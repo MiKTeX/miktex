@@ -410,7 +410,7 @@ void HandleOption(int ch, const char* optArg, bool& handled) override   \
 
 #define OPTION_ENTRY_STRING(ch, var, size)                          \
     case ch:                                                        \
-        MiKTeX::Util::StringUtil::CopyString(var, size, optArg);    \
+        MiKTeX::Util::StringUtil::CopyCeeString(var, size, optArg);    \
         break;
 
 #define OPTION_ENTRY(ch, action)                \

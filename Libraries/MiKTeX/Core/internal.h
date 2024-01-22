@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Internal definitions
  *
- * @copyright Copyright © 1996-2023 Christian Schenk
+ * @copyright Copyright © 1996-2024 Christian Schenk
  *
  * This file is part of the MiKTeX Core Library.
  *
@@ -170,7 +170,7 @@ const size_t MPM_ROOT_PATH_LEN_ = 14;
 
 #if defined(MIKTEX_DEBUG)
 #define MPM_ROOT_PATH_LEN                                               \
-  static_cast<size_t>(MIKTEX_ASSERT(MiKTeX::Util::StrLen(MPM_ROOT_PATH) \
+  static_cast<size_t>(MIKTEX_ASSERT(strlen(MPM_ROOT_PATH)               \
                              == MPM_ROOT_PATH_LEN_),                    \
                       MPM_ROOT_PATH_LEN_)
 #else
@@ -345,7 +345,7 @@ struct StringComparerIgnoringCase
 {
     bool operator()(const std::string& lhs, const std::string& rhs) const
     {
-        return MiKTeX::Util::StringCompare(lhs.c_str(), rhs.c_str(), true) < 0;
+        return MiKTeX::Util::StringCompare(lhs, rhs, true) < 0;
     }
 };
 

@@ -158,7 +158,7 @@ public:
                 requiredSize = StrLen(lpsz) + 1;
             }
             Reserve(requiredSize);
-            StringUtil::CopyString(buffer, GetCapacity(), lpsz);
+            StringUtil::CopyCeeString(buffer, GetCapacity(), lpsz);
         }
     }
 
@@ -170,14 +170,14 @@ public:
     void Append(const std::basic_string<CharType>& s)
     {
         Reserve(GetLength() + s.length() + 1);
-        StringUtil::AppendString(buffer, GetCapacity(), s.c_str());
+        StringUtil::AppendCeeString(buffer, GetCapacity(), s.c_str());
     }
 
     void Append(const CharType* lpsz)
     {
         // TODO: MIKTEX_ASSERT_STRING(lpsz);
         Reserve(GetLength() + StrLen(lpsz) + 1);
-        StringUtil::AppendString(buffer, GetCapacity(), lpsz);
+        StringUtil::AppendCeeString(buffer, GetCapacity(), lpsz);
     }
 
     void Append(const CharType* s, std::size_t len)

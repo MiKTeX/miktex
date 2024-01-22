@@ -312,7 +312,7 @@ MiKTeX::Util::PathName WebAppInputLine::DecodeFileName(const PathName& fileNameI
     if (!Utils::IsUTF8(fileNameInternalEncoding.GetData()))
     {
         LogWarn("converting ANSI file name");
-        auto fileName = StringUtil::AnsiToUTF8(fileNameInternalEncoding.GetData());
+        auto fileName = StringUtil::AnsiToUTF8(fileNameInternalEncoding.ToString());
         LogWarn("conversion succeeded: " + fileName);
         return PathName(fileName);
     }

@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX Setup Utility
  *
- * @copyright Copyright © 2014-2023 Christian Schenk
+ * @copyright Copyright © 2014-2024 Christian Schenk
  *
  * This file is part of MiKTeX Setup Utility.
  *
@@ -407,7 +407,7 @@ public:
     {
         if (lhs.ranking == rhs.ranking)
         {
-            return StringCompare(lhs.country.c_str(), rhs.country.c_str(), true) < 0;
+            return StringCompare(lhs.country, rhs.country, true) < 0;
         }
         else
         {

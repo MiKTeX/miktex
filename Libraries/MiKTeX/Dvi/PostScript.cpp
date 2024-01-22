@@ -455,7 +455,7 @@ bool PostScript::FindGraphicsFile(const char* fileName, PathName& result)
     else
     {
       char szTempFileName[_MAX_PATH];
-      StringUtil::CopyString(szTempFileName, _MAX_PATH, PathName().SetToTempFile().GetData());
+      StringUtil::CopyCeeString(szTempFileName, _MAX_PATH, PathName().SetToTempFile().GetData());
       string command;
       command = fileName + 1;
       command += " > ";

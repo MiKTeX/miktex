@@ -284,7 +284,7 @@ void CheckStartupConfig(StartupConfig& startupConfig)
         {
             continue;
         }
-        if (StringUtil::Contains(startupConfig.commonRoots.c_str(), path.GetData(), string(1, PathNameUtil::PathNameDelimiter).c_str(), true))
+        if (StringUtil::Contains(startupConfig.commonRoots, path.ToString(), string(1, PathNameUtil::PathNameDelimiter), true))
         {
             MIKTEX_FATAL_ERROR_2(T_("Improper options: --user-roots value collides with --common-roots value."), "path", path.ToString());
         }

@@ -31,7 +31,7 @@ using namespace std;
 
 using namespace MiKTeX::Util;
 
-static wchar_t* AnsiToWideChar(const char* source, wchar_t* dest, size_t destSize)
+static wchar_t* AnsiCeeToWideCharCee(const char* source, wchar_t* dest, size_t destSize)
 {
     if (*source == 0)
     {
@@ -51,8 +51,8 @@ static wchar_t* AnsiToWideChar(const char* source, wchar_t* dest, size_t destSiz
     return dest;
 }
 
-string StringUtil::AnsiToUTF8(const char* ansi)
+string StringUtil::AnsiToUTF8(const string& ansi)
 {
-    CharBuffer<wchar_t, 512> buf(strlen(ansi) + 1);
-    return StringUtil::WideCharToUTF8(AnsiToWideChar(ansi, buf.GetData(), buf.GetCapacity()));
+    CharBuffer<wchar_t, 512> buf(ansi.length() + 1);
+    return StringUtil::WideCharToUTF8(AnsiCeeToWideCharCee(ansi.c_str(), buf.GetData(), buf.GetCapacity()));
 }

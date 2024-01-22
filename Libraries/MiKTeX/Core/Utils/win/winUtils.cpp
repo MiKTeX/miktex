@@ -550,7 +550,7 @@ void Utils::RegisterShellFileAssoc(const string& extension, const string& progId
     if (!haveOtherProgId)
     {
         haveOtherProgId = winRegistry::TryGetValue(HKEY_LOCAL_MACHINE, regPath.GetData(), "", otherProgId);
-        haveOtherProgId = haveOtherProgId && StringCompare(progId.c_str(), otherProgId.c_str(), true) != 0;
+        haveOtherProgId = haveOtherProgId && StringCompare(progId, otherProgId, true) != 0;
     }
     HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
     PathName openWithProgIds(regPath);
@@ -583,7 +583,7 @@ void Utils::UnregisterShellFileAssoc(const string& extension, const string& prog
     }
     string backupProgId;
     bool haveBackupProgId = winRegistry::TryGetValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_COM_MAJOR_MINOR_STR ".backup", backupProgId);
-    if (haveBackupProgId || StringCompare(existingProgId.c_str(), progId.c_str(), true) != 0)
+    if (haveBackupProgId || StringCompare(existingProgId, progId, true) != 0)
     {
         if (haveBackupProgId)
         {

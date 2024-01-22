@@ -546,13 +546,13 @@ protected:
 
     void c4pstrcpy(char* dst, std::size_t size, const char* src)
     {
-        MiKTeX::Util::StringUtil::CopyString(dst, size, src);
+        MiKTeX::Util::StringUtil::CopyCeeString(dst, size, src);
     }
 
     std::size_t c4pstrlen(const char* lpsz)
     {
         MIKTEX_ASSERT_STRING(lpsz);
-        return MiKTeX::Util::StrLen(lpsz);
+        return strlen(lpsz);
     }
 
     template<class T> bool c4pfopen(T& f, const char* lpszName, const char* lpszMode, bool mustExist)

@@ -529,7 +529,7 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
       }
       else if (File::Exists(PathName(path)))
       {
-        StringUtil::CopyString(szCmd, ARRAY_SIZE(szCmd), PathName(path).ToWideCharString().c_str());
+        StringUtil::CopyCeeString(szCmd, ARRAY_SIZE(szCmd), PathName(path).ToWideCharString().c_str());
       }
     }
     if (szCmd[0] == 0)

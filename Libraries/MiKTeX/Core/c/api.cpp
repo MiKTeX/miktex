@@ -34,14 +34,14 @@ using namespace MiKTeX::Util;
 MIKTEXCORECEEAPI(void) miktex_create_temp_file_name(char* fileName)
 {
     MIKTEX_ASSERT_PATH_BUFFER(fileName);
-    StringUtil::CopyString(fileName, BufferSizes::MaxPath, MiKTeX::Util::PathName().SetToTempFile().GetData());
+    StringUtil::CopyCeeString(fileName, BufferSizes::MaxPath, MiKTeX::Util::PathName().SetToTempFile().GetData());
 }
 
 MIKTEXCORECEEAPI(void) miktex_uncompress_file(const char* pathIn, char* pathOut)
 {
     MiKTeX::Util::PathName temp;
     Utils::UncompressFile(MiKTeX::Util::PathName(pathIn), temp);
-    StringUtil::CopyString(pathOut, BufferSizes::MaxPath, temp.GetData());
+    StringUtil::CopyCeeString(pathOut, BufferSizes::MaxPath, temp.GetData());
 }
 
 MIKTEXCORECEEAPI(void*) miktex_core_malloc(size_t size, const char* fileName, int line)
@@ -116,13 +116,13 @@ MIKTEXCORECEEAPI(void) miktex_core_fatal_error(const char* miktexFunction, const
 MIKTEXCORECEEAPI(int) miktex_get_miktex_banner(char* buf, size_t bufSize)
 {
     string banner = Utils::GetMiKTeXBannerString();
-    StringUtil::CopyString(buf, bufSize, banner.c_str());
+    StringUtil::CopyCeeString(buf, bufSize, banner.c_str());
     return 1;
 }
 
 MIKTEXCORECEEAPI(int) miktex_get_miktex_version_string_ex(char* version, size_t bufSize)
 {
-    StringUtil::CopyString(version, bufSize, Utils::GetMiKTeXVersionString().c_str());
+    StringUtil::CopyCeeString(version, bufSize, Utils::GetMiKTeXVersionString().c_str());
     return 1;
 }
 
@@ -136,7 +136,7 @@ MIKTEXCORECEEAPI(int) miktex_find_file(const char* fileName, const char* pathLis
     {
         return 0;
     }
-    StringUtil::CopyString(path, BufferSizes::MaxPath, temp.GetData());
+    StringUtil::CopyCeeString(path, BufferSizes::MaxPath, temp.GetData());
     return 1;
 }
 
@@ -149,7 +149,7 @@ MIKTEXCORECEEAPI(int) miktex_find_tfm_file(const char* fontName, char* path)
     {
         return 0;
     }
-    StringUtil::CopyString(path, BufferSizes::MaxPath, temp.GetData());
+    StringUtil::CopyCeeString(path, BufferSizes::MaxPath, temp.GetData());
     return 1;
 }
 
@@ -162,7 +162,7 @@ MIKTEXCORECEEAPI(int) miktex_find_ttf_file(const char* fontName, char* path)
     {
         return 0;
     }
-    StringUtil::CopyString(path, BufferSizes::MaxPath, temp.GetData());
+    StringUtil::CopyCeeString(path, BufferSizes::MaxPath, temp.GetData());
     return 1;
 }
 
@@ -175,7 +175,7 @@ MIKTEXCORECEEAPI(int) miktex_find_enc_file(const char* fontName, char* path)
     {
         return 0;
     }
-    StringUtil::CopyString(path, BufferSizes::MaxPath, temp.GetData());
+    StringUtil::CopyCeeString(path, BufferSizes::MaxPath, temp.GetData());
     return 1;
 }
 
@@ -188,7 +188,7 @@ MIKTEXCORECEEAPI(int) miktex_find_psheader_file(const char* headerName, char* pa
     {
         return 0;
     }
-    StringUtil::CopyString(path, BufferSizes::MaxPath, temp.GetData());
+    StringUtil::CopyCeeString(path, BufferSizes::MaxPath, temp.GetData());
     return 1;
 }
 
@@ -215,7 +215,7 @@ MIKTEXCORECEEAPI(int) miktex_find_input_file(const char* applicationName, const 
             return 0;
         }
     }
-    StringUtil::CopyString(path, BufferSizes::MaxPath, temp.GetData());
+    StringUtil::CopyCeeString(path, BufferSizes::MaxPath, temp.GetData());
     return 1;
 }
 
@@ -228,7 +228,7 @@ MIKTEXCORECEEAPI(int) miktex_find_hbf_file(const char* fontName, char* path)
     {
         return 0;
     }
-    StringUtil::CopyString(path, BufferSizes::MaxPath, temp.GetData());
+    StringUtil::CopyCeeString(path, BufferSizes::MaxPath, temp.GetData());
     return 1;
 }
 
@@ -241,7 +241,7 @@ MIKTEXCORECEEAPI(int) miktex_find_miktex_executable(const char* exeName, char* e
     {
         return 0;
     }
-    StringUtil::CopyString(exePath, BufferSizes::MaxPath, temp.GetData());
+    StringUtil::CopyCeeString(exePath, BufferSizes::MaxPath, temp.GetData());
     return 1;
 }
 
@@ -253,19 +253,19 @@ MIKTEXCORECEEAPI(unsigned) miktex_get_number_of_texmf_roots()
 MIKTEXCORECEEAPI(char*) miktex_get_root_directory(unsigned r, char* path)
 {
     MIKTEX_ASSERT_PATH_BUFFER(path);
-    StringUtil::CopyString(path, BufferSizes::MaxPath, MIKTEX_SESSION()->GetRootDirectoryPath(r).GetData());
+    StringUtil::CopyCeeString(path, BufferSizes::MaxPath, MIKTEX_SESSION()->GetRootDirectoryPath(r).GetData());
     return path;
 }
 
 MIKTEXCORECEEAPI(wchar_t*) miktex_utf8_to_wide_char(const char* utf8, size_t sizeWideChar, wchar_t* wideChar)
 {
-    StringUtil::CopyString(wideChar, sizeWideChar, utf8);
+    StringUtil::CopyCeeString(wideChar, sizeWideChar, utf8);
     return wideChar;
 }
 
 MIKTEXCORECEEAPI(char*) miktex_wide_char_to_utf8(const wchar_t* wideChar, size_t sizeUtf8, char* utf8)
 {
-    StringUtil::CopyString(utf8, sizeUtf8, wideChar);
+    StringUtil::CopyCeeString(utf8, sizeUtf8, wideChar);
     return utf8;
 }
 

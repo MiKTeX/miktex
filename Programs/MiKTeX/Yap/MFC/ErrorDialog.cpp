@@ -163,7 +163,7 @@ void ErrorDialogImpl::OnCopy()
     else
     {
       AutoGlobal autoGlobal(pGlobal);
-      StringUtil::CopyString(reinterpret_cast<char*>(pGlobal), report.length() + 1, report.c_str());
+      StringUtil::CopyCeeString(reinterpret_cast<char*>(pGlobal), report.length() + 1, report.c_str());
     }
     if (SetClipboardData(CF_TEXT, hGlobal) == nullptr)
     {

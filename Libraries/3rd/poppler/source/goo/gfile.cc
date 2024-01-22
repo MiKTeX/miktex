@@ -383,7 +383,7 @@ Goffset GooFile::size() const
 std::unique_ptr<GooFile> GooFile::open(const std::string &fileName)
 {
 #if defined(MIKTEX_WINDOWS)
-    return GooFile::open(MiKTeX::Util::StringUtil::UTF8ToWideChar(fileName.c_str()).c_str());
+    return GooFile::open(MiKTeX::Util::StringUtil::UTF8ToWideChar(fileName).c_str());
 #else
     HANDLE handle = CreateFileA(fileName.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 

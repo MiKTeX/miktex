@@ -44,7 +44,7 @@ SetupWizard::SetupWizard(shared_ptr<PackageManager> packageManager) :
   }
   LOGFONT TitleLogFont = ncm.lfMessageFont;
   TitleLogFont.lfWeight = FW_BOLD;
-  StringUtil::CopyString(TitleLogFont.lfFaceName, LF_FACESIZE, _T("Verdana Bold"));
+  StringUtil::CopyCeeString(TitleLogFont.lfFaceName, LF_FACESIZE, _T("Verdana Bold"));
   HDC hdc = ::GetDC(nullptr);
   TitleLogFont.lfHeight = 0 - GetDeviceCaps(hdc, LOGPIXELSY) * 12 / 72;
   ::ReleaseDC(nullptr, hdc);

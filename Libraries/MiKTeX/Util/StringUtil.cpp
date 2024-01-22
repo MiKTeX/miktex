@@ -67,7 +67,7 @@ vector<string> StringUtil::Split(const std::string& s, char sep)
     return result;
 }
 
-size_t StringUtil::AppendString(char* dest, size_t destSize, const char* source)
+size_t StringUtil::AppendCeeString(char* dest, size_t destSize, const char* source)
 {
     // TODO: MIKTEX_ASSERT_STRING(lpszBuf);
     // TODO: MIKTEX_ASSERT_CHAR_BUFFER(lpszBuf, bufSize);
@@ -85,7 +85,7 @@ size_t StringUtil::AppendString(char* dest, size_t destSize, const char* source)
         FATAL_ERROR();
     }
 
-    length += CopyString(&dest[length], destSize - length, source);
+    length += CopyCeeString(&dest[length], destSize - length, source);
 
     return length;
 }
@@ -138,36 +138,36 @@ template<typename CharType> size_t GenericCopyString(CharType* lpszBuf, size_t b
     return length;
 }
 
-size_t StringUtil::CopyString(char* dest, size_t destSize, const char* source)
+size_t StringUtil::CopyCeeString(char* dest, size_t destSize, const char* source)
 {
     return GenericCopyString(dest, destSize, source);
 }
 
-size_t StringUtil::CopyString(wchar_t* dest, size_t destSize, const wchar_t* source)
+size_t StringUtil::CopyCeeString(wchar_t* dest, size_t destSize, const wchar_t* source)
 {
     return GenericCopyString(dest, destSize, source);
 }
 
-size_t StringUtil::CopyString(char* dest, size_t destSize, const wchar_t* source)
+size_t StringUtil::CopyCeeString(char* dest, size_t destSize, const wchar_t* source)
 {
-    return CopyString(dest, destSize, WideCharToUTF8(source).c_str());
+    return CopyCeeString(dest, destSize, WideCharToUTF8(source).c_str());
 }
 
-size_t StringUtil::CopyString(char16_t* dest, size_t destSize, const char* source)
+size_t StringUtil::CopyCeeString(char16_t* dest, size_t destSize, const char* source)
 {
     return GenericCopyString(dest, destSize, UTF8ToUTF16(source).c_str());
 }
 
-size_t StringUtil::CopyString(wchar_t* dest, size_t destSize, const char* source)
+size_t StringUtil::CopyCeeString(wchar_t* dest, size_t destSize, const char* source)
 {
-    return CopyString(dest, destSize, UTF8ToWideChar(source).c_str());
+    return CopyCeeString(dest, destSize, UTF8ToWideChar(source).c_str());
 }
 
-bool StringUtil::Contains(const char* list, const char* element, const char* delims, bool ignoreCase)
+bool StringUtil::Contains(const string& list, const string& element, const string& delims, bool ignoreCase)
 {
     for (Tokenizer tok(list, delims); tok; ++tok)
     {
-        if (StringCompare((*tok).c_str(), element, ignoreCase) == 0)
+        if (StringCompare((*tok), element, ignoreCase) == 0)
         {
             return true;
         }
@@ -227,7 +227,7 @@ string StringUtil::FormatString2(const string& message, const unordered_map<stri
     return result.ToString();
 }
 
-u16string StringUtil::UTF8ToUTF16(const char* utf8Chars)
+u16string StringUtil::UTF8ToUTF16(const string& utf8Chars)
 {
     try
     {
@@ -250,7 +250,7 @@ u16string StringUtil::UTF8ToUTF16(const char* utf8Chars)
     }
 }
 
-string StringUtil::UTF16ToUTF8(const char16_t* utf16Chars)
+string StringUtil::UTF16ToUTF8(const u16string& utf16Chars)
 {
     try
     {
@@ -258,8 +258,8 @@ string StringUtil::UTF16ToUTF8(const char16_t* utf16Chars)
         // workround for VS2015 bug: 
         // http://stackoverflow.com/questions/32055357/visual-studio-c-2015-stdcodecvt-with-char16-t-or-char32-t
         wstring_convert<codecvt_utf8_utf16<int16_t>, int16_t> conv;
-        const int16_t* p = reinterpret_cast<const int16_t*>(utf16Chars);
-        return conv.to_bytes(p, p + StrLen(utf16Chars));
+        const int16_t* p = reinterpret_cast<const int16_t*>(utf16Chars.c_str());
+        return conv.to_bytes(p, p + u16string.length());
 #else
         wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t> conv;
         return conv.to_bytes(utf16Chars);
@@ -271,7 +271,7 @@ string StringUtil::UTF16ToUTF8(const char16_t* utf16Chars)
     }
 }
 
-u32string StringUtil::UTF8ToUTF32(const char* utf8Chars)
+u32string StringUtil::UTF8ToUTF32(const string& utf8Chars)
 {
     try
     {
@@ -294,26 +294,7 @@ u32string StringUtil::UTF8ToUTF32(const char* utf8Chars)
     }
 }
 
-string StringUtil::UTF32ToUTF8(const char32_t* utf32Chars)
-{
-    try
-    {
-#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1921
-        wstring_convert<codecvt_utf8<int32_t>, int32_t> conv;
-        const int32_t* p = reinterpret_cast<const int32_t*>(utf32Chars);
-        return conv.to_bytes(p, p + StrLen(utf32Chars));
-#else
-        wstring_convert<codecvt_utf8<char32_t>, char32_t> conv;
-        return conv.to_bytes(utf32Chars);
-#endif
-    }
-    catch (const range_error&)
-    {
-        throw Exception("Conversion from UFT-32 string to UTF-8 byte sequence did not succeed.");
-    }
-}
-
-wstring StringUtil::UTF8ToWideChar(const char* utf8Chars)
+wstring StringUtil::UTF8ToWideChar(const string& utf8Chars)
 {
     try
     {
@@ -326,7 +307,7 @@ wstring StringUtil::UTF8ToWideChar(const char* utf8Chars)
     }
 }
 
-string StringUtil::WideCharToUTF8(const wchar_t* wideChars)
+string StringUtil::WideCharToUTF8(const wstring& wideChars)
 {
     try
     {

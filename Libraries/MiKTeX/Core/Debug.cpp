@@ -85,7 +85,7 @@ char* MIKTEXCEECALL MiKTeX::Debug::StrDup(const char* lpsz, const SourceLocation
 {
     size_t len = StrLen(lpsz);
     char* lpsz2 = reinterpret_cast<char*>(Malloc(sizeof(*lpsz) * (len + 1), sourceLocation));
-    StringUtil::CopyString(lpsz2, len + 1, lpsz);
+    StringUtil::CopyCeeString(lpsz2, len + 1, lpsz);
     return lpsz2;
 }
 

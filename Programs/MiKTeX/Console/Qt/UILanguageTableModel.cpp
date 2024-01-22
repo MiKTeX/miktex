@@ -1,6 +1,6 @@
 /* UILanguageTableModel.cpp:
 
-   Copyright (C) 2020-2021 Christian Schenk
+   Copyright (C) 2020-2024 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -126,7 +126,7 @@ void UILanguageTableModel::InternalReload()
   }
   std::sort(uiLanguages.begin() + 1, uiLanguages.end(), [](const UILanguage& a, const UILanguage& b)
     {
-      return StringCompare(a.displayName.c_str(), b.displayName.c_str()) < 0;
+      return StringCompare(a.displayName, b.displayName) < 0;
     });
 }
 

@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX TeXMF base implementation
  *
- * @copyright Copyright © 1996-2022 Christian Schenk
+ * @copyright Copyright © 1996-2024 Christian Schenk
  *
  * This file is part of the MiKTeX TeXMF Framework.
  *
@@ -250,7 +250,7 @@ void TeXMFApp::AddOptions()
     WebAppInputLine::AddOptions();
 
     bool invokedAsInitProgram = false;
-    if (StringUtil::Contains(GetInitProgramName().c_str(), Utils::GetExeName().c_str()))
+    if (StringUtil::Contains(GetInitProgramName(), Utils::GetExeName()))
     {
         invokedAsInitProgram = true;
     }
@@ -735,7 +735,7 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName& fileName_, FILE** ppFile, void
 
 void TeXMFApp::ProcessCommandLineOptions()
 {
-    if (StringUtil::Contains(GetInitProgramName().c_str(), Utils::GetExeName().c_str()))
+    if (StringUtil::Contains(GetInitProgramName(), Utils::GetExeName()))
     {
         pimpl->isInitProgram = true;
     }
@@ -762,8 +762,8 @@ void TeXMFApp::ProcessCommandLineOptions()
 bool TeXMFApp::IsVirgin() const
 {
     string exeName = Utils::GetExeName();
-    if (StringUtil::Contains(GetProgramName().c_str(), exeName.c_str())
-        || StringUtil::Contains(GetVirginProgramName().c_str(), exeName.c_str()))
+    if (StringUtil::Contains(GetProgramName(), exeName)
+        || StringUtil::Contains(GetVirginProgramName(), exeName))
     {
         return true;
     }
@@ -772,8 +772,8 @@ bool TeXMFApp::IsVirgin() const
     if (exeName.compare(0, prefixLen, MIKTEX_PREFIX) == 0)
     {
         exeName = exeName.substr(prefixLen);
-        if (StringUtil::Contains(GetProgramName().c_str(), exeName.c_str())
-            || StringUtil::Contains(GetVirginProgramName().c_str(), exeName.c_str()))
+        if (StringUtil::Contains(GetProgramName(), exeName)
+            || StringUtil::Contains(GetVirginProgramName(), exeName))
         {
             return true;
         }
@@ -1137,7 +1137,7 @@ int TeXMFApp::MakeTeXString(const char* lpsz) const
     }
     else if (AmI(TeXjpEngine))
     {
-        len = StrLen(lpsz);
+        len = strlen(lpsz);
         CheckPoolPointer(stringHandler->poolptr(), len);
         for (int i = 0; i < len; ++i)
         {
@@ -1146,7 +1146,7 @@ int TeXMFApp::MakeTeXString(const char* lpsz) const
     }
     else
     {
-        len = StrLen(lpsz);
+        len = strlen(lpsz);
         CheckPoolPointer(stringHandler->poolptr(), len);
         memcpy(stringHandler->strpool() + stringHandler->poolptr(), lpsz, len * sizeof(char));
     }

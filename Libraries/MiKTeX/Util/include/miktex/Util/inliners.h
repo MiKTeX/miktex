@@ -15,6 +15,8 @@
 
 #include <miktex/Util/config.h>
 
+#include <string>
+
 #include <cstring>
 #include <cwchar>
 
@@ -49,7 +51,7 @@ template<> inline size_t StrLen<wchar_t>(const wchar_t* lpsz)
     return wcslen(lpsz);
 }
 
-inline int StringCompare(const char* lpsz1, const char* lpsz2, bool ignoreCase)
+inline int CeeStringCompare(const char* lpsz1, const char* lpsz2, bool ignoreCase)
 {
 #if defined(_MSC_VER)
     return ignoreCase ? _stricmp(lpsz1, lpsz2) : strcmp(lpsz1, lpsz2);
@@ -58,7 +60,7 @@ inline int StringCompare(const char* lpsz1, const char* lpsz2, bool ignoreCase)
 #endif
 }
 
-inline int StringCompare(const char* lpsz1, const char* lpsz2, size_t n, bool ignoreCase)
+inline int CeeStringCompare(const char* lpsz1, const char* lpsz2, size_t n, bool ignoreCase)
 {
 #if defined(_MSC_VER)
     return ignoreCase ? _strnicmp(lpsz1, lpsz2, n) : strncmp(lpsz1, lpsz2, n);
@@ -67,9 +69,19 @@ inline int StringCompare(const char* lpsz1, const char* lpsz2, size_t n, bool ig
 #endif
 }
 
-inline int StringCompare(const char* lpsz1, const char* lpsz2)
+inline int CeeStringCompare(const char* lpsz1, const char* lpsz2)
 {
-    return StringCompare(lpsz1, lpsz2, false);
+    return CeeStringCompare(lpsz1, lpsz2, false);
+}
+
+inline int StringCompare(const std::string& s1, const std::string& s2, bool ignoreCase)
+{
+    return CeeStringCompare(s1.c_str(), s2.c_str(), ignoreCase);
+}
+
+inline int StringCompare(const std::string& s1, const std::string& s2)
+{
+    return StringCompare(s1, s2, false);
 }
 
 MIKTEX_UTIL_END_NAMESPACE;

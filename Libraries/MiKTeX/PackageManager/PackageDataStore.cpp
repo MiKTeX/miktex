@@ -270,7 +270,7 @@ void PackageDataStore::Load(Cfg& cfg)
 
 #if IGNORE_OTHER_SYSTEMS
         string targetSystems = packageInfo.targetSystem;
-        if (targetSystems != "" && !StringUtil::Contains(targetSystems.c_str(), MIKTEX_SYSTEM_TAG))
+        if (targetSystems != "" && !StringUtil::Contains(targetSystems, MIKTEX_SYSTEM_TAG))
         {
             continue;
         }

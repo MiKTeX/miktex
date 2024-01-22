@@ -104,7 +104,7 @@ void PackageInstallerCallbackImpl::ReportLine(const string& str)
 void SetupServiceCallbackImpl::ReportLine(const string& str)
 {
 #if defined(MIKTEX_WINDOWS)
-  OutputDebugStringW(StringUtil::UTF8ToWideChar(str.c_str()).c_str());
+  OutputDebugStringW(StringUtil::UTF8ToWideChar(str).c_str());
 #endif
 }
 

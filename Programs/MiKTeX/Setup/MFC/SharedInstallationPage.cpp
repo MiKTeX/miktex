@@ -65,7 +65,7 @@ BOOL SharedInstallationPage::OnInitDialog()
     {
       if (GetLastError() == ERROR_NOT_LOGGED_ON)
       {
-        StringUtil::CopyString(logonName, 30, L"unknown user");
+        StringUtil::CopyCeeString(logonName, 30, L"unknown user");
       }
       else
       {

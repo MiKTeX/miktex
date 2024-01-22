@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Private parts
  *
- * @copyright Copyright © 2022 Christian Schenk
+ * @copyright Copyright © 2022-2024 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -25,7 +25,7 @@ public:
     {
         if (lhs.ranking == rhs.ranking)
         {
-            return MiKTeX::Util::StringCompare(lhs.country.c_str(), rhs.country.c_str(), true) < 0;
+            return MiKTeX::Util::StringCompare(lhs.country, rhs.country, true) < 0;
         }
         else
         {

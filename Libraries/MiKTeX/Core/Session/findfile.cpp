@@ -601,7 +601,7 @@ bool SessionImpl::FindPkFile(const string& fontName, const string& mfMode, int d
     return true;
   }
 
-  if (mfMode.empty() || StringCompare(mfMode.c_str(), "modeless", true) != 0)
+  if (mfMode.empty() || StringCompare(mfMode, "modeless", true) != 0)
   {
     // RECURSION
     return FindPkFile(fontName, "modeless", dpi, result);

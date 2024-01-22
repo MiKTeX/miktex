@@ -384,7 +384,7 @@ char* miktex_wchar_to_utf8(const wchar_t* w)
 #if defined(MIKTEX_WINDOWS)
 void miktex_copy_wchar_to_utf8(char* dest, size_t destSize, const wchar_t* source)
 {
-    StringUtil::CopyString(dest, destSize, source);
+    StringUtil::CopyCeeString(dest, destSize, source);
 }
 #endif
 

@@ -92,10 +92,10 @@ inline void DbgView(const std::string& s)
 #endif
 }
 
-inline bool StripPrefix(const std::string& str, const char* lpszPrefix, std::string& result)
+inline bool StripPrefix(const std::string& str, const char* prefix, std::string& result)
 {
-  std::size_t n = MiKTeX::Util::StrLen(lpszPrefix);
-  if (MiKTeX::Util::PathName::ComparePrefixes(MiKTeX::Util::PathName(str), MiKTeX::Util::PathName(lpszPrefix), n) != 0)
+  std::size_t n = strlen(prefix);
+  if (MiKTeX::Util::PathName::ComparePrefixes(MiKTeX::Util::PathName(str), MiKTeX::Util::PathName(prefix), n) != 0)
   {
     return false;
   }

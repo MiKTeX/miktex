@@ -1,6 +1,6 @@
 /* miktex/unxemu.h: Unx emulation                       -*- C++ -*-
 
-   Copyright (C) 2007-2020 Christian Schenk
+   Copyright (C) 2007-2024 Christian Schenk
 
    This file is part of the MiKTeX UNXEMU Library.
 
@@ -168,7 +168,7 @@ static inline int strcasecmp(const char* s1, const char* s2)
 static inline int strncasecmp(const char* s1, const char* s2, size_t n)
 {
 #if defined(__cplusplus)
-  return MiKTeX::Util::StringCompare(s1, s2, n, true);
+  return MiKTeX::Util::CeeStringCompare(s1, s2, n, true);
 #else
   return miktex_strncasecmp(s1, s2, n);
 #endif

@@ -1,6 +1,6 @@
 /* unxemu.cpp:
 
-   Copyright (C) 2007-2021 Christian Schenk
+   Copyright (C) 2007-2024 Christian Schenk
 
    This file is part of the MiKTeX UNXEMU Library.
 
@@ -107,7 +107,7 @@ MIKTEXUNXCEEAPI(struct dirent*) readdir(DIR* dir)
   {
     return nullptr;
   }
-  StringUtil::CopyString(dir->direntry.d_name, sizeof(dir->direntry.d_name) / sizeof(dir->direntry.d_name[0]), directoryEntry.name.c_str());
+  StringUtil::CopyCeeString(dir->direntry.d_name, sizeof(dir->direntry.d_name) / sizeof(dir->direntry.d_name[0]), directoryEntry.name.c_str());
   return &dir->direntry;
   C_FUNC_END();
 }
@@ -132,7 +132,7 @@ MIKTEXUNXCEEAPI(struct wdirent*) wreaddir(WDIR* dir)
   {
     return nullptr;
   }
-  StringUtil::CopyString(dir->direntry.d_name, sizeof(dir->direntry.d_name) / sizeof(dir->direntry.d_name[0]), directoryEntry.wname.c_str());
+  StringUtil::CopyCeeString(dir->direntry.d_name, sizeof(dir->direntry.d_name) / sizeof(dir->direntry.d_name[0]), directoryEntry.wname.c_str());
   return &dir->direntry;
   C_FUNC_END();
 }
@@ -155,7 +155,7 @@ MIKTEXUNXCEEAPI(void) wrewinddir(WDIR* dir)
 
 MIKTEXUNXCEEAPI(int) miktex_strncasecmp(const char* lpsz1, const char* lpsz2, size_t n)
 {
-  return MiKTeX::Util::StringCompare(lpsz1, lpsz2, n, true);
+  return MiKTeX::Util::CeeStringCompare(lpsz1, lpsz2, n, true);
 }
 
 MIKTEXUNXCEEAPI(int) miktex_gettimeofday(struct timeval* ptv, void* null)

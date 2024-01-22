@@ -527,7 +527,7 @@ void FileCopyPage::Report(bool writeLog, const string& str)
     }
     catch (const exception&)
     {
-      text = UW_(MiKTeX::Util::StringUtil::AnsiToUTF8(lines.c_str()));
+      text = UW_(MiKTeX::Util::StringUtil::AnsiToUTF8(lines));
     }
     SendMessage(WM_REPORT, reinterpret_cast<WPARAM>(text.c_str()));
   }

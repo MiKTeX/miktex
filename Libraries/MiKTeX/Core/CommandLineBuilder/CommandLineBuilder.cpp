@@ -120,8 +120,8 @@ char** Argv::CloneFreeable() const
   for (int idx = 0; idx < GetArgc(); ++idx)
   {
     result[idx] = pool;
-    StringUtil::CopyString(pool, strlen(pimpl->argv[idx]) + 1, pimpl->argv[idx]);
-    pool += StringUtil::CopyString(pool, strlen(pimpl->argv[idx]) + 1, pimpl->argv[idx]) + 1;
+    StringUtil::CopyCeeString(pool, strlen(pimpl->argv[idx]) + 1, pimpl->argv[idx]);
+    pool += StringUtil::CopyCeeString(pool, strlen(pimpl->argv[idx]) + 1, pimpl->argv[idx]) + 1;
   }
   result[GetArgc()] = nullptr;
   return result;

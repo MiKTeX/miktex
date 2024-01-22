@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX cfg utility
  *
- * @copyright Copyright © 2006-2022 Christian Schenk
+ * @copyright Copyright © 2006-2024 Christian Schenk
  *
  * This file is part of Cfg.
  *
@@ -180,7 +180,7 @@ public:
         {
             buf += ch;
         }
-        passphrase = StringUtil::WideCharToUTF8(buf.GetData());
+        passphrase = StringUtil::WideCharToUTF8(buf.ToString());
         return true;
 #else
         struct termios tty;

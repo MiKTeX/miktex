@@ -71,48 +71,32 @@ public:
 
     static MIKTEXUTILCEEAPI(std::string) Flatten(const std::vector<std::string>& vec, char sep);
     static MIKTEXUTILCEEAPI(std::vector<std::string>) Split(const std::string& s, char sep);
-    static MIKTEXUTILCEEAPI(std::size_t) AppendString(char* dest, std::size_t destSize, const char* source);
-    static MIKTEXUTILCEEAPI(std::size_t) CopyString(char* dest, std::size_t destSize, const char* source);
-    static MIKTEXUTILCEEAPI(std::size_t) CopyString(wchar_t* dest, std::size_t destSize, const wchar_t* source);
-    static MIKTEXUTILCEEAPI(std::size_t) CopyString(char* dest, std::size_t destSize, const wchar_t* source);
-    static MIKTEXUTILCEEAPI(std::size_t) CopyString(char16_t* dest, std::size_t destSize, const char* source);
-    static MIKTEXUTILCEEAPI(std::size_t) CopyString(wchar_t* dest, std::size_t destSize, const char* source);
-    static MIKTEXUTILCEEAPI(bool) Contains(const char* list, const char* element, const char* delims, bool ignoreCase);
+    static MIKTEXUTILCEEAPI(std::size_t) AppendCeeString(char* dest, std::size_t destSize, const char* source);
+    static MIKTEXUTILCEEAPI(std::size_t) CopyCeeString(char* dest, std::size_t destSize, const char* source);
+    static MIKTEXUTILCEEAPI(std::size_t) CopyCeeString(wchar_t* dest, std::size_t destSize, const wchar_t* source);
+    static MIKTEXUTILCEEAPI(std::size_t) CopyCeeString(char* dest, std::size_t destSize, const wchar_t* source);
+    static MIKTEXUTILCEEAPI(std::size_t) CopyCeeString(char16_t* dest, std::size_t destSize, const char* source);
+    static MIKTEXUTILCEEAPI(std::size_t) CopyCeeString(wchar_t* dest, std::size_t destSize, const char* source);
+    static MIKTEXUTILCEEAPI(bool) Contains(const std::string& list, const std::string& element, const std::string& delims, bool ignoreCase);
     static MIKTEXUTILCEEAPI(std::string) FormatString2(const std::string& message, const std::unordered_map<std::string, std::string>& args);
-    static MIKTEXUTILCEEAPI(std::u16string) UTF8ToUTF16(const char* utf8Chars);
-    static MIKTEXUTILCEEAPI(std::string) UTF16ToUTF8(const char16_t* utf16Chars);
-    static MIKTEXUTILCEEAPI(std::u32string) UTF8ToUTF32(const char* utf8Chars);
-    static MIKTEXUTILCEEAPI(std::string) UTF32ToUTF8(const char32_t* utf32Chars);
-    static MIKTEXUTILCEEAPI(std::wstring) UTF8ToWideChar(const char* utf8);
-    static MIKTEXUTILCEEAPI(std::string) WideCharToUTF8(const wchar_t* wideChars);
+    static MIKTEXUTILCEEAPI(std::u16string) UTF8ToUTF16(const std::string& utf8Chars);
+    static MIKTEXUTILCEEAPI(std::string) UTF16ToUTF8(const std::u16string& utf16Chars);
+    static MIKTEXUTILCEEAPI(std::u32string) UTF8ToUTF32(const std::string& utf8Chars);
+    static MIKTEXUTILCEEAPI(std::wstring) UTF8ToWideChar(const std::string& utf8);
+    static MIKTEXUTILCEEAPI(std::string) WideCharToUTF8(const std::wstring& wideChars);
 
 #if defined(MIKTEX_WINDOWS)
-    static MIKTEXUTILCEEAPI(std::string) AnsiToUTF8(const char* ansi);
+    static MIKTEXUTILCEEAPI(std::string) AnsiToUTF8(const std::string& ansi);
 #endif
 
-    static bool Contains(const char* list, const char* element, const char* delims)
+    static bool Contains(const std::string& list, const std::string& element, const std::string& delims)
     {
         return Contains(list, element, delims, true);
     }
 
-    static bool Contains(const char* list, const char* element)
+    static bool Contains(const std::string& list, const std::string& element)
     {
-        return Contains(list, element, ",;:");
-    }
-
-    static std::string UTF16ToUTF8(const std::u16string& str)
-    {
-        return UTF16ToUTF8(str.c_str());
-    }
-
-    static std::wstring UTF8ToWideChar(const std::string& str)
-    {
-        return UTF8ToWideChar(str.c_str());
-    }
-
-    static std::string WideCharToUTF8(const std::wstring& wstr)
-    {
-        return WideCharToUTF8(wstr.c_str());
+        return Contains(list, element, ",;:", true);
     }
 };
 

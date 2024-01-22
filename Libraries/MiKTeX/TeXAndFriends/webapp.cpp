@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX WebApp base implementation
  *
- * @copyright Copyright © 1996-2022 Christian Schenk
+ * @copyright Copyright © 1996-2024 Christian Schenk
  *
  * This file is part of the MiKTeX TeXMF Framework.
  *
@@ -399,7 +399,7 @@ bool WebApp::AmI(const std::string& name) const
             return true;
         }
     }
-    return StringUtil::Contains(GetProgramName().c_str(), name.c_str());
+    return StringUtil::Contains(GetProgramName(), name);
 }
 
 void WebApp::IAm(const string& name)

@@ -370,7 +370,7 @@ PathName& PathName::SetExtension(const std::string& extension, bool override)
                 (*this)[n] = '.';
                 ++n;
             }
-            n += StringUtil::CopyString(&(*this)[n], GetCapacity() - n, extension.c_str());
+            n += StringUtil::CopyCeeString(&(*this)[n], GetCapacity() - n, extension.c_str());
         }
     }
 

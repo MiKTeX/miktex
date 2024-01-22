@@ -239,7 +239,7 @@ public:
     MiKTeX::TeXAndFriends::IInputOutput* inputOutput = GetInputOutput();
     MiKTeX::TeXAndFriends::ITeXMFMemoryHandler* texmfMemoryHandler = GetTeXMFMemoryHandler();
     inputOutput->nameoffile() = reinterpret_cast<char*>(texmfMemoryHandler->ReallocateArray("nameoffile", inputOutput->nameoffile(), sizeof(inputOutput->nameoffile()[0]), fileName.GetLength() + 1, MIKTEX_SOURCE_LOCATION()));
-    MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), fileName.GetLength() + 1, fileName.GetData());
+    MiKTeX::Util::StringUtil::CopyCeeString(inputOutput->nameoffile(), fileName.GetLength() + 1, fileName.GetData());
     inputOutput->namelength() = static_cast<C4P::C4P_signed32>(fileName.GetLength());
     // special case: Web2C likes to add 1 to the nameoffile base address
     nameoffile = reinterpret_cast<C4P::C4P_unsigned8*>(&(inputOutput->nameoffile()[-1]));

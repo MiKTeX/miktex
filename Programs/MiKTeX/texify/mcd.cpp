@@ -226,7 +226,7 @@ string FlattenStringVector(const vector<string>& vec, char sep)
 
 bool IsPrefixOf(const char* prefix, const string& str)
 {
-  return str.compare(0, StrLen(prefix), prefix) == 0;
+  return str.compare(0, strlen(prefix), prefix) == 0;
 }
 
 enum class MacroLanguage
@@ -2123,12 +2123,12 @@ void McdApp::Run(int argc, const char** argv)
       options.jobName = optArg;
       break;
     case OPT_LANGUAGE:
-      if (StringCompare(optArg.c_str(), "latex", true) == 0)
+      if (StringCompare(optArg, "latex", true) == 0)
       {
         options.macroLanguage = MacroLanguage::LaTeX;
       }
 #if defined(WITH_TEXINFO)
-      else if (StringCompare(optArg.c_str(), "texinfo", true) == 0)
+      else if (StringCompare(optArg, "texinfo", true) == 0)
       {
         options.macroLanguage = MacroLanguage::Texinfo;
       }

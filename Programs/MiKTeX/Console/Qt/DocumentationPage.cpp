@@ -227,10 +227,10 @@ void DocumentationPage::InstallDocumentation()
   }
 }
 
-bool SkipPrefix(const string& str, const char* lpszPrefix, string& result)
+bool SkipPrefix(const string& str, const char* prefix, string& result)
 {
-  size_t n = StrLen(lpszPrefix);
-  if (str.compare(0, n, lpszPrefix) != 0)
+  size_t n = strlen(prefix);
+  if (str.compare(0, n, prefix) != 0)
   {
     return false;
   }

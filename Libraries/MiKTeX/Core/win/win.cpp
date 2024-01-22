@@ -306,7 +306,7 @@ string HResult::GetText()
       message = reinterpret_cast<wchar_t*>(LocalAlloc(0, sizeChars * sizeof(message[0])));
       if (message != nullptr)
       {
-	StringUtil::CopyString(message, sizeChars, str.c_str());
+	StringUtil::CopyCeeString(message, sizeChars, str.c_str());
       }
     }
   }

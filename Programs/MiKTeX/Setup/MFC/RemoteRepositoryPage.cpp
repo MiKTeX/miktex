@@ -1,6 +1,6 @@
 /* RemoteRepositoryPag.cpp:
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2024 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -314,7 +314,7 @@ public:
   {
     if (lhs.ranking == rhs.ranking)
     {
-      return StringCompare(lhs.country.c_str(), rhs.country.c_str(), true) < 0;
+      return StringCompare(lhs.country, rhs.country, true) < 0;
     }
     else
     {

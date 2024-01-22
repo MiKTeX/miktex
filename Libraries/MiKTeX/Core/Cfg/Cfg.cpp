@@ -1104,7 +1104,7 @@ extern "C" int OpenSSLPasswordCallback(char* buf, int size, int rwflag, void* us
     {
         MIKTEX_UNEXPECTED();
     }
-    return static_cast<int>(StringUtil::CopyString(buf, size, passphrase.c_str()));
+    return static_cast<int>(StringUtil::CopyCeeString(buf, size, passphrase.c_str()));
 }
 #endif
 

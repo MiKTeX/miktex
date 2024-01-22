@@ -488,7 +488,7 @@ BOOL YapApplication::InitInstance()
     vector<string> invokers = Process::GetInvokerNames();
     for (vector<string>::const_iterator it = invokers.begin(); it != invokers.end(); ++it)
     {
-      if (StringUtil::Contains(COMMERCIAL_INVOKERS, PathName(*it).GetFileNameWithoutExtension().GetData()))
+      if (StringUtil::Contains(COMMERCIAL_INVOKERS, PathName(*it).GetFileNameWithoutExtension().ToString()))
       {
         showSplashWindow = 5;
       }

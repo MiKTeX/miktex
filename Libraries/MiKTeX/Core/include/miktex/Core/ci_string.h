@@ -34,7 +34,7 @@ struct ci_char_traits :
 
   static int compare(const char* s1, const char* s2, size_t n)
   {
-    return MiKTeX::Util::StringCompare(s1, s2, n, true);
+    return MiKTeX::Util::CeeStringCompare(s1, s2, n, true);
   }
 
   static const char* find(const char* s, int n, const char& ch)

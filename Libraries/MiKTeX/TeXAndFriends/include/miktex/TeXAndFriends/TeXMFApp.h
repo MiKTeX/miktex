@@ -138,7 +138,7 @@ public:
         IInputOutput* inputOutput = GetInputOutput();
         ITeXMFMemoryHandler* texmfMemoryHandler = GetTeXMFMemoryHandler();
         inputOutput->nameoffile() = reinterpret_cast<char*>(texmfMemoryHandler->ReallocateArray("nameoffile", inputOutput->nameoffile(), sizeof(inputOutput->nameoffile()[0]), fileName.GetLength() + 1, MIKTEX_SOURCE_LOCATION()));
-        MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), fileName.GetLength() + 1, fileName.GetData());
+        MiKTeX::Util::StringUtil::CopyCeeString(inputOutput->nameoffile(), fileName.GetLength() + 1, fileName.GetData());
         inputOutput->namelength() = static_cast<C4P::C4P_signed32>(fileName.GetLength());
     }
 
@@ -305,7 +305,7 @@ inline bool miktexparsefirstlinep()
 
 inline void miktexgetdefaultdumpfilename(char* dest)
 {
-    MiKTeX::Util::StringUtil::CopyString(dest, MiKTeX::Core::BufferSizes::MaxPath, TeXMFApp::GetTeXMFApp()->GetDefaultMemoryDumpFileName().GetData());
+    MiKTeX::Util::StringUtil::CopyCeeString(dest, MiKTeX::Core::BufferSizes::MaxPath, TeXMFApp::GetTeXMFApp()->GetDefaultMemoryDumpFileName().GetData());
 }
 
 inline int miktexgetinteraction()

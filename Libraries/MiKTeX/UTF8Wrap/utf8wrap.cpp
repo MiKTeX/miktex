@@ -61,7 +61,7 @@ MIKTEXSTATICFUNC(unique_ptr<wchar_t[]>) UTF8ToLengthExtendedPath(const char* utf
     {
         wstring wch = PathNameUtil::ToLengthExtendedPathName(utf8String);
         unique_ptr<wchar_t[]> buf(new wchar_t[wch.length() + 1]);
-        StringUtil::CopyString(buf.get(), wch.length() + 1, wch.c_str());
+        StringUtil::CopyCeeString(buf.get(), wch.length() + 1, wch.c_str());
         return buf;
     }
     catch (const exception&)
@@ -77,7 +77,7 @@ MIKTEXSTATICFUNC(unique_ptr<wchar_t[]>) UTF8ToWideChar(const char* utf8String, c
     {
         wstring wch = StringUtil::UTF8ToWideChar(utf8String);
         unique_ptr<wchar_t[]> buf(new wchar_t[wch.length() + 1]);
-        StringUtil::CopyString(buf.get(), wch.length() + 1, wch.c_str());
+        StringUtil::CopyCeeString(buf.get(), wch.length() + 1, wch.c_str());
         return buf;
     }
     catch (const exception&)
@@ -92,7 +92,7 @@ MIKTEXSTATICFUNC(unique_ptr<char[]>) WideCharToUTF8(const wchar_t* wideCharStrin
     {
         string utf8 = StringUtil::WideCharToUTF8(wideCharString);
         unique_ptr<char[]> buf(new char[utf8.length() + 1]);
-        StringUtil::CopyString(buf.get(), utf8.length() + 1, utf8.c_str());
+        StringUtil::CopyCeeString(buf.get(), utf8.length() + 1, utf8.c_str());
         return buf;
     }
     catch (const exception&)
