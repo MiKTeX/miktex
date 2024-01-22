@@ -301,7 +301,7 @@ public:
     }
 
     /// Checks to see whether this path name has the specified extension.
-    /// @param lpszExtension File name extension.
+    /// @param extension File name extension.
     /// @return Returns true, if this path name has the specified extension.
     bool HasExtension(const std::string& extension_) const
     {

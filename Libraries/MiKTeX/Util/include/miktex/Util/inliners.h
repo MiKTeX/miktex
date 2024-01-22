@@ -22,56 +22,56 @@
 
 MIKTEX_UTIL_BEGIN_NAMESPACE;
 
-inline const char* StrChr(const char* lpsz, int ch)
+inline const char* StrChr(const char* s, int ch)
 {
-    return strchr(lpsz, ch);
+    return strchr(s, ch);
 }
 
-inline const wchar_t* StrChr(const wchar_t* lpsz, wint_t ch)
+inline const wchar_t* StrChr(const wchar_t* s, wint_t ch)
 {
-    return wcschr(lpsz, ch);
+    return wcschr(s, ch);
 }
 
-template<typename CharType> size_t StrLen(const CharType* lpsz)
+template<typename CharType> size_t StrLen(const CharType* s)
 {
-    const CharType* start = lpsz;
-    for (; *lpsz != 0; ++lpsz)
+    const CharType* start = s;
+    for (; *s != 0; ++s)
     {
     }
-    return lpsz - start;
+    return s - start;
 }
 
-template<> inline size_t StrLen<char>(const char* lpsz)
+template<> inline size_t StrLen<char>(const char* s)
 {
-    return strlen(lpsz);
+    return strlen(s);
 }
 
-template<> inline size_t StrLen<wchar_t>(const wchar_t* lpsz)
+template<> inline size_t StrLen<wchar_t>(const wchar_t* s)
 {
-    return wcslen(lpsz);
+    return wcslen(s);
 }
 
-inline int CeeStringCompare(const char* lpsz1, const char* lpsz2, bool ignoreCase)
+inline int CeeStringCompare(const char* s1, const char* s2, bool ignoreCase)
 {
 #if defined(_MSC_VER)
-    return ignoreCase ? _stricmp(lpsz1, lpsz2) : strcmp(lpsz1, lpsz2);
+    return ignoreCase ? _stricmp(s1, s2) : strcmp(s1, s2);
 #else
-    return ignoreCase ? strcasecmp(lpsz1, lpsz2) : strcmp(lpsz1, lpsz2);
+    return ignoreCase ? strcasecmp(s1, s2) : strcmp(s1, s2);
 #endif
 }
 
-inline int CeeStringCompare(const char* lpsz1, const char* lpsz2, size_t n, bool ignoreCase)
+inline int CeeStringCompare(const char* s1, const char* s2, size_t n, bool ignoreCase)
 {
 #if defined(_MSC_VER)
-    return ignoreCase ? _strnicmp(lpsz1, lpsz2, n) : strncmp(lpsz1, lpsz2, n);
+    return ignoreCase ? _strnicmp(s1, s2, n) : strncmp(s1, s2, n);
 #else
-    return ignoreCase ? strncasecmp(lpsz1, lpsz2, n) : strncmp(lpsz1, lpsz2, n);
+    return ignoreCase ? strncasecmp(s1, s2, n) : strncmp(s1, s2, n);
 #endif
 }
 
-inline int CeeStringCompare(const char* lpsz1, const char* lpsz2)
+inline int CeeStringCompare(const char* s1, const char* s2)
 {
-    return CeeStringCompare(lpsz1, lpsz2, false);
+    return CeeStringCompare(s1, s2, false);
 }
 
 inline int StringCompare(const std::string& s1, const std::string& s2, bool ignoreCase)

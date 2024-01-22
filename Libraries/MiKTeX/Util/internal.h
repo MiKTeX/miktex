@@ -47,7 +47,7 @@ public:
     static void CanonicalizePathName(MiKTeX::Util::PathName& path);
     static bool GetEnvironmentString(const std::string& name, std::string& value);
     static bool GetEnvironmentString(const std::string& name, MiKTeX::Util::PathName& path);
-    static bool IsPureAscii(const char* lpsz);
+    static bool IsPureAscii(const char* s);
     static const char* GetFileNameExtension(const char* path);
     static void RemoveDirectoryDelimiter(char* path);
     static bool DirectoryExists(const MiKTeX::Util::PathName& path);

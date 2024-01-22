@@ -94,19 +94,19 @@ public:
         }
     }
 
-    explicit CharBuffer(const char* lpsz)
+    explicit CharBuffer(const char* s)
     {
-        Set(lpsz);
+        Set(s);
     }
 
-    explicit CharBuffer(const char16_t* lpsz)
+    explicit CharBuffer(const char16_t* s)
     {
-        Set(lpsz);
+        Set(s);
     }
 
-    explicit CharBuffer(const wchar_t* lpsz)
+    explicit CharBuffer(const wchar_t* s)
     {
-        Set(lpsz);
+        Set(s);
     }
 
     explicit CharBuffer(const std::basic_string<char>& other)
@@ -139,10 +139,10 @@ public:
         }
     }
 
-    template<typename OtherCharType> void Set(const OtherCharType* lpsz)
+    template<typename OtherCharType> void Set(const OtherCharType* s)
     {
-        // TODO: MIKTEX_ASSERT_STRING_OR_NIL(lpsz);
-        if (lpsz == nullptr)
+        // TODO: MIKTEX_ASSERT_STRING_OR_NIL(s);
+        if (s == nullptr)
         {
             Reset();
         }
@@ -151,14 +151,14 @@ public:
             std::size_t requiredSize;
             if (sizeof(CharType) < sizeof(OtherCharType))
             {
-                requiredSize = StrLen(lpsz) * 4 + 1; // worst case: wchar_t to UTF-8
+                requiredSize = StrLen(s) * 4 + 1; // worst case: wchar_t to UTF-8
             }
             else
             {
-                requiredSize = StrLen(lpsz) + 1;
+                requiredSize = StrLen(s) + 1;
             }
             Reserve(requiredSize);
-            StringUtil::CopyCeeString(buffer, GetCapacity(), lpsz);
+            StringUtil::CopyCeeString(buffer, GetCapacity(), s);
         }
     }
 
@@ -173,11 +173,11 @@ public:
         StringUtil::AppendCeeString(buffer, GetCapacity(), s.c_str());
     }
 
-    void Append(const CharType* lpsz)
+    void Append(const CharType* s)
     {
-        // TODO: MIKTEX_ASSERT_STRING(lpsz);
-        Reserve(GetLength() + StrLen(lpsz) + 1);
-        StringUtil::AppendCeeString(buffer, GetCapacity(), lpsz);
+        // TODO: MIKTEX_ASSERT_STRING(s);
+        Reserve(GetLength() + StrLen(s) + 1);
+        StringUtil::AppendCeeString(buffer, GetCapacity(), s);
     }
 
     void Append(const CharType* s, std::size_t len)
@@ -281,9 +281,9 @@ public:
         return buffer[idx];
     }
 
-    template<typename OtherCharType> CharBuffer& operator=(const OtherCharType* lpsz)
+    template<typename OtherCharType> CharBuffer& operator=(const OtherCharType* s)
     {
-        Set(lpsz);
+        Set(s);
         return *this;
     }
 
@@ -293,9 +293,9 @@ public:
         return *this;
     }
 
-    CharBuffer& operator+=(const CharType* lpsz)
+    CharBuffer& operator+=(const CharType* s)
     {
-        Append(lpsz);
+        Append(s);
         return *this;
     }
 
