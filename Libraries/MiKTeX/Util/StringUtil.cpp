@@ -90,37 +90,6 @@ size_t StringUtil::AppendCeeString(char* dest, size_t destSize, const char* sour
     return length;
 }
 
-static void CopyString2(char* lpszBuf, size_t bufSize, const char* lpszSource, size_t count)
-{
-    // TODO: MIKTEX_ASSERT_CHAR_BUFFER(lpszBuf, bufSize);
-    // TODO: MIKTEX_ASSERT_STRING(lpszSource);
-
-    *lpszBuf = 0;
-
-    if (count == 0)
-    {
-        return;
-    }
-
-    char* lpsz = lpszBuf;
-
-    while (bufSize > 0 && count > 0 && (*lpsz++ = *lpszSource++) != 0)
-    {
-        --bufSize;
-        --count;
-    }
-
-    if (bufSize == 0)
-    {
-        FATAL_ERROR();
-    }
-
-    if (count == 0)
-    {
-        *lpsz = 0;
-    }
-}
-
 template<typename CharType> size_t GenericCopyString(CharType* lpszBuf, size_t bufSize, const CharType* lpszSource)
 {
     // TODO: MIKTEX_ASSERT_CHAR_BUFFER(lpszBuf, bufSize);
