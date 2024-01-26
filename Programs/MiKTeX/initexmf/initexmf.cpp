@@ -1044,7 +1044,7 @@ void IniTeXMFApp::Bootstrap()
   }
   if (!neededPackages.empty())
   {
-    PathName bootstrappingDir = session->GetSpecialPath(SpecialPath::DistRoot) / PathName(MIKTEX_PATH_MIKTEX_BOOTSTRAPPING_DIR);
+    PathName bootstrappingDir = session->GetSpecialPath(SpecialPath::DistRoot) / MIKTEX_PATH_MIKTEX_BOOTSTRAPPING_DIR;
     if (Directory::Exists(bootstrappingDir))
     {
       PushTraceMessage("running MIKTEX_HOOK_BOOTSTRAPPING");

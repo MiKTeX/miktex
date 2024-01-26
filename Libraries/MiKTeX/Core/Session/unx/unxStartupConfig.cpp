@@ -1,6 +1,6 @@
 /* unxStartupConfig.cpp: startup configuration (Un*x specials)
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -98,10 +98,10 @@ InternalStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, Ver
       destdir /= splittedPrefix[i];
     }
     MIKTEX_ASSERT(MIKTEX_SYSTEM_VAR_LIB_DIR[0] == '/');
-    ret.commonConfigRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_LIB_DIR + 1) / PathName(MIKTEX_PREFIX "texmf");
+    ret.commonConfigRoot = destdir / (MIKTEX_SYSTEM_VAR_LIB_DIR + 1) / MIKTEX_PREFIX "texmf";
     MIKTEX_ASSERT(MIKTEX_SYSTEM_VAR_CACHE_DIR[0] == '/');
-    ret.commonDataRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_CACHE_DIR + 1) / PathName(MIKTEX_PREFIX "texmf");
-    ret.commonInstallRoot = destdir / PathName("usr/local") / PathName(MIKTEX_INSTALL_DIR);
+    ret.commonDataRoot = destdir / (MIKTEX_SYSTEM_VAR_CACHE_DIR + 1) / MIKTEX_PREFIX "texmf";
+    ret.commonInstallRoot = destdir / "usr" / "local" / MIKTEX_INSTALL_DIR;
   }
 #endif
   if (ret.commonConfigRoot.Empty())
@@ -110,16 +110,16 @@ InternalStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, Ver
     PathName system_miktex_texmfs("/");
     system_miktex_texmfs /= MIKTEX_MACOS_MIKTEX_LIBRARY_FOLDER;
 #else
-    if (!PathName::Match("*miktex*", prefix.GetData()))
+    if (!PathName::Match("*miktex*", prefix))
     {
       // TODO: log funny installation prefix
     }
     PathName system_miktex_texmfs(prefix);
 #endif
     system_miktex_texmfs /= "texmfs";
-    ret.commonConfigRoot = system_miktex_texmfs / PathName("config");
-    ret.commonDataRoot = system_miktex_texmfs / PathName("data");
-    ret.commonInstallRoot = system_miktex_texmfs / PathName("install");
+    ret.commonConfigRoot = system_miktex_texmfs / "config";
+    ret.commonDataRoot = system_miktex_texmfs / "data";
+    ret.commonInstallRoot = system_miktex_texmfs / "install";
   }
 
   PathName myLoc = GetMyLocation(true);

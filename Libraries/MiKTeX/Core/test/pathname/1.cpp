@@ -57,8 +57,8 @@ BEGIN_TEST_FUNCTION(2);
     auto components = PathName::Split(PathName("C:/abc/def/ghi.jkl"));
     TEST(components == vector<string>({ "C:", "/", "abc", "def", "ghi.jkl" }));
 #endif
-    components = PathName::Split(PathName("/abc/def/ghi.jkl"));
-    TEST(components == vector<string>({ "/", "abc", "def", "ghi.jkl" }));
+    auto components2 = PathName::Split(PathName("/abc/def/ghi.jkl"));
+    TEST(components2 == vector<string>({ "/", "abc", "def", "ghi.jkl" }));
 }
 END_TEST_FUNCTION();
 

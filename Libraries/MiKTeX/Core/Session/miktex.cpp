@@ -135,7 +135,7 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     // FIXME: hard-coded sub-directory
     path = GetSpecialPath(SpecialPath::BinDirectory) / "internal";
 #else
-    path = GetMyPrefix(true) / PathName(MIKTEX_INTERNAL_BINARY_DESTINATION_DIR);
+    path = GetMyPrefix(true) / MIKTEX_INTERNAL_BINARY_DESTINATION_DIR;
 #endif
     break;
   case SpecialPath::LinkTargetDirectory:
@@ -166,7 +166,7 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     {
 #if defined(MIKTEX_UNIX)
       // FIXME: hard-coded sub-directory
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((PathName(MIKTEX_SYSTEM_VAR_LOG_DIR) / PathName("miktex")).ToString())).GetString();
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((PathName(MIKTEX_SYSTEM_VAR_LOG_DIR) / "miktex").ToString())).GetString();
 #else
       path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString())).GetString();
 #endif

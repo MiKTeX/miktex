@@ -1,6 +1,6 @@
 /* unxDirectoryLister.cpp: directory lister
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -145,7 +145,7 @@ bool unxDirectoryLister::GetNext(DirectoryEntry2& direntry2, bool simple)
     }
 #endif
   } while ((IsDotDirectory(dent->d_name) && ((options & (int)Options::IncludeDotAndDotDot) == 0))
-           || (!pattern.empty() && !PathName::Match(pattern.c_str(), dent->d_name))
+           || (!pattern.empty() && !PathName::Match(pattern, PathName(dent->d_name)))
            || ((options & (int)Options::DirectoriesOnly) != 0 && !isDirectory)
            || ((options & (int)Options::FilesOnly) != 0 && isDirectory));
   direntry2.name = dent->d_name;
@@ -160,7 +160,7 @@ bool unxDirectoryLister::GetNext(DirectoryEntry2& direntry2, bool simple)
   if (mustStat || !simple)
   {
     struct stat statbuf;
-    PathName path = directory / PathName(dent->d_name);
+    PathName path = directory / dent->d_name;
     if (lstat(path.GetData(), &statbuf) != 0)
     {
       MIKTEX_FATAL_CRT_ERROR_2("lstat", "path", path.ToString());
