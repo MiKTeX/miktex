@@ -484,7 +484,7 @@ MIKTEXNORETURN inline void FATAL_PERROR(const char* str)
 #if defined(__cplusplus)
 inline int FILESTRCASEEQ(const char* s1, const char* s2)
 {
-  return MiKTeX::Util::PathName::Equals(MiKTeX::Util::PathName(s1), MiKTeX::Util::PathName(s2)) == 0;
+  return MiKTeX::Util::PathName::Equals(MiKTeX::Util::PathName(s1), MiKTeX::Util::PathName(s2)) ? 1 : 0;
 }
 #else
 #define FILESTRCASEEQ(s1, s2) (miktex_pathcmp(s1, s2) == 0)
