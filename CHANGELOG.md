@@ -5,6 +5,7 @@
 ### Fixed issues
 
 - [1414](https://github.com/MiKTeX/miktex/issues/1414): CVE-2022-25634 in Qt library
+- [1429](https://github.com/MiKTeX/miktex/issues/1429): Problems regarding execution through luatex (faulty 1.17.1 ?) -- impossible to set version number ?
 
 ## 23.12 - 2023-12-27
 
