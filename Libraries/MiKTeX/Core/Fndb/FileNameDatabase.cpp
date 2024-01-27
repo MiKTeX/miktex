@@ -343,7 +343,7 @@ bool FileNameDatabase::InsertRecord(FileNameDatabase::Record&& record)
   pair<FileNameHashTable::const_iterator, FileNameHashTable::const_iterator> range = fileNames.equal_range(key);
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
-    if (PathName::Equals(PathName(it->second.GetDirectory()), PathName(record.GetDirectory())) == 0)
+    if (PathName::Equals(PathName(it->second.GetDirectory()), PathName(record.GetDirectory())))
     {
       return false;
     }
@@ -374,7 +374,7 @@ void FileNameDatabase::EraseRecord(const FileNameDatabase::Record& record)
   vector<FileNameHashTable::const_iterator> toBeRemoved;
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
-    if (PathName::Equals(PathName(it->second.GetDirectory()), PathName(record.GetDirectory())) == 0)
+    if (PathName::Equals(PathName(it->second.GetDirectory()), PathName(record.GetDirectory())))
     {
       toBeRemoved.push_back(it);
     }
