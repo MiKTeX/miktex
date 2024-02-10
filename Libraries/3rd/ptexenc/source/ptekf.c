@@ -5,6 +5,10 @@ Distributed under the 3-Clause BSD License.
 
 */
 
+#if defined(MIKTEX)
+#include <unistd.h>
+#include <miktex/Version.h>
+#endif
 #ifndef _WIN32
 #include <unistd.h>
 #endif
@@ -15,10 +19,12 @@ Distributed under the 3-Clause BSD License.
 #include <kpathsea/getopt.h>
 #include <kpathsea/progname.h>
 #include <kpathsea/lib.h>
+#if !defined(MIKTEX)
 #ifdef _WIN32
 #include <kpathsea/knj.h>
 #ifndef CP_UTF8
 #define CP_UTF8 65001
+#endif
 #endif
 #endif
 #include <ptexenc/ptexenc.h>
@@ -50,7 +56,11 @@ static struct option long_options[] = {
 
 static void show_version(void)
 {
+#if defined(MIKTEX)
+  printf("ptekf  ver." MY_VERSION " (%s) (%s, %s)\n", get_enc_string(), ptexenc_version_string, MIKTEX_VERSION_STR);
+#else
   printf("ptekf  ver." MY_VERSION " (%s) (%s, %s)\n", get_enc_string(), ptexenc_version_string, TL_VERSION);
+#endif
   printf("    Copyright (C) 2024 Japanese TeX Development Community\n");
 }
 
@@ -95,8 +105,12 @@ static char *mfgets(char *buff, int size, FILE *fp)
 }
 
 
+#if defined(MIKTEX)
+int Main(int argc, char** argv)
+#else
 int
 main (int argc,  char **argv)
+#endif
 {
   int c;
   int opt_ienc=0, opt_oenc=0;
@@ -108,7 +122,7 @@ main (int argc,  char **argv)
     return 0;
   }
   kpse_set_program_name(argv[0], "ptekf");
-#if defined(_WIN32)
+#if !defined(MIKTEX) && defined(_WIN32)
   {
     int ac;
     char **av;

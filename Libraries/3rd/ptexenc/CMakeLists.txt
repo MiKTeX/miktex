@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2021-2022 Christian Schenk
+## Copyright (C) 2021-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -50,8 +50,36 @@ configure_file(
 )
 
 configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/c-auto.h.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/c-auto.h
+)
+
+configure_file(
     miktex-ptexenc-version.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/miktex-ptexenc-version.h
 )
 
 add_subdirectory(shared)
+
+set(ptekf_sources
+    ${MIKTEX_LIBRARY_WRAPPER}
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/ptekf.c
+)
+
+add_executable(${MIKTEX_PREFIX}ptekf ${ptekf_sources})
+
+set_property(TARGET ${MIKTEX_PREFIX}ptekf PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_link_libraries(${MIKTEX_PREFIX}ptekf
+    ${app_dll_name}
+    ${kpsemu_dll_name}
+    ${ptexenc_dll_name}
+)
+
+if(MIKTEX_WINDOWS)
+    target_link_libraries(${MIKTEX_PREFIX}ptekf
+        ${unxemu_dll_name}
+    )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}ptekf DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

@@ -17,6 +17,7 @@
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}eptex.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}euptex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}ptekf.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}upbibtex.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}updvitype.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}uppltotf.exe

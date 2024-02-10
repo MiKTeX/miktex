@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Links manager
  *
- * @copyright Copyright © 2002-2023 Christian Schenk
+ * @copyright Copyright © 2002-2024 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -408,6 +408,7 @@ const vector<FileLink> LinksManager::miktexFileLinks =
   { MIKTEX_PSRESIZE_EXE, { "psresize" } },
   { MIKTEX_PSSELECT_EXE, { "psselect" } },
   { MIKTEX_PSTOPS_EXE, { "pstops" } },
+  { MIKTEX_PREFIX "ptekf" MIKTEX_EXE_FILE_SUFFIX, { "ptekf"} },
   { MIKTEX_REBAR_EXE, { "rebar" } },
   { MIKTEX_SCOR2PRT_EXE, { "scor2prt" } },
   { MIKTEX_SJISCONV_EXE, { "sjisconv" } },
