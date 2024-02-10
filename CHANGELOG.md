@@ -4,6 +4,7 @@
 
 ### Upgraded programs
 
+* pdftex 1.40.26
 * xetex 0.999996
 
 ## 24.1 - 2024-01-27
