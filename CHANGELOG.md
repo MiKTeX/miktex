@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## next
+
+### Upgraded programs
+
+* xetex 0.999996
+
 ## 24.1 - 2024-01-27
 
 ### Fixed issues
