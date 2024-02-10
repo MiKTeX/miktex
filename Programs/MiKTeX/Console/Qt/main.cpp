@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX Console
  *
- * @copyright Copyright © 2017-2023 Christian Schenk
+ * @copyright Copyright © 2017-2024 Christian Schenk
  *
  * This file is part of MiKTeX Console.
  *
@@ -272,7 +272,7 @@ int main(int argc, char* argv[])
     plugIns.MakeFullyQualified();
     QCoreApplication::addLibraryPath(QString::fromUtf8(plugIns.GetData()));
 #endif
-#if QT_VERSION >= 0x050600
+#if QT_VERSION >= 0x050600 && QT_VERSION < 0x060000
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
     QApplication application(argc, argv);
