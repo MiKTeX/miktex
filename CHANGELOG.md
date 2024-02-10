@@ -4,6 +4,7 @@
 
 ### Upgraded programs
 
+* dvipdfmx 20240210
 * pdftex 1.40.26
 * xetex 0.999996
 

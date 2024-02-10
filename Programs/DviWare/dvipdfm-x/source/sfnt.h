@@ -92,6 +92,8 @@ typedef struct
 #define sfnt_get_ulong(s)  ((ULONG)  get_unsigned_quad((s)->stream))
 #define sfnt_get_long(s)   ((LONG)   get_signed_quad  ((s)->stream))
 
+#define sfnt_get_uint24(s) ((ULONG)  get_unsigned_triple((s)->stream))
+
 #define sfnt_seek_set(s,o)   seek_absolute((s)->stream, (o))
 #define sfnt_read(b,l,s)     fread((b), 1, (l), (s)->stream)
 
