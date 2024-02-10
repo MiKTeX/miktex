@@ -45,6 +45,12 @@ boolean isSJISkanji2(int c)
     return (0x40 <= c && c <= 0xfc && c != 0x7f);
 }
 
+boolean isISO8859(int c)
+{
+    c &= 0xff;
+    return (0xa0 <= c && c <= 0xff);
+}
+
 /* EUC <=> JIS X 0208 code conversion */
 int EUCtoJIS(int kcode)
 {

@@ -23,6 +23,8 @@ extern boolean isEUCkanji2(int c);
 extern boolean isSJISkanji1(int c);
 extern boolean isSJISkanji2(int c);
 
+extern boolean isISO8859(int c);
+
 /* EUC <=> JIS X 0208 code conversion */
 extern int EUCtoJIS(int c);
 extern int JIStoEUC(int c);

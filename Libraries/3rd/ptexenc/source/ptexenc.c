@@ -78,6 +78,7 @@ int infile_enc_auto = 2;
 static int     file_enc = ENC_UNKNOWN;
 static int internal_enc = ENC_UNKNOWN;
 static int terminal_enc = ENC_UNKNOWN;
+static int    guess_enc = ENC_UNKNOWN;
 
 const_string enc_to_string(int enc)
 {
@@ -102,12 +103,13 @@ static int string_to_enc(const_string str)
     if (UPTEX_enabled && strcasecmp(str, "uptex")  == 0) return ENC_UPTEX;
 
     if (strcasecmp(str, "ASCII")== 0)        return file_enc;
-    if (strncasecmp(str, "AMBIGUOUS", 9) == 0) return file_enc;
+    if (strncasecmp(str, "AMBIGUOUS", 9) == 0) return guess_enc;
     if (strcasecmp(str, "BINARY") == 0)      return ENC_JIS;
     if (strcasecmp(str, "ISO-2022-JP") == 0) return ENC_JIS;
     if (strcasecmp(str, "EUC-JP") == 0)      return ENC_EUC;
     if (strcasecmp(str, "Shift_JIS")   == 0) return ENC_SJIS;
-    if (strcasecmp(str, "UTF-8")       == 0) return ENC_UTF8;
+    if (strncasecmp(str, "UTF-8", 5)   == 0) return ENC_UTF8;
+    if (strcasecmp(str, "ISO-8859") == 0)    return ENC_JIS;
     return -1; /* error */
 }
 
@@ -820,13 +822,14 @@ static boolean is_tail(long *c, FILE *fp)
 }
 
 #define MARK_LEN 4
+static int bom_u[MARK_LEN] = { 0xEF, 0xBB, 0xBF, 0x7E };
+static int bom_l[MARK_LEN] = { 0xEF, 0xBB, 0xBF, 0x01 };
+
 /* if stream begins with BOM + 7bit char */
 static boolean isUTF8Nstream(FILE *fp)
 {
     int i;
     int c[MARK_LEN];
-    int bom_u[MARK_LEN] = { 0xEF, 0xBB, 0xBF, 0x7E };
-    int bom_l[MARK_LEN] = { 0xEF, 0xBB, 0xBF, 0x01 };
 
     for (i=0; i<MARK_LEN; i++) {
         c[i] = getc4(fp);
@@ -848,21 +851,28 @@ static int infile_enc[NOFILE]; /* ENC_UNKNOWN (=0): not determined
       No halfwidth katakana in Shift_JIS
       No SS2 nor SS3 in EUC-JP
       JIS X 0208 only and no platform dependent characters in Shift_JIS, EUC-JP
+      ISO-8859 may have 0xA0..0xFF, may not have 0x80..0x9F
 */
-char *ptenc_guess_enc(FILE *fp)
+char *ptenc_guess_enc(FILE *fp, boolean chk_bom)
 {
     char *enc;
     int k0, k1, k2, cdb[2], cu8[4], len_utf8;
     int is_ascii=1, lbyte=0;
-    int maybe_sjis=1, maybe_euc=1, maybe_utf8=1, pos_db=0, pos_utf8=0;
+    int maybe_sjis=1, maybe_euc=1, maybe_utf8=1, maybe_iso8859=1, pos_db=0, pos_utf8=0;
+    int ch_sjis=0, ch_euc=0, ch_utf8=0, ch_iso8859=0, bom=0;
 #ifdef DEBUG
     int i;
     unsigned char str0[5];
 #endif /* DEBUG */
-    enc = xmalloc(sizeof(char)*18);
+    enc = xmalloc(sizeof(char)*20);
 
     while ((k0 = fgetc(fp)) != EOF &&
-           (maybe_sjis+maybe_euc+maybe_utf8>1 || pos_db || pos_utf8)) {
+           (maybe_sjis+maybe_euc+maybe_utf8+maybe_iso8859>1 || pos_db || pos_utf8 || lbyte<200)) {
+        if (maybe_iso8859 && maybe_sjis+maybe_euc+maybe_utf8==1 && !pos_db && !pos_utf8
+            && ch_iso8859>=2000) {
+            break;
+        }
+        if (chk_bom && lbyte<4 && bom_l[lbyte] <= k0 && k0 <= bom_u[lbyte]) bom++;
         lbyte++;
         if (k0==ESC) {
             k0 = fgetc(fp);
@@ -904,8 +914,10 @@ char *ptenc_guess_enc(FILE *fp)
                         fprintf(stderr, " not sjis\n");
                     }
 #endif /* DEBUG */
-                    if (k1)
+                    if (k1) {
+                        ch_sjis++;
                         continue;
+                    }
                 }
                 maybe_sjis = 0;
             }
@@ -916,6 +928,11 @@ char *ptenc_guess_enc(FILE *fp)
             }
             continue;
         }
+
+        if (!isISO8859(k0))
+            maybe_iso8859 = 0;
+        else
+            ch_iso8859++;
         is_ascii = 0;
         if (pos_db==0) {
             cdb[0] = k0;
@@ -929,10 +946,14 @@ char *ptenc_guess_enc(FILE *fp)
             if (maybe_sjis) {
                 if (!k1)
                     maybe_sjis = 0;
+                else
+                    ch_sjis++;
             }
             if (maybe_euc) {
                 if (!k2)
                     maybe_euc = 0;
+                else
+                    ch_euc++;
             }
             pos_db = 0;
 #ifdef DEBUG
@@ -974,7 +995,8 @@ char *ptenc_guess_enc(FILE *fp)
             if (pos_utf8==1) {
                 if ((cu8[0]==0xE0 && cu8[1]<0xA0) ||
                     (cu8[0]==0xED && cu8[1]>0x9F) ||
-                    (cu8[0]==0xF0 && cu8[1]<0x90)) { /* illegal combination in UTF-8 */
+                    (cu8[0]==0xF0 && cu8[1]<0x90) ||
+                    (cu8[0]==0xF4 && cu8[1]>0x8F)) { /* illegal combination in UTF-8 */
                     maybe_utf8 = 0;
                     pos_utf8 = 0;
                     continue;
@@ -989,6 +1011,7 @@ char *ptenc_guess_enc(FILE *fp)
                 for (i=0; i<len_utf8; i++) fprintf(stderr, "%02X", cu8[i]);
                 fprintf(stderr, " U+%06lX (%s)\n", UTF8StoUCS(str0), str0);
 #endif /* DEBUG */
+                ch_utf8++;
                 len_utf8 = 0;
                 pos_utf8 = 0;
                 cu8[0]=cu8[1]=cu8[2]=cu8[3]=0;
@@ -1000,24 +1023,62 @@ char *ptenc_guess_enc(FILE *fp)
         if (pos_db)   maybe_sjis = maybe_euc = 0;
         if (pos_utf8) maybe_utf8 = 0;
     }
+#ifdef DEBUG
+    if (maybe_sjis+maybe_euc+maybe_utf8+maybe_iso8859>1) {
+        fprintf(stderr,
+           "Maybe(%d, %d, %d, %d), Multibyte characters(%d, %d, %d, %d), lbyte(%d)\n",
+           maybe_sjis, maybe_euc, maybe_utf8, maybe_iso8859, ch_sjis, ch_euc, ch_utf8, ch_iso8859, lbyte);
+    }
+#endif /* DEBUG */
+    if (maybe_iso8859) {
+        /* The threshold of ch_* to judge ISO-8859 or not is heuristic, not strict */
+        if ((maybe_sjis && ch_sjis>=16 && ch_sjis*1.3<=ch_iso8859) ||
+            (maybe_euc  && ch_euc >=8  && ch_euc *2  ==ch_iso8859) ||
+            (maybe_utf8 && ch_utf8>=8  && ch_utf8*2  <=ch_iso8859) ||
+             bom==4)
+               maybe_iso8859 = 0;
+    }
     if (is_ascii)
         strcpy(enc,"ASCII");
-    else if (maybe_sjis+maybe_euc+maybe_utf8>1) {
+    else if (maybe_sjis+maybe_euc+maybe_utf8+maybe_iso8859>1) {
+        guess_enc = ENC_UNKNOWN;
         strcpy(enc,"AMBIGUOUS(");
-        if (maybe_sjis)
+        if (maybe_sjis) {
             enc = strcat(enc,"s");
-        if (maybe_euc)
+            if (file_enc == ENC_SJIS) guess_enc = ENC_SJIS;
+        }
+        if (maybe_euc) {
             enc = strcat(enc, maybe_sjis ? ",e" : "e");
-        if (maybe_utf8)
-            enc = strcat(enc, ",u");
+            if (file_enc == ENC_EUC)  guess_enc = ENC_EUC;
+        }
+        if (maybe_utf8) {
+            enc = strcat(enc, maybe_sjis || maybe_euc ? ",u" : "u");
+            if (file_enc == ENC_UTF8) guess_enc = ENC_UTF8;
+        }
+        if (maybe_iso8859)
+            enc = strcat(enc, ",i");
         enc = strcat(enc,")");
+        if (maybe_iso8859 && maybe_euc+maybe_sjis+maybe_utf8==1) {
+            if (maybe_sjis) guess_enc = ENC_SJIS;
+            if (maybe_euc)  guess_enc = ENC_EUC;
+            if (maybe_utf8) guess_enc = ENC_UTF8;
+        }
+#ifdef WIN32
+        if (guess_enc == ENC_UNKNOWN) guess_enc = ENC_UTF8;
+#else
+        if (guess_enc == ENC_UNKNOWN) guess_enc = get_terminal_enc();
+#endif
     }
     else if (maybe_sjis)
         strcpy(enc,"Shift_JIS");
     else if (maybe_euc)
         strcpy(enc,"EUC-JP");
-    else if (maybe_utf8)
+    else if (maybe_utf8) {
         strcpy(enc,"UTF-8");
+        if (bom>=3) strcat(enc," (BOM)");
+    }
+    else if (maybe_iso8859)
+        strcpy(enc,"ISO-8859");
     else
         strcpy(enc,"BINARY");
   post_process:
@@ -1078,7 +1139,7 @@ long input_line2(FILE *fp, unsigned char *buff, unsigned char *buff2,
             getc4(fp);
             getc4(fp);
             rewind(fp);
-            enc = ptenc_guess_enc(fp);
+            enc = ptenc_guess_enc(fp, 0);
             if (string_to_enc(enc) > 0) {
                 infile_enc[fd] = string_to_enc(enc);
                 fprintf(stderr, "(guessed encoding #%d: %s = %s)", fd, enc, enc_to_string(infile_enc[fd]));
@@ -1179,6 +1240,15 @@ boolean setstdinenc(const char *str)
     enc = string_to_enc(str);
     if (enc < 0) return false;
     infile_enc[fileno(stdin)] = enc;
+    return true;
+}
+
+boolean setfileenc(const char *str)
+{
+    int enc;
+    enc = string_to_enc(str);
+    if (enc < 0) return false;
+    file_enc = enc;
     return true;
 }
 
