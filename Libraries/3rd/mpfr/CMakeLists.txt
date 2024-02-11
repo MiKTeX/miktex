@@ -75,7 +75,6 @@ set(mpfr_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/fits_sint.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/fits_slong.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/fits_ulong.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/frac.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/free_cache.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_d.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_si.c
@@ -87,7 +86,6 @@ set(mpfr_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/init.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/init2.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/inits2.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/int_ceil_log2.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/isinteger.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/isnum.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/isqrt.c
@@ -114,17 +112,17 @@ set(mpfr_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/round_prec.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/scale2.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_si.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_d.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_dfl_prec.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_f.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_inf.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_nan.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_prec.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_q.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_rnd.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_si_2exp.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_str.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_ui_2exp.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_ui.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_z.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_z_2exp.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_zero.c
@@ -148,6 +146,14 @@ set(mpfr_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/ui_sub.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/version.c
 )
+
+if(NOT CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    list(APPEND mpfr_sources
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/src/int_ceil_log2.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_si.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_ui.c
+    )
+endif()
 
 set(public_headers
     mpfr.h
