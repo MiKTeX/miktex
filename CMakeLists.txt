@@ -1951,7 +1951,7 @@ if(USE_SYSTEM_MPFI)
         INTERFACE_INCLUDE_DIRECTORIES "${MPFI_INCLUDE_DIRS}"
     )
 else()
-    #add_subdirectory(${MIKTEX_REL_MPFI_DIR})
+    add_subdirectory(${MIKTEX_REL_MPFI_DIR})
 endif()
 
 if(USE_SYSTEM_MPFR)

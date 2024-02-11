@@ -201,5 +201,4 @@ foreach(hdr ${public_headers})
     )
 endforeach()
 
-add_subdirectory(shared)
 add_subdirectory(static)
