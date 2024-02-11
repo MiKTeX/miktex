@@ -40,6 +40,8 @@ configure_file(
 set(metapost_backends_cweb_sources
     ${CMAKE_CURRENT_BINARY_DIR}/mplibpng.h
     ${CMAKE_CURRENT_BINARY_DIR}/mplibsvg.h
+    ${CMAKE_CURRENT_BINARY_DIR}/mpmathinterval.c
+    ${CMAKE_CURRENT_BINARY_DIR}/mpmathinterval.h
     ${CMAKE_CURRENT_BINARY_DIR}/mppngout.h
     ${CMAKE_CURRENT_BINARY_DIR}/mpsvgout.h
     ${CMAKE_CURRENT_BINARY_DIR}/pngout.c
@@ -83,6 +85,21 @@ add_custom_command(
     VERBATIM
 )
 
+add_custom_command(
+    OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/mpmathinterval.c
+        ${CMAKE_CURRENT_BINARY_DIR}/mpmathinterval.h
+    COMMAND
+        ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpmathinterval
+    WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}
+    MAIN_DEPENDENCY
+        source/mpmathinterval.w
+    DEPENDS
+        ${MIKTEX_PREFIX}ctangle
+    VERBATIM
+)
+
 set(metapost_backends_sources
     ${CMAKE_CURRENT_BINARY_DIR}/miktex-metapost-version.h
     ${CMAKE_CURRENT_BINARY_DIR}/mplib.h
@@ -117,6 +134,18 @@ if(USE_SYSTEM_GMP)
     target_link_libraries(${metapost_backends_lib_name} PRIVATE MiKTeX::Imported::GMP)
 else()
     target_link_libraries(${metapost_backends_lib_name} PRIVATE ${gmp_lib_name})
+endif()
+
+if(USE_SYSTEM_MPFI)
+    target_link_libraries(${metapost_backends_lib_name} PRIVATE MiKTeX::Imported::MPFI)
+else()
+    target_link_libraries(${metapost_backends_lib_name} PRIVATE ${mpfi_lib_name})
+endif()
+
+if(USE_SYSTEM_MPFR)
+    target_link_libraries(${metapost_backends_lib_name} PRIVATE MiKTeX::Imported::MPFR)
+else()
+    target_link_libraries(${metapost_backends_lib_name} PRIVATE ${mpfr_lib_name})
 endif()
 
 if(USE_SYSTEM_PNG)
@@ -460,6 +489,12 @@ if(USE_SYSTEM_PNG)
     target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::PNG)
 else()
     target_link_libraries(${metapost_dll_name} PRIVATE ${png_dll_name})
+endif()
+
+if(USE_SYSTEM_MPFI)
+    target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::MPFI)
+else()
+    target_link_libraries(${metapost_dll_name} PRIVATE ${mpfi_lib_name})
 endif()
 
 if(USE_SYSTEM_MPFR)

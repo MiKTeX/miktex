@@ -71,12 +71,12 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 2.02" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 2.10" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @<Metapost version header@>=
-#define metapost_version "2.02"
+#define metapost_version "2.10"
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
 few typedefs and the header defintions for the externally used
@@ -205,6 +205,7 @@ static int DEBUGENVELOPECOUNTER=0;
 #include "mpmathdouble.h"       /* internal header */
 #include "mpmathdecimal.h"      /* internal header */
 /*|#include "mpmathbinary.h"|*/       /* internal header */
+/*|#include "mpmathinterval.h"|*/       /* internal header */
 #include "mpstrings.h"          /* internal header */
 /* BEGIN PATCH */
 mp_number dx_ap;    /* approximation of dx */
@@ -223,7 +224,10 @@ extern const char *COMPILED_CAIRO_VERSION_STRING;
 extern const char* cairo_version_string (void);
 extern const char *COMPILED_MPFR_VERSION_STRING;
 extern const char* mpfr_get_version (void);
+extern const char *COMPILED_MPFI_VERSION_STRING;
+extern const char* mpfi_get_version (void);
 extern void * mp_initialize_binary_math (MP mp) ;
+extern void * mp_initialize_interval_math(MP mp);
 extern int COMPILED__GNU_MP_VERSION;
 extern int COMPILED__GNU_MP_VERSION_MINOR;
 extern int COMPILED__GNU_MP_VERSION_PATCHLEVEL;
@@ -325,6 +329,35 @@ MP_options *mp_options (void) {
 }
 
 
+@ Here are the three primitives of the interval arithmetic adapted to the others number systems:
+|left_point| and |right_point| of a number |a| simply return |a|, while
+|interval_set| of the pair |(a,b)|  returns the mid point.
+
+@<Declarations@>=
+static void mp_stub_m_get_left_endpoint(MP mp, mp_number * r, mp_number a);
+static void mp_stub_m_get_right_endpoint(MP mp, mp_number * r, mp_number a);
+static void mp_stub_m_interval_set(MP mp, mp_number * r, mp_number a, mp_number b);
+
+
+@ @c
+static void mp_stub_m_get_left_endpoint(MP mp, mp_number * r, mp_number a){
+  number_clone(*r,a);
+}
+static void mp_stub_m_get_right_endpoint(MP mp, mp_number * r, mp_number a){
+  number_clone(*r,a);
+}
+static void mp_stub_m_interval_set(MP mp, mp_number * r, mp_number a, mp_number b){
+ mp_number x;
+ new_number(x);
+ number_add(x,a);number_add(x,b);number_half(x);
+ number_clone(*r,x);
+ free_number(x);
+}
+
+
+
+
+
 @ @<Internal library declarations@>=
 @<Declare subroutines for parsing file names@>
 
@@ -383,7 +416,8 @@ typedef enum {
   mp_angle_type,
   mp_double_type,
   mp_binary_type,
-  mp_decimal_type
+  mp_decimal_type,
+  mp_interval_type
 } mp_number_type;
 typedef union {
   void *num;
@@ -459,6 +493,10 @@ typedef char * (*tostring_func) (MP mp, mp_number A);
 typedef void (*scan_func) (MP mp, int A);
 typedef void (*mp_free_func) (MP mp);
 typedef void (*set_precision_func) (MP mp);
+/* math interval new primitives */
+typedef void (*m_get_left_endpoint_func) (MP mp, mp_number *r, mp_number a);
+typedef void (*m_get_right_endpoint_func) (MP mp, mp_number *r, mp_number a);
+typedef void (*m_interval_set_func) (MP mp, mp_number *r, mp_number a, mp_number b);
 
 typedef struct math_data {
   mp_number precision_default;
@@ -564,6 +602,10 @@ typedef struct math_data {
   scan_func scan_fractional;
   mp_free_func free_math;
   set_precision_func set_precision;
+  /* math interval new primitives */
+  m_get_left_endpoint_func  m_get_left_endpoint;
+  m_get_right_endpoint_func m_get_right_endpoint;
+  m_interval_set_func       m_interval_set;
 } math_data;
 
 
@@ -615,8 +657,15 @@ MP mp_initialize (MP_options * opt) {
     mp->math = mp_initialize_decimal_math(mp);
   } else if (opt->math_mode == mp_math_binary_mode) {
     mp->math = mp_initialize_binary_math(mp);
+  } else if (opt->math_mode == mp_math_interval_mode) {
+    mp->math = mp_initialize_interval_math(mp);
   } else {
     mp->math = mp_initialize_double_math(mp);
+  }
+  if (opt->math_mode != mp_math_interval_mode) {
+   ((math_data *)mp->math)->m_get_left_endpoint = mp_stub_m_get_left_endpoint;
+   ((math_data *)mp->math)->m_get_right_endpoint = mp_stub_m_get_right_endpoint;
+   ((math_data *)mp->math)->m_interval_set       = mp_stub_m_interval_set ;
   }
   @<Find and load preload file, if required@>;
   @<Allocate or initialize variables@>;
@@ -640,6 +689,8 @@ MP mp_initialize (MP_options * opt) {
     set_internal_string (mp_number_system, mp_intern (mp, "decimal"));
   } else if (opt->math_mode == mp_math_binary_mode) {
     set_internal_string (mp_number_system, mp_intern (mp, "binary"));
+  } else if (opt->math_mode == mp_math_interval_mode) {
+    set_internal_string (mp_number_system, mp_intern (mp, "interval"));
   } else {
     set_internal_string (mp_number_system, mp_intern (mp, "double"));
   }
@@ -2813,10 +2864,11 @@ the typedef for |mp_number| is here because it has to come very early.
 
 @<Exported types@>=
 typedef enum {
-  mp_math_scaled_mode = 0,
-  mp_math_double_mode = 1,
-  mp_math_binary_mode = 2,
-  mp_math_decimal_mode = 3
+  mp_math_scaled_mode   = 0,
+  mp_math_double_mode   = 1,
+  mp_math_binary_mode   = 2,
+  mp_math_decimal_mode  = 3,
+  mp_math_interval_mode = 4
 } mp_math_mode;
 
 @ @<Option variables@>=
@@ -3704,7 +3756,11 @@ mp_version, /* operation code for \.{mpversion} */
 mp_envelope_of, /* operation code for \.{envelope} */
 mp_boundingpath_of, /* operation code for \.{boundingpath} */
 mp_glyph_infont, /* operation code for \.{glyph} */
-mp_kern_flag /* operation code for \.{kern} */
+mp_kern_flag, /* operation code for \.{kern} */
+mp_m_get_left_endpoint_op, /* math interval new primitives  operation code for \.{interval_get_left_endpoint} */
+mp_m_get_right_endpoint_op, /* math interval new primitives operation code for \.{interval_get_right_endpoint} */
+mp_interval_set_op, /* math interval new primitives operation code for \.{interval_set} */
+
 
 @ @c
 static void mp_print_op (MP mp, quarterword c) {
@@ -4020,6 +4076,16 @@ static void mp_print_op (MP mp, quarterword c) {
       break;
     case mp_glyph_infont:
       mp_print (mp, "glyph");
+      break;
+    /* math interval new primitives */
+    case mp_m_get_left_endpoint_op:
+      mp_print (mp, "interval_get_left_endpoint");
+      break;
+    case mp_m_get_right_endpoint_op:
+      mp_print (mp, "interval_get_right_endpoint");
+      break;
+    case mp_interval_set_op:
+      mp_print (mp, "interval_set");
       break;
     default:
       mp_print (mp, "..");
@@ -4368,6 +4434,7 @@ set_internal_name (mp_number_system, xstrdup ("numbersystem"));
 set_internal_name (mp_number_precision, xstrdup ("numberprecision"));
 set_internal_name (mp_hppp, xstrdup ("hppp"));
 set_internal_name (mp_vppp, xstrdup ("vppp"));
+
 
 @ The following procedure, which is called just before \MP\ initializes its
 input and output, establishes the initial values of the date and time.
@@ -11165,6 +11232,9 @@ This first set goes into the header
 @d convert_angle_to_scaled(A)          (((math_data *)(mp->math))->angle_to_scaled)(&(A));
 @d convert_fraction_to_scaled(A)       (((math_data *)(mp->math))->fraction_to_scaled)(&(A));
 @d convert_scaled_to_fraction(A)       (((math_data *)(mp->math))->scaled_to_fraction)(&(A));
+@d m_get_left_endpoint(R,A)            (((math_data *)(mp->math))->m_get_left_endpoint)(mp,&(R),A)  /* math interval new primitives */
+@d m_get_right_endpoint(R,A)           (((math_data *)(mp->math))->m_get_right_endpoint)(mp,&(R),A) /* math interval new primitives */
+@d m_interval_set(R,A,B)               (((math_data *)(mp->math))->m_interval_set)(mp,&(R),A,B)     /* math interval new primitives */
 @#
 @d number_zero(A)		       number_equal(A, zero_t)
 @d number_infinite(A)		       number_equal(A, inf_t)
@@ -25350,7 +25420,13 @@ mp_primitive (mp, "envelope", mp_primary_binary, mp_envelope_of);
 mp_primitive (mp, "boundingpath", mp_primary_binary, mp_boundingpath_of);
 @:boundingpath_}{\&{boundingpath} primitive@>;
 mp_primitive (mp, "glyph", mp_primary_binary, mp_glyph_infont);
-@:glyph_infont_}{\&{glyph} primitive@>
+@:glyph_infont_}{\&{glyph} primitive@>;
+mp_primitive (mp, "interval_get_left_endpoint", mp_unary, mp_m_get_left_endpoint_op);  /* math interval new primitives */
+@:m_get_left_endpoint_}{\&{mget_left_endpoint} primitive@>;
+mp_primitive (mp, "interval_get_right_endpoint", mp_unary, mp_m_get_right_endpoint_op); /* math interval new primitives */
+@:m_get_right_endpoint_}{\&{mget_right_endpoint} primitive@>;
+mp_primitive (mp, "interval_set", mp_unary, mp_interval_set_op); /* math interval new primitives */
+@:interval_set}{\&{interval_set} primitive@>;
 
 
 @ @<Cases of |print_cmd...@>=
@@ -25521,6 +25597,8 @@ static void mp_do_unary (MP mp, quarterword c) {
   case mp_uniform_deviate:
   case mp_odd_op:
   case mp_char_exists_op:
+  case mp_m_get_left_endpoint_op: /* math interval new primitives */
+  case mp_m_get_right_endpoint_op:/* math interval new primitives */
     if (mp->cur_exp.type != mp_known) {
       mp_bad_unary (mp, c);
     } else {
@@ -25616,7 +25694,41 @@ static void mp_do_unary (MP mp, quarterword c) {
         boolean_reset (mp->char_exists[number_to_scaled(cur_exp_value_number ())]);
         mp->cur_exp.type = mp_boolean_type;
         break;
+      case mp_m_get_left_endpoint_op: /* math interval new primitives */
+        {
+          mp_number r1;
+          new_number (r1);
+          m_get_left_endpoint (r1, cur_exp_value_number ());
+          set_cur_exp_value_number (r1);
+          free_number (r1);
+        }
+        break;
+      case mp_m_get_right_endpoint_op: /* math interval new primitives */
+        {
+          mp_number r1;
+          new_number (r1);
+          m_get_right_endpoint (r1, cur_exp_value_number ());
+          set_cur_exp_value_number (r1);
+          free_number (r1);
+        }
+        break;
+
       }                             /* there are no other cases */
+    }
+    break;
+  case mp_interval_set_op: /* math interval new primitives */
+    if (mp_nice_pair (mp, cur_exp_node (), mp->cur_exp.type)) {
+      mp_number ret_val;
+      memset(&new_expr,0,sizeof(mp_value));
+      new_number(new_expr.data.n);
+      new_number(ret_val);
+      p = value_node (cur_exp_node ());
+      m_interval_set(ret_val, value_number (x_part (p)), value_number (y_part (p)));
+      number_clone (new_expr.data.n, ret_val);
+      free_number (ret_val);
+      mp_flush_cur_exp (mp, new_expr);
+    } else {
+      mp_bad_unary (mp, mp_interval_set_op);
     }
     break;
   case mp_angle_op:
@@ -30930,6 +31042,7 @@ void mp_show_library_versions (void) {
   fprintf(stdout, "Compiled with libpng %s; using %s\n", PNG_LIBPNG_VER_STRING, png_libpng_ver);
   fprintf(stdout, "Compiled with zlib %s; using %s\n", ZLIB_VERSION, zlibVersion());
   fprintf(stdout, "Compiled with mpfr %s; using %s\n", COMPILED_MPFR_VERSION_STRING, mpfr_get_version());
+  fprintf(stdout, "Compiled with mpfi %s; using %s\n", COMPILED_MPFI_VERSION_STRING, mpfi_get_version());
   fprintf(stdout, "Compiled with gmp %d.%d.%d; using %s\n\n", COMPILED__GNU_MP_VERSION, COMPILED__GNU_MP_VERSION_MINOR, COMPILED__GNU_MP_VERSION_PATCHLEVEL, COMPILED_gmp_version);
 }
 

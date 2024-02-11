@@ -5,6 +5,7 @@
 ### Upgraded programs
 
 * dvipdfmx 20240210
+* metapost 2.10
 * pdftex 1.40.26
 * xetex 0.999996
 
