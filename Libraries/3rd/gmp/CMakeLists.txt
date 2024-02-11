@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2015-2022 Christian Schenk
+## Copyright (C) 2015-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -260,6 +260,7 @@ set(mpn_sources
     ${fqsrcdir}/mpn/generic/lshiftc.c
     ${fqsrcdir}/mpn/generic/matrix22_mul.c
     ${fqsrcdir}/mpn/generic/matrix22_mul1_inverse_vector.c
+    ${fqsrcdir}/mpn/generic/mod_1.c
     ${fqsrcdir}/mpn/generic/mu_bdiv_q.c
     ${fqsrcdir}/mpn/generic/mu_div_q.c
     ${fqsrcdir}/mpn/generic/mu_div_qr.c
@@ -336,6 +337,7 @@ set(mpz_sources
     ${fqsrcdir}/mpz/add_ui.c
     ${fqsrcdir}/mpz/aorsmul.c
     ${fqsrcdir}/mpz/aorsmul_i.c
+    ${fqsrcdir}/mpz/cdiv_qr_ui.c
     ${fqsrcdir}/mpz/cdiv_q_ui.c
     ${fqsrcdir}/mpz/cfdiv_q_2exp.c
     ${fqsrcdir}/mpz/clear.c
@@ -345,6 +347,7 @@ set(mpz_sources
     ${fqsrcdir}/mpz/divexact.c
     ${fqsrcdir}/mpz/fdiv_q.c
     ${fqsrcdir}/mpz/fdiv_q_ui.c
+    ${fqsrcdir}/mpz/fdiv_r_ui.c
     ${fqsrcdir}/mpz/fdiv_qr.c
     ${fqsrcdir}/mpz/fits_slong.c
     ${fqsrcdir}/mpz/gcdext.c
