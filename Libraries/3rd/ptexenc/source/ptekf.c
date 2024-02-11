@@ -197,7 +197,7 @@ main (int argc,  char **argv)
       exit(32);
     }
     if (flg_guess_enc) {
-      genc = ptenc_guess_enc(infp, 1);
+      genc = ptenc_guess_enc(infp, 1, 1);
       printf("%s: %s\n", infname, genc);
       setinfileenc(infp, genc);
       free(genc);
@@ -225,6 +225,11 @@ main (int argc,  char **argv)
       }
       while ((ret = mfgets(buff, BUFFERLEN, infp)) != NULL) {
         (*fputs__)(buff, outfp);
+      }
+      if (ret == NULL && feof(infp)) {
+        c = buff[strlen(buff)-1];
+        if (c != '\n' && c != '\r')
+          (*fputs__)(buff, outfp);
       }
       if (fclose(infp)) {
         fprintf(stderr, "ERROR: fail to close input file [%s].", infname);

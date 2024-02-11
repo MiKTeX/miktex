@@ -102,14 +102,14 @@ static int string_to_enc(const_string str)
     if (strcasecmp(str, "utf8")   == 0) return ENC_UTF8;
     if (UPTEX_enabled && strcasecmp(str, "uptex")  == 0) return ENC_UPTEX;
 
-    if (strcasecmp(str, "ASCII")== 0)        return file_enc;
+    if (strncasecmp(str, "ASCII", 5)== 0)      return file_enc;
     if (strncasecmp(str, "AMBIGUOUS", 9) == 0) return guess_enc;
-    if (strcasecmp(str, "BINARY") == 0)      return ENC_JIS;
-    if (strcasecmp(str, "ISO-2022-JP") == 0) return ENC_JIS;
-    if (strcasecmp(str, "EUC-JP") == 0)      return ENC_EUC;
-    if (strcasecmp(str, "Shift_JIS")   == 0) return ENC_SJIS;
-    if (strncasecmp(str, "UTF-8", 5)   == 0) return ENC_UTF8;
-    if (strcasecmp(str, "ISO-8859") == 0)    return ENC_JIS;
+    if (strncasecmp(str, "BINARY", 6) == 0)       return ENC_JIS;
+    if (strncasecmp(str, "ISO-2022-JP", 11) == 0) return ENC_JIS;
+    if (strncasecmp(str, "EUC-JP", 6) == 0)       return ENC_EUC;
+    if (strncasecmp(str, "Shift_JIS", 9)   == 0)  return ENC_SJIS;
+    if (strncasecmp(str, "UTF-8", 5)   == 0)      return ENC_UTF8;
+    if (strncasecmp(str, "ISO-8859", 8) == 0)     return ENC_JIS;
     return -1; /* error */
 }
 
@@ -853,10 +853,11 @@ static int infile_enc[NOFILE]; /* ENC_UNKNOWN (=0): not determined
       JIS X 0208 only and no platform dependent characters in Shift_JIS, EUC-JP
       ISO-8859 may have 0xA0..0xFF, may not have 0x80..0x9F
 */
-char *ptenc_guess_enc(FILE *fp, boolean chk_bom)
+char *ptenc_guess_enc(FILE *fp, boolean chk_bom, boolean chk_nl)
 {
     char *enc;
     int k0, k1, k2, cdb[2], cu8[4], len_utf8;
+    int nl0=0, nl_cr=0, nl_lf=0, nl_crlf=0;
     int is_ascii=1, lbyte=0;
     int maybe_sjis=1, maybe_euc=1, maybe_utf8=1, maybe_iso8859=1, pos_db=0, pos_utf8=0;
     int ch_sjis=0, ch_euc=0, ch_utf8=0, ch_iso8859=0, bom=0;
@@ -864,14 +865,23 @@ char *ptenc_guess_enc(FILE *fp, boolean chk_bom)
     int i;
     unsigned char str0[5];
 #endif /* DEBUG */
-    enc = xmalloc(sizeof(char)*20);
+    enc = xmalloc(sizeof(char)*32);
 
     while ((k0 = fgetc(fp)) != EOF &&
-           (maybe_sjis+maybe_euc+maybe_utf8+maybe_iso8859>1 || pos_db || pos_utf8 || lbyte<200)) {
+           (maybe_sjis+maybe_euc+maybe_utf8+maybe_iso8859>1 || pos_db || pos_utf8
+            || lbyte<320 || k0=='\r')) {
+        if (chk_nl) {
+            if (k0 == '\r') nl_cr++;
+            if (k0 == '\n') {
+                if (nl0 == '\r') { nl_cr--;  nl_crlf++; }
+                else             { nl_lf++;             }
+            }
+        }
         if (maybe_iso8859 && maybe_sjis+maybe_euc+maybe_utf8==1 && !pos_db && !pos_utf8
-            && ch_iso8859>=2000) {
+            && ch_iso8859>=2000 && k0!='\r') {
             break;
         }
+        nl0 = k0;
         if (chk_bom && lbyte<4 && bom_l[lbyte] <= k0 && k0 <= bom_u[lbyte]) bom++;
         lbyte++;
         if (k0==ESC) {
@@ -1082,6 +1092,12 @@ char *ptenc_guess_enc(FILE *fp, boolean chk_bom)
     else
         strcpy(enc,"BINARY");
   post_process:
+    if (chk_nl && (nl_cr || nl_lf || nl_crlf)) {
+        if      (nl_lf+nl_crlf==0) strcat(enc," (CR)");
+        else if (nl_cr+nl_crlf==0) strcat(enc," (LF)");
+        else if (nl_cr+nl_lf  ==0) strcat(enc," (CRLF)");
+        else                       strcat(enc," (MIXED NL)");
+    }
     rewind (fp);
     return enc;
 }
@@ -1139,7 +1155,7 @@ long input_line2(FILE *fp, unsigned char *buff, unsigned char *buff2,
             getc4(fp);
             getc4(fp);
             rewind(fp);
-            enc = ptenc_guess_enc(fp, 0);
+            enc = ptenc_guess_enc(fp, 0, 0);
             if (string_to_enc(enc) > 0) {
                 infile_enc[fd] = string_to_enc(enc);
                 fprintf(stderr, "(guessed encoding #%d: %s = %s)", fd, enc, enc_to_string(infile_enc[fd]));

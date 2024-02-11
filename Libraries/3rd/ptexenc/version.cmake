@@ -6,7 +6,7 @@
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
 
-set(MIKTEX_COMP_ORIG_VERSION_STR "1.4.5")
+set(MIKTEX_COMP_ORIG_VERSION_STR "1.4.6")
 
 set(MIKTEX_COMP_MAJOR_VERSION 1)
 set(MIKTEX_COMP_MINOR_VERSION 8)

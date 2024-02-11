@@ -104,7 +104,7 @@ extern PTENCDLL long input_line2(FILE *fp, unsigned char *buff, unsigned char *b
 extern PTENCDLL boolean setinfileenc(FILE *fp, const char *str);
 extern PTENCDLL boolean setstdinenc(const char *str);
 extern PTENCDLL boolean setfileenc(const char *str);
-extern PTENCDLL char *ptenc_guess_enc(FILE *fp, boolean chk_bom);
+extern PTENCDLL char *ptenc_guess_enc(FILE *fp, boolean chk_bom, boolean chk_nl);
 
 #if !defined(MIKTEX_WINDOWS) && defined(WIN32)
 extern PTENCDLL void clear_infile_enc(FILE *fp);
