@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2013-2022 Christian Schenk
+## Copyright (C) 2013-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -33,7 +33,7 @@ set_shared_library_version_properties(
 target_include_directories(${mpfr_dll_name} PUBLIC ${public_include_directories})
 
 if(USE_SYSTEM_GMP)
-    target_link_libraries(${mpfr_dll_name} PUNLIC MiKTeX::Imported::GMP)
+    target_link_libraries(${mpfr_dll_name} PUBLIC MiKTeX::Imported::GMP)
 else()
     target_link_libraries(${mpfr_dll_name} PUBLIC ${gmp_lib_name})
 endif()
