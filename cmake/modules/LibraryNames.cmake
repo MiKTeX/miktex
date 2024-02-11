@@ -1,6 +1,6 @@
 ## LibraryNames.cmake
 ##
-## Copyright (C) 2006-2022 Christian Schenk
+## Copyright (C) 2006-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -80,6 +80,7 @@ define_library("metapost-backends" metapost_backends)
 define_library("metapost-core" metapost_core)
 define_library("metapost-extramath" metapost_extramath)
 define_library("metapost-util" metapost_util)
+define_library(mpfi)
 define_library(mpfr)
 define_library(mspack)
 define_library(nlohmann_json)

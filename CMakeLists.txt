@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2006-2022 Christian Schenk
+## Copyright (C) 2006-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -338,6 +338,12 @@ option(
 option(
     USE_SYSTEM_LZMA
     "Use the system LZMA compression library."
+    ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+    USE_SYSTEM_MPFI
+    "Use the system Multiple Precision Floating-Point Interval Library."
     ${MIKTEX_UNIX_ALIKE}
 )
 
@@ -1210,6 +1216,10 @@ if(USE_SYSTEM_LZMA)
     find_package(LibLZMA REQUIRED)
 endif()
 
+if(USE_SYSTEM_MPFI)
+    find_package(MPFI REQUIRED)
+endif()
+
 if(USE_SYSTEM_MPFR)
     find_package(MPFR REQUIRED)
 endif()
@@ -1926,6 +1936,22 @@ if(USE_SYSTEM_LZMA)
     )
 else()
     add_subdirectory(${MIKTEX_REL_XZ_DIR})
+endif()
+
+if(USE_SYSTEM_MPFI)
+    get_filename_component(suffix ${MPFI_LIBRARY} EXT)
+    if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+        add_library(MiKTeX::Imported::MPFI SHARED IMPORTED)
+    else()
+        add_library(MiKTeX::Imported::MPFI STATIC IMPORTED)
+    endif()
+    set_target_properties(MiKTeX::Imported::MPFI
+        PROPERTIES
+        IMPORTED_LOCATION "${MPFI_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${MPFI_INCLUDE_DIRS}"
+    )
+else()
+    #add_subdirectory(${MIKTEX_REL_MPFI_DIR})
 endif()
 
 if(USE_SYSTEM_MPFR)

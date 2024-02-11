@@ -1,6 +1,6 @@
 ## SourcePaths.cmake
 ##
-## Copyright (C) 2006-2022 Christian Schenk
+## Copyright (C) 2006-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -93,6 +93,7 @@ set(MIKTEX_REL_MP_DIR                   "Programs/TeXAndFriends/mplib")
 set(MIKTEX_REL_MPC_DIR                  "BuildUtilities/mpc")
 set(MIKTEX_REL_MPM_DIR                  "Programs/MiKTeX/PackageManager/mpm")
 set(MIKTEX_REL_MPMLIB_DIR               "Libraries/MiKTeX/PackageManager")
+set(MIKTEX_REL_MPFI_DIR                 "Libraries/3rd/mpfi")
 set(MIKTEX_REL_MPFR_DIR                 "Libraries/3rd/mpfr")
 set(MIKTEX_REL_MSPACK_DIR               "Libraries/3rd/mspack")
 set(MIKTEX_REL_MTHELP_DIR               "Programs/MiKTeX/mthelp")
