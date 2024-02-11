@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2015-2023 Christian Schenk
+## Copyright (C) 2015-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -162,7 +162,4 @@ foreach(hdr ${public_headers})
     )
 endforeach()
 
-add_subdirectory(test)
-
-add_subdirectory(shared)
 add_subdirectory(static)

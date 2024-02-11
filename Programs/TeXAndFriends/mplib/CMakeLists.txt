@@ -365,7 +365,7 @@ target_link_libraries(${metapost_extramath_lib_name}
 if(USE_SYSTEM_MPFR)
     target_link_libraries(${metapost_extramath_lib_name} PRIVATE MiKTeX::Imported::MPFR)
 else()
-    target_link_libraries(${metapost_extramath_lib_name} PRIVATE ${mpfr_dll_name})
+    target_link_libraries(${metapost_extramath_lib_name} PRIVATE ${mpfr_lib_name})
 endif()
 
 install(TARGETS ${metapost_extramath_lib_name}
@@ -465,7 +465,7 @@ endif()
 if(USE_SYSTEM_MPFR)
     target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::MPFR)
 else()
-    target_link_libraries(${metapost_dll_name} PRIVATE ${mpfr_dll_name})
+    target_link_libraries(${metapost_dll_name} PRIVATE ${mpfr_lib_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)

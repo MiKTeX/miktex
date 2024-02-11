@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2015-2022 Christian Schenk
+## Copyright (C) 2015-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -94,7 +94,6 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
         windows-x64/miktex-mfware-bin-x64.tpm.in
         windows-x64/miktex-mktex-bin-x64.tpm.in
         windows-x64/miktex-mo-bin-x64.tpm.in
-        windows-x64/miktex-mpfr-bin-x64.tpm.in
         windows-x64/miktex-mpmcli-bin-x64.tpm.in
         windows-x64/miktex-mspack-bin-x64.tpm.in
         windows-x64/miktex-mthelp-bin-x64.tpm.in
