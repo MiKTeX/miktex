@@ -2909,5 +2909,10 @@ extern SplineFont *SFReadMacBinaryInfo(char *filename,int flags,enum openflags o
 #endif
 
 
+#ifndef P_tmpdir
+#define P_tmpdir        "/tmp"
+#endif
+
+
 
 #endif

@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX LuaTeX helpers
  *
- * @copyright Copyright © 2016-2023 Christian Schenk
+ * @copyright Copyright © 2016-2024 Christian Schenk
  *
  * This file is free software; the copyright holder gives unlimited permission
  * to copy and/or distribute it, with or without modifications, as long as this
@@ -33,7 +33,6 @@ void miktex_enable_installer(int onOff);
 const char* miktex_get_aux_directory();
 void miktex_invoke_editor(const char* filename, int lineno);
 int miktex_is_fully_qualified_path(const char* path);
-int miktex_hack__is_luaotfload_file(const char* path);
 int miktex_is_output_file(const char* path);
 int miktex_is_pipe(FILE* file);
 int miktex_open_format_file(const char* fileName, FILE** ppFile, int renew);

@@ -55,6 +55,7 @@ void mp_svg_backend_free (void *mp);
 int mp_svg_ship_out (void *hh, int prologues);
 int mp_svg_gr_ship_out (void *hh, int qprologues, int standalone);
 
+void *mp_initialize_interval_math(void *mp);
 void *mp_initialize_binary_math(void *mp);
 
 
@@ -69,9 +70,11 @@ int mp_svg_ship_out (void *hh, int prologues)                     { mplibstuff_m
 int mp_svg_gr_ship_out (void *hh, int qprologues, int standalone) { mplibstuff_message(svg backend); return 1; }
 
 
+void *mp_initialize_interval_math(void *mp)                       {mplibstuff_message(math interval);return NULL; }
 void *mp_initialize_binary_math(void *mp)                         {mplibstuff_message(math binary);return NULL; }
 
 const char* cairo_version_string (void);
+const char* mpfi_get_version(void);
 const char* mpfr_get_version(void);
 const char* pixman_version_string (void);
 
@@ -81,6 +84,9 @@ const char *COMPILED_CAIRO_VERSION_STRING = CAIRO_VERSION_STRING;
 
 #define MPFR_VERSION_STRING "MPFR NOT AVAILABLE"
 const char *COMPILED_MPFR_VERSION_STRING = MPFR_VERSION_STRING;
+
+#define MPFI_VERSION_STRING "MPFI NOT AVAILABLE"
+const char *COMPILED_MPFI_VERSION_STRING = MPFI_VERSION_STRING;
 
 
 #define __GNU_MP_VERSION -1
@@ -97,6 +103,11 @@ const char *COMPILED_PIXMAN_VERSION_STRING = PIXMAN_VERSION_STRING;
 const char* cairo_version_string (void)
 {
     return CAIRO_VERSION_STRING;
+}
+
+const char* mpfi_get_version(void)
+{
+    return MPFI_VERSION_STRING;
 }
 
 const char* mpfr_get_version(void)

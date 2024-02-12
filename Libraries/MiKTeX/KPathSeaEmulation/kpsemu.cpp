@@ -903,7 +903,7 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_xputenv(kpathsea kpseInstance, const char*
   Utils::SetEnvironmentString(varName, value);
 }
 
-MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const char* fileName, int silent)
+MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const char* fileName, int silent, int extended)
 {
   int ret = MIKTEX_SESSION()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEINPUTFILES).GetBool() || Utils::IsSafeFileName(PathName(fileName))
     ? 1
@@ -916,7 +916,7 @@ MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const cha
   return ret;
 }
 
-MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea kpseInstance, const char* fileName, int silent)
+MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea kpseInstance, const char* fileName, int silent, int extended)
 {
   int ret = MIKTEX_SESSION()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES).GetBool() || Utils::IsSafeFileName(PathName(fileName))
     ? 1

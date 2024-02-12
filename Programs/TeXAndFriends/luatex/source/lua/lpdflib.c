@@ -828,6 +828,8 @@ static int getpdfomitmediabox(lua_State * L)
 
 static int setpdfgentounicode(lua_State * L)
 {
+    /* ensures that glyph_unicode_tree is not null */
+    glyph_unicode_new(); 
     if (lua_type(L, 1) == LUA_TNUMBER) {
         set_pdf_gen_tounicode(lua_tointeger(L, 1));
     }

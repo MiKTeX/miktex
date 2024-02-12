@@ -49,6 +49,14 @@ static const char *get_output_file_name(void)
     return NULL;
 }
 
+static const char *output_directory_option(void)
+{
+    if (output_directory != NULL)
+        return (const char *) output_directory;
+    return NULL;
+}
+
+
 /*
 static const char *getfilename(void)
 {
@@ -254,6 +262,15 @@ static lua_Number safer_option_state(void)
     }
 }
 
+static lua_Number luadebug_option_state(void)
+{
+    if (luadebug_option == 0) {
+        return (lua_Number) 0;
+    } else {
+        return (lua_Number) 1;
+    }
+}
+
 static lua_Number kpse_used_state(void)
 {
     if (kpse_init == 1) {
@@ -325,7 +342,9 @@ static struct statistic stats[] = {
 
     {"shell_escape", 'N', &shell_escape_state},
     {"safer_option", 'N', &safer_option_state},
+    {"luadebug_option", 'N', &luadebug_option_state},
     {"kpse_used", 'N', &kpse_used_state},
+    {"output_directory", 'S', &output_directory_option},
     /*
      * mem stat
      */

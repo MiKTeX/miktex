@@ -69,6 +69,13 @@ void glyph_unicode_free(void)
         avl_destroy(glyph_unicode_tree, destroy_glyph_unicode_entry);
 }
 
+void glyph_unicode_new(void)
+{
+    if (glyph_unicode_tree == NULL) {
+        glyph_unicode_tree = avl_create(comp_glyph_unicode_entry, NULL, &avl_xallocator);
+    }
+}
+
 void def_tounicode(str_number glyph, str_number unistr)
 {
     char buf[SMALL_BUF_SIZE], *p, *ph;

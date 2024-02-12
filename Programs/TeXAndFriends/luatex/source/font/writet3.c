@@ -227,6 +227,15 @@ static void writet3(PDF pdf, internal_font_number f, int callback_id)
     int first_char, last_char;
     int pk_font_scale;
     int tounicode_objnum = 0;
+    int bc = font_bc(f);
+    int ec = font_ec(f); 
+    if (bc > 255) { 
+        bc = 255;
+    }
+    if (ec > 255) { 
+        formatted_warning("font", "discarding characters above 255 in type 3 font '%s' in write", font_name(f));
+        ec = 255;
+    }
     pdffloat pf;
     boolean is_notdef;
     t3_glyph_num = 0;
@@ -237,13 +246,13 @@ static void writet3(PDF pdf, internal_font_number f, int callback_id)
     xfree(t3_buffer);
     t3_curbyte = 0;
     t3_size = 0;
-    for (i = font_bc(f); i <= font_ec(f); i++) {
+    for (i = bc; i <= ec; i++) {
         if (pdf_char_marked(f, i)) {
             break;
         }
     }
     first_char = i;
-    for (i = font_ec(f); i > first_char; i--) {
+    for (i = ec; i > first_char; i--) {
         if (pdf_char_marked(f, i)) {
             break;
         }
@@ -439,8 +448,17 @@ void prerollt3user(PDF pdf, internal_font_number f)
 {
     int callback_id = callback_defined(provide_charproc_data_callback);
     if (callback_id > 0) {
+        int bc = font_bc(f);
+        int ec = font_ec(f); 
+        if (bc > 255) { 
+            bc = 255;
+        }
+        if (ec > 255) { 
+            formatted_warning("font", "discarding characters above 255 in type 3 font '%s' in preroll", font_name(f));
+            ec = 255;
+        }
         int i;
-        for (i = font_bc(f); i <= font_ec(f); i++) {
+        for (i = bc; i <= ec; i++) {
             if (pdf_char_marked(f, i)) {
                 /*tex We pass |true|, the font id and the character index. */
                 run_callback(callback_id, "ddd->", 1, f, i);
