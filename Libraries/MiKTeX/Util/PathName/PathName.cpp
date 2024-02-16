@@ -199,7 +199,7 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
             }
             else if (*it == PARENT_DIRECTORY)
             {
-                if (it != components.begin())
+                if (it != components.begin() && *(it - 1) != PARENT_DIRECTORY)
                 {
                     it = components.erase(--it);
                     it = components.erase(it);

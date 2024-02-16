@@ -48,6 +48,9 @@ BEGIN_TEST_FUNCTION(1);
     auto path3 = PathName("/a/////b/../b/c");
     path3.Convert({ConvertPathNameOption::CleanUp});
     TEST(PathName::Equals(PathName("/a/b/c"), path3));
+    auto path4 = PathName("../../a/./b/../c");
+    path4.Convert({ConvertPathNameOption::CleanUp});
+    TEST(PathName::Equals(PathName("../../a/c"), path4));
 }
 END_TEST_FUNCTION();
 
