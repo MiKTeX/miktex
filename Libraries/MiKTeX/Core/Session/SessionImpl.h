@@ -1,6 +1,6 @@
 /* SessionImpl.h: Session impl class
 
-   Copyright (C) 1996-2022 Christian Schenk
+   Copyright (C) 1996-2024 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -765,7 +765,7 @@ private:
   MiKTeX::Util::PathName atmFontDir;
 #endif
 
-private:
+public:
   bool GetWorkingDirectory(unsigned n, MiKTeX::Util::PathName& path);
 
 private:

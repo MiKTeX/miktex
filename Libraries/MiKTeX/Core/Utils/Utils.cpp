@@ -42,6 +42,8 @@
 
 #include "inliners.h"
 
+#include "Session/SessionImpl.h"
+
 using namespace std;
 
 using namespace MiKTeX::Configuration;
@@ -201,31 +203,31 @@ static vector<string> allowedFileNames = {
     ".tex"
 };
 
-bool Utils::IsSafeFileName(const PathName& path)
+bool Utils::IsSafeFileName(const PathName& path_)
 {
-    if (path.IsAbsolute())
+    auto path = path_;
+    path.TransformForComparison();
+    path.Clean();
+    auto pathComponents = PathName::Split(path);
+    if (pathComponents.empty())
     {
         return false;
     }
-    PathName fileName;
-    for (PathNameParser comp(path); comp; ++comp)
+    if (pathComponents[0] == "..")
     {
-        fileName = *comp;
-        if (fileName.GetLength() > 1 && fileName[0] == '.' && std::find(allowedFileNames.begin(), allowedFileNames.end(), fileName.ToString()) == allowedFileNames.end())
-        {
-            return false;
-        }
+        return false;
     }
-    MIKTEX_ASSERT(!fileName.Empty());
-    for (const string& forbidden : forbiddenFileNames)
+    auto fileName = pathComponents.back();
+    if (std::find(forbiddenFileNames.begin(), forbiddenFileNames.end(), fileName) != forbiddenFileNames.end())
     {
-        if (PathName::Equals(PathName(forbidden), fileName))
-        {
-            return false;
-        }
+        return false;
+    }
+    if (fileName[0] == '.' && std::find(allowedFileNames.begin(), allowedFileNames.end(), fileName) == allowedFileNames.end())
+    {
+        return false;
     }
 #if defined(MIKTEX_WINDOWS)
-    string extension = fileName.GetExtension();
+    string extension = path.GetExtension();
     string forbiddenExtensions;
     if (!extension.empty() && ::GetEnvironmentString("PATHEXT", forbiddenExtensions))
     {
@@ -238,7 +240,27 @@ bool Utils::IsSafeFileName(const PathName& path)
         }
     }
 #endif
-    return true;
+    if (!path.IsAbsolute())
+    {
+        return true;
+    }
+    auto session = SESSION_IMPL();
+    PathName pathWD;
+    bool ok = false;
+    for (unsigned idx = 0; session->GetWorkingDirectory(idx, pathWD); ++idx)
+    {
+        if (IsParentDirectoryOf(pathWD, path))
+        {
+            ok = true;
+            break;
+        }
+    }
+    if (!ok)
+    {
+        auto varDir = session->GetSpecialPath(session->IsAdminMode() ? SpecialPath::CommonDataRoot : SpecialPath::UserDataRoot);
+        ok = IsParentDirectoryOf(varDir, path);
+    }
+    return ok;
 }
 
 bool Utils::IsParentDirectoryOf(const PathName& parentDir, const PathName& fileName)

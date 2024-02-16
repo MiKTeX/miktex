@@ -129,10 +129,7 @@ BEGIN_TEST_FUNCTION(5);
     TEST(!Utils::IsSafeFileName(PathName("../.bashrc")));
     TEST(!Utils::IsSafeFileName(PathName("sub/dir/../../../sample.tex")));
     TEST(!Utils::IsSafeFileName(PathName("sub/dir/../../../.bashrc")));
-#if 0
-    // TODO
     TEST(Utils::IsSafeFileName(PathName("sub/dir/../../sample.tex")));
-#endif
 }
 END_TEST_FUNCTION();
 
