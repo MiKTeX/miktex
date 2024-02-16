@@ -550,7 +550,7 @@ static void mpx_copy_mpto (MPX mpx, FILE *outfile, int textype) {
         res = strncat(res,mpx->bb, strlen(mpx->bb));
       }
       if (c == '\0')
-        res = strncat(res, "\n", 1);
+        res = strcat(res, "\n");
       *s = c;
     } while (*(mpx->tt) != 'e');
     s = res;
