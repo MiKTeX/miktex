@@ -1,7 +1,7 @@
 /* kpsewhich -- standalone path lookup and variable expansion for Kpathsea.
    Ideas from Thomas Esser, Pierre MacKay, and many others.
 
-   Copyright 1995-2018 Karl Berry & Olaf Weber.
+   Copyright 1995-2024 Karl Berry & Olaf Weber.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -19,6 +19,7 @@
 #include <kpathsea/config.h>
 #include <kpathsea/c-ctype.h>
 #include <kpathsea/c-pathch.h>
+#include <kpathsea/cnf.h>
 #include <kpathsea/expand.h>
 #include <kpathsea/getopt.h>
 #include <kpathsea/line.h>
@@ -43,10 +44,14 @@ string path_to_show = NULL;
 string var_to_value = NULL;
 string var_to_brace_value = NULL;
 
+/* Array/count of cnf lines from the command line. (--cnf-line) */
+static string *user_cnf_lines = NULL;
+static unsigned user_cnf_nlines = 0;
+
 /* Base resolution. (-D, -dpi) */
 unsigned dpi = 600;
 
-/* The engine name, for '$engine' construct in texmf.cnf.  (-engine) */
+/* The engine name, for `$engine' construct in texmf.cnf.  (-engine) */
 string engine = NULL;
 
 /* Interactively ask for names to look up?  (-interactive) */
@@ -61,9 +66,13 @@ boolean must_exist = false;
 /* The program name, for `.PROG' construct in texmf.cnf.  (-program) */
 string progname = NULL;
 
-/* Safe input and output names to check.  (-safe-in-name and -safe-out-name) */
+/* Safe input and output names to check. (-safe-in-name, -safe-out-name) */
 string safe_in_name = NULL;
 string safe_out_name = NULL;
+
+/* Check TEXMF[SYS]VAR too. (-safe-extended-in-name,-safe-extended-out-name) */
+string safe_extended_in_name = NULL;
+string safe_extended_out_name = NULL;
 
 /* Return all matches, not just the first one?  (-all) */
 boolean show_all = false;
@@ -501,6 +510,8 @@ to also use -engine, or nothing will be returned; in particular,\n\
 -progname=STRING       set program name to STRING.\n\
 -safe-in-name=STRING   check if STRING is ok to open for input.\n\
 -safe-out-name=STRING  check if STRING is ok to open for output.\n\
+-safe-extended-in-name=STRING   also check TEXMF[SYS]VAR].\n\
+-safe-extended-out-name=STRING  also check TEXMF[SYS]VAR].\n\
 -show-path=TYPE        output search path for file type TYPE\n\
                          (list shown by -help-formats).\n\
 -subdir=STRING         only output matches whose directory ends with STRING.\n\
@@ -595,7 +606,7 @@ help_formats (kpathsea kpse, string *argv)
 #if !defined(MIKTEX)
     printf ("  [variables: %s]\n", envvar_list);
 #endif
-
+    
 #if !defined(MIKTEX)
     printf ("  [original path (from %s) = %s]\n",
             kpse->format_info[f].path_source, kpse->format_info[f].raw_path);
@@ -615,11 +626,20 @@ help_formats (kpathsea kpse, string *argv)
    option table in a variable `long_options'.  */
 #define ARGUMENT_IS(a) STREQ (long_options[option_index].name, a)
 
+/* If S is NULL or the empty string, abort.  */
+#define ENSURE_NONEMPTY_STRING(s) do {                                \
+  if (!(s) || ! *(s)) {                                               \
+    fprintf (stderr, "kpsewhich: empty argument for %s\n",            \
+             long_options[option_index].name);                        \
+    fputs ("Try `kpsewhich --help' for more information.\n", stderr); \
+    exit (EXIT_FAILURE); } } while (0)
+
 /* SunOS cc can't initialize automatic structs.  */
 static struct option long_options[]
   = { { "D",                    1, 0, 0 },
       { "all",                  0, (int *) &show_all, 1 },
       { "casefold-search",      0, 0, 0 },
+      { "cnf-line",             1, 0, 0 },
       { "debug",                1, 0, 0 },
       { "dpi",                  1, 0, 0 },
       { "engine",               1, 0, 0 },
@@ -637,6 +657,8 @@ static struct option long_options[]
       { "no-casefold-search",   0, 0, 0 },
       { "no-mktex",             1, 0, 0 },
       { "progname",             1, 0, 0 },
+      { "safe-extended-in-name",1, 0, 0 },
+      { "safe-extended-out-name",1,0, 0 },
       { "safe-in-name",         1, 0, 0 },
       { "safe-out-name",        1, 0, 0 },
       { "subdir",               1, 0, 0 },
@@ -659,15 +681,26 @@ read_command_line (kpathsea kpse, int argc, string *argv)
       break;
 
     if (g == '?')
-      exit (1);  /* Unknown option.  */
+      exit (EXIT_FAILURE);  /* Unknown option.  */
 
     assert (g == 0); /* We have no short option names.  */
 
     if (ARGUMENT_IS ("casefold-search")) {
-      /* We can't just a boolean for casefold-search because we want to
+      /* We can't use a boolean for casefold-search because we want to
          distinguish it being set with an option vs. leaving the default
          (by default).  */
       xputenv ("texmf_casefold_search", "1");      
+
+    } else if (ARGUMENT_IS ("cnf-line")) {
+      if (user_cnf_lines == NULL) {
+        user_cnf_nlines = 1;
+        user_cnf_lines = xmalloc (sizeof (const_string));
+      } else {
+        user_cnf_nlines++;
+        user_cnf_lines = xrealloc (user_cnf_lines,
+                                   user_cnf_nlines * sizeof (const_string));
+      }
+      user_cnf_lines[user_cnf_nlines-1] = xstrdup (optarg);
 
     } else if (ARGUMENT_IS ("debug")) {
       kpse->debug |= atoi (optarg);
@@ -688,6 +721,7 @@ read_command_line (kpathsea kpse, int argc, string *argv)
       var_to_expand = optarg;
 
     } else if (ARGUMENT_IS ("format")) {
+      ENSURE_NONEMPTY_STRING (optarg);
       user_format_string = optarg;
 
     } else if (ARGUMENT_IS ("help")) {
@@ -716,10 +750,20 @@ read_command_line (kpathsea kpse, int argc, string *argv)
     } else if (ARGUMENT_IS ("progname")) {
       progname = optarg;
 
+    } else if (ARGUMENT_IS ("safe-extended-in-name")) {
+      ENSURE_NONEMPTY_STRING (optarg);
+      safe_extended_in_name = optarg;
+
+    } else if (ARGUMENT_IS ("safe-extended-out-name")) {
+      ENSURE_NONEMPTY_STRING (optarg);
+      safe_extended_out_name = optarg;
+
     } else if (ARGUMENT_IS ("safe-in-name")) {
+      ENSURE_NONEMPTY_STRING (optarg);
       safe_in_name = optarg;
 
     } else if (ARGUMENT_IS ("safe-out-name")) {
+      ENSURE_NONEMPTY_STRING (optarg);
       safe_out_name = optarg;
 
     } else if (ARGUMENT_IS ("show-path")) {
@@ -730,9 +774,11 @@ read_command_line (kpathsea kpse, int argc, string *argv)
       str_list_add (&subdir_paths, optarg);
 
     } else if (ARGUMENT_IS ("var-brace-value")) {
+      ENSURE_NONEMPTY_STRING (optarg);
       var_to_brace_value = optarg;
 
     } else if (ARGUMENT_IS ("var-value")) {
+      ENSURE_NONEMPTY_STRING (optarg);
       var_to_value = optarg;
 
     } else if (ARGUMENT_IS ("version")) {
@@ -745,7 +791,7 @@ read_command_line (kpathsea kpse, int argc, string *argv)
 #else
       puts (kpathsea_version_string);
 #endif
-      puts ("Copyright 2018 Karl Berry & Olaf Weber.\n\
+      puts ("Copyright 2023 Karl Berry & Olaf Weber.\n\
 License LGPLv2.1+: GNU Lesser GPL version 2.1 or later <https://gnu.org/licenses/lgpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n");
@@ -756,19 +802,21 @@ There is NO WARRANTY, to the extent permitted by law.\n");
   }
 
   if (user_path && user_format_string) {
-    fprintf (stderr, "-path (%s) and -format (%s) are mutually exclusive.\n",
+    fprintf (stderr,
+            "kpsewhich: -path (%s) and -format (%s) are mutually exclusive.\n",
              user_path, user_format_string);
     fputs ("Try `kpsewhich --help' for more information.\n", stderr);
-    exit (1);
+    exit (EXIT_FAILURE);
   }
 
   if (optind == argc
       && !var_to_expand && !braces_to_expand && !path_to_expand
       && !path_to_show && !var_to_value && !var_to_brace_value
+      && !safe_extended_in_name && !safe_extended_out_name
       && !safe_in_name && !safe_out_name) {
     fputs ("Missing argument. Try `kpsewhich --help' for more information.\n",
            stderr);
-    exit (1);
+    exit (EXIT_FAILURE);
   }
 }
 
@@ -781,6 +829,15 @@ init_more (kpathsea kpse)
 {
   if (engine)
     kpathsea_xputenv (kpse, "engine", engine);
+
+  /* We want config lines from the command line to override config files.  */
+  if (user_cnf_lines) {
+    unsigned i;
+    for (i = 0; i < user_cnf_nlines; i++) {
+      kpathsea_cnf_line_env_progname (kpse, user_cnf_lines[i]);
+      free (user_cnf_lines[i]);
+    }
+  }
 
   /* Disable all mktex programs unless they were explicitly enabled on our
      command line.  */
@@ -839,7 +896,8 @@ main (int argc,  string *argv)
      || strstr(kpse->program_name,"pdftex") || strstr(kpse->program_name,"pdflatex")
      || strstr(kpse->program_name,"dvipdfm") || strstr(kpse->program_name,"extractbb")
      || strstr(kpse->program_name,"xbb") || strstr(kpse->program_name,"ebb")
-     || strstr(kpse->program_name,"dvips") || strstr(kpse->program_name,"upmendex"))
+     || strstr(kpse->program_name,"dvips") || strstr(kpse->program_name,"upmendex")
+     || strstr(kpse->program_name,"bibtex8") || strstr(kpse->program_name,"bibtexu"))
   {
     if (strstr(kpse->program_name,"upmendex"))
       enc = "utf-8";
@@ -921,6 +979,16 @@ main (int argc,  string *argv)
 
   if (safe_out_name) {
     if (!kpathsea_out_name_ok_silent (kpse, safe_out_name))
+      unfound++;
+  }
+
+  if (safe_extended_in_name) {
+    if (!kpathsea_in_name_ok_silent_extended (kpse, safe_extended_in_name))
+      unfound++;
+  }
+
+  if (safe_extended_out_name) {
+    if (!kpathsea_out_name_ok_silent_extended (kpse, safe_extended_out_name))
       unfound++;
   }
 
