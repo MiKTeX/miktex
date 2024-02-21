@@ -268,7 +268,7 @@ int main(int argc, char* argv[])
     bool optMkmaps = false;
     bool optVersion = false;
 #if defined(MIKTEX_MACOS_BUNDLE)
-    PathName plugIns = GetExecutableDir() / PathName("..") / PathName("PlugIns");
+    PathName plugIns = GetExecutableDir() / ".." / "PlugIns";
     plugIns.MakeFullyQualified();
     QCoreApplication::addLibraryPath(QString::fromUtf8(plugIns.GetData()));
 #endif

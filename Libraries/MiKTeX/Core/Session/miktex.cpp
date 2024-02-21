@@ -230,7 +230,7 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     break;
 #if defined(MIKTEX_MACOS_BUNDLE)
   case SpecialPath::MacOsDirectory:
-    path = (GetMyLocation(true) / PathName("..") / PathName("MacOS")).MakeFullyQualified();
+    path = (GetMyLocation(true) / ".." / "MacOS").MakeFullyQualified();
     break;
 #endif
   default:

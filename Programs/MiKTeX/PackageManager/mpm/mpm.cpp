@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX Package Manager (cli version)
  *
- * @copyright Copyright © 2003-2023 Christian Schenk
+ * @copyright Copyright © 2003-2024 Christian Schenk
  *
  * This file is part of MpmCon.
  *
@@ -908,7 +908,7 @@ void Application::RestartWindowed()
     // locate miktex-console
     PathName miktexConsole;
 #if defined(MIKTEX_MACOS_BUNDLE)
-    miktexConsole = session->GetSpecialPath(SpecialPath::MacOsDirectory) / PathName(MIKTEX_MACOS_BUNDLE_NAME);
+    miktexConsole = session->GetSpecialPath(SpecialPath::MacOsDirectory) / MIKTEX_MACOS_BUNDLE_NAME;
 #else
     if (!session->FindFile(miktexConsoleName, FileType::EXE, miktexConsole))
     {

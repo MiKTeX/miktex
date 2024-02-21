@@ -142,7 +142,7 @@ pair<bool, PathName> SessionImpl::TryGetBinDirectory(bool canonicalized)
   }
   return make_pair<bool, PathName>(true, PathName(env));
 #elif defined(MIKTEX_MACOS_BUNDLE)
-  return make_pair<bool, PathName>(true, GetMyPrefix(canonicalized) / PathName(MIKTEX_BINARY_DESTINATION_DIR));
+  return make_pair<bool, PathName>(true, GetMyPrefix(canonicalized) / MIKTEX_BINARY_DESTINATION_DIR);
 #else
   return make_pair<bool, PathName>(true, GetMyLocation(canonicalized));
 #endif

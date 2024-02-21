@@ -1,6 +1,6 @@
 /* mikuiqt.cpp:
 
-   Copyright (C) 2008-2021 Christian Schenk
+   Copyright (C) 2008-2024 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -132,7 +132,7 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
   bool useGUI = true;
 #endif
 #if defined(MIKTEX_MACOS_BUNDLE)
-  PathName plugIns = GetExecutableDir() / PathName("..") / PathName("PlugIns");
+  PathName plugIns = GetExecutableDir() / ".." / "PlugIns";
   plugIns.MakeFullyQualified();
   QCoreApplication::addLibraryPath(QString::fromUtf8(plugIns.GetData()));
 #endif
