@@ -265,7 +265,7 @@ end;
   if a_open_in(read_file[n]) then
     read_open[n]:=just_open;
 @y
-  if open_in_name_ok(stringcast(name_of_file+1))
+  if kpse_in_name_ok(stringcast(name_of_file+1))
      and a_open_in(read_file[n], kpse_tex_format) then
     read_open[n]:=just_open;
 @z

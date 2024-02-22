@@ -374,7 +374,7 @@ if miktex_open_tfm_file(tfm_file,name_of_file) then begin
 % _____________________________________________________________________________
 
 @x
-  if open_in_name_ok(stringcast(name_of_file+1))
+  if kpse_in_name_ok(stringcast(name_of_file+1))
      and u_open_in(read_file[n], kpse_tex_format, XeTeX_default_input_mode, XeTeX_default_input_encoding) then
 @y
   if u_open_in(read_file[n], XeTeX_default_input_mode, XeTeX_default_input_encoding) then
