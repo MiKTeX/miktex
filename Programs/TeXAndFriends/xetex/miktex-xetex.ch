@@ -1,6 +1,6 @@
 %% miktex-xetex.ch: miktex-xetex change file
 %% 
-%% Copyright (C) 2021 Christian Schenk
+%% Copyright (C) 2021-2024 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -492,13 +492,14 @@ procedure flush_str(s: str_number); {flush a string if possible}
 @x
       if name_of_file then libc_free(name_of_file);
       name_of_file := xmalloc(cur_length * 3 + 2);
-      k := 0;
-      for d:=0 to cur_length-1 do
-        append_to_name(str_pool[str_start_macro(str_ptr)+d]);
-      name_of_file[k+1] := 0;
+@y
+      miktex_reallocate_name_of_file(cur_length * 3 + 2);
+@z
+
+@x
       runsystem_ret := runsystem(conststringcast(name_of_file+1));
 @y
-      runsystem_ret := miktex_write18(str_ptr, cur_length);
+      runsystem_ret := runsystem(conststringcast(name_of_file));
 @z
 
 % _____________________________________________________________________________
