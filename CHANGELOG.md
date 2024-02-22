@@ -2,6 +2,10 @@
 
 ## next
 
+### Fixed issues
+
+- [1447](https://github.com/MiKTeX/miktex/issues/1447): ShellEscape Quoting error
+
 ### Upgraded programs
 
 * dvipdfmx 20240210
