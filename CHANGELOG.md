@@ -4,7 +4,7 @@
 
 ### Fixed issues
 
-- [1447](https://github.com/MiKTeX/miktex/issues/1447): ShellEscape Quoting error
+- [1447](https://github.com/MiKTeX/miktex/issues/1447): xelatex: unrestricted command has trailing null byte
 
 ### Upgraded programs
 
