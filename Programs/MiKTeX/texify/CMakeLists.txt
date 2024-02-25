@@ -1,50 +1,46 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## CMakeLists.txt
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2024 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
+
+include(component.cmake)
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/${MIKTEX_PROG_NAME_TEXIFY}")
 
 include_directories(BEFORE
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  add_definitions(
-    -DUNICODE
-    -D_UNICODE
-  )
+    add_definitions(
+        -DUNICODE
+        -D_UNICODE
+    )
 endif()
 
+configure_file(
+    mcd-version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/mcd-version.h
+)
+
 set(mcd_sources
-  mcd-version.h
-  mcd.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mcd-version.h
+    mcd.cpp
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  configure_file(
-    mcd.rc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/mcd.rc
-  )
-  list(APPEND mcd_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/mcd.rc
-    ${MIKTEX_COMMON_MANIFEST}
-  )
+    configure_file(
+        windows/mcd.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/mcd.rc
+    )
+    list(APPEND mcd_sources
+        ${CMAKE_CURRENT_BINARY_DIR}/mcd.rc
+        ${MIKTEX_COMMON_MANIFEST}
+    )
 endif()
 
 add_executable(${MIKTEX_PROG_NAME_TEXIFY} ${mcd_sources})
@@ -59,18 +55,19 @@ target_link_libraries(${MIKTEX_PROG_NAME_TEXIFY}
 )
 
 if(USE_SYSTEM_FMT)
-  target_link_libraries(${MIKTEX_PROG_NAME_TEXIFY} MiKTeX::Imported::FMT)
+    target_link_libraries(${MIKTEX_PROG_NAME_TEXIFY} MiKTeX::Imported::FMT)
 else()
-  target_link_libraries(${MIKTEX_PROG_NAME_TEXIFY} ${fmt_dll_name})
+    target_link_libraries(${MIKTEX_PROG_NAME_TEXIFY} ${fmt_dll_name})
 endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(${MIKTEX_PROG_NAME_TEXIFY}
-    ${regex_dll_name}
-  )
+    target_link_libraries(${MIKTEX_PROG_NAME_TEXIFY}
+        ${regex_dll_name}
+    )
 endif()
 
 install(TARGETS ${MIKTEX_PROG_NAME_TEXIFY}
       RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
       LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-      ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}")
+      ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+)
