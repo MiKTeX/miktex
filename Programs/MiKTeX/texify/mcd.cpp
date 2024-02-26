@@ -30,7 +30,6 @@
 
 #include "mcd-version.h"
 
-#include <miktex/App/Application>
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Directory>
@@ -43,7 +42,6 @@
 #include <miktex/Core/MemoryMappedFile>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
-#include <miktex/Core/Quoter>
 #include <miktex/Core/StreamReader>
 #include <miktex/Core/StreamWriter>
 #include <miktex/Core/TemporaryDirectory>
@@ -62,6 +60,8 @@
 
 #include <regex.h>
 
+#include "mcd.h"
+
 using namespace std;
 using namespace std::string_literals;
 
@@ -71,74 +71,9 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 
-#define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
-
-#define ALWAYS_UNUSED(x)
-
-#define SUPPORT_OPT_SRC_SPECIALS
-
-/* Patch (#464378) by Thomas Schimming (http://sf.net/users/schimmin/):
-
-   The BibTeX handler is extended to work in a chapterbib compliant mode, that
-   is, bibtex is run on all 1st level AUX files referenced in the main AUX file.
-   After the special treatment (if use of the chapterbib package is detected),
-   the regular bibtex treatment occurs (as before).
-
-   The code uses some heuristics to determine when it's necessary to run this
-   extension.  However, this can still be improved as for example changes in
-   bibstyle do not correctly trigger a re-bibtex yet.
-
-   Ultimately, the behavior should probably be included into bibtex, however in
-   this way, an "orthodox" latex distribution is maintained... */
-
-#define SF464378__CHAPTERBIB
-
-#define WITH_TEXINFO
-
-#define PROGRAM_NAME "texify"
-
-#if !defined(THE_NAME_OF_THE_GAME)
-#define THE_NAME_OF_THE_GAME T_("MiKTeX Compiler Driver")
-#endif
-
-#define T_(x) MIKTEXTEXT(x)
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
-
 vector<string> DEFAULT_TRACE_OPTIONS = {
     TraceStream::MakeOption("", "", TraceLevel::Info),
     TraceStream::MakeOption(PROGRAM_NAME, "", TraceLevel::Trace),
-};
-
-class ProcessOutputTrash : public IRunProcessCallback
-{
-public:
-    bool MIKTEXTHISCALL OnProcessOutput(const void* chunk, size_t n) override
-    {
-        ALWAYS_UNUSED(chunk);
-        ALWAYS_UNUSED(n);
-        return true;
-    }
-};
-
-class ProcessOutputSaver : public IRunProcessCallback
-{
-
-public:
-
-    bool MIKTEXTHISCALL OnProcessOutput(const void* chunk, size_t n) override
-    {
-        output.append(reinterpret_cast<const char*>(chunk), n);
-        return true;
-    }
-
-    const string& GetOutput() const
-    {
-        return output;
-    }
-
-private:
-
-    string output;
 };
 
 void CopyFiles(const vector<string>& fileNames, const PathName& destDir)
@@ -210,168 +145,6 @@ string FlattenStringVector(const vector<string>& vec, char sep)
     }
     return str;
 }
-
-bool IsPrefixOf(const char* prefix, const string& str)
-{
-    return str.compare(0, strlen(prefix), prefix) == 0;
-}
-
-enum class MacroLanguage
-{
-    None,
-    LaTeX,
-#if defined(WITH_TEXINFO)
-    Texinfo
-#endif
-};
-
-enum class Engine
-{
-    NotSet,
-    TeX,
-    pdfTeX,
-    pTeX,
-    epTeX,
-    eupTeX,
-    upTeX,
-    XeTeX,
-    LuaTeX,
-    LuaHBTeX
-};
-
-enum class OutputType
-{
-    None,
-    DVI,
-    PDF,
-    PS
-};
-
-enum class SyncTeXOption
-{
-    Uncompressed = -1,
-    Disabled = 0,
-    Compressed = 1
-};
-
-class Options
-{
-
-public:
-
-    Options();
-    virtual ~Options();
-    PathName startDirectory;
-    regex_t regex_bibdata;
-    regex_t regex_bibstyle;
-    regex_t regex_citation_undefined;
-    regex_t regex_no_file_bbl;
-    bool batch = false;
-    bool clean = false;
-    bool expand = false;
-    bool quiet = false;
-    bool verbose = false;
-    OutputType outputType = OutputType::DVI;
-    bool runViewer = false;
-    SyncTeXOption synctex = SyncTeXOption::Disabled;
-    int maxIterations = 5;
-    vector<string> includeDirectories;
-    string jobName;
-    MacroLanguage macroLanguage = MacroLanguage::None;
-    string sourceSpecialsWhere;
-    string bibtexProgram;
-    string latexProgram;
-    string pdflatexProgram;
-    string xelatexProgram;
-    string lualatexProgram;
-    string luahblatexProgram;
-    string makeindexProgram;
-    string makeinfoProgram;
-    string texProgram;
-    string pdftexProgram;
-    string ptexProgram;
-    string eptexProgram;
-    string euptexProgram;
-    string uptexProgram;
-    string xetexProgram;
-    string luatexProgram;
-    string luahbtexProgram;
-    string texindexProgram;
-    vector<string> makeindexOptions;
-    vector<string> texOptions;
-    vector<string> viewerOptions;
-    string traceStreams;
-    Engine engine = Engine::NotSet;
-
-#if defined(WITH_TEXINFO)
-    vector<string> texinfoCommands;
-    regex_t regex_texinfo_version;
-#endif
-
-#ifdef SF464378__CHAPTERBIB
-    regex_t regex_chapterbib;
-    regex_t regex_input_aux;
-#endif
-
-#if defined(SUPPORT_OPT_SRC_SPECIALS)
-    bool sourceSpecials = false;
-#endif
-
-    string SetProgramName(const string& envName, const string& defaultProgram)
-    {
-        string programName;
-        if (!Utils::GetEnvironmentString(envName, programName))
-        {
-            programName = defaultProgram;
-        }
-        return programName;
-    }
-
-    bool SetEngine(const string& engineName)
-    {
-        if (Utils::EqualsIgnoreCase(engineName, "tex"))
-        {
-            engine = Engine::TeX;
-        }
-        else if (Utils::EqualsIgnoreCase(engineName, "pdftex"))
-        {
-            engine = Engine::pdfTeX;
-        }
-        else if (Utils::EqualsIgnoreCase(engineName, "ptex"))
-        {
-            engine = Engine::pTeX;
-        }
-        else if (Utils::EqualsIgnoreCase(engineName, "eptex"))
-        {
-            engine = Engine::epTeX;
-        }
-        else if (Utils::EqualsIgnoreCase(engineName, "euptex"))
-        {
-            engine = Engine::eupTeX;
-        }
-        else if (Utils::EqualsIgnoreCase(engineName, "uptex"))
-        {
-            engine = Engine::upTeX;
-        }
-        else if (Utils::EqualsIgnoreCase(engineName, "xetex"))
-        {
-            engine = Engine::XeTeX;
-        }
-        else if (Utils::EqualsIgnoreCase(engineName, "luatex"))
-        {
-            engine = Engine::LuaTeX;
-        }
-        else if (Utils::EqualsIgnoreCase(engineName, "luahbtex"))
-        {
-            engine = Engine::LuaHBTeX;
-        }
-        else
-        {
-            return false;
-        }
-        return true;
-    }
-};
 
 Options::Options()
 {
@@ -452,32 +225,6 @@ Options::~Options()
 #endif
 }
 
-class McdApp : public Application
-{
-
-public:
-
-    McdApp() : traceStream(TraceStream::Open(PROGRAM_NAME))
-    {
-        forbiddenTexOptions.push_back("aux-directory");
-        forbiddenTexOptions.push_back("job-name");
-        forbiddenTexOptions.push_back("jobname");
-        forbiddenTexOptions.push_back("output-directory");
-    };
-
-    void Run(int argc, const char** argv);
-    void MyTrace(const string& s);
-    void Verbose(const string& s);
-    void Version();
-
-    Options options;
-
-private:
-
-    unique_ptr<TraceStream> traceStream;
-    vector<string> forbiddenTexOptions;
-};
-
 void McdApp::Verbose(const string& s)
 {
     traceStream->WriteLine(PROGRAM_NAME, s);
@@ -501,62 +248,6 @@ void McdApp::Version()
         << "This is free software; see the source for copying conditions.  There is NO" << "\n"
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
-
-class Driver
-{
-
-public:
-
-    virtual ~Driver();
-    void Initialize(McdApp* app, Options* options, const char* fileName);
-    void Run();
-
-protected:
-    shared_ptr<Session> session = MIKTEX_SESSION();
-
-private:
-
-    void FatalUtilityError(const string& name)
-    {
-        app->FatalError(fmt::format("A required utility could not be found. Utility name: {}.", name));
-    }
-
-    MacroLanguage GuessMacroLanguage(const PathName& fileName);
-    void SetIncludeDirectories();
-    void ExpandMacros();
-    void InsertCommands();
-    bool RunMakeinfo(const PathName& pathFrom, const PathName& pathTo);
-    void RunBibTeX();
-    PathName GetTeXEnginePath(string& exeName);
-    void RunTeX();
-    void RunIndexGenerator(const vector<string>& idxFiles);
-    void RunViewer();
-    bool Ready();
-    void InstallOutputFile();
-    void GetAuxFiles(vector<string>& auxFiles, vector<string>* idxFiles = nullptr);
-    void GetAuxFiles(const PathName& baseName, const char* extension, vector<string>& auxFiles);
-    void InstallProgram(const char* program);
-
-    MacroLanguage macroLanguage = MacroLanguage::None;
-    PathName givenFileName;
-    PathName originalInputFile;
-    unique_ptr<TemporaryDirectory> tempDirectory;
-    PathName originalInputDirectory;
-    PathName inputName;
-    PathName jobName;
-    PathName workingDirectory;
-    PathName auxDirectory;
-    PathName pathInputFile;
-    vector<string> previousAuxFiles;
-    McdApp* app = nullptr;
-    Options* options = nullptr;
-#if defined(WITH_TEXINFO)
-    void TexinfoPreprocess(const PathName& pathFrom, const PathName& pathTo);
-    void TexinfoUncomment(const PathName& pathFrom, const PathName& pathTo);
-    bool Check_texinfo_tex();
-    PathName extraDirectory;
-#endif
-};
 
 Driver::~Driver()
 {
@@ -681,137 +372,6 @@ MacroLanguage Driver::GuessMacroLanguage(const PathName& fileName)
     }
 }
 
-#if defined(WITH_TEXINFO)
-/* _________________________________________________________________________
-
-   Driver::TexinfoPreprocess
-
-   A function that preprocesses Texinfo sources in order to keep the iftex
-   sections only.  We want to remove non TeX sections, and comment (with `@c
-   texi2dvi') TeX sections so that makeinfo does not try to parse them.
-   Nevertheless, while commenting TeX sections, don't comment @macro/@end macro
-   so that makeinfo does propagate them.  Unfortunately makeinfo --iftex
-   --no-ifhtml --no-ifinfo doesn't work well enough (yet) to use that, so work
-   around with sed.
-   _________________________________________________________________________ */
-
-void Driver::TexinfoPreprocess(const PathName& pathFrom, const PathName& pathTo)
-{
-    StreamReader reader(pathFrom);
-    StreamWriter writer(pathTo);
-    bool at_tex = false;
-    bool at_iftex = false;
-    bool at_macro = false;
-    bool at_html = false;
-    bool at_ifhtml = false;
-    bool at_ifnottex = false;
-    bool at_ifinfo = false;
-    bool at_menu = false;
-    string line;
-    while (reader.ReadLine(line))
-    {
-        if (IsPrefixOf("@tex", line))
-        {
-            at_tex = true;
-        }
-        else if (IsPrefixOf("@iftex", line))
-        {
-            at_iftex = true;
-        }
-        else if (IsPrefixOf("@macro", line))
-        {
-            at_macro = true;
-        }
-        else if (IsPrefixOf("@html", line))
-        {
-            at_html = true;
-        }
-        else if (IsPrefixOf("@ifnottex", line))
-        {
-            at_ifnottex = true;
-        }
-        else if (IsPrefixOf("@ifinfo", line))
-        {
-            at_ifinfo = true;
-        }
-        else if (IsPrefixOf("@menu", line))
-        {
-            at_menu = true;
-        }
-
-        bool commentingOut = (at_tex || (at_iftex && !at_macro));
-        bool deleting = (at_html || at_ifhtml || at_ifnottex || (at_ifinfo && !at_menu && !IsPrefixOf("@node", line)));
-
-        if (commentingOut)
-        {
-            writer.WriteLine(string("@c texi2dvi") + line);
-        }
-        else if (!deleting)
-        {
-            writer.WriteLine(line);
-        }
-
-        if (IsPrefixOf("@end tex", line))
-        {
-            at_tex = false;
-        }
-        else if (IsPrefixOf("@end iftex", line))
-        {
-            at_iftex = false;
-        }
-        else if (IsPrefixOf("@end macro", line))
-        {
-            at_macro = false;
-        }
-        else if (IsPrefixOf("@end html", line))
-        {
-            at_html = false;
-        }
-        else if (IsPrefixOf("@end ifnottex", line))
-        {
-            at_ifnottex = false;
-        }
-        else if (IsPrefixOf("@end ifinfo", line))
-        {
-            at_ifinfo = false;
-        }
-        else if (IsPrefixOf("@end menu", line))
-        {
-            at_menu = false;
-        }
-    }
-}
-#endif
-
-#if defined(WITH_TEXINFO)
-/* _________________________________________________________________________
-
-   Driver::TexinfoUncomment
-
-   Uncommenting is simple: Remove any leading `@c texi2dvi'.
-   _________________________________________________________________________ */
-
-void Driver::TexinfoUncomment(const PathName& pathFrom, const PathName& pathTo)
-{
-    StreamReader reader(pathFrom);
-    StreamWriter writer(pathTo);
-    string line;
-    while (reader.ReadLine(line))
-    {
-        if (IsPrefixOf("@c texi2dvi", line))
-        {
-            writer.WriteLine(line.substr(11));
-        }
-        else
-        {
-            writer.WriteLine(line);
-        }
-    }
-    writer.Close();
-    reader.Close();
-}
-#endif
-
 /* _________________________________________________________________________
 
    Driver::SetIncludeDirectories
@@ -883,71 +443,6 @@ bool Driver::RunMakeinfo(const PathName& pathFrom, const PathName& pathTo)
 
     return exitCode == 0;
 }
-
-#if defined(WITH_TEXINFO)
-/* _________________________________________________________________________
-
-   Driver::Check_texinfo_tex
-
-   Check if texinfo.tex performs macro expansion by looking for its version.
-   The version is a date of the form YEAR-MO-DA.
-   _________________________________________________________________________ */
-
-   // minimum texinfo.tex version to have macro expansion
-const string txiprereq = "19990129";
-
-bool Driver::Check_texinfo_tex()
-{
-    PathName pathExe;
-
-    if (!session->FindFile(options->texProgram, FileType::EXE, pathExe))
-    {
-        FatalUtilityError(options->texProgram);
-    }
-
-    bool newer = false;
-
-    unique_ptr<TemporaryDirectory> tmpdir = TemporaryDirectory::Create();
-
-    PathName fileName = tmpdir->GetPathName() / "txiversion.tex";
-    StreamWriter writer(fileName);
-    writer.WriteLine("\\input texinfo.tex @bye");
-    writer.Close();
-
-    int exitCode = 0;
-    ProcessOutputSaver processOutput;
-    if (!Process::Run(pathExe, vector<string>{options->texProgram, fileName.ToString()}, & processOutput, & exitCode, tmpdir->GetPathName().GetData()))
-    {
-        MIKTEX_UNEXPECTED();
-    }
-
-    if (exitCode == 0)
-    {
-        regmatch_t regMatch[5];
-        if (regexec(&options->regex_texinfo_version, processOutput.GetOutput().c_str(), 5, regMatch, 0) == 0)
-        {
-            string txiformat;
-            for (int i = regMatch[1].rm_so; i < regMatch[1].rm_eo; ++i)
-            {
-                txiformat += processOutput.GetOutput()[i];
-            }
-            string version;
-            version += processOutput.GetOutput()[regMatch[2].rm_so + 0];
-            version += processOutput.GetOutput()[regMatch[2].rm_so + 1];
-            version += processOutput.GetOutput()[regMatch[2].rm_so + 2];
-            version += processOutput.GetOutput()[regMatch[2].rm_so + 3];
-            version += processOutput.GetOutput()[regMatch[3].rm_so + 0];
-            version += processOutput.GetOutput()[regMatch[3].rm_so + 1];
-            version += processOutput.GetOutput()[regMatch[4].rm_so + 0];
-            version += processOutput.GetOutput()[regMatch[4].rm_so + 1];
-            app->Verbose(fmt::format(T_("texinfo.tex preloaded as {}, version is {}..."), txiformat, version));
-            newer = std::stoi(txiprereq) <= std::stoi(version);
-        }
-    }
-
-    return !newer;
-}
-#endif
 
 void Driver::ExpandMacros()
 {

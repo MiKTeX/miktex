@@ -15,6 +15,14 @@ include_directories(BEFORE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+set(WITH_TEXINFO TRUE)
+
+if(WITH_TEXINFO)
+    add_definitions(
+        -DWITH_TEXINFO
+    )
+endif()
+
 if(MIKTEX_NATIVE_WINDOWS)
     add_definitions(
         -DUNICODE
@@ -31,6 +39,10 @@ set(mcd_sources
     ${CMAKE_CURRENT_BINARY_DIR}/mcd-version.h
     mcd.cpp
 )
+
+if(WITH_TEXINFO)
+    list(APPEND mcd_sources texinfo.cpp)
+endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
     configure_file(
