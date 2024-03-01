@@ -249,7 +249,7 @@ bool Utils::IsSafeFileName(const PathName& path_)
     bool ok = false;
     for (unsigned idx = 0; session->GetWorkingDirectory(idx, pathWD); ++idx)
     {
-        if (IsParentDirectoryOf(pathWD, path))
+        if (IsParentDirectoryOf(pathWD, path) || pathWD == path)
         {
             ok = true;
             break;
@@ -258,7 +258,7 @@ bool Utils::IsSafeFileName(const PathName& path_)
     if (!ok)
     {
         auto varDir = session->GetSpecialPath(session->IsAdminMode() ? SpecialPath::CommonDataRoot : SpecialPath::UserDataRoot);
-        ok = IsParentDirectoryOf(varDir, path);
+        ok = IsParentDirectoryOf(varDir, path) || varDir == path;
     }
     return ok;
 }
