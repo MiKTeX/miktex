@@ -1,6 +1,6 @@
 ## webify.cmake
 ##
-## Copyright (C) 2021-2022 Christian Schenk
+## Copyright (C) 2021-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -36,11 +36,13 @@ set(miktex_tex_change_files
     ${TRACINGSTACKLEVELS_CH}
     ${PARTOKEN_102_CH}
     ${PARTOKEN_CH}
+    ${LOCNULL_OPTIMIZE_CH}
     ${SHOWSTREAM_CH}
     ${ENCTEX1_CH}
     ${ENCTEX_PDFTEX_CH}
     ${ENCTEX2_CH}
     ${MIKTEX_TEX_ENCTEX_CH}
+    ${UNBALANCED_BRACES_CH}
     ${MIKTEX_TEX_WEB2C_CH}
     ${MIKTEX_TEX_FINISH_CH}
 )

@@ -226,6 +226,8 @@ set(TEX_MIKTEX_SYNCTEX_CH       "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/mikte
 set(MIKTEX_TEX_WRITE18_CH       "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/miktex-tex-write18.ch")
 set(MIKTEX_TEX_WEB2C_CH         "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/miktex-tex-web2c.ch")
 set(TRACINGSTACKLEVELS_CH       "${CMAKE_SOURCE_DIR}/Programs/TeXAndFriends/web2c/source/tracingstacklevels.ch")
+set(UNBALANCED_BRACES_CH        "${CMAKE_SOURCE_DIR}/Programs/TeXAndFriends/web2c/source/unbalanced-braces.ch")
+set(LOCNULL_OPTIMIZE_CH         "${CMAKE_SOURCE_DIR}/Programs/TeXAndFriends/web2c/source/locnull-optimize.ch")
 
 # library address file
 if(WIN32)

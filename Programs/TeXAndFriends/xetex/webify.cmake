@@ -1,6 +1,6 @@
 ## webify.cmake: create final XeTeX web file
 ##
-## Copyright (C) 2021 Christian Schenk
+## Copyright (C) 2021-2024 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -42,6 +42,8 @@ set(miktex_tex_change_files
     ${TRACINGSTACKLEVELS_CH}
     ${PARTOKEN_102_CH}
     ${PARTOKEN_CH}
+    ${LOCNULL_OPTIMIZE_CH}
+    ${UNBALANCED_BRACES_CH}
     ${SHOWSTREAM_CH}
     ${MIKTEX_TEX_FINISH_CH}
 )
