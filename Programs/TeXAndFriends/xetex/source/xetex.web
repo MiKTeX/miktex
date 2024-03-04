@@ -1287,7 +1287,13 @@ we shall write |str_room(l)|, which aborts \TeX\ and gives an
 apologetic error message if there isn't enough room.
 
 @d append_char(#) == {put |ASCII_code| \# at the end of |str_pool|}
-begin str_pool[pool_ptr]:=si(#); incr(pool_ptr);
+begin
+  if (si(#)>@"FFFF) then begin
+    str_pool[pool_ptr]:=si((# - @"10000) div @"400 + @"D800); incr(pool_ptr);
+    str_pool[pool_ptr]:=si((#          ) mod @"400 + @"DC00); incr(pool_ptr);
+  end else begin
+    str_pool[pool_ptr]:=si(#); incr(pool_ptr);
+  end;
 end
 @d flush_char == decr(pool_ptr) {forget the last character in the pool}
 @d str_room(#) == {make sure that the pool hasn't overflowed}
@@ -2105,7 +2111,7 @@ end;
 @<Error hand...@>=
 procedure error; {completes the job of error reporting}
 label continue,exit;
-var c:ASCII_code; {what the user types}
+var c:UnicodeScalar; {what the user types}
 @!s1,@!s2,@!s3,@!s4:integer;
   {used to save global variables when deleting tokens}
 begin if history<error_message_issued then history:=error_message_issued;
@@ -12134,9 +12140,12 @@ being scanned, since a new \.{\\csname} might be entered; therefore we keep
 string, instead of assigning an absolute address like |pool_ptr| to them.
 @^system dependencies@>
 
-@p function more_name(@!c:ASCII_code):boolean;
+@p function more_name(@!c:UnicodeScalar):boolean;
 begin if c=" " then more_name:=false
-else  begin str_room(1); append_char(c); {contribute |c| to the current string}
+else  begin
+  if (c>@"FFFF) then str_room(2)
+  else str_room(1);
+  append_char(c); {contribute |c| to the current string}
   if (c=">")or(c=":") then
     begin area_delimiter:=cur_length; ext_delimiter:=0;
     end
@@ -12187,7 +12196,7 @@ allows both lowercase and uppercase letters in the file name.
 
 @p procedure pack_file_name(@!n,@!a,@!e:str_number);
 var k:integer; {number of positions filled in |name_of_file|}
-@!c: ASCII_code; {character being packed}
+@!c: UnicodeScalar; {character being packed}
 @!j:pool_pointer; {index into |str_pool|}
 begin k:=0;
 for j:=str_start_macro(a) to str_start_macro(a+1)-1 do append_to_name(so(str_pool[j]));
@@ -12326,7 +12335,7 @@ file name in the input by calling |get_x_token| for the information.
 label done;
 begin name_in_progress:=true; begin_name;
 @<Get the next non-blank non-call...@>;
-loop@+begin if (cur_cmd>other_char)or(cur_chr>biggest_char) then
+loop@+begin if (cur_cmd>other_char)or(cur_chr>biggest_usv) then
     {not a character}
     begin back_input; goto done;
     end;
@@ -16576,15 +16585,9 @@ var
   i, len: integer;
 begin
   if font_mapping[f] <> 0 then begin
-    if c > @"FFFF then begin
-      str_room(2);
-      append_char((c - @"10000) div 1024 + @"D800);
-      append_char((c - @"10000) mod 1024 + @"DC00);
-    end
-    else begin
-      str_room(1);
-      append_char(c);
-    end;
+    if (c>@"FFFF) then str_room(2)
+    else str_room(1);
+    append_char(c);
     len:=apply_mapping(font_mapping[f], addressof(str_pool[str_start_macro(str_ptr)]), cur_length);
     pool_ptr:=str_start_macro(str_ptr); { flush the string, as we'll be using the mapped text instead }
 
