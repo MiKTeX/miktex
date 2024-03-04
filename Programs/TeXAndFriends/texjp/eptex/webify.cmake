@@ -106,6 +106,7 @@ add_custom_command(
             ${CMAKE_CURRENT_SOURCE_DIR}/source/fam256.ch
             ${CMAKE_CURRENT_SOURCE_DIR}/source/pdfutils.ch
             ${CMAKE_CURRENT_SOURCE_DIR}/source/suppresserrors.ch
+            ${CMAKE_CURRENT_SOURCE_DIR}/source/unbalanced-braces-eptex.ch
             ${CMAKE_CURRENT_SOURCE_DIR}/source/char-warning-eptex.ch
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/miktex-etex.ch
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex.ch
