@@ -898,6 +898,7 @@ int
 spc_util_read_blahblah (struct spc_env *spe,
                         transform_info *p, int *page_no,
                         enum pdf_page_boundary *bbox_type,
+                        char **page_name,
                         struct spc_arg *ap)
 {
   int     has_scale, has_xscale, has_yscale, has_rotate, has_matrix;
@@ -912,6 +913,8 @@ spc_util_read_blahblah (struct spc_env *spe,
     "page",
 #define  K__PAGEBOX    12
     "pagebox",
+#define  K__NAMED      13
+    "named",
      NULL
   };
   double xscale, yscale, rotate;
@@ -1053,6 +1056,11 @@ spc_util_read_blahblah (struct spc_env *spe,
         } else if (bbox_type) {
           *bbox_type = pdf_page_boundary__auto;
         }
+      }
+      break;
+    case  K__NAMED:
+      {
+        *page_name = parse_c_string (&ap->curptr, ap->endptr);
       }
       break;
 

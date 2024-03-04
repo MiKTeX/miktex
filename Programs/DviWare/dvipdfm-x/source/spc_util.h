@@ -45,6 +45,7 @@ extern int  spc_util_read_blahblah  (struct spc_env *spe,
                                      transform_info         *dimtrns,
                                      int                    *page_no,
                                      enum pdf_page_boundary *bbox_type,
+                                     char                  **page_name,
                                      struct spc_arg *args);
 
 

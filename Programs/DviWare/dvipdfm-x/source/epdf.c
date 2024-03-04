@@ -129,8 +129,9 @@ pdf_include_page (pdf_ximage        *ximage,
   if (options.page_no == 0)
     options.page_no = 1;
   page = pdf_doc_get_page(pf,
-                          options.page_no, options.bbox_type,
-                          &info.bbox, &info.matrix, &resources);
+                          options.page_no, options.page_name,
+                          options.bbox_type, &info.bbox, &info.matrix,
+                          &resources);
 
   if(!page)
     goto error_silent;
@@ -304,7 +305,7 @@ pdf_copy_clip (FILE *image_file, int pageNo, double x_user, double y_user)
   pdf_invertmatrix(&M);
   M.e += x_user; M.f += y_user;
 
-  page_tree = pdf_doc_get_page(pf, pageNo, 0, &bbox, &mtrx, NULL);
+  page_tree = pdf_doc_get_page(pf, pageNo, NULL, 0, &bbox, &mtrx, NULL);
   if (!page_tree) {
     pdf_close(pf);
     return -1;

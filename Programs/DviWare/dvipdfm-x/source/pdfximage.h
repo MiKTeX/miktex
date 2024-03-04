@@ -54,6 +54,7 @@ typedef struct {
   int  page_no;
   enum pdf_page_boundary bbox_type;
   pdf_obj *dict;
+  char *page_name;
 } load_options;
 
 typedef struct pdf_ximage_ pdf_ximage;

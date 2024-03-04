@@ -264,7 +264,7 @@ static void do_pdf (FILE *fp, char *filename)
     return;
   }
   count = pdf_doc_get_page_count(pf);
-  page  = pdf_doc_get_page(pf, page_no, PageBox, &bbox, &matrix, NULL);
+  page  = pdf_doc_get_page(pf, page_no, NULL, PageBox, &bbox, &matrix, NULL);
 
   pdf_close(pf);
 

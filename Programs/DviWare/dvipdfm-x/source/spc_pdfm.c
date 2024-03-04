@@ -1235,7 +1235,7 @@ spc_handler_pdfm_image (struct spc_env *spe, struct spc_arg *args)
   char            *ident = NULL;
   pdf_obj         *fspec;
   transform_info   ti;
-  load_options     options = {1, 0, NULL};
+  load_options     options = {1, 0, NULL, NULL};
 
   skip_white(&args->curptr, args->endptr);
   if (args->curptr[0] == '@') {
@@ -1250,7 +1250,8 @@ spc_handler_pdfm_image (struct spc_env *spe, struct spc_arg *args)
    */
   transform_info_clear(&ti);
   if (spc_util_read_blahblah(spe, &ti,
-                             &options.page_no, &options.bbox_type, args) < 0) {
+                             &options.page_no, &options.bbox_type,
+                             &options.page_name, args) < 0) {
     spc_warn(spe, "Reading option field in pdf:image failed.");
     if (ident)
       RELEASE(ident);

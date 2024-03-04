@@ -81,6 +81,7 @@ struct attr_
   int      bbox_type;  /* Ugh */
   pdf_obj *dict;
   char     tempfile;
+  char    *page_name;
 };
 
 struct pdf_ximage_
@@ -145,6 +146,8 @@ pdf_init_ximage_struct (pdf_ximage *I)
 
   I->attr.dict     = NULL;
   I->attr.tempfile = 0;
+
+  I->attr.page_name = NULL;
 }
 
 static void
@@ -304,6 +307,7 @@ load_image (const char *ident, const char *filename, const char *fullname, int f
   }
 
   I->attr.page_no   = options.page_no;
+  I->attr.page_name = options.page_name;
   I->attr.bbox_type = options.bbox_type;
   I->attr.dict      = options.dict; /* unsafe? */
 
@@ -415,6 +419,7 @@ pdf_ximage_load_image (const char *ident, const char *filename, load_options opt
   }
   if (id >= 0) {
     if (I->attr.page_no == options.page_no &&
+        strcmp(I->attr.page_name, options.page_name) == 0 &&
         !pdf_compare_object(I->attr.dict, options.dict) && /* ????? */
         I->attr.bbox_type == options.bbox_type) {
       return id;
