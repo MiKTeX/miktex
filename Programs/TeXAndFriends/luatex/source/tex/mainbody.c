@@ -180,6 +180,11 @@ boolean luainit;
 
 boolean tracefilenames;
 
+/*tex Extra line in tracingmacros? */
+
+boolean traceextranewline;
+
+
 /*tex
 
 This program has two important variations: (1) There is a long and slow version

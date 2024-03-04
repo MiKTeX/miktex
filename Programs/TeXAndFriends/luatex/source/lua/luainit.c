@@ -32,7 +32,7 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 #include "luatex_svnversion.h"
 #if defined(MIKTEX)
-#  include <miktex/Core/Paths.h> // MIKTEX_PREFIX
+#include <miktex/Core/Paths.h> // MIKTEX_PREFIX
 #endif
 
 extern int load_luatex_core_lua (lua_State * L);
@@ -92,6 +92,7 @@ const_string LUATEX_IHELP[] = {
     "   --interaction=STRING          set interaction mode (STRING=batchmode/nonstopmode/scrollmode/errorstopmode)",
     "   --job-name=STRING             set the job name to STRING",
     "   --lua=FILE                    load and execute a lua initialization script",
+    "   --luadebug                    enable lua debug library",
     "   --mktex=FMT                   enable automatic generation (FMT one of: tex, tfm)",
     "   --no-c-style-errors           disable file:line:error style messages",
     "   --no-mktex=FMT                disable automatic generation (FMT one of: tex, tfm)",
@@ -147,6 +148,7 @@ const_string LUATEX_IHELP[] = {
     "   --jobname=STRING              set the job name to STRING",
     "   --kpathsea-debug=NUMBER       set path searching debugging flags according to the bits of NUMBER",
     "   --lua=FILE                    load and execute a lua initialization script",
+    "   --luadebug                    enable lua debug library",
     "   --[no-]mktex=FMT              disable/enable mktexFMT generation (FMT=tex/tfm)",
     "   --nosocket                    disable the lua socket library",
     "   --no-socket                   disable the lua socket library",
@@ -159,7 +161,6 @@ const_string LUATEX_IHELP[] = {
     "   --safer                       disable easily exploitable lua commands",
     "   --[no-]shell-escape           disable/enable system commands",
     "   --shell-restricted            restrict system commands to a list of commands given in texmf.cnf",
-    "   --luadebug                    enable lua debug library",
     "   --synctex=NUMBER              enable synctex (see man synctex)",
     "   --utc                         init time to UTC",
     "   --version                     display version and exit",
@@ -1171,6 +1172,7 @@ void lua_initialize(int ac, char **av)
     haltonerrorp = false;
     haltingonerrorp = false;
     tracefilenames = 1;
+    traceextranewline = 0;
     dump_name = NULL;
     /*tex
         In the next option 0 means ``disable Synchronize TeXnology''. The
@@ -1339,6 +1341,8 @@ void lua_initialize(int ac, char **av)
         get_lua_boolean("texconfig", "check_dvi_total_pages", &check_dvi_total_pages);
         /*tex |prohibit_file_trace| (boolean) */
         get_lua_boolean("texconfig", "trace_file_names", &tracefilenames);
+        /*tex |trace_extra_newline| (boolean) */
+        get_lua_boolean("texconfig", "trace_extra_newline", &traceextranewline);
         /*tex |file_line_error| */
         get_lua_boolean("texconfig", "file_line_error", &filelineerrorstylep);
         /*tex |halt_on_error| */

@@ -117,8 +117,9 @@ names in this program because they are used with a special meaning.
 #  define carriage_return '\r'  /* ASCII code used at end of line */
 
 /* Global variables */
-extern boolean luainit;         /* are we using lua for initializations  */
-extern boolean tracefilenames;  /* print file open-close  info? */
+extern boolean luainit;            /* are we using lua for initializations  */
+extern boolean tracefilenames;     /* print file open-close  info? */
+extern boolean traceextranewline;  /* extra line in tracingmacros? */
 
 
 extern boolean ini_version;     /* are we \.{INITEX}? */

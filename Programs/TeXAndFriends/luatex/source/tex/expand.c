@@ -654,8 +654,9 @@ void macro_call(void)
     if (tracing_macros_par > 0) {
         /*tex Show the text of the macro being expanded. */
         begin_diagnostic();
+	if (traceextranewline==false)
+           print_ln(); /* also see newlines in print_input_level */
         print_input_level();
-     // print_ln();
         print_cs(warning_index);
         token_show(ref_count);
         end_diagnostic(false);

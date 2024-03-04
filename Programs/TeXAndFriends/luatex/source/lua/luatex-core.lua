@@ -7,7 +7,7 @@
 --     copyright = 'LuaTeX Development Team',
 -- }
 
-LUATEXCOREVERSION = 1.171 -- we reflect the luatex version where changes happened
+LUATEXCOREVERSION = 1.180 -- we reflect the luatex version where changes happened
 
 -- This file overloads some Lua functions. The readline variants provide the same
 -- functionality as LuaTeX <= 1.04 and doing it this way permits us to keep the
@@ -22,9 +22,26 @@ local saferoption    = status.safer_option
 local luadebugoption = status.luadebug_option
 local shellescape    = status.shell_escape -- 0 (disabled) 1 (anything) 2 (restricted)
 local kpseused       = status.kpse_used    -- 0 1
+local gmatch         = string.gmatch
+
+--
+-- Useful extension of lfs.mkdir,
+-- lfs.mkdirp(path) make parent directories as needed
+-- (from  luatex-fonts-merged.lua)
+--
+function lfs.mkdirp(path)
+ local full=""
+ local r1,r2,r3
+ for sub in gmatch(path,"(/*[^\\/]+)") do 
+  full=full..sub
+  r1,r2,r3 = lfs.mkdir(full)
+ end
+ return r1,r2,r3 
+end
 
 
-if kpseused == 1 then
+
+if kpseused == 1 and (status.shell_escape ~=1)  then
 
     local type = type
     local gsub = string.gsub
@@ -61,9 +78,11 @@ if kpseused == 1 then
     local lfs_dir = lfs.dir 
     local lfs_link = lfs.link 
     local lfs_mkdir = lfs.mkdir
+    local lfs_mkdirp = lfs.mkdirp
     local lfs_rmdir = lfs.rmdir
     local lfs_symlinkattributes = lfs.symlinkattributes
     local lfs_touch = lfs.touch
+
 
 
     local LUATEX_EPERM = -1 
@@ -255,6 +274,21 @@ if kpseused == 1 then
      end
     end
 
+    local function luatex_lfs_mkdirp(name)
+     local check1 = kpse_in_name_ok_silent_extended(name) and kpse_out_name_ok_silent_extended(name)  
+     if check1 then 
+        local full=""
+        local r1,r2,r3 
+        for sub in gmatch(name,"(/*[^\\/]+)") do 
+	  full=full..sub
+  	  r1,r2,r3 = lfs_mkdir(full)
+        end
+        return r1,r2,r3
+     else
+       return nil, LUATEX_EPERM_MSG,LUATEX_EPERM
+     end
+    end
+
     local function luatex_lfs_rmdir(name)
      local check1 = kpse_in_name_ok_silent_extended(name) and kpse_out_name_ok_silent_extended(name)  
      if check1 then 
@@ -301,6 +335,7 @@ if kpseused == 1 then
     lfs.dir               = luatex_lfs_dir
     lfs.link              = luatex_lfs_link
     lfs.mkdir             = luatex_lfs_mkdir
+    lfs.mkdirp            = luatex_lfs_mkdirp
     lfs.rmdir             = luatex_lfs_rmdir
     lfs.symlinkattributes = luatex_lfs_symlinkattributes
     lfs.touch             = luatex_lfs_touch                
@@ -373,6 +408,7 @@ if saferoption == 1 then
     lfs.touch  = installdummy("lfs.touch")
     lfs.rmdir  = installdummy("lfs.rmdir")
     lfs.mkdir  = installdummy("lfs.mkdir")
+    lfs.mkdirp  = installdummy("lfs.mkdirp")
 
 
     package.loaded.debug = nil
