@@ -2,7 +2,7 @@
 ** DVIReader.hpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -77,7 +77,7 @@ class DVIReader : public BasicDVIReader, public VFActions {
 
 		// VFAction methods
 		void defineVFFont (uint32_t fontnum, const std::string &path, const std::string &name, uint32_t checksum, double dsize, double ssize) override;
-		void defineVFChar (uint32_t c, std::vector<uint8_t> &&dvi) override;
+		void defineVFChar (uint32_t c, std::vector<char> &&dvi) override;
 
 		// The following template methods provide higher-level access to the DVI commands.
 		// In contrast to their cmdXXX pendants, they don't require any handling of the input stream.

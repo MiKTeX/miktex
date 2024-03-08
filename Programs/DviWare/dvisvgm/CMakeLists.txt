@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2015-2023 Christian Schenk
+## Copyright (C) 2015-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -80,6 +80,7 @@ set(libbrotli_sources
     source/libs/brotli/common/dictionary.h
     source/libs/brotli/common/platform.c
     source/libs/brotli/common/platform.h
+    source/libs/brotli/common/shared_dictionary_internal.h
     source/libs/brotli/common/transform.c
     source/libs/brotli/common/transform.h
     source/libs/brotli/common/version.h
@@ -102,6 +103,8 @@ set(libbrotli_sources
     source/libs/brotli/enc/cluster_inc.h
     source/libs/brotli/enc/command.c
     source/libs/brotli/enc/command.h
+    source/libs/brotli/enc/compound_dictionary.c
+    source/libs/brotli/enc/compound_dictionary.h
     source/libs/brotli/enc/compress_fragment.c
     source/libs/brotli/enc/compress_fragment.h
     source/libs/brotli/enc/compress_fragment_two_pass.c
@@ -139,6 +142,7 @@ set(libbrotli_sources
     source/libs/brotli/enc/prefix.h
     source/libs/brotli/enc/quality.h
     source/libs/brotli/enc/ringbuffer.h
+    source/libs/brotli/enc/state.h
     source/libs/brotli/enc/static_dict.c
     source/libs/brotli/enc/static_dict.h
     source/libs/brotli/enc/static_dict_lut.h
@@ -148,6 +152,7 @@ set(libbrotli_sources
     source/libs/brotli/include/brotli/decode.h
     source/libs/brotli/include/brotli/encode.h
     source/libs/brotli/include/brotli/port.h
+    source/libs/brotli/include/brotli/shared_dictionary.h
     source/libs/brotli/include/brotli/types.h
 )
 
@@ -394,13 +399,12 @@ set(libdvisvgm_sources
     source/src/PDFParser.hpp
     source/src/PDFToSVG.cpp
     source/src/PDFToSVG.hpp
-    source/src/PSFilter.hpp
     source/src/PSInterpreter.cpp
     source/src/PSInterpreter.hpp
     source/src/PSPattern.cpp
     source/src/PSPattern.hpp
-    source/src/PSPreviewFilter.cpp
-    source/src/PSPreviewFilter.hpp
+    source/src/PSPreviewHandler.cpp
+    source/src/PSPreviewHandler.hpp
     source/src/PageRanges.cpp
     source/src/PageRanges.hpp
     source/src/PageSize.cpp
@@ -418,6 +422,8 @@ set(libdvisvgm_sources
     source/src/Process.hpp
     source/src/PsSpecialHandler.cpp
     source/src/PsSpecialHandler.hpp
+    source/src/PsSpecialHandlerProxy.cpp
+    source/src/PsSpecialHandlerProxy.hpp
     source/src/RangeMap.cpp
     source/src/RangeMap.hpp
     source/src/SVGCharHandler.cpp
@@ -442,6 +448,7 @@ set(libdvisvgm_sources
     source/src/SignalHandler.hpp
     source/src/SourceInput.cpp
     source/src/SourceInput.hpp
+    source/src/SpecialActions.cpp
     source/src/SpecialActions.hpp
     source/src/SpecialHandler.hpp
     source/src/SpecialManager.cpp
@@ -472,7 +479,6 @@ set(libdvisvgm_sources
     source/src/VFReader.cpp
     source/src/VFReader.hpp
     source/src/VectorIterator.hpp
-    source/src/VectorStream.hpp
     source/src/XMLDocument.cpp
     source/src/XMLDocument.hpp
     source/src/XMLNode.cpp

@@ -2,7 +2,7 @@
 ** SpecialManager.hpp                                                   **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -48,8 +48,10 @@ class SpecialManager {
 				instance().registerHandler(util::make_unique<Handler>());
 		}
 
+		static void registerHandler (std::unique_ptr<SpecialHandler> handler, const std::vector<std::string> &ignoredHandlerNames);
 		void registerHandler (std::unique_ptr<SpecialHandler> handler);
 		void registerHandlers (std::vector<std::unique_ptr<SpecialHandler>> &handlers, const char *ignorelist);
+		void unregisterHandler (SpecialHandler *handler);
 		void unregisterHandlers ();
 		void preprocess (const std::string &special, SpecialActions &actions) const;
 		bool process (const std::string &special, double dvi2bp, SpecialActions &actions) const;

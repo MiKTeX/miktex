@@ -2,7 +2,7 @@
 ** SpecialManager.cpp                                                   **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -59,6 +59,13 @@ void SpecialManager::registerHandler (unique_ptr<SpecialHandler> handler) {
 }
 
 
+void SpecialManager::registerHandler (unique_ptr<SpecialHandler> handler, const vector<string> &ignoredHandlerNames) {
+	const char *name = handler->name();
+	if (!name || find(ignoredHandlerNames.begin(), ignoredHandlerNames.end(), string(name)) == ignoredHandlerNames.end())
+		instance().registerHandler(std::move(handler));
+}
+
+
 /** Registers several special handlers at once.
  *  If ignorelist == 0, all given handlers are registered. To exclude selected sets of
  *  specials, the corresponding names can be given separated by non alpha-numeric characters,
@@ -77,6 +84,21 @@ void SpecialManager::registerHandlers (vector<unique_ptr<SpecialHandler>> &handl
 	for (auto &handler : handlers)
 		if (!handler->name() || ignorestr.find("%"+string(handler->name())+"%") == string::npos)
 			registerHandler(std::move(handler));
+}
+
+
+/** Removes a handler and the corresponding prefixes. */
+void SpecialManager::unregisterHandler (SpecialHandler *handler) {
+	if (handler) {
+		auto it = find_if(_handlerPool.begin(), _handlerPool.end(), [=](unique_ptr<SpecialHandler> &h) {
+			return h.get() == handler;
+		});
+		if (it != _handlerPool.end()) {
+			for (const char *prefix : handler->prefixes())
+				_handlersByPrefix.erase(prefix);
+			_handlerPool.erase(it);
+		}
+	}
 }
 
 
@@ -173,10 +195,10 @@ void SpecialManager::writeHandlerInfo (ostream &os) const {
 		if (handler->name())
 			sortmap[handler->name()] = handler.get();
 	for (const auto &strhandlerpair : sortmap) {
-		os << setw(10) << left << strhandlerpair.second->name() << ' ';
-		if (strhandlerpair.second->info())
-			os << strhandlerpair.second->info();
-		os << endl;
+		if (const char *info = strhandlerpair.second->info()) {
+			os << setw(10) << left << strhandlerpair.second->name() << ' ';
+			os << info << '\n';
+		}
 	}
 	os.flags(osflags);  // restore format flags
 }

@@ -2,7 +2,7 @@
 ** PDFHandler.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -661,7 +661,7 @@ void PDFHandler::doFillText (XMLElement *trcFillTextElement) {
 			if (filename.empty())
 				filename = "sys://"+fontname;
 			double ptsize = matrix_extent({trm[0], trm[1], 0, trm[2], trm[3]});
-			ptsize = round(10*ptsize)/10;
+			ptsize = round(100*ptsize)/100;
 			int fontID = FontManager::instance().registerFont(filename, fontname, ptsize);
 			if (fontID >= 0) {
 				auto font = font_cast<NativeFont*>(FontManager::instance().getFontById(fontID));

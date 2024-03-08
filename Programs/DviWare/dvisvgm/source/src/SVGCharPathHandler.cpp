@@ -2,7 +2,7 @@
 ** SVGCharPathHandler.cpp                                               **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -98,7 +98,9 @@ void SVGCharPathHandler::appendChar (uint32_t c, double x, double y) {
 				// the exact location in vertical mode.
 				GlyphMetrics exact_metrics;
 				physicalFont->getExactGlyphBox(c, exact_metrics, false, nullptr);
-				y += exact_metrics.h + (metrics.d - exact_metrics.h - exact_metrics.d) / 2;
+				double ed = max(0.0, exact_metrics.d);
+				double eh = max(0.0, exact_metrics.h);
+				y += eh + (metrics.d - eh - ed) / 2;
 			}
 		}
 	}

@@ -2,7 +2,7 @@
 ** FontManager.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -380,7 +380,7 @@ void FontManager::leaveVF () {
 /** Assigns a sequence of DVI commands to a char code.
  * @param[in] c character code
  * @param[in] dvi DVI commands that describe character c */
-void FontManager::assignVFChar (int c, vector<uint8_t> &&dvi) {
+void FontManager::assignVFChar (int c, vector<char> &&dvi) {
 	if (!_vfStack.empty())
 		_vfStack.top()->assignChar(c, std::move(dvi));
 }

@@ -2,7 +2,7 @@
 ** SVGOptimizer.cpp                                                     **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -61,9 +61,9 @@ void SVGOptimizer::execute () {
 		names.emplace_back("remove-clippaths"); // default behaviour of previous dvisvgm releases
 	else {
 		auto it = names.begin();
-		if (names[0] == "all")
-			it = names.erase(it);
-		if (names[0] == "all" || names[0][0] == '-') {
+		if (*it == "all" || (!it->empty() && it->at(0) == '-')) {
+			if (*it == "all")
+				it = names.erase(it);
 			// add names of all optimizer modules
 			for (const auto &moduleEntry : _moduleEntries) {
 				it = names.insert(it, moduleEntry.modname);

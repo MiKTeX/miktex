@@ -2,7 +2,7 @@
 ** Font.cpp                                                             **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -457,14 +457,17 @@ bool PhysicalFont::getExactGlyphBox (int c, GlyphMetrics &metrics, bool vertical
 	BoundingBox charbox;
 	if (!getExactGlyphBox(c, charbox, cb))
 		return false;
-	if ((metrics.wl = -charbox.minX()) < 0) metrics.wl=0;
-	if ((metrics.wr = charbox.maxX()) < 0)  metrics.wr=0;
-	if ((metrics.h = charbox.maxY()) < 0)   metrics.h=0;
-	if ((metrics.d = -charbox.minY()) < 0)  metrics.d=0;
+	metrics.wl = -charbox.minX();
+	metrics.wr = charbox.maxX();
+	metrics.h = charbox.maxY();
+	metrics.d = -charbox.minY();
 	if (vertical) {  // vertical text orientation
 		if (verticalLayout()) {  // font designed for vertical layout?
-			metrics.wl = metrics.wr = (metrics.wl+metrics.wr)/2;
-			metrics.d += metrics.h;
+			double wl = max(0.0, metrics.wl);
+			double wr = max(0.0, metrics.wr);
+			double h = max(0.0, metrics.h);
+			metrics.wl = metrics.wr = (wl+wr)/2;
+			metrics.d += h;
 			metrics.h = 0;
 		}
 		else {
@@ -725,7 +728,7 @@ void VirtualFontImpl::assignChar (uint32_t c, DVIVector &&dvi) {
 /** Returns the DVI sippet that describes a given character of the virtual font.
  *  @param[in] c character code
  *  @return pointer to vector of DVI commands, or 0 if character doesn't exist */
-const vector<uint8_t>* VirtualFontImpl::getDVI (int c) const {
+const VirtualFont::DVIVector* VirtualFontImpl::getDVI (int c) const {
 	auto it = _charDefs.find(c);
 	return (it == _charDefs.end() ? nullptr : &it->second);
 }

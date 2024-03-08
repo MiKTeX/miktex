@@ -2,7 +2,7 @@
 ** PSInterpreter.hpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -108,7 +108,6 @@ class PSInterpreter {
 		bool executeRaw (const std::string &str, int n);
 		bool active () const                   {return _mode != PS_QUIT;}
 		void limit (size_t max_bytes)          {_bytesToRead = max_bytes;}
-		PSFilter* setFilter (PSFilter *filter);
 		PSActions* setActions (PSActions *actions);
 		int pdfPageCount (const std::string &fname);
 		BoundingBox pdfPageBox (const std::string &fname, int pageno);
@@ -134,7 +133,6 @@ class PSInterpreter {
 		Ghostscript _gs;
 		Mode _mode;                        ///< current execution mode
 		PSActions *_actions=nullptr;       ///< actions to be performed
-		PSFilter *_filter=nullptr;         ///< active filter used to process PS code
 		size_t _bytesToRead=0;             ///< if > 0, maximal number of bytes to be processed by following calls of execute()
 		std::vector<char> _linebuf;
 		std::string _errorMessage;         ///< text of error message

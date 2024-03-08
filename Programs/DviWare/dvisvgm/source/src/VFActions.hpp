@@ -2,7 +2,7 @@
 ** VFActions.hpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -25,13 +25,12 @@
 #include <vector>
 
 
-struct VFActions
-{
+struct VFActions {
 	virtual ~VFActions () =default;
 	virtual void vfPreamble (const std::string &comment, uint32_t checksum, double dsize) {}
 	virtual void vfPostamble () {}
 	virtual void defineVFFont (uint32_t fontnum, const std::string &path, const std::string &name, uint32_t checksum, double dsize, double ssize) {}
-	virtual void defineVFChar (uint32_t c, std::vector<uint8_t> &&dvi) {}
+	virtual void defineVFChar (uint32_t c, std::vector<char> &&dvi) {}
 };
 
 #endif

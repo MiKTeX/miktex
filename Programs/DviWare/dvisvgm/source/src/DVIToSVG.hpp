@@ -2,7 +2,7 @@
 ** DVIToSVG.hpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -55,6 +55,7 @@ class DVIToSVG : public DVIReader {
 		void convert (const std::string &range, std::pair<int,int> *pageinfo=nullptr);
 		void setPageSize (const std::string &format)         {_bboxFormatString = format;}
 		void setPageTransformation (const std::string &cmds) {_transCmds = cmds;}
+		void setUserMessage (const std::string &msg)         {_userMessage = msg;}
 		Matrix getPageTransformation () const override;
 		void translateToX (double x) override {_tx = x-dviState().h-_tx;}
 		void translateToY (double y) override {_ty = y-dviState().v-_ty;}
@@ -103,6 +104,7 @@ class DVIToSVG : public DVIReader {
 		std::unique_ptr<DVIActions> _actions;
 		std::string _bboxFormatString;      ///< bounding box size/format set by the user
 		std::string _transCmds;             ///< page transformation commands set by the user
+		std::string _userMessage;           ///< message printed after conversion of a page
 		double _pageHeight=0, _pageWidth=0; ///< global page height and width stored in the postamble
 		double _tx=0, _ty=0;                ///< translation of cursor position
 		double _prevXPos, _prevYPos;        ///< previous cursor position

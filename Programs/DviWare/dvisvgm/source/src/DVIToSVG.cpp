@@ -2,7 +2,7 @@
 ** DVIToSVG.cpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -54,13 +54,8 @@
 #include "HtmlSpecialHandler.hpp"
 #include "PapersizeSpecialHandler.hpp"
 #include "PdfSpecialHandler.hpp"
+#include "PsSpecialHandlerProxy.hpp"
 #include "TpicSpecialHandler.hpp"
-#ifndef HAVE_LIBGS
-	#include "NoPsSpecialHandler.hpp"
-#endif
-#ifndef DISABLE_GS
-	#include "PsSpecialHandler.hpp"
-#endif
 
 ///////////////////////////////////
 
@@ -124,10 +119,17 @@ void DVIToSVG::convert (unsigned first, unsigned last, HashFunction *hashFunc) {
 			string fname = path.shorterAbsoluteOrRelative();
 			if (fname.empty())
 				fname = "<stdout>";
-			if (success)
-				Message::mstream(false, Message::MC_PAGE_WRITTEN) << "\noutput written to " << fname << '\n';
-			else
+			if (!success)
 				Message::wstream(true) << "failed to write output to " << fname << '\n';
+			else {
+				Message::mstream(false, Message::MC_PAGE_WRITTEN) << "\noutput written to " << fname << '\n';
+				if (!_userMessage.empty()) {
+					if (auto specialActions = dynamic_cast<SpecialActions*>(_actions.get())) {
+						string msg = specialActions->expandText(_userMessage);
+						Message::ustream(true) << msg << "\n";
+					}
+				}
+			}
 			_svg.reset();
 			_actions->reset();
 		}
@@ -416,28 +418,9 @@ void DVIToSVG::setProcessSpecials (const char *ignorelist, bool pswarning) {
 		SpecialManager::registerHandler<EmSpecialHandler>(ignoredHandlerName);         // handles emTeX specials
 		SpecialManager::registerHandler<HtmlSpecialHandler>(ignoredHandlerName);       // handles hyperref specials
 		SpecialManager::registerHandler<PapersizeSpecialHandler>(ignoredHandlerName);  // handles papersize special
-		SpecialManager::registerHandler<PdfSpecialHandler>(ignoredHandlerName);        // handles pdf specials
+		SpecialManager::registerHandler<PdfSpecialHandler>(ignoredHandlerName);
 		SpecialManager::registerHandler<TpicSpecialHandler>(ignoredHandlerName);       // handles tpic specials
-		if (find(ignoredHandlerName.begin(), ignoredHandlerName.end(), PsSpecialHandler::handlerName()) == ignoredHandlerName.end()) {
-#ifndef DISABLE_GS
-			if (Ghostscript().available())
-				SpecialManager::registerHandler<PsSpecialHandler>(ignoredHandlerName);   // handles PostScript specials
-			else
-#endif
-			{
-#ifndef HAVE_LIBGS
-				// dummy PS special handler that only prints warning messages
-				SpecialManager::registerHandler<NoPsSpecialHandler>(ignoredHandlerName);
-				if (pswarning) {
-#ifdef DISABLE_GS
-					Message::wstream() << "processing of PostScript specials has been disabled permanently\n";
-#else
-					Message::wstream() << "processing of PostScript specials is disabled (Ghostscript not found)\n";
-#endif
-				}
-#endif
-			}
-		}
+		SpecialManager::registerHandler(util::make_unique<PsSpecialHandlerProxy>(pswarning), ignoredHandlerName);
 	}
 }
 

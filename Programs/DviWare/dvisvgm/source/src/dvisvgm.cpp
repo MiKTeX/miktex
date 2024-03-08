@@ -2,7 +2,7 @@
 ** dvisvgm.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -61,7 +61,7 @@
 #include "ttf/TTFAutohint.hpp"
 #endif
 #if defined(MIKTEX)
-#  include <miktex/Definitions>
+#include <miktex/Definitions>
 #endif
 
 using namespace std;
@@ -441,6 +441,7 @@ static void convert_file (size_t fnameIndex, const CommandLine &cmdline) {
 				? static_cast<ImageToSVG*>(new EPSToSVG(srcin.getFilePath(), out))
 				: static_cast<ImageToSVG*>(new PDFToSVG(srcin.getFilePath(), out)));
 		img2svg->setPageTransformation(get_transformation_string(cmdline));
+		img2svg->setUserMessage(cmdline.messageOpt.value());
 		img2svg->convert(cmdline.pageOpt.value(), &pageinfo);
 		timer_message(start_time, img2svg->isSinglePageFormat() ? nullptr : &pageinfo);
 	}
@@ -454,6 +455,7 @@ static void convert_file (size_t fnameIndex, const CommandLine &cmdline) {
 			dvi2svg.setProcessSpecials(ignore_specials, true);
 			dvi2svg.setPageTransformation(get_transformation_string(cmdline));
 			dvi2svg.setPageSize(cmdline.bboxOpt.value());
+			dvi2svg.setUserMessage(cmdline.messageOpt.value());
 			dvi2svg.convert(cmdline.pageOpt.value(), &pageinfo);
 			timer_message(start_time, &pageinfo);
 		}

@@ -2,7 +2,7 @@
 ** Message.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -188,6 +188,15 @@ MessageStream& Message::estream (bool prefix) {
 	}
 	if (prefix)
 		*ms << "\nERROR: ";
+	return *ms;
+}
+
+
+/** Returns the output stream for user messages
+ *  @param[in] always ignore verbosity settings if true */
+MessageStream& Message::ustream (bool always) {
+	init();
+	MessageStream *ms = (always || (LEVEL & USERMESSAGES)) ? &messageStream : &nullStream;
 	return *ms;
 }
 

@@ -2,7 +2,7 @@
 ** StreamReader.cpp                                                     **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -146,6 +146,14 @@ vector<uint8_t> StreamReader::readBytes (int n, HashFunction &hashfunc) {
 	vector<uint8_t> bytes = readBytes(n);
 	hashfunc.update(bytes);
 	return bytes;
+}
+
+
+vector<char> StreamReader::readBytesAsChars (int n) {
+	vector<char> chars(n);
+	if (n > 0)
+		_is->read(chars.data(), n);
+	return chars;
 }
 
 

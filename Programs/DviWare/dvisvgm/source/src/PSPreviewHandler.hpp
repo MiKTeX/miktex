@@ -1,8 +1,8 @@
 /*************************************************************************
-** PSFilter.hpp                                                         **
+** PSPreviewHandler.hpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,23 +18,33 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#ifndef PSFILTER_HPP
-#define PSFILTER_HPP
+#ifndef PSPREVIEWHANDLER_HPP
+#define PSPREVIEWHANDLER_HPP
+
+#include <string>
+#include <vector>
+#include "BoundingBox.hpp"
 
 class PSInterpreter;
 
-class PSFilter
-{
+class PSPreviewHandler {
 	public:
-		explicit PSFilter (PSInterpreter &psi) : _psi(psi) {}
-		virtual ~PSFilter () =default;
-		virtual void execute (const char *code, size_t len) =0;
-		virtual bool active () const =0;
-
-	protected:
-		PSInterpreter& psInterpreter () {return _psi;}
+		explicit PSPreviewHandler (PSInterpreter &psi);
+		void init ();
+		std::string version () const  {return _version;}
+		bool tightpage () const       {return _tightpage;}
+		bool readDataFromStack ();
+		void setDviScaleFactor (double dvi2bp) {_dvi2bp = dvi2bp;}
+		bool getBoundingBox (BoundingBox &bbox) const;
+		double height () const;
+		double depth () const;
+		double width () const;
 
 	private:
+		std::string _version;         ///< version string of preview package
+		bool _tightpage=false;        ///< true if tightpage option was given
+		double _dvi2bp=1.0/65536.0;   ///< factor to convert dvi units to PS points
+		std::vector<int> _boxExtents; ///< bounding box data set by the preview package (in DVI units)
 		PSInterpreter &_psi;
 };
 

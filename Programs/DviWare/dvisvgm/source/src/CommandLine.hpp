@@ -2,7 +2,7 @@
 // It is part of the dvisvgm package and published under the terms
 // of the GNU General Public License version 3, or (at your option) any later version.
 // See file COPYING for further details.
-// Copyright (C) 2016-2023 Martin Gieseking <martin.gieseking@uos.de>
+// Copyright (C) 2016-2024 Martin Gieseking <martin.gieseking@uos.de>
 
 #ifndef COMMANDLINE_HPP
 #define COMMANDLINE_HPP
@@ -20,7 +20,7 @@ class CommandLine : public CL::CommandLine {
 		CommandLine () : CL::CommandLine(
 			"This program converts DVI files, as created by TeX/LaTeX, as well as\nEPS and PDF files to the XML-based scalable vector graphics format SVG.",
 			"[options] dvifile\n--eps [options] epsfile\n--pdf [options] pdffile",
-			"Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>"
+			"Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>"
 		) {}
 
 		CommandLine (int argc, char **argv) : CommandLine() {
@@ -51,6 +51,7 @@ class CommandLine : public CL::CommandLine {
 		TypedOption<std::string, Option::ArgMode::REQUIRED> linkmarkOpt {"linkmark", 'L', "style", "box", "select how to mark hyperlinked areas"};
 		Option listSpecialsOpt {"list-specials", 'l', "print supported special sets and exit"};
 		TypedOption<double, Option::ArgMode::REQUIRED> magOpt {"mag", 'M', "factor", 4, "magnification of Metafont output"};
+		TypedOption<std::string, Option::ArgMode::REQUIRED> messageOpt {"message", '\0', "text", "print message text after writing an SVG file"};
 		TypedOption<int, Option::ArgMode::OPTIONAL> noFontsOpt {"no-fonts", 'n', "variant", 0, "draw glyphs by using path elements"};
 		Option noMergeOpt {"no-merge", '\0', "don't merge adjacent text elements"};
 		Option noMktexmfOpt {"no-mktexmf", '\0', "don't try to create missing fonts"};
@@ -72,7 +73,7 @@ class CommandLine : public CL::CommandLine {
 		TypedOption<bool, Option::ArgMode::OPTIONAL> traceAllOpt {"trace-all", 'a', "retrace", false, "trace all glyphs of bitmap fonts"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> transformOpt {"transform", 'T', "commands", "transform page content"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> translateOpt {"translate", 't', "tx[,ty]", "shift page content"};
-		TypedOption<unsigned, Option::ArgMode::REQUIRED> verbosityOpt {"verbosity", 'v', "level", 7, "set verbosity level (0-7)"};
+		TypedOption<unsigned, Option::ArgMode::REQUIRED> verbosityOpt {"verbosity", 'v', "level", 15, "set verbosity level (0-15)"};
 		TypedOption<bool, Option::ArgMode::OPTIONAL> versionOpt {"version", 'V', "extended", false, "print version and exit"};
 		TypedOption<int, Option::ArgMode::OPTIONAL> zipOpt {"zip", 'z', "level", 9, "create compressed .svgz file"};
 		TypedOption<double, Option::ArgMode::REQUIRED> zoomOpt {"zoom", 'Z', "factor", 1.0, "zoom page content"};
@@ -156,6 +157,7 @@ class CommandLine : public CL::CommandLine {
 			{&colorOpt, 4},
 			{&helpOpt, 4},
 			{&listSpecialsOpt, 4},
+			{&messageOpt, 4},
 			{&progressOpt, 4},
 			{&verbosityOpt, 4},
 			{&versionOpt, 4},

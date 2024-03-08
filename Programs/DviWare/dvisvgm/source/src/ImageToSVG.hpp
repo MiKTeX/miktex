@@ -2,7 +2,7 @@
 ** ImageToSVG.hpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -37,6 +37,7 @@ class ImageToSVG : protected SpecialActions {
 		void convert (int firstPage, int lastPage, std::pair<int,int> *pageinfo);
 		void convert (const std::string &rangestr, std::pair<int,int> *pageinfo);
 		void setPageTransformation (const std::string &transCmds) {_transCmds = transCmds;}
+		void setUserMessage (const std::string &msg) {_userMessage = msg;}
 		std::string filename () const {return _fname;}
 		PSInterpreter& psInterpreter () const {return _psHandler.psInterpreter();}
 		virtual bool isSinglePageFormat () const =0;
@@ -84,8 +85,9 @@ class ImageToSVG : protected SpecialActions {
 		unsigned _currentPageNumber=0;
 		BoundingBox _bbox;
 		mutable PsSpecialHandler _psHandler;
-		int _gsVersion=0;        ///< Ghostscript version found
-		std::string _transCmds;  ///< transformation commands
+		int _gsVersion=0;         ///< Ghostscript version found
+		std::string _transCmds;   ///< transformation commands
+		std::string _userMessage; ///< message printed after conversion
 };
 
 #endif

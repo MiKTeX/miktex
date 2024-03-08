@@ -2,7 +2,7 @@
 ** VmtxTable.cpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -55,6 +55,6 @@ void VmtxTable::updateHeightData (uint32_t c, int16_t ymin, int16_t ymax) {
 		_runLengthOfAdvHeight++;
 	else
 		_runLengthOfAdvHeight = 1;
-	_heightInfos.emplace_back(CharHeightInfo(ymin, h));
+	_heightInfos.emplace_back(ymin, h);
 	ttfWriter()->updateGlobalAdvanceHeight(h, _heightInfos.size()-_runLengthOfAdvHeight+1);
 }

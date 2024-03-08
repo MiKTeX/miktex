@@ -9,6 +9,7 @@
 ### Upgraded programs
 
 * dvipdfmx 20240305
+* dvisvgm 3.2.2
 * luatex 1.18.0
 * metapost 2.10
 * pdftex 1.40.26

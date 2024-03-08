@@ -2,7 +2,7 @@
 ** ImageToSVG.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -22,6 +22,7 @@
 #include <fstream>
 #include <sstream>
 #include "Calculator.hpp"
+#include "DvisvgmSpecialHandler.hpp"
 #include "ImageToSVG.hpp"
 #include "Message.hpp"
 #include "MessageException.hpp"
@@ -105,6 +106,10 @@ void ImageToSVG::writeSVG (int pageno) {
 			<< " (" << XMLString(_bbox.width()*bp2mm) << "mm"
 			<< " x " << XMLString(_bbox.height()*bp2mm) << "mm)\n";
 		Message::mstream(false, Message::MC_PAGE_WRITTEN) << "output written to " << svgfname << '\n';
+		if (!_userMessage.empty()) {
+			string msg = expandText(_userMessage);
+			Message::ustream(true) << msg << "\n";
+		}
 	}
 	_bbox.invalidate();
 	_svg.reset();

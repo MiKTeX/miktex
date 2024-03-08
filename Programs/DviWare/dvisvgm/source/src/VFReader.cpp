@@ -2,7 +2,7 @@
 ** VFReader.cpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -129,13 +129,13 @@ void VFReader::cmdPost () {
 
 
 void VFReader::cmdLongChar () {
-	uint32_t pl  = readUnsigned(4);    // packet length (length of DVI subroutine)
+	uint32_t pl  = readUnsigned(4);     // packet length (length of DVI subroutine)
 	if (!_actions)
-		seek(8+pl, ios::cur);           // skip remaining char definition bytes
+		seek(8+pl, ios::cur);            // skip remaining char definition bytes
 	else {
-		uint32_t cc  = readUnsigned(4); // character code
-		readUnsigned(4);                // equals character width from corresponding TFM file
-		auto dvi = readBytes(pl);       // DVI subroutine
+		uint32_t cc  = readUnsigned(4);  // character code
+		readUnsigned(4);                 // equals character width from corresponding TFM file
+		auto dvi = readBytesAsChars(pl); // DVI subroutine
 		_actions->defineVFChar(cc, std::move(dvi)); // call template method for user actions
 	}
 }
@@ -147,9 +147,9 @@ void VFReader::cmdShortChar (int pl) {
 	if (!_actions)
 		seek(4+pl, ios::cur);  // skip char definition bytes
 	else {
-		uint32_t cc  = readUnsigned(1); // character code
-		readUnsigned(3);                // character width from corresponding TFM file
-		auto dvi = readBytes(pl);       // DVI subroutine
+		uint32_t cc  = readUnsigned(1);  // character code
+		readUnsigned(3);                 // character width from corresponding TFM file
+		auto dvi = readBytesAsChars(pl); // DVI subroutine
 		_actions->defineVFChar(cc, std::move(dvi)); // call template method for user actions
 	}
 }

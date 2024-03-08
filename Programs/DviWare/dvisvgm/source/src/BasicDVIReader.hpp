@@ -2,7 +2,7 @@
 ** BasicDVIReader.hpp                                                   **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -32,8 +32,8 @@ struct DVIException : public MessageException {
 };
 
 
-struct InvalidDVIFileException : public DVIException {
-	explicit InvalidDVIFileException (const std::string &msg) : DVIException(msg) {}
+struct DVIPrematureEOFException : public DVIException {
+	explicit DVIPrematureEOFException () : DVIException("premature end of DVI stream") {}
 };
 
 

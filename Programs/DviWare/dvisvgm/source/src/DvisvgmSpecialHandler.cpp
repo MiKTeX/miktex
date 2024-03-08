@@ -2,7 +2,7 @@
 ** DvisvgmSpecialHandler.cpp                                            **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -201,79 +201,6 @@ bool DvisvgmSpecialHandler::process (const string &prefix, istream &is, SpecialA
 }
 
 
-/** Replaces constants of the form {?name} by their corresponding value.
- *  @param[in,out] str text to expand
- *  @param[in] actions interfcae to the world outside the special handler */
-static void expand_constants (string &str, SpecialActions &actions) {
-	bool repl_bbox = true;
-	while (repl_bbox) {
-		const auto pos = str.find("{?bbox ");
-		if (pos == string::npos)
-			repl_bbox = false;
-		else {
-			auto endpos = pos+7;
-			while (endpos < str.length() && isalnum(str[endpos]))
-				++endpos;
-			if (str[endpos] != '}')
-				repl_bbox = false;
-			else {
-				BoundingBox &box = actions.bbox(str.substr(pos+7, endpos-pos-7));
-				str.replace(pos, endpos-pos+1, box.svgViewBoxString());
-			}
-		}
-	}
-	const struct Constant {
-		const char *name;
-		string val;
-	} constants[] = {
-		{"x",      XMLString(actions.getX())},
-		{"y",      XMLString(actions.getY())},
-		{"color",  SVGElement::USE_CURRENTCOLOR && SVGElement::CURRENTCOLOR == actions.getColor() ? "currentColor" : actions.getColor().svgColorString()},
-		{"matrix", actions.getMatrix().toSVG()},
-		{"nl",    "\n"},
-	};
-	for (const Constant &constant : constants) {
-		const string pattern = string("{?")+constant.name+"}";
-		auto pos = str.find(pattern);
-		while (pos != string::npos) {
-			str.replace(pos, strlen(constant.name)+3, constant.val);
-			pos = str.find(pattern, pos+constant.val.length());  // look for further matches
-		}
-	}
-}
-
-
-/** Evaluates substrings of the form {?(expr)} where 'expr' is a math expression,
- *  and replaces the substring by the computed value.
- *  @param[in,out] str string to scan for expressions */
-static void evaluate_expressions (string &str, const SpecialActions &actions) {
-	auto left = str.find("{?(");             // start position of expression macro
-	while (left != string::npos) {
-		auto right = str.find(")}", left+2);  // end position of expression macro
-		if (right == string::npos)
-			break;
-		Calculator calc;
-		calc.setVariable("x", actions.getX());
-		calc.setVariable("y", actions.getY());
-		string expr = str.substr(left+3, right-left-3);  // math expression to evaluate
-		if (util::normalize_space(expr).empty())         // no expression given, e.g. {?( )}
-			str.erase(left, right-left+2);                // => replace with empty string
-		else {
-			try {
-				double val = calc.eval(expr);
-				XMLString valstr(val);
-				str.replace(left, right-left+2, valstr);
-				right = left+valstr.length()-1;
-			}
-			catch (CalculatorException &e) {
-				throw SpecialException(string(e.what())+" in '{?("+expr+")}'");
-			}
-		}
-		left = str.find("{?(", right+1);  // find next expression macro
-	}
-}
-
-
 /** Processes raw SVG fragments from the input stream. The SVG data must represent
  *  a single or multiple syntactically complete XML parts, like opening/closing tags,
  *  comments, or CDATA blocks. These must not be split and distributed over several
@@ -283,8 +210,7 @@ void DvisvgmSpecialHandler::processRaw (InputReader &ir, SpecialActions &actions
 	if (_nestingLevel == 0) {
 		string xml = ir.getLine();
 		if (!xml.empty()) {
-			evaluate_expressions(xml, actions);
-			expand_constants(xml, actions);
+			xml = actions.expandText(xml);
 			_pageParser.parse(std::move(xml));
 		}
 	}
@@ -295,8 +221,7 @@ void DvisvgmSpecialHandler::processRawDef (InputReader &ir, SpecialActions &acti
 	if (_nestingLevel == 0) {
 		string xml = ir.getLine();
 		if (!xml.empty()) {
-			evaluate_expressions(xml, actions);
-			expand_constants(xml, actions);
+			xml = actions.expandText(xml);
 			_defsParser.parse(std::move(xml));
 		}
 	}
@@ -327,7 +252,7 @@ void DvisvgmSpecialHandler::processRawPut (InputReader &ir, SpecialActions &acti
 		char &type = defstr[0];
 		string def = defstr.substr(1);
 		if ((type == 'P' || type == 'D') && !def.empty()) {
-			expand_constants(def, actions);
+			def = actions.expandText(def);
 			if (type == 'P')
 				_pageParser.parse(std::move(def));
 			else {          // type == 'D'
@@ -475,10 +400,8 @@ void DvisvgmSpecialHandler::processCurrentColor (InputReader &ir, SpecialActions
 
 
 void DvisvgmSpecialHandler::processMessage (InputReader &ir, SpecialActions &actions) {
-	string message = ir.getLine();
-	evaluate_expressions(message, actions);
-	expand_constants(message, actions);
-	Message::mstream() << message << "\n";
+	string message = actions.expandText(ir.getLine());
+	Message::ustream() << message << "\n";
 }
 
 

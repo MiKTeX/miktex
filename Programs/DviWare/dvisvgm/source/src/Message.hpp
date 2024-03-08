@@ -2,7 +2,7 @@
 ** Message.hpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -95,8 +95,9 @@ class Message {
 		static MessageStream& mstream (bool prefix=false, MessageClass mclass=MC_MESSAGE);
 		static MessageStream& estream (bool prefix=false);
 		static MessageStream& wstream (bool prefix=false);
+		static MessageStream& ustream (bool always=false);
 
-		enum {ERRORS=1, WARNINGS=2, MESSAGES=4};
+		enum {ERRORS=1, WARNINGS=2, MESSAGES=4, USERMESSAGES=8};
 		static int LEVEL;
 		static bool COLORIZE;
 

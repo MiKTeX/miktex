@@ -43,6 +43,11 @@
 #include <string>    // char traits
 #include <cstddef>   // ptrdiff_t
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreorder"
+#endif
+
 namespace boost {  namespace interprocess {
 
 //!A streambuf class that controls the transmission of elements to and from
@@ -603,5 +608,9 @@ class basic_vectorstream
 //!typedef basic_ovectorstream<std::vector<wchar_t> > wovectorstream;
 
 }} //namespace boost {  namespace interprocess {
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 #endif /* BOOST_INTERPROCESS_VECTORSTREAM_HPP */
