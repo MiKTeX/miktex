@@ -536,10 +536,10 @@ void svgtexfile::begingradientshade(bool axial, ColorSpace colorspace,
   begintransform();
   *out << "<" << type << "Gradient id='grad" << gradientcount;
   if(axial) {
-    *out << "' x1='" << a.getx()*ps2tex << "' y1='" << (box.top-a.gety())*ps2tex
-         << "' x2='" << b.getx()*ps2tex << "' y2='" << (box.top-b.gety())*ps2tex;
+    *out << "' x1='" << (a.getx()-offset.getx())*ps2tex << "' y1='" << (offset.gety()-a.gety())*ps2tex
+         << "' x2='" << (b.getx()-offset.getx())*ps2tex << "' y2='" << (offset.gety()-b.gety())*ps2tex;
   } else {
-    *out << "' cx='" << b.getx()*ps2tex << "' cy='" << (box.top-b.gety())*ps2tex
+    *out << "' cx='" << (b.getx()-offset.getx())*ps2tex << "' cy='" << (offset.gety()-b.gety())*ps2tex
          << "' r='" << rb*ps2tex;
   }
   *out <<"' gradientUnits='userSpaceOnUse'>" << nl

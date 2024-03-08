@@ -8,6 +8,7 @@
 
 ### Upgraded programs
 
+* asymptote 2.87
 * dvipdfmx 20240305
 * dvisvgm 3.2.2
 * luatex 1.18.0

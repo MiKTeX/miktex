@@ -38,6 +38,8 @@ public:
 
   types::ty *getType(coenv &e, bool tacit=false);
 
+  absyntax::ty *getAbsyntaxType() { return base; }
+
   virtual void addOps(coenv &e, record *r);
 
   varinit *getDefaultValue() {
@@ -58,6 +60,12 @@ public:
 
   void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
   std::pair<std::string, optional<std::string>> fnInfo() const;
+};
+
+struct tySymbolPair : public gc {
+  absyntax::ty* ty;
+  symbol sym;
+  tySymbolPair(absyntax::ty* ty, symbol sym) : ty(ty), sym(sym) {}
 };
 
 class formals : public absyn {
@@ -119,6 +127,8 @@ public:
   types::function *getType(types::ty *result, coenv &e,
                            bool encodeDefVal = false,
                            bool tacit = false);
+  
+  mem::vector<tySymbolPair> *getFields();
 
   virtual void addOps(coenv &e, record *r);
 

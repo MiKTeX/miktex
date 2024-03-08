@@ -424,23 +424,29 @@ public:
     beginpath();
   }
 
+// Workaround libc++ parsing bug under MacOS.
+#ifdef __APPLE__
+  const string sep=" ";
+#else
+  const string sep="";
+#endif
   void moveto(pair z) {
-    *out << "M";
+    *out << sep << "M";
     writeshifted(z);
   }
 
   void lineto(pair z) {
-    *out << "L";
+    *out << sep << "L";
     writeshifted(z);
   }
 
   void curveto(pair zp, pair zm, pair z1) {
-    *out << "C";
+    *out << sep << "C";
     writeshifted(zp); writeshifted(zm); writeshifted(z1);
   }
 
   void closepath() {
-    *out << "Z";
+    *out << sep << "Z";
   }
 
   string rgbhex(pen p) {

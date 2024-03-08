@@ -1142,8 +1142,9 @@ void gen_runtime86(stack *Stack)
 void loadModule(stack *Stack)
 {
   string * index=vm::pop<string *>(Stack);
+  string * filename=vm::pop<string *>(Stack);
 #line 766 "runtime.in"
-  Stack->load(*index);
+  Stack->load(*filename,*index);
 }
 
 #line 770 "runtime.in"

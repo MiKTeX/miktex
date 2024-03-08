@@ -66,8 +66,8 @@ typedef ty_vector::iterator ty_iterator;
 // Arrays are equal if their cell types are equal.
 bool equivalent(const ty *t1, const ty *t2);
 
-// If special is true, this is the same as above.  If special is false, just the
-// signatures are compared.
+// If special is true, this is the same as above.  If special is false, just
+// the signatures are compared.
 bool equivalent(const ty *t1, const ty *t2, bool special);
 
 class caster {
@@ -416,6 +416,9 @@ struct signature : public gc {
 #endif
 
   size_t hash() const;
+
+  // Return a unique handle for this signature
+  size_t handle();
 };
 
 struct function : public ty {

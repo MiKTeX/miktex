@@ -465,7 +465,7 @@ std::string wslUnix2Dos(std::string const& unixPath)
         size_t lineOffset = 0;
 
         auto& strLines = fileContentsPtr->at(getDocIdentifierRawPath(req.params.textDocument));
-        char ch=strLines[line + lineOffset + 1][colm - 1 + offset];
+        char ch=strLines[line + lineOffset - 1][colm - 1 + offset];
 
         while (
                 ch != ')' and ch != ';'

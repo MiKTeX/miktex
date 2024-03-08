@@ -846,7 +846,7 @@ typedef size_t (*input_f) (char* bif, size_t max_size);
 
 input_f yy_input = NULL;
 
-void setlexer(input_f input, string filename) 
+void setlexer(input_f input, string filename)
 {
   YY_FLUSH_BUFFER;
   yywrap();
@@ -866,7 +866,7 @@ position lexerPos()
   p.init(fi, tokPos);
   return p;
 }
-  
+
 namespace {
 position here()
 
@@ -879,7 +879,7 @@ void adjust()
   tokPos = charPos;
   charPos += yyleng;
   yylval.pos = here();
-} 
+}
 
 void savesymbol(symbol name)
 {
@@ -946,7 +946,7 @@ void setEOF(string message) {
   eof=true;
   eofMessage=message;
 }
-  
+
 // Called by code outside of the lexer to see if a parse error was caused by
 // running out of input.
 bool lexerEOF()
@@ -1402,9 +1402,9 @@ YY_RULE_SETUP
 case 6:
 YY_RULE_SETUP
 #line 228 "camp.l"
-{adjust(); 
+{adjust();
                     BEGIN INITIAL;
-                    getstring(); 
+                    getstring();
                     return STRING; }
 	YY_BREAK
 case YY_STATE_EOF(texstring):
@@ -1412,7 +1412,7 @@ case YY_STATE_EOF(texstring):
 {adjust();
                     setEOF("string not terminated");
                     BEGIN INITIAL;
-                    getstring(); 
+                    getstring();
                     return GARBAGE;
                    }
 	YY_BREAK
@@ -1452,9 +1452,9 @@ YY_RULE_SETUP
 case 12:
 YY_RULE_SETUP
 #line 246 "camp.l"
-{adjust(); 
+{adjust();
                     BEGIN INITIAL;
-                    getstring(); 
+                    getstring();
                     return STRING; }
 	YY_BREAK
 case YY_STATE_EOF(cstring):
@@ -1462,7 +1462,7 @@ case YY_STATE_EOF(cstring):
 {adjust();
                     setEOF("string not terminated");
                     BEGIN INITIAL;
-                    getstring(); 
+                    getstring();
                     return GARBAGE;
                    }
 	YY_BREAK
@@ -1519,7 +1519,7 @@ YY_RULE_SETUP
                     char x=(char)(yytext[1]-'0');
                     append(x);
                     continue;
-                   } 
+                   }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
@@ -1528,7 +1528,7 @@ YY_RULE_SETUP
                     char x=(char)((yytext[1]-'0')*8+yytext[2]-'0');
                     append(x);
                     continue;
-                   } 
+                   }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
@@ -1538,29 +1538,29 @@ YY_RULE_SETUP
                             +yytext[3]-'0');
                     append(x);
                     continue;
-                   } 
+                   }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 281 "camp.l"
 {adjust();
-                    char x=(char) (yytext[2] <= '9' ? yytext[2]-'0' : 
+                    char x=(char) (yytext[2] <= '9' ? yytext[2]-'0' :
                                                       10+yytext[2]-'A');
                     append(x);
                     continue;
-                   } 
+                   }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 287 "camp.l"
 {adjust();
-                    char x=(char) ((yytext[2] <= '9' ? yytext[2]-'0' : 
+                    char x=(char) ((yytext[2] <= '9' ? yytext[2]-'0' :
                                                       10+yytext[2]-'A')*16
-                                  +(yytext[3] <= '9' ? yytext[3]-'0' : 
+                                  +(yytext[3] <= '9' ? yytext[3]-'0' :
                                                       10+yytext[3]-'A'));
                     append(x);
                     continue;
-                   } 
+                   }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
@@ -1959,11 +1959,11 @@ case 105:
 YY_RULE_SETUP
 #line 382 "camp.l"
 try {
-  adjust(); yylval.e= new intExp(here(), lexical::cast<Int>(yytext)); 
+  adjust(); yylval.e= new intExp(here(), lexical::cast<Int>(yytext));
   } catch (lexical::bad_cast&) {
     error();
     em << "invalid integer";
-    yylval.e= new intExp(here(), 0); 
+    yylval.e= new intExp(here(), 0);
   } return LIT;
 	YY_BREAK
 case 106:
@@ -1974,7 +1974,7 @@ try {
   } catch (lexical::bad_cast&) {
     error();
     em << "invalid real";
-    yylval.e= new realExp(here(), 0); 
+    yylval.e= new realExp(here(), 0);
   } return LIT;
 	YY_BREAK
 case 107:
@@ -2016,7 +2016,7 @@ YY_RULE_SETUP
 case 113:
 YY_RULE_SETUP
 #line 409 "camp.l"
-{adjust(); continue;} 
+{adjust(); continue;}
 	YY_BREAK
 case 114:
 /* rule 114 can match eol */
@@ -2067,7 +2067,7 @@ YY_RULE_SETUP
 #line 431 "camp.l"
 {
   makesymbol();
-  return ID; }  
+  return ID; }
 	YY_BREAK
 case 120:
 YY_RULE_SETUP

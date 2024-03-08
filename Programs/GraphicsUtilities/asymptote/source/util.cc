@@ -213,9 +213,9 @@ string outpath(string name)
   return outdir+stripDir(name);
 }
 
-string buildname(string name, string suffix, string aux)
+string buildname(string prefix, string suffix, string aux)
 {
-  name=stripExt(outpath(name),defaultformat())+aux;
+  string name=outpath(prefix)+aux;
   if(!suffix.empty()) name += "."+suffix;
   return name;
 }

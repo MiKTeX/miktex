@@ -328,7 +328,7 @@ void gen_runmath6(stack *Stack)
 // real unitrand();
 void gen_runmath7(stack *Stack)
 {
-#line 231 "runmath.in"
+#line 229 "runmath.in"
 #if defined(MIKTEX_WINDOWS)
   // MIKTEX-TODO
   {Stack->push<real>(((real)rand()) / RAND_MAX); return; }

@@ -207,7 +207,7 @@ void *asymain(void *A)
         fprintf(camp::pipeout,"\n");
         fflush(camp::pipeout);
       }
-      while(true) {
+      for(;;) {
         processFile("-",true);
         try {
           setOptions(args->argc,args->argv);
@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
         sigemptyset(&set);
         sigaddset(&set, SIGCHLD);
         pthread_sigmask(SIG_BLOCK, &set, NULL);
-        while(true) {
+        for(;;) {
           Signal(SIGURG,exitHandler);
           camp::glrenderWrapper();
           gl::initialize=true;

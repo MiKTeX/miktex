@@ -13,6 +13,7 @@
 #include "LibLsp/JsonRpc/MessageJsonHandler.h"
 #include "Endpoint.h"
 #include "future.h"
+#include "MessageProducer.h"
 
 
 class MessageJsonHandler;
@@ -125,7 +126,9 @@ public:
 
         RemoteEndPoint(const std::shared_ptr <MessageJsonHandler>& json_handler,
                 const std::shared_ptr < Endpoint >& localEndPoint,
-                lsp::Log& _log, uint8_t max_workers = 2);
+                lsp::Log& _log,
+                lsp::JSONStreamStyle style = lsp::JSONStreamStyle::Standard,
+                uint8_t max_workers = 2);
 
         ~RemoteEndPoint() override;
         template <typename F, typename RequestType = ParamType<F, 0>, typename ResponseType = typename RequestType::Response>

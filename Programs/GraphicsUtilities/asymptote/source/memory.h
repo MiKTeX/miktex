@@ -134,7 +134,11 @@ GC_CONTAINER(vector);
 GC_CONTAINER(deque);
 
 template <typename T, typename Container = vector<T> >
-struct stack : public std::stack<T, Container>, public gc {
+struct stack : public std::stack<T, Container>, public gc {};
+
+template <typename T, typename S >
+struct pair : public std::pair<T, S>, public gc {
+  pair(T t, S s) : std::pair<T,S>(t,s) {}
 };
 
 #define PAIR_ALLOC gc_allocator<std::pair<CONST Key,T> > /* space */

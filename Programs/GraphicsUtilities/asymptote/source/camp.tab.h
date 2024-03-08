@@ -166,8 +166,10 @@ union YYSTYPE
   //absyntax::funheader *fh;
   absyntax::formal *fl;
   absyntax::formals *fls;
+  absyntax::typeParam *tp;
+  absyntax::typeParamList *tps;
 
-#line 168 "camp.tab.h"
+#line 170 "camp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

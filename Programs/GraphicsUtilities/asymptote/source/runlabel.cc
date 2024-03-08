@@ -501,7 +501,7 @@ void gen_runlabel4(stack *Stack)
   gs.block(false,false);
 
   // TODO: Simplify by connecting the pipes directly.
-  while(true) {
+  for(;;) {
     string out;
     if(typesetter.isopen()) {
       typesetter >> out;

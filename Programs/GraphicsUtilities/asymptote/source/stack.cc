@@ -250,7 +250,7 @@ void stack::debug()
       break;
     case 'c': // continue
     default:
-      for(mem::list<bpinfo>::iterator p=bplist.begin(); p != bplist.end(); ++p) {
+      for(auto p=bplist.begin(); p != bplist.end(); ++p) {
         if(curPos.match(p->f.name()) && curPos.match(p->f.line()) &&
            (newline || !curPos.match(breakPos.filename()) ||
             !curPos.match(breakPos.Line()))) {
@@ -554,17 +554,18 @@ void stack::runWithOrWithoutClosure(lambda *l, vars_t vars, vars_t parent)
 #undef FRAMEVAR
 }
 
-void stack::load(string index) {
-  frame *inst=instMap[index];
+void stack::load(string filename, string sigHandle) {
+  importIndex_t Index(filename,sigHandle);
+  frame *inst=instMap[Index];
   if (inst)
     push(inst);
   else {
     func f;
     assert(initMap);
-    f.body=(*initMap)[index];
+    f.body=(*initMap)[Index];
     assert(f.body);
     run(&f);
-    instMap[index]=get<frame *>(top());
+    instMap[Index]=get<frame *>(top());
   }
 }
 

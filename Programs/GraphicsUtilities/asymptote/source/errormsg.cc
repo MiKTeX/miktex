@@ -77,14 +77,13 @@ void errorstream::message(position pos, const string& s)
 
 void errorstream::compiler(position pos)
 {
-  message(pos,"compiler: ");
+  message(pos,"Compiler bug; report to https://github.com/vectorgraphics/asymptote/issues:\n");
   anyErrors = true;
 }
 
 void errorstream::compiler()
 {
-  message(nullPos,"compiler: ");
-  anyErrors = true;
+  compiler(nullPos);
 }
 
 void errorstream::runtime(position pos)

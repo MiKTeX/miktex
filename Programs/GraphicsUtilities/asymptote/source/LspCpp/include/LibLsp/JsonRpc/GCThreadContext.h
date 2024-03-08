@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(USEGC)
+#if defined(LSPCPP_USEGC)
 #define GC_THREADS
 #include <gc.h>
 #endif
@@ -12,7 +12,7 @@ public:
     ~GCThreadContext();
 
 private:
-#if defined(USEGC)
+#if defined(LSPCPP_USEGC)
     GC_stack_base gsb;
 #endif
 

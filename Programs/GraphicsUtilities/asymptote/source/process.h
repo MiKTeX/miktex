@@ -55,7 +55,7 @@ public:
   // Return first available index
   size_t available() {
     size_t index=0;
-    for(typename Pointer::iterator p=pointer.begin(); p != pointer.end(); ++p) {
+    for(auto p=pointer.begin(); p != pointer.end(); ++p) {
       if(*p == NULL) {return index;}
       ++index;
     }
@@ -74,7 +74,7 @@ public:
   }
 
   ~terminator() {
-    for(typename Pointer::iterator p=pointer.begin(); p != pointer.end(); ++p) {
+    for(auto p=pointer.begin(); p != pointer.end(); ++p) {
       if(*p != NULL) {
         (*p)->~T();
         (*p)=NULL;
@@ -92,6 +92,7 @@ typedef std::pair<size_t,size_t> linecolumn;
 typedef mem::map<CONST linecolumn,string> xkey_t;
 typedef mem::deque<camp::transform> xtransform_t;
 typedef mem::map<CONST string,xtransform_t> xmap_t;
+typedef mem::map<CONST size_t,types::signature *> sigMap_t;
 
 struct processDataStruct {
   texstream tex; // Bi-directional pipe to latex (to find label bbox)
@@ -102,6 +103,8 @@ struct processDataStruct {
   vm::callable *atBreakpointFunction;
   camp::pen defaultpen;
   camp::pen currentpen;
+
+  sigMap_t sigMap;
 
   // For xasy:
   string fileName;

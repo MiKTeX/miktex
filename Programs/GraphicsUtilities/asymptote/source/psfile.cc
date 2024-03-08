@@ -229,8 +229,7 @@ bool psfile::transparentFormat(string outputformat)
 {
   return (pdftex() && outputformat == "") ||
     outputformat == "pdf" || outputformat == "html" ||
-    outputformat == "svg" || outputformat == "png" ||
-    outputformat == "v3d";
+    outputformat == "svg" || outputformat == "png";
 }
 
 void psfile::setopacity(const pen& p)

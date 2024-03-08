@@ -65,7 +65,9 @@ public:
 
   virtual operator string() const = 0;
 #ifdef USEGC
-  operator std::string() const { return mem::stdString(this->operator string()); }
+  operator std::string() const {
+    return mem::stdString(this->operator string());
+  }
 #endif
 };
 
@@ -102,7 +104,7 @@ public:
     return depth;
   }
 
-  types::array *truetype(types::ty *base);
+  types::array *truetype(types::ty *base, bool tacit=false);
 };
 
 class arrayTy : public ty {
@@ -125,8 +127,8 @@ public:
   operator string() const override;
 };
 
-// Similar to varEntryExp, this helper class always translates to the same fixed
-// type.
+// Similar to varEntryExp, this helper class always translates to the same
+// fixed type.
 class tyEntryTy : public ty {
   trans::tyEntry *ent;
 public:
@@ -197,6 +199,19 @@ public:
   { return false; }
 };
 
+// Forward declaration.
+class formals;
+
+class namedTyEntry : public gc {
+public:
+  symbol dest;
+  trans::tyEntry *ent;
+  position pos;
+  namedTyEntry(position pos, symbol dest, trans::tyEntry *ent)
+    : dest(dest), ent(ent), pos(pos) {}
+};
+
+
 class block : public runnable {
 public:
   mem::list<runnable *> stms;
@@ -224,9 +239,20 @@ public:
 
   void transAsField(coenv &e, record *r) override;
 
+  bool transAsTemplatedField(
+      coenv &e, record *r, mem::vector<absyntax::namedTyEntry*>* args
+  );
+
   void transAsRecordBody(coenv &e, record *r);
+  bool transAsTemplatedRecordBody(
+      coenv &e, record *r, mem::vector<absyntax::namedTyEntry*> *args
+  );
 
   types::record *transAsFile(genv& ge, symbol id);
+
+  types::record *transAsTemplatedFile(
+      genv& ge, symbol id, mem::vector<absyntax::namedTyEntry*> *args
+  );
 
   // If the block can be interpreted as a single vardec, return that vardec
   // (otherwise 0).
@@ -333,11 +359,10 @@ public:
   { return id; }
 
   void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
-  void createSymMapWType(AsymptoteLsp::SymbolContext* symContext, absyntax::ty* base);
+  void createSymMapWType(
+      AsymptoteLsp::SymbolContext* symContext, absyntax::ty* base
+  );
 };
-
-// Forward declaration.
-class formals;
 
 class fundecidstart : public decidstart {
   formals *params;
@@ -377,7 +402,9 @@ public:
   decidstart *getStart() { return start; }
 
   void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
-  void createSymMapWType(AsymptoteLsp::SymbolContext* symContext, absyntax::ty* base);
+  void createSymMapWType(
+      AsymptoteLsp::SymbolContext* symContext, absyntax::ty* base
+  );
 };
 
 class decidlist : public absyn {
@@ -410,7 +437,9 @@ public:
   }
 
   void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
-  void createSymMapWType(AsymptoteLsp::SymbolContext* symContext, absyntax::ty* base);
+  void createSymMapWType(
+      AsymptoteLsp::SymbolContext* symContext, absyntax::ty* base
+  );
 };
 
 class dec : public runnable {
@@ -543,6 +572,85 @@ public:
   void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
 };
 
+class badDec : public dec {
+  position errorPos;
+  string errorMessage;
+
+public:
+  badDec(position pos, position errorPos, string errorMessage)
+      : dec(pos), errorPos(errorPos), errorMessage(errorMessage) {}
+
+  void transAsField(coenv&, record*) override {
+    em.error(errorPos);
+    em << errorMessage;
+  }
+};
+
+// Accesses the file with specified types added to the type environment.
+class templateAccessDec : public dec {
+  symbol src; // The name of the module to access.
+  formals *args;
+  symbol dest;  // What to call it in the local environment.
+  bool valid;
+  position expectedAsPos;
+
+public:
+  templateAccessDec(position pos, symbol src, formals* args, symbol as,
+                    symbol dest, position asPos)
+      : dec(pos), src(src), args(args), dest(dest),
+        valid(as == symbol::trans("as")), expectedAsPos(asPos) {}
+
+  bool checkValidity() {
+    if (!valid) {
+      em.error(expectedAsPos);
+      em << "expected 'as'";
+      return false;
+    }
+    return true;
+  }
+
+  void transAsField(coenv& e, record* r) override;
+};
+
+class typeParam : public absyn {
+  const symbol paramSym;
+public:
+  typeParam(position pos, symbol paramSym)
+    : absyn(pos), paramSym(paramSym) {}
+
+  bool transAsParamMatcher(coenv &e, namedTyEntry *arg);
+
+  void prettyprint(ostream &out, Int indent);
+};
+
+class typeParamList : public absyn {
+  mem::vector<typeParam*> params;
+
+public:
+  typeParamList(position pos) : absyn(pos) {}
+
+  void add(typeParam *tp);
+
+  bool transAsParamMatcher(coenv &e, mem::vector<namedTyEntry*> *args);
+
+  void prettyprint(ostream &out, Int indent);
+};
+
+
+class receiveTypedefDec : public dec {
+  typeParamList* params;
+
+public:
+  receiveTypedefDec(position pos, typeParamList* params) 
+    : dec(pos), params(params) {}
+
+  void transAsField(coenv& e, record *r) override;
+  bool transAsParamMatcher(
+      coenv& e, record *r, mem::vector<namedTyEntry*> *args
+  );
+};
+
+
 // Abstract base class for
 //   from _ access _;  (fromaccessdec)
 // and
@@ -551,8 +659,8 @@ class fromdec : public dec {
 protected:
   struct qualifier {
     // The varEntry holds the location and the type of the highest framed
-    // structure that can be put on the stack.  The record holds the actual type
-    // of the qualifier.
+    // structure that can be put on the stack.  The record holds the actual
+    // type of the qualifier.
     // For example:
     //   struct A {
     //     struct B {
@@ -604,11 +712,13 @@ public:
 // scope.  It does not add the module as a variable in the local scope.
 class fromaccessdec : public fromdec {
   symbol id;
+  formals *templateArgs;
 
   qualifier getQualifier(coenv &e, record *r) override;
 public:
-  fromaccessdec(position pos, symbol id, idpairlist *fields)
-    : fromdec(pos, fields), id(id) {}
+  fromaccessdec(
+      position pos, symbol id, idpairlist *fields, formals *templateArgs = 0
+  ) : fromdec(pos, fields), id(id), templateArgs(templateArgs) {}
 
   void prettyprint(ostream &out, Int indent) override;
 

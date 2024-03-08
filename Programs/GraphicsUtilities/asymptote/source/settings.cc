@@ -1291,6 +1291,8 @@ void initSettings() {
                             "Emulate unimplemented SVG shading", true));
   addOption(new boolSetting("prc", 0,
                             "Embed 3D PRC graphics in PDF output", false));
+  addOption(new boolSetting("v3d", 0,
+                            "Embed 3D V3D graphics in PDF output", false));
   addOption(new boolSetting("toolbar", 0,
                             "Show 3D toolbar in PDF output", true));
   addOption(new boolSetting("axes3", 0,
@@ -1434,7 +1436,7 @@ void initSettings() {
                                       "Allow read from other directory",
                                       &globalRead, true));
   addSecureSetting(new stringSetting("outname", 'o', "name",
-                                     "Alternative output directory/filename"));
+                                     "Alternative output directory/file prefix"));
   addOption(new stringOption("cd", 0, "directory", "Set current directory",
                              &startpath));
 

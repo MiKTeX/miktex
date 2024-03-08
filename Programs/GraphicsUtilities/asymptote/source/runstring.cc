@@ -351,6 +351,7 @@ void gen_runstring11(stack *Stack)
   }
 
   string f=format->substr(start-p0,p-start);
+  f.insert(p-start-1,"ll");
 
   const char *oldlocale=NULL;
 
@@ -378,7 +379,7 @@ void gen_runstring11(stack *Stack)
   {Stack->push<string>(out.str()); return;}
 }
 
-#line 262 "runstring.in"
+#line 263 "runstring.in"
 // string format(string *format, bool forcemath=false, string separator, real x,              string locale=emptystring);
 void gen_runstring12(stack *Stack)
 {
@@ -387,7 +388,7 @@ void gen_runstring12(stack *Stack)
   string separator=vm::pop<string>(Stack);
   bool forcemath=vm::pop<bool>(Stack,false);
   string * format=vm::pop<string *>(Stack);
-#line 264 "runstring.in"
+#line 265 "runstring.in"
   if(*format == "%") {Stack->push<string>(""); return;} // Temporary workaround for github Issue #29.
 
   bool tex=getSetting<string>("tex") != "none";
@@ -514,12 +515,12 @@ void gen_runstring12(stack *Stack)
   {Stack->push<string>(out.str()); return;}
 }
 
-#line 391 "runstring.in"
+#line 392 "runstring.in"
 // Int hex(string s);
 void gen_runstring13(stack *Stack)
 {
   string s=vm::pop<string>(Stack);
-#line 392 "runstring.in"
+#line 393 "runstring.in"
   istringstream is(s);
   is.setf(std::ios::hex,std::ios::basefield);
   Int value;
@@ -529,45 +530,45 @@ void gen_runstring13(stack *Stack)
   error(buf);
 }
 
-#line 402 "runstring.in"
+#line 403 "runstring.in"
 // Int ascii(string s);
 void gen_runstring14(stack *Stack)
 {
   string s=vm::pop<string>(Stack);
-#line 403 "runstring.in"
+#line 404 "runstring.in"
   {Stack->push<Int>(s.empty() ? -1 : (unsigned char) s[0]); return;}
 }
 
-#line 407 "runstring.in"
+#line 408 "runstring.in"
 // string string(Int x);
 void gen_runstring15(stack *Stack)
 {
   Int x=vm::pop<Int>(Stack);
-#line 408 "runstring.in"
+#line 409 "runstring.in"
   ostringstream buf;
   buf << x;
   {Stack->push<string>(buf.str()); return;}
 }
 
-#line 414 "runstring.in"
+#line 415 "runstring.in"
 // string string(real x, Int digits=DBL_DIG);
 void gen_runstring16(stack *Stack)
 {
   Int digits=vm::pop<Int>(Stack,DBL_DIG);
   real x=vm::pop<real>(Stack);
-#line 415 "runstring.in"
+#line 416 "runstring.in"
   ostringstream buf;
   buf.precision(digits);
   buf << x;
   {Stack->push<string>(buf.str()); return;}
 }
 
-#line 422 "runstring.in"
+#line 423 "runstring.in"
 // string time(string format=defaulttimeformat);
 void gen_runstring17(stack *Stack)
 {
   string format=vm::pop<string>(Stack,defaulttimeformat);
-#line 423 "runstring.in"
+#line 424 "runstring.in"
 #ifdef HAVE_STRFTIME
   const time_t bintime=time(NULL);
   if(!strftime(Time,nTime,format.c_str(),localtime(&bintime))) {Stack->push<string>(""); return;}
@@ -577,13 +578,13 @@ void gen_runstring17(stack *Stack)
 #endif
 }
 
-#line 433 "runstring.in"
+#line 434 "runstring.in"
 // string time(Int seconds, string format=defaulttimeformat);
 void gen_runstring18(stack *Stack)
 {
   string format=vm::pop<string>(Stack,defaulttimeformat);
   Int seconds=vm::pop<Int>(Stack);
-#line 434 "runstring.in"
+#line 435 "runstring.in"
 #ifdef HAVE_STRFTIME
   const time_t bintime=seconds;
   if(!strftime(Time,nTime,format.c_str(),localtime(&bintime))) {Stack->push<string>(""); return;}
@@ -595,13 +596,13 @@ void gen_runstring18(stack *Stack)
 #endif
 }
 
-#line 446 "runstring.in"
+#line 447 "runstring.in"
 // Int seconds(string t=emptystring, string format=emptystring);
 void gen_runstring19(stack *Stack)
 {
   string format=vm::pop<string>(Stack,emptystring);
   string t=vm::pop<string>(Stack,emptystring);
-#line 447 "runstring.in"
+#line 448 "runstring.in"
 #if defined(HAVE_STRPTIME)
   const time_t bintime=time(NULL);
   tm tm=*localtime(&bintime);
@@ -642,21 +643,21 @@ void gen_runstring_venv(venv &ve)
   addFunc(ve, run::gen_runstring10, primString(), SYM(replace), formal(primString(), SYM(s), false, false), formal(stringArray2(), SYM(translate), false, false));
 #line 208 "runstring.in"
   addFunc(ve, run::gen_runstring11, primString(), SYM(format), formal(primString(), SYM(format), false, false), formal(primInt(), SYM(x), false, false), formal(primString(), SYM(locale), true, false));
-#line 262 "runstring.in"
+#line 263 "runstring.in"
   addFunc(ve, run::gen_runstring12, primString(), SYM(format), formal(primString(), SYM(format), false, false), formal(primBoolean(), SYM(forcemath), true, false), formal(primString(), SYM(separator), false, false), formal(primReal(), SYM(x), false, false), formal(primString(), SYM(locale), true, false));
-#line 391 "runstring.in"
+#line 392 "runstring.in"
   addFunc(ve, run::gen_runstring13, primInt(), SYM(hex), formal(primString(), SYM(s), false, false));
-#line 402 "runstring.in"
+#line 403 "runstring.in"
   addFunc(ve, run::gen_runstring14, primInt(), SYM(ascii), formal(primString(), SYM(s), false, false));
-#line 407 "runstring.in"
+#line 408 "runstring.in"
   addFunc(ve, run::gen_runstring15, primString(), SYM(string), formal(primInt(), SYM(x), false, false));
-#line 414 "runstring.in"
+#line 415 "runstring.in"
   addFunc(ve, run::gen_runstring16, primString(), SYM(string), formal(primReal(), SYM(x), false, false), formal(primInt(), SYM(digits), true, false));
-#line 422 "runstring.in"
+#line 423 "runstring.in"
   addFunc(ve, run::gen_runstring17, primString(), SYM(time), formal(primString(), SYM(format), true, false));
-#line 433 "runstring.in"
+#line 434 "runstring.in"
   addFunc(ve, run::gen_runstring18, primString(), SYM(time), formal(primInt(), SYM(seconds), false, false), formal(primString(), SYM(format), true, false));
-#line 446 "runstring.in"
+#line 447 "runstring.in"
   addFunc(ve, run::gen_runstring19, primInt(), SYM(seconds), formal(primString(), SYM(t), true, false), formal(primString(), SYM(format), true, false));
 }
 
