@@ -5,6 +5,7 @@
 ### Fixed issues
 
 - [1447](https://github.com/MiKTeX/miktex/issues/1447): xelatex: unrestricted command has trailing null byte
+- [1448](https://github.com/MiKTeX/miktex/issues/1448): spell checker is missing
 
 ### Upgraded programs
 
