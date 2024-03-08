@@ -17,7 +17,7 @@ else()
 endif()
 
 if(USE_SYSTEM_MPFR)
-    target_link_libraries(${mpfi_lib_name} PUBLIC MiKTeX::Imported::USE_SYSTEM_MPFR)
+    target_link_libraries(${mpfi_lib_name} PUBLIC MiKTeX::Imported::MPFR)
 else()
     target_link_libraries(${mpfi_lib_name} PUBLIC ${mpfr_lib_name})
 endif()
