@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2009-2023 Christian Schenk
+## Copyright (C) 2009-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -75,96 +75,100 @@ configure_file(
 
 set(texworks_sources
     source/src/BibTeXFile.cpp
-    source/src/CitationSelectDialog.cpp
-    source/src/CompletingEdit.cpp
-    source/src/Engine.cpp
-    source/src/FindDialog.cpp
-    source/src/HardWrapDialog.cpp
-    source/src/main.cpp
-    source/src/PDFDocumentWindow.cpp
-    source/src/PrefsDialog.cpp
-    source/src/ResourcesDialog.cpp
-    source/src/ScriptManagerWidget.cpp
-    source/src/Settings.cpp
-    source/src/TemplateDialog.cpp
-    source/src/TeXDocks.cpp
-    source/src/TeXDocumentWindow.cpp
-    source/src/TeXHighlighter.cpp
-    source/src/TWApp.cpp
-    source/src/TWScriptableWindow.cpp
-    source/src/TWScriptManager.cpp
-    source/src/TWSynchronizer.cpp
-    source/src/TWUtils.cpp
-    source/src/document/Document.cpp
-    source/src/document/SpellChecker.cpp
-    source/src/document/TextDocument.cpp
-    source/src/document/TeXDocument.cpp
-    source/src/scripting/ECMAScriptInterface.cpp
-    source/src/scripting/ECMAScript.cpp
-    source/src/scripting/ScriptAPI.cpp
-    source/src/scripting/Script.cpp
-    source/src/ui/ClickableLabel.cpp
-    source/src/ui/ClosableTabWidget.cpp
-    source/src/ui/LineNumberWidget.cpp
-    source/src/ui/ListSelectDialog.cpp
-    source/src/ui/RemoveAuxFilesDialog.cpp
-    source/src/ui/ScreenCalibrationWidget.cpp
-    source/src/utils/CommandlineParser.cpp
-    source/src/utils/FileVersionDatabase.cpp
-    source/src/utils/FullscreenManager.cpp
-    source/src/utils/ResourcesLibrary.cpp
-    source/src/utils/SystemCommand.cpp
-    source/src/utils/TextCodecs.cpp
-    source/src/utils/TypesetManager.cpp
-    source/src/utils/VersionInfo.cpp
     source/src/BibTeXFile.h
+    source/src/CitationSelectDialog.cpp
     source/src/CitationSelectDialog.h
+    source/src/CompletingEdit.cpp
     source/src/CompletingEdit.h
     source/src/DefaultPrefs.h
+    source/src/Engine.cpp
     source/src/Engine.h
+    source/src/FindDialog.cpp
     source/src/FindDialog.h
+    source/src/HardWrapDialog.cpp
     source/src/HardWrapDialog.h
+    source/src/InterProcessCommunicator.h
+    source/src/PDFDocumentWindow.cpp
     source/src/PDFDocumentWindow.h
+    source/src/PrefsDialog.cpp
     source/src/PrefsDialog.h
+    source/src/ResourcesDialog.cpp
     source/src/ResourcesDialog.h
+    source/src/ScriptManagerWidget.cpp
     source/src/ScriptManagerWidget.h
+    source/src/Settings.cpp
     source/src/Settings.h
-    source/src/TemplateDialog.h
-    source/src/TeXDocks.h
-    source/src/TeXDocumentWindow.h
-    source/src/TeXHighlighter.h
+    source/src/TWApp.cpp
     source/src/TWApp.h
-    source/src/TWScriptableWindow.h
+    source/src/TWScriptManager.cpp
     source/src/TWScriptManager.h
+    source/src/TWScriptableWindow.cpp
+    source/src/TWScriptableWindow.h
+    source/src/TWSynchronizer.cpp
     source/src/TWSynchronizer.h
+    source/src/TWUtils.cpp
     source/src/TWUtils.h
     source/src/TWVersion.h
-    source/src/InterProcessCommunicator.h
+    source/src/TeXDocks.cpp
+    source/src/TeXDocks.h
+    source/src/TeXDocumentWindow.cpp
+    source/src/TeXDocumentWindow.h
+    source/src/TeXHighlighter.cpp
+    source/src/TeXHighlighter.h
+    source/src/TemplateDialog.cpp
+    source/src/TemplateDialog.h
+    source/src/document/Document.cpp
     source/src/document/Document.h
+    source/src/document/SpellChecker.cpp
     source/src/document/SpellChecker.h
-    source/src/document/TextDocument.h
+    source/src/document/TeXDocument.cpp
     source/src/document/TeXDocument.h
+    source/src/document/TextDocument.cpp
+    source/src/document/TextDocument.h
+    source/src/main.cpp
+    source/src/scripting/ECMAScript.cpp
+    source/src/scripting/ECMAScriptInterface.cpp
+    source/src/scripting/Script.cpp
+    source/src/scripting/Script.h
+    source/src/scripting/ScriptAPI.cpp
+    source/src/scripting/ScriptAPI.h
     source/src/scripting/ScriptAPIInterface.h
     source/src/scripting/ScriptLanguageInterface.h
-    source/src/scripting/ScriptAPI.h
-    source/src/scripting/Script.h
+    source/src/scripting/ScriptObject.cpp
+    source/src/scripting/ScriptObject.h
+    source/src/ui/ClickableLabel.cpp
     source/src/ui/ClickableLabel.h
+    source/src/ui/ClosableTabWidget.cpp
     source/src/ui/ClosableTabWidget.h
     source/src/ui/ColorButton.cpp
     source/src/ui/ColorButton.h
+    source/src/ui/ConsoleWidget.cpp
+    source/src/ui/ConsoleWidget.h
+    source/src/ui/LineNumberWidget.cpp
     source/src/ui/LineNumberWidget.h
+    source/src/ui/ListSelectDialog.cpp
     source/src/ui/ListSelectDialog.h
+    source/src/ui/RemoveAuxFilesDialog.cpp
     source/src/ui/RemoveAuxFilesDialog.h
+    source/src/ui/ScreenCalibrationWidget.cpp
     source/src/ui/ScreenCalibrationWidget.h
     source/src/utils/CmdKeyFilter.cpp
     source/src/utils/CmdKeyFilter.h
+    source/src/utils/CommandlineParser.cpp
     source/src/utils/CommandlineParser.h
+    source/src/utils/FileVersionDatabase.cpp
     source/src/utils/FileVersionDatabase.h
+    source/src/utils/FullscreenManager.cpp
     source/src/utils/FullscreenManager.h
+    source/src/utils/ResourcesLibrary.cpp
     source/src/utils/ResourcesLibrary.h
+    source/src/utils/SystemCommand.cpp
     source/src/utils/SystemCommand.h
+    source/src/utils/TextCodecs.cpp
     source/src/utils/TextCodecs.h
+    source/src/utils/TypesetManager.cpp
     source/src/utils/TypesetManager.h
+    source/src/utils/VersionInfo.cpp
     source/src/utils/VersionInfo.h
     source/src/utils/WindowManager.cpp
     source/src/utils/WindowManager.h

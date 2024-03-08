@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -28,7 +28,6 @@
 #include <QFileInfo>
 #include <QHash>
 #include <QKeySequence>
-#include <QObject>
 #include <QString>
 #include <QStringList>
 #include <QTextCodec>
@@ -41,10 +40,8 @@ namespace Scripting {
  *
  * \note This must be derived from QObject to enable interaction with e.g. menus
  */
-class Script : public QObject
+class Script
 {
-	Q_OBJECT
-
 public:
 	/** \brief	Types of scripts */
 	enum ScriptType {
@@ -53,17 +50,11 @@ public:
 		ScriptStandalone	///< standalone script, i.e. one that can be invoked by the user
 	};
 
-	Q_PROPERTY(QString fileName READ getFilename)
-	Q_PROPERTY(QString title READ getTitle)
-	Q_PROPERTY(QString description READ getDescription)
-	Q_PROPERTY(QString author READ getAuthor)
-	Q_PROPERTY(QString version READ getVersion)
-
 	/** \brief	Destructor
 	 *
 	 * Does nothing
 	 */
-	~Script() override = default;
+	virtual ~Script() = default;
 
 	/** \brief  Return the enabled/disabled status of the script
 	 *
@@ -177,10 +168,10 @@ public:
 	 */
 	bool operator==(const Script& s) const { return QFileInfo(m_Filename) == QFileInfo(s.m_Filename); }
 
-	Q_INVOKABLE void setGlobal(const QString& key, const QVariant& val);
-	Q_INVOKABLE void unsetGlobal(const QString& key) { m_globals.remove(key); }
-	Q_INVOKABLE bool hasGlobal(const QString& key) const { return m_globals.contains(key); }
-	Q_INVOKABLE QVariant getGlobal(const QString& key) const { return m_globals[key]; }
+	void setGlobal(const QString& key, const QVariant& val);
+	void unsetGlobal(const QString& key) { m_globals.remove(key); }
+	bool hasGlobal(const QString& key) const { return m_globals.contains(key); }
+	QVariant getGlobal(const QString& key) const { return m_globals[key]; }
 
 protected:
 	/** \brief	Constructor
@@ -189,6 +180,12 @@ protected:
 	 * Does not invoke parseHeader(), so the script object may not actually be usable.
 	 */
 	Script(QObject * plugin, const QString& filename);
+
+	// Rule of 5 methods (protected to avoid slicing)
+	Script(const Script&) = default;
+	Script(Script&&) = default;
+	Script & operator=(const Script&) = default;
+	Script & operator=(Script&&) = default;
 
 	/** \brief  Execute the actual script
 	 *
@@ -305,9 +302,6 @@ protected:
 
 	QTextCodec * m_Codec;
 
-private slots:
-	void globalDestroyed(QObject * obj);
-
 private:
 	/** \brief	Constructor
 	 *
@@ -324,6 +318,6 @@ private:
 } // namespace Scripting
 } // namespace Tw
 
-Q_DECLARE_INTERFACE(Tw::Scripting::Script, "org.tug.texworks.Script/0.3.2")
+Q_DECLARE_INTERFACE(Tw::Scripting::Script, "org.tug.texworks.Script/0.3.3")
 
 #endif /* Script_H */

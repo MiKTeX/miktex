@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 
 #include "PDFDocumentWindow.h"
 
+#include "../modules/QtPDF/src/PDFDocumentScene.h"
 #include "FindDialog.h"
 #include "Settings.h"
 #include "TWApp.h"
@@ -298,6 +299,11 @@ void PDFDocumentWindow::init()
 	addDockWidget(Qt::LeftDockWidgetArea, dw);
 	menuShow->addAction(dw->toggleViewAction());
 
+	dw = pdfWidget->dockWidget(QtPDF::PDFDocumentView::Dock_OptionalContent, this);
+	dw->hide();
+	addDockWidget(Qt::LeftDockWidgetArea, dw);
+	menuShow->addAction(dw->toggleViewAction());
+
 	Tw::Settings settings;
 	switch(settings.value(QString::fromLatin1("pdfPageMode"), kDefault_PDFPageMode).toInt()) {
 		case 0:
@@ -415,7 +421,7 @@ void PDFDocumentWindow::updateWindowMenu()
 
 	const QString label = Tw::Utils::WindowManager::uniqueLabelForFile(fileName());
 	if (!label.isEmpty()) {
-		setWindowTitle(tr("%1[*] - %2").arg(label, tr(TEXWORKS_NAME)));
+		setWindowTitle(tr("%1[*] - %2").arg(label, QCoreApplication::applicationName()));
 	}
 }
 
@@ -564,7 +570,7 @@ void PDFDocumentWindow::loadSyncData()
 		statusBar()->showMessage(tr("SyncTeX: \"%1\"").arg(_synchronizer->syncTeXFilename()), kStatusMessageDuration);
 }
 
-void PDFDocumentWindow::syncClick(int pageIndex, const QPointF& pos)
+void PDFDocumentWindow::syncClick(size_type pageIndex, const QPointF& pos)
 {
 	Tw::Settings settings;
 	TWSynchronizer::Resolution res{TWSynchronizer::kDefault_Resolution_ToPDF};
@@ -583,7 +589,7 @@ void PDFDocumentWindow::syncClick(int pageIndex, const QPointF& pos)
 	syncRange(pageIndex, pos, pos, res);
 }
 
-void PDFDocumentWindow::syncRange(const int pageIndex, const QPointF & start, const QPointF & end, const TWSynchronizer::Resolution resolution)
+void PDFDocumentWindow::syncRange(const size_type pageIndex, const QPointF & start, const QPointF & end, const TWSynchronizer::Resolution resolution)
 {
 	if (!_synchronizer)
 		return;
@@ -638,10 +644,11 @@ void PDFDocumentWindow::syncRange(const int pageIndex, const QPointF & start, co
 	// Get a text cursor in the correct position for "start" (if no valid column
 	// was found, place it at the beginning of the correct line)
 	QTextCursor curStart = texDoc->textCursor();
+	using pos_type = decltype(curStart.position());
 	curStart.setPosition(0);
 	curStart.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, destStart.line - 1);
 	if (destStart.col >= 0)
-		curStart.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, destStart.col);
+		curStart.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, static_cast<pos_type>(destStart.col));
 
 	// Get a text cursor in the correct position for "end" (if no valid column
 	// was found, place it at the end of the correct line)
@@ -650,7 +657,7 @@ void PDFDocumentWindow::syncRange(const int pageIndex, const QPointF & start, co
 		curEnd.setPosition(0);
 		curEnd.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, destStart.line - 1);
 		if (destEnd.col >= 0)
-			curEnd.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, destEnd.col + qMax(1, destEnd.len));
+			curEnd.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, static_cast<pos_type>(destEnd.col + qMax(1, destEnd.len)));
 		else
 			curEnd.movePosition(QTextCursor::EndOfBlock);
 	}
@@ -708,7 +715,7 @@ void PDFDocumentWindow::syncFromSource(const QString& sourceFile, int lineNo, in
 		path.addRect(r);
 
 	clearSyncHighlight();
-	_syncHighlight = pdfWidget->addHighlightPath(static_cast<unsigned int>(dest.page - 1), path, QColor(255, 255, 0, 63));
+	_syncHighlight = pdfWidget->addHighlightPath(dest.page - 1, path, QColor(255, 255, 0, 63));
 
 	// Ensure that the synhronization point is displayed (in the center)
 	pdfWidget->centerOn(_syncHighlight->mapToScene(_syncHighlight->boundingRect().center()));
@@ -774,7 +781,7 @@ void PDFDocumentWindow::setCurrentFile(const QString &fileName)
 {
 	curFile = QFileInfo(fileName).canonicalFilePath();
 	//: Format for the window title (ex. "file.pdf[*] - TeXworks")
-	setWindowTitle(tr("%1[*] - %2").arg(Tw::Utils::WindowManager::strippedName(curFile), tr(TEXWORKS_NAME)));
+	setWindowTitle(tr("%1[*] - %2").arg(Tw::Utils::WindowManager::strippedName(curFile), QCoreApplication::applicationName()));
 	TWApp::instance()->updateWindowMenus();
 }
 
@@ -790,7 +797,7 @@ PDFDocumentWindow *PDFDocumentWindow::findDocument(const QString &fileName)
 	return nullptr;
 }
 
-void PDFDocumentWindow::showPage(int page)
+void PDFDocumentWindow::showPage(size_type page)
 {
 	pageLabel->setText(tr("page %1 of %2").arg(page).arg(pdfWidget->lastPage()));
 }
@@ -833,7 +840,7 @@ void PDFDocumentWindow::changedDocument(const QWeakPointer<QtPDF::Backend::Docum
 	enablePageActions(pdfWidget->currentPage());
 }
 
-void PDFDocumentWindow::enablePageActions(int pageIndex)
+void PDFDocumentWindow::enablePageActions(size_type pageIndex)
 {
 //#if !defined(Q_OS_DARWIN)
 // On Mac OS X, disabling these leads to a crash if we hit the end of document while auto-repeating a key
@@ -1045,7 +1052,7 @@ void PDFDocumentWindow::doFindAgain(bool newSearch /* = false */)
 	widget()->search(searchText, searchFlags);
 }
 
-void PDFDocumentWindow::searchResultHighlighted(const int pageNum, const QList<QPolygonF> & pdfRegion)
+void PDFDocumentWindow::searchResultHighlighted(const size_type pageNum, const QList<QPolygonF> & pdfRegion)
 {
 	Tw::Settings settings;
 
@@ -1062,7 +1069,7 @@ void PDFDocumentWindow::searchResultHighlighted(const int pageNum, const QList<Q
 		Q_ASSERT(doc);
 		QSharedPointer<QtPDF::Backend::Page> page = doc->page(pageNum);
 		Q_ASSERT(page);
-		QMap<int, QRectF> charBoxes;
+		QtPDF::Backend::Page::BoxBoundaryList charBoxes;
 
 		// NOTE: pdfRegion is in PDF coordinates (i.e., (0,0) is in the lower
 		// left), whereas QtPDF::Backend::Page::selectedText() expects TeX
@@ -1084,8 +1091,8 @@ void PDFDocumentWindow::searchResultHighlighted(const int pageNum, const QList<Q
 		// Obtain the centers of the first and last character bounding boxes and
 		// convert them to PDF coordinates (i.e., (0,0) in the lower left) as
 		// required by syncRange()
-		QPointF pt1 = charBoxes[0].center();
-		QPointF pt2 = charBoxes[charBoxes.size() - 1].center();
+		QPointF pt1 = charBoxes.first().center();
+		QPointF pt2 = charBoxes.last().center();
 		pt1.ry() = page->pageSizeF().height() - pt1.y();
 		pt2.ry() = page->pageSizeF().height() - pt2.y();
 
@@ -1157,7 +1164,7 @@ void PDFDocumentWindow::print()
 	// Currently, printing is not supported in a reliable, cross-platform way
 	// Instead, offer to open the document in the system's default viewer
 
-	QString msg = tr("Unfortunately, this version of %1 is unable to print PDF documents due to various technical reasons.\n").arg(QString::fromLatin1(TEXWORKS_NAME));
+	QString msg = tr("Unfortunately, this version of %1 is unable to print PDF documents due to various technical reasons.\n").arg(QCoreApplication::applicationName());
 	msg += tr("Do you want to open the file in the default viewer for printing instead?");
 	msg += tr(" (remember to close it again to avoid access problems)");
 
@@ -1245,8 +1252,8 @@ void PDFDocumentWindow::doPageDialog()
 	bool ok{false};
 
 	int pageNo = QInputDialog::getInt(this, tr("Go to Page"),
-									tr("Page number:"), pdfWidget->currentPage() + 1,
-                  1, pdfWidget->lastPage(), 1, &ok);
+									tr("Page number:"), static_cast<int>(pdfWidget->currentPage() + 1),
+				  1, static_cast<int>(pdfWidget->lastPage()), 1, &ok);
 	if (ok)
 		pdfWidget->goToPage(pageNo - 1);
 }

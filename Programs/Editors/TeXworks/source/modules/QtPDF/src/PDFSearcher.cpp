@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2022  Stefan Löffler
+ * Copyright (C) 2022-2023  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,7 +13,9 @@
  */
 #include "PDFSearcher.h"
 
-void QtPDF::PDFSearcher::populatePages()
+namespace QtPDF {
+
+void PDFSearcher::populatePages()
 {
   const QMutexLocker mutexLocker{&m_mutex};
   m_pages.clear();
@@ -23,40 +25,40 @@ void QtPDF::PDFSearcher::populatePages()
     return;
   }
 
-  const int numPages = doc->numPages();
-  const int startPage = [=] () {
+  const size_type numPages = doc->numPages();
+  const size_type startPage = [=] () {
     if (m_startPage >= 0 && m_startPage < numPages) {
       return m_startPage;
     }
-    return 0;
+    return static_cast<size_type>(0);
   }();
 
   if (!m_searchFlags.testFlag(Backend::Search_Backwards))
   {
     // Search forwards
-    for (int page = startPage; page < numPages; ++page) {
+    for (size_type page = startPage; page < numPages; ++page) {
       m_pages.append(page);
     }
     if (m_searchFlags.testFlag(Backend::Search_WrapAround)) {
-      for (int page = 0; page < startPage; ++page) {
+      for (size_type page = 0; page < startPage; ++page) {
         m_pages.append(page);
       }
     }
   }
   else {
     // Search backwards
-    for (int page = startPage; page >= 0; --page) {
+    for (size_type page = startPage; page >= 0; --page) {
       m_pages.append(page);
     }
     if (m_searchFlags.testFlag(Backend::Search_WrapAround)) {
-      for (int page = numPages - 1; page > startPage; --page) {
+      for (size_type page = numPages - 1; page > startPage; --page) {
         m_pages.append(page);
       }
     }
   }
 }
 
-void QtPDF::PDFSearcher::ensureStopped()
+void PDFSearcher::ensureStopped()
 {
   if (!isRunning()) {
     return;
@@ -69,74 +71,74 @@ void QtPDF::PDFSearcher::ensureStopped()
 #endif
 }
 
-void QtPDF::PDFSearcher::clear()
+void PDFSearcher::clear()
 {
   const QMutexLocker mutexLocker{&m_mutex};
   m_pages.clear();
   m_results.clear();
 }
 
-void QtPDF::PDFSearcher::stopAndClear()
+void PDFSearcher::stopAndClear()
 {
   ensureStopped();
   clear();
 }
 
-QString QtPDF::PDFSearcher::searchString() const
+QString PDFSearcher::searchString() const
 {
   const QMutexLocker mutexLocker{&m_mutex};
   return m_searchString;
 }
 
-void QtPDF::PDFSearcher::setSearchString(const QString &searchString)
+void PDFSearcher::setSearchString(const QString &searchString)
 {
   stopAndClear();
   const QMutexLocker mutexLocker{&m_mutex};
   m_searchString = searchString;
 }
 
-QtPDF::Backend::SearchFlags QtPDF::PDFSearcher::searchFlags() const
+Backend::SearchFlags PDFSearcher::searchFlags() const
 {
   const QMutexLocker mutexLocker{&m_mutex};
   return m_searchFlags;
 }
 
-void QtPDF::PDFSearcher::setSearchFlags(const Backend::SearchFlags &flags)
+void PDFSearcher::setSearchFlags(const Backend::SearchFlags &flags)
 {
   stopAndClear();
   const QMutexLocker mutexLocker{&m_mutex};
   m_searchFlags = flags;
 }
 
-QWeakPointer<QtPDF::Backend::Document> QtPDF::PDFSearcher::document() const
+QWeakPointer<Backend::Document> PDFSearcher::document() const
 {
   const QMutexLocker mutexLocker{&m_mutex};
   return m_doc;
 }
 
-void QtPDF::PDFSearcher::setDocument(const QWeakPointer<Backend::Document> &doc)
+void PDFSearcher::setDocument(const QWeakPointer<Backend::Document> &doc)
 {
   stopAndClear();
   const QMutexLocker mutexLocker{&m_mutex};
   m_doc = doc;
 }
 
-int QtPDF::PDFSearcher::startPage() const
+PDFSearcher::size_type PDFSearcher::startPage() const
 {
   const QMutexLocker mutexLocker{&m_mutex};
   return m_startPage;
 }
 
-void QtPDF::PDFSearcher::setStartPage(const int page)
+void PDFSearcher::setStartPage(const size_type page)
 {
   const QMutexLocker mutexLocker{&m_mutex};
   m_startPage = page;
 }
 
-int QtPDF::PDFSearcher::progressValue() const
+PDFSearcher::size_type PDFSearcher::progressValue() const
 {
   const QMutexLocker mutexLocker{&m_mutex};
-  int retVal{0};
+  size_type retVal{0};
   for (const SearchResult & result : m_results) {
     if (result.finished) {
       ++retVal;
@@ -145,13 +147,13 @@ int QtPDF::PDFSearcher::progressValue() const
   return retVal;
 }
 
-int QtPDF::PDFSearcher::progressMaximum() const
+PDFSearcher::size_type PDFSearcher::progressMaximum() const
 {
   const QMutexLocker mutexLocker{&m_mutex};
   return m_pages.size();
 }
 
-QList<QtPDF::Backend::SearchResult> QtPDF::PDFSearcher::resultAt(int page) const
+QList<Backend::SearchResult> PDFSearcher::resultAt(size_type page) const
 {
   const QMutexLocker mutexLocker{&m_mutex};
   if (page < 0 || page >= m_results.size()) {
@@ -160,7 +162,7 @@ QList<QtPDF::Backend::SearchResult> QtPDF::PDFSearcher::resultAt(int page) const
   return m_results.at(page).occurences;
 }
 
-void QtPDF::PDFSearcher::run()
+void PDFSearcher::run()
 {
   clear();
   populatePages();
@@ -178,11 +180,11 @@ void QtPDF::PDFSearcher::run()
     m_results.resize(doc->numPages());
   }
 
-  for (const int & pageIndex : m_pages) {
+  for (const size_type & pageIndex : m_pages) {
     if (isInterruptionRequested()) {
       break;
     }
-    const QSharedPointer<QtPDF::Backend::Page> page{doc->page(pageIndex).toStrongRef()};
+    const QSharedPointer<Backend::Page> page{doc->page(pageIndex).toStrongRef()};
     if (!page) {
       continue;
     }
@@ -196,3 +198,5 @@ void QtPDF::PDFSearcher::run()
     emit progressValueChanged(progressValue());
   }
 }
+
+} // namespace QtPDF

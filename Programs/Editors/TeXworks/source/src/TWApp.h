@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2024  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 #include <QMenuBar>
 #endif
 #include <QSettings>
+#include <QStack>
 #include <QString>
 #include <QTextCodec>
 #include <QVariant>
@@ -117,6 +118,10 @@ public:
 
 	TWScriptManager* getScriptManager() { return scriptManager; }
 
+	QWidget * topWindow() const;
+	QWidget * topTeXWindow() const;
+	QWidget * topPDFWindow() const;
+
 #if defined(Q_OS_WIN)
 	static QString GetWindowsVersionString();
 	static unsigned int GetWindowsVersion();
@@ -174,6 +179,7 @@ private:
 public slots:
 	void bringToFront();
 	QObject* openFile(const QString& fileName, const int pos = -1);
+	void insertText(const QString & text);
 
 	void preferences();
 
@@ -255,6 +261,7 @@ private:
 		};
 		bool shouldContinue{true};
 		std::vector<fileToOpenStruct> filesToOpen;
+		QString insertText;
 	};
 
 	void init();
@@ -283,6 +290,8 @@ private:
 
 	static TWApp *theAppInstance;
 	Tw::InterProcessCommunicator m_IPC;
+
+	QStack<QPointer<QWidget>> m_focusStack;
 };
 
 inline TWApp *TWApp::instance()

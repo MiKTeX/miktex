@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2020  Stefan Löffler
+ * Copyright (C) 2013-2023  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -162,6 +162,17 @@ bool PDFURIAction::operator==(const PDFAction & o) const
 bool PDFURIAction::operator==(const PDFURIAction & o) const
 {
   return (o._url == _url && o._isMap == _isMap);
+}
+
+bool PDFOCGAction::operator==(const PDFAction &o) const
+{
+  if (type() != o.type()) { return false; }
+  return (*this == dynamic_cast<const PDFOCGAction &>(o));
+}
+
+bool PDFOCGAction::operator==(const PDFOCGAction & o) const
+{
+  return (_changes == o._changes);
 }
 
 bool PDFGotoAction::operator==(const PDFAction & o) const

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include "scripting/Script.h"
 #include "scripting/ScriptAPIInterface.h"
 
+#include <QCoreApplication>
 #include <QMetaMethod>
 #include <QMetaProperty>
 #include <QVariant>
@@ -36,8 +37,8 @@ namespace Scripting {
 /** \brief Class for handling lua scripts */
 class LuaScript : public Script
 {
-	Q_OBJECT
 	Q_INTERFACES(Tw::Scripting::Script)
+	Q_DECLARE_TR_FUNCTIONS(Tw::Scripting::ECMAScript)
 
 public:
 	/** \brief Constructor

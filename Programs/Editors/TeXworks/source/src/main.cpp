@@ -30,10 +30,6 @@
   Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin)
 #endif
 
-struct fileToOpenStruct{
-	QString filename;
-	int position;
-};
 
 #if defined(MIKTEX)
 #  define main Main

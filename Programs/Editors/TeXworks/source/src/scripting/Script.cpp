@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -348,7 +348,6 @@ Script::MethodResult Script::doCallMethod(QObject * obj, const QString& name,
 		typeName = QString::fromUtf8(mm.typeName());
 		if (typeName.isEmpty()) {
 			// no return type
-			retValArg = QGenericReturnArgument();
 		}
 		else if (typeName == QString::fromLatin1("QVariant")) {
 			// QMetaType can't construct QVariant objects
@@ -444,34 +443,11 @@ void Script::setGlobal(const QString& key, const QVariant& val)
 	switch (val.metaType().id()) {
 #endif
 		case QMetaType::QObjectStar:
-			connect(v.value<QObject*>(), &QObject::destroyed, this, &Script::globalDestroyed);
+			QObject::connect(v.value<QObject*>(), &QObject::destroyed, [this,key]() { unsetGlobal(key); });
 			break;
 		default: break;
 	}
 	m_globals[key] = v;
-}
-
-void Script::globalDestroyed(QObject * obj)
-{
-	QHash<QString, QVariant>::iterator i = m_globals.begin();
-
-	while (i != m_globals.end()) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-		switch (static_cast<QMetaType::Type>(i.value().type())) {
-#else
-		switch (i.value().metaType().id()) {
-#endif
-			case QMetaType::QObjectStar:
-				if (i.value().value<QObject*>() == obj)
-					i = m_globals.erase(i);
-				else
-					++i;
-				break;
-			default:
-				++i;
-				break;
-		}
-	}
 }
 
 } // namespace Scripting

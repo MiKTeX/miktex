@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2021  Stefan Löffler
+ * Copyright (C) 2013-2023  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,6 +13,8 @@
  */
 
 #include "PDFDocumentTools.h"
+
+#include "PDFDocumentScene.h"
 #include "PDFDocumentView.h"
 
 namespace QtPDF {
@@ -722,7 +724,7 @@ void Select::mousePressEvent(QMouseEvent * event)
   // get the number of the page the mouse is currently over; if the mouse is
   // not over any page (e.g., it's between pages), there's nothing left to do
   // here
-  int pageNum = scene->pageNumAt(_parent->mapToScene(event->pos()));
+  size_type pageNum = scene->pageNumAt(_parent->mapToScene(event->pos()));
   if (pageNum < 0)
     return;
 
@@ -782,7 +784,7 @@ void Select::mouseMoveEvent(QMouseEvent *event)
 
   // Check if the mouse cursor is over a page. If not, we bail out and keep the
   // last "valid" state.
-  int pageNum = scene->pageNumAt(_parent->mapToScene(event->pos()));
+  size_type pageNum = scene->pageNumAt(_parent->mapToScene(event->pos()));
   if (pageNum < 0)
     return;
 
@@ -832,7 +834,7 @@ void Select::mouseMoveEvent(QMouseEvent *event)
     // Set WindingFill so overlapping, individual paths are both filled
     // completely.
     highlightPath.setFillRule(Qt::WindingFill);
-    foreach(Backend::Page::Box b, _boxes) {
+    for (const Backend::Page::Box & b : _boxes) {
       // Note: If b.boundingBox is fully contained in the marqueeRect, add it
       // without iterating over the subboxes. Otherwise, add all intersected
       // subboxes
@@ -840,7 +842,7 @@ void Select::mouseMoveEvent(QMouseEvent *event)
         if (b.subBoxes.isEmpty() || marqueeRect.contains(b.boundingBox))
           highlightPath.addRect(toView.mapRect(b.boundingBox));
         else {
-          foreach(Backend::Page::Box sb, b.subBoxes) {
+          for(const Backend::Page::Box & sb : b.subBoxes) {
             if (marqueeRect.intersects(sb.boundingBox))
               highlightPath.addRect(toView.mapRect(sb.boundingBox));
           }
@@ -858,18 +860,18 @@ void Select::mouseMoveEvent(QMouseEvent *event)
 
     // Find the box (and subbox therein) that is closest to the current mouse
     // position
-    int endBox{0};
+    size_type endBox{0};
     double minDist = -1;
-    for (int i = 0; i < _boxes.size(); ++i) {
+    for (size_type i = 0; i < _boxes.size(); ++i) {
       double dist = distanceFromRect(curPdfCoords, _boxes[i].boundingBox);
       if (minDist < -.5 || dist < minDist) {
         endBox = i;
         minDist = dist;
       }
     }
-    int endSubbox{0};
+    size_type endSubbox{0};
     minDist = -1;
-    for (int i = 0; i < _boxes[endBox].subBoxes.size(); ++i) {
+    for (size_type i = 0; i < _boxes[endBox].subBoxes.size(); ++i) {
       double dist = distanceFromRect(curPdfCoords, _boxes[endBox].subBoxes[i].boundingBox);
       if (minDist < -.5 || dist < minDist) {
         endSubbox = i;
@@ -879,8 +881,8 @@ void Select::mouseMoveEvent(QMouseEvent *event)
 
     // Ensure startBox <= endBox and (startSubbox <= endSubbox in case of
     // equality)
-    int startBox = _startBox;
-    int startSubbox = _startSubbox;
+    size_type startBox = _startBox;
+    size_type startSubbox = _startSubbox;
     if (startBox > endBox) {
       startBox = endBox;
       startSubbox = endSubbox;
@@ -896,11 +898,11 @@ void Select::mouseMoveEvent(QMouseEvent *event)
     // Set WindingFill so overlapping, individual paths are both filled
     // completely.
     highlightPath.setFillRule(Qt::WindingFill);
-    for (int i = startBox; i <= endBox; ++i) {
+    for (size_type i = startBox; i <= endBox; ++i) {
       // Iterate over subboxes in the case that not the whole box might be
       // selected
       if ((i == startBox || i == endBox) && !_boxes[i].subBoxes.empty()) {
-        for (int j = 0; j < _boxes[i].subBoxes.size(); ++j) {
+        for (size_type j = 0; j < _boxes[i].subBoxes.size(); ++j) {
           if ((i == startBox && j < startSubbox) || (i == endBox && j > endSubbox))
             continue;
           highlightPath.addRect(toView.mapRect(_boxes[i].subBoxes[j].boundingBox));
@@ -979,7 +981,7 @@ void Select::keyPressEvent(QKeyEvent *event)
   }
 }
 
-void Select::resetBoxes(const int pageNum /* = -1 */)
+void Select::resetBoxes(const size_type pageNum /* = -1 */)
 {
   _pageNum = pageNum;
   _boxes.clear();
@@ -1009,14 +1011,14 @@ void Select::resetBoxes(const int pageNum /* = -1 */)
   Q_ASSERT(pageGraphicsItem != nullptr);
 
   QTransform toView = pageGraphicsItem->pointScale();
-  foreach(Backend::Page::Box b, _boxes) {
+  for(const Backend::Page::Box & b : _boxes) {
     if (b.subBoxes.isEmpty()) {
       QGraphicsRectItem * rectItem = scene->addRect(toView.mapRect(b.boundingBox), QPen(_highlightColor));
       rectItem->setParentItem(pageGraphicsItem);
       _displayBoxes << rectItem;
     }
     else {
-      foreach(Backend::Page::Box sb, b.subBoxes) {
+      for (const Backend::Page::Box & sb : b.subBoxes) {
         QGraphicsRectItem * rectItem = scene->addRect(toView.mapRect(sb.boundingBox), QPen(_highlightColor));
         rectItem->setParentItem(pageGraphicsItem);
         _displayBoxes << rectItem;

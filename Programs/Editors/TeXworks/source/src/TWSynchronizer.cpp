@@ -1,6 +1,6 @@
 /*
   This is part of TeXworks, an environment for working with TeX documents
-  Copyright (C) 2014-2022  Stefan Löffler, Jonathan Kew
+  Copyright (C) 2014-2023  Stefan Löffler, Jonathan Kew
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,11 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QTextBlock>
+
+namespace {
+  using page_type = decltype(SyncTeX::synctex_node_page(nullptr));
+  using column_type = decltype(SyncTeX::synctex_node_column(nullptr));
+}
 
 // TODO for fine-grained search:
 // - Specially handle \commands (and possibly other TeX codes)
@@ -109,10 +114,10 @@ TWSynchronizer::PDFSyncPoint TWSyncTeXSynchronizer::syncFromTeX(const TWSynchron
   retVal.filename = pdfFilename();
 
 #if defined(MIKTEX_WINDOWS)
-  if (SyncTeX::synctex_display_query(_scanner, name.toUtf8().data(), src.line, src.col, -1) > 0)
+  if (SyncTeX::synctex_display_query(_scanner, name.toUtf8().data(), src.line, static_cast<column_type>(src.col), -1) > 0)
   {
 #else
-  if (SyncTeX::synctex_display_query(_scanner, name.toLocal8Bit().data(), src.line, src.col, -1) > 0) {
+  if (SyncTeX::synctex_display_query(_scanner, name.toLocal8Bit().data(), src.line, static_cast<column_type>(src.col), -1) > 0) {
 #endif
 	while ((node = SyncTeX::synctex_scanner_next_result(_scanner))) {
       if (retVal.page < 0)
@@ -146,7 +151,7 @@ TWSynchronizer::TeXSyncPoint TWSyncTeXSynchronizer::syncFromPDF(const TWSynchron
   if (src.rects.length() != 1)
     return retVal;
 
-  if (SyncTeX::synctex_edit_query(_scanner, src.page, static_cast<float>(src.rects[0].left()), static_cast<float>(src.rects[0].top())) > 0) {
+  if (SyncTeX::synctex_edit_query(_scanner, static_cast<page_type>(src.page), static_cast<float>(src.rects[0].left()), static_cast<float>(src.rects[0].top())) > 0) {
     SyncTeX::synctex_node_p node{nullptr};
     while ((node = SyncTeX::synctex_scanner_next_result(_scanner))) {
 #if defined(MIKTEX_WINDOWS)
@@ -208,7 +213,7 @@ void TWSyncTeXSynchronizer::_syncFromTeXFine(const TWSynchronizer::TeXSyncPoint 
   QList<QPolygonF> selection;
   foreach (QRectF r, dest.rects)
     selection.append(r);
-  QMap<int, QRectF> wordBoxes, charBoxes;
+  QtPDF::Backend::Page::BoxBoundaryList wordBoxes, charBoxes;
   QString destContext = pdfPage->selectedText(selection, &wordBoxes, &charBoxes);
   // Normalize the destContext. selectedText() returns newline chars between
   // separate (output) lines that all correspond to the same input line
@@ -270,10 +275,10 @@ void TWSyncTeXSynchronizer::_syncFromPDFFine(const TWSynchronizer::PDFSyncPoint 
   // Note: this still does not help for paragraphs broken across pages
   QList<QPolygonF> selection;
 #if defined(MIKTEX_WINDOWS)
-  if (SyncTeX::synctex_display_query(_scanner, dest.filename.toUtf8().data(), dest.line, -1, src.page) > 0)
+  if (SyncTeX::synctex_display_query(_scanner, dest.filename.toUtf8().data(), dest.line, -1, static_cast<page_type>(src.page)) > 0)
   {
 #else
-  if (SyncTeX::synctex_display_query(_scanner, dest.filename.toLocal8Bit().data(), dest.line, -1, src.page) > 0) {
+  if (SyncTeX::synctex_display_query(_scanner, dest.filename.toLocal8Bit().data(), dest.line, -1, static_cast<page_type>(src.page)) > 0) {
 #endif
     SyncTeX::synctex_node_p node{nullptr};
 	while ((node = SyncTeX::synctex_scanner_next_result(_scanner))) {
@@ -287,7 +292,7 @@ void TWSyncTeXSynchronizer::_syncFromPDFFine(const TWSynchronizer::PDFSyncPoint 
     }
   }
   // Find the box the user clicked on
-  QMap<int, QRectF> boxes;
+  QtPDF::Backend::Page::BoxBoundaryList boxes;
   QString srcContext = pdfPage->selectedText(selection, nullptr, &boxes);
   // Normalize the srcContext. selectedText() returns newline chars between
   // separate (output) lines that all correspond to the same input line

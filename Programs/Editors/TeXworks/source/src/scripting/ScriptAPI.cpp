@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include "Settings.h"
 #include "TWApp.h"
 #include "document/SpellChecker.h"
-#include "scripting/Script.h"
+#include "scripting/ScriptObject.h"
 #include "scripting/ScriptAPI.h"
 #include "utils/SystemCommand.h"
 
@@ -44,7 +44,7 @@
 namespace Tw {
 namespace Scripting {
 
-ScriptAPI::ScriptAPI(Script* script, QObject* twapp, QObject* ctx, QVariant& res)
+ScriptAPI::ScriptAPI(ScriptObject* script, QObject* twapp, QObject* ctx, QVariant& res)
 	: m_script(script),
 	  m_app(twapp),
 	  m_target(ctx),
@@ -230,7 +230,11 @@ QMap<QString, QVariant> ScriptAPI::system(const QString& cmdline, bool waitForRe
 		Tw::Utils::SystemCommand * process = new Tw::Utils::SystemCommand(this, waitForResult, !waitForResult);
 		if (waitForResult) {
 			process->setProcessChannelMode(QProcess::MergedChannels);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 			process->start(cmdline);
+#else
+			process->startCommand(cmdline);
+#endif
 			// make sure events (in particular GUI update events that should
 			// inform the user of the progress) are processed before we make a
 			// call that possibly blocks for a considerable amount of time
@@ -258,7 +262,11 @@ QMap<QString, QVariant> ScriptAPI::system(const QString& cmdline, bool waitForRe
 		else {
 			process->closeReadChannel(QProcess::StandardOutput);
 			process->closeReadChannel(QProcess::StandardError);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 			process->start(cmdline);
+#else
+			process->startCommand(cmdline);
+#endif
 			retVal[QString::fromLatin1("status")] = SystemAccess_OK;
 		}
 	}

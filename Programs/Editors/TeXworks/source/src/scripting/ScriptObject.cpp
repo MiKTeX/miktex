@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2023  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,32 +19,15 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#ifndef JSScript_H
-#define JSScript_H
-
-#include "scripting/Script.h"
-
-#include <QCoreApplication>
+#include "ScriptObject.h"
 
 namespace Tw {
 namespace Scripting {
 
-class JSScript : public Script
+Tw::Scripting::ScriptObject::ScriptObject(std::unique_ptr<Script> &&script, QObject *parent)
+	: QObject(parent), m_script(std::move(script))
 {
-	Q_INTERFACES(Tw::Scripting::Script)
-	Q_DECLARE_TR_FUNCTIONS(Tw::Scripting::JSScript)
-
-public:
-	JSScript(QObject * plugin, const QString& filename)
-		: Tw::Scripting::Script(plugin, filename) { }
-
-	bool parseHeader() override { return doParseHeader(QString(), QString(), QString::fromLatin1("//")); }
-
-protected:
-	bool execute(ScriptAPIInterface *tw) const override;
-};
+}
 
 } // namespace Scripting
 } // namespace Tw
-
-#endif // !defined(JSScript_H)

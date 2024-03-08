@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2020  Stefan Löffler
+ * Copyright (C) 2013-2023  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -12,6 +12,8 @@
  * more details.
  */
 #include "PDFDocumentWidget.h"
+
+#include "PDFDocumentScene.h"
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
 #include <QApplication>
@@ -68,6 +70,21 @@ QWeakPointer<Backend::Document> PDFDocumentWidget::document() const
   if (!_scene)
     return QWeakPointer<Backend::Document>();
   return _scene->document();
+}
+
+bool PDFDocumentWidget::watchForDocumentChangesOnDisk() const
+{
+  if (_scene) {
+    return _scene->watchForDocumentChangesOnDisk();
+  }
+  return false;
+}
+
+void PDFDocumentWidget::setWatchForDocumentChangesOnDisk(const bool doWatch)
+{
+  if (_scene) {
+    _scene->setWatchForDocumentChangesOnDisk(doWatch);
+  }
 }
 
 void PDFDocumentWidget::setResolution(const double dpi)

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019  Stefan Löffler
+	Copyright (C) 2019-2024  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -50,6 +50,10 @@ public slots:
 	Q_NOREPLY void bringToFront() {
 		Q_Q(InterProcessCommunicator);
 		emit q->receivedBringToFront();
+	}
+	Q_NOREPLY void insertText(QString text) {
+		Q_Q(InterProcessCommunicator);
+		emit q->receivedInsertText(text);
 	}
 };
 
@@ -118,6 +122,15 @@ void InterProcessCommunicator::sendOpenFile(const QString & path, const int posi
 	if (!d->interface || !d->interface->isValid())
 		return;
 	d->interface->call(QStringLiteral("openFile"), path, position);
+}
+
+void InterProcessCommunicator::sendInsertText(const QString &text)
+{
+	Q_D(InterProcessCommunicator);
+	if (d->interface == nullptr || !d->interface->isValid()) {
+		return;
+	}
+	d->interface->call(QStringLiteral("insertText"), text);
 }
 
 

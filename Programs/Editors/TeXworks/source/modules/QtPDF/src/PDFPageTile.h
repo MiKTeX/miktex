@@ -17,6 +17,7 @@
 
 #include <QHash>
 #include <QRect>
+#include <QVector>
 
 #ifdef DEBUG
 #include <QString>
@@ -27,11 +28,13 @@ namespace QtPDF {
 namespace Backend {
 
 class Document;
+class Page;
 
 class PDFPageTile
 {
+  using size_type = QVector<Page*>::size_type;
 public:
-  PDFPageTile(double xres, double yres, QRect render_box, const Document * doc, int page_num):
+  PDFPageTile(double xres, double yres, QRect render_box, const Document * doc, size_type page_num):
     xres(xres), yres(yres),
     render_box(render_box),
     doc(doc),
@@ -41,7 +44,7 @@ public:
   double xres, yres;
   QRect render_box;
   const Document * doc;
-  int page_num;
+  size_type page_num;
 
   bool operator==(const PDFPageTile &other) const
   {

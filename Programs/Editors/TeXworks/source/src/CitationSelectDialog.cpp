@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2017-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2017-2024  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 */
 
 #include "CitationSelectDialog.h"
+
+#include "Settings.h"
 
 #include <QAbstractButton>
 #include <QKeyEvent>
@@ -110,7 +112,7 @@ bool BibTeXEntryLessThan(const BibTeXFile::Entry * a, const BibTeXFile::Entry * 
 
 QStringList CitationSelectDialog::getSelectedKeys(const bool ordered /* = true */) const
 {
-	QStringList keys = _model.selectedKeys();
+	QStringList keys{_model.selectedKeys()};
 	QStringList unknownKeys;
 
 	if (!ordered) return keys;
@@ -118,17 +120,23 @@ QStringList CitationSelectDialog::getSelectedKeys(const bool ordered /* = true *
 	QList<const BibTeXFile::Entry*> entries;
 	// Convert keys to entry pointers so we can sort them, e.g., by their year
 	// All keys that or not managed by the model will be appended unchanged
-	Q_FOREACH(QString key, keys) {
-		const BibTeXFile::Entry * e = _model.getEntry(key);
-		if (e) entries.append(e);
-		else unknownKeys.append(key);
+	for (const QString & key : keys) {
+		const BibTeXFile::Entry * const e = _model.getEntry(key);
+		if (e != nullptr) {
+			entries.append(e);
+		}
+		else {
+			unknownKeys.append(key);
+		}
 	}
 
 	std::stable_sort(entries.begin(), entries.end(), BibTeXEntryLessThan);
+	std::stable_sort(unknownKeys.begin(), unknownKeys.end());
 
 	keys.clear();
-	Q_FOREACH(const BibTeXFile::Entry * entry, entries)
+	for (const BibTeXFile::Entry * entry : entries) {
 		keys.append(entry->key());
+	}
 	return keys + unknownKeys;
 }
 
@@ -139,6 +147,14 @@ CitationModel::CitationModel(QObject * parent /* = nullptr */)
 	connect(this, &CitationModel::rowsInserted, this, &CitationModel::rebuildEntryCache);
 	connect(this, &CitationModel::rowsRemoved, this, &CitationModel::rebuildEntryCache);
 	connect(this, &CitationModel::rowsMoved, this, &CitationModel::rebuildEntryCache);
+
+	Tw::Settings settings;
+	const QString fields = settings.value(QStringLiteral("citationDialogBibTeXFields"), QStringLiteral("Type;Author;Title;Year;Journal")).toString();
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+	m_columns << QString() << fields.split(QChar::fromLatin1(';'), QString::SkipEmptyParts);
+#else
+	m_columns << QString() << fields.split(QChar::fromLatin1(';'), Qt::SkipEmptyParts);
+#endif
 }
 
 //virtual
@@ -152,7 +168,7 @@ int CitationModel::rowCount(const QModelIndex &parent /* = QModelIndex() */) con
 int CitationModel::columnCount(const QModelIndex &parent /* = QModelIndex() */) const
 {
 	if (parent.isValid()) return 0;
-	return 6;
+	return static_cast<int>(m_columns.size());
 }
 
 //virtual
@@ -162,19 +178,22 @@ QVariant CitationModel::data(const QModelIndex &index, int role /* = Qt::Display
 	const BibTeXFile::Entry * e = static_cast<const BibTeXFile::Entry*>(index.internalPointer());
 
 	if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
-
-		if (index.column() == 0 && role == Qt::ToolTipRole)
+		if (index.column() == 0 && role == Qt::ToolTipRole) {
 			return e->key();
-		if (index.column() == 1)
-			return e->typeString();
-		if (index.column() == 2)
-			return e->author();
-		if (index.column() == 3)
-			return e->title();
-		if (index.column() == 4)
-			return e->year();
-		if (index.column() == 5)
-			return e->howPublished();
+		}
+		if (index.column() >= 1 && index.column() < m_columns.count()) {
+			const QString & key = m_columns[index.column()];
+			if (key.compare(QStringLiteral("key"), Qt::CaseInsensitive) == 0) {
+				return e->key();
+			}
+			if (key.compare(QStringLiteral("type"), Qt::CaseInsensitive) == 0) {
+				return e->typeString();
+			}
+			if (key.compare(QStringLiteral("journal"), Qt::CaseInsensitive) == 0) {
+				return e->howPublished();
+			}
+			return e->value(key);
+		}
 		return QVariant();
 	}
 	if (role == Qt::CheckStateRole) {
@@ -182,12 +201,19 @@ QVariant CitationModel::data(const QModelIndex &index, int role /* = Qt::Display
 		return (_selectedKeys.contains(e->key()) ? Qt::Checked : Qt::Unchecked);
 	}
 	if (role == Qt::SizeHintRole) {
-		if (index.column() == 0) return QSize(20, 20); // checkbox
-		if (index.column() == 1) return QSize(75, 20); // type
-		if (index.column() == 2) return QSize(150, 20); // author
-		if (index.column() == 3) return QSize(150, 20); // title
-		if (index.column() == 4) return QSize(40, 20); // year
-		if (index.column() == 5) return QSize(150, 20); // journal
+		if (index.column() == 0) {
+			return QSize(20, 20); // checkbox
+		}
+		if (index.column() < m_columns.size()) {
+			const QString & key = m_columns[index.column()];
+			if (key.compare(QStringLiteral("type"), Qt::CaseInsensitive) == 0) {
+				return QSize(75, 20);
+			}
+			if (key.compare(QStringLiteral("year"), Qt::CaseInsensitive) == 0) {
+				return QSize(40, 20);
+			}
+			return QSize(150, 20);
+		}
 		return QVariant();
 	}
 	return QVariant();
@@ -196,15 +222,20 @@ QVariant CitationModel::data(const QModelIndex &index, int role /* = Qt::Display
 //virtual
 QVariant CitationModel::headerData(int section, Qt::Orientation orientation, int role /* = Qt::DisplayRole */) const
 {
+#if 0 // Some (common) column label strings, solely for translation
+	QT_TRANSLATE_NOOP("CitationSelectDialog", "Type");
+	QT_TRANSLATE_NOOP("CitationSelectDialog", "Author");
+	QT_TRANSLATE_NOOP("CitationSelectDialog", "Title");
+	QT_TRANSLATE_NOOP("CitationSelectDialog", "Year");
+	QT_TRANSLATE_NOOP("CitationSelectDialog", "Journal");
+#endif
 	if (orientation == Qt::Vertical)
 		return QVariant();
 
 	if (role == Qt::DisplayRole) {
-		if (section == 1) return CitationSelectDialog::tr("Type");
-		if (section == 2) return CitationSelectDialog::tr("Author");
-		if (section == 3) return CitationSelectDialog::tr("Title");
-		if (section == 4) return CitationSelectDialog::tr("Year");
-		if (section == 5) return CitationSelectDialog::tr("Journal");
+		if (section >= 1 && section < m_columns.size()) {
+			return CitationSelectDialog::tr(qPrintable(m_columns[section]));
+		}
 		return QVariant();
 	}
 	return QVariant();
@@ -215,7 +246,11 @@ QVariant CitationModel::headerData(int section, Qt::Orientation orientation, int
 QModelIndex CitationModel::index(int row, int column, const QModelIndex &parent /* = QModelIndex() */) const
 {
 	if (parent.isValid()) return QModelIndex();
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	return createIndex(row, column, const_cast<BibTeXFile::Entry*>(_entries[row]));
+#else
+	return createIndex(row, column, _entries[row]);
+#endif
 }
 
 void CitationModel::setSelectedKeys(const QStringList & keys)

@@ -19,17 +19,17 @@
         <translation>位置：</translation>
     </message>
     <message>
-        <location filename="../src/GuidelineEditDialog.ui" line="53"/>
+        <location filename="../src/GuidelineEditDialog.ui" line="59"/>
         <source>cm</source>
         <translation>厘米</translation>
     </message>
     <message>
-        <location filename="../src/GuidelineEditDialog.ui" line="58"/>
+        <location filename="../src/GuidelineEditDialog.ui" line="64"/>
         <source>in</source>
         <translation>英寸</translation>
     </message>
     <message>
-        <location filename="../src/GuidelineEditDialog.ui" line="63"/>
+        <location filename="../src/GuidelineEditDialog.ui" line="69"/>
         <source>bp</source>
         <translation>bp</translation>
     </message>
@@ -752,12 +752,12 @@
 <context>
     <name>QtPDF</name>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="33"/>
+        <location filename="../src/PDFDocumentView.cpp" line="34"/>
         <source>[language name]</source>
         <translation>简体中文 (Simplified Chinese)</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="34"/>
+        <location filename="../src/PDFDocumentView.cpp" line="35"/>
         <source>[translator&apos;s name/email]</source>
         <translation>&lt;a href=&quot;mailto:crickzhang1@gmail.com&quot;&gt;Yinhe Zhang&lt;/a&gt; 和 &lt;a href=&quot;mailto:073plan@gmail.com&quot;&gt;Boyuan Yang&lt;/a&gt;</translation>
     </message>
@@ -770,32 +770,32 @@
         <translation>渲染页面</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2013"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="243"/>
         <source>Unlock PDF</source>
         <translation>解锁 PDF</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2013"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="243"/>
         <source>Please enter the password to unlock the PDF</source>
         <translation>请输入密码以解锁 PDF</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2029"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="259"/>
         <source>Incorrect password</source>
         <translation>密码不正确</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2029"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="259"/>
         <source>The password you entered was incorrect.</source>
         <translation>您输入的密码不正确。</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2035"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="265"/>
         <source>This document is locked. You need a password to open it.</source>
         <translation>这个文档已被锁定。您需要输入密码来打开文件。</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2036"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="266"/>
         <source>Unlock</source>
         <translation>解锁</translation>
     </message>
@@ -803,323 +803,328 @@
 <context>
     <name>QtPDF::PDFDocumentView</name>
     <message>
-        <location filename="../src/PDFDocumentTools.cpp" line="976"/>
+        <location filename="../src/PDFDocumentTools.cpp" line="978"/>
         <source>Insufficient permission</source>
         <translation>权限不足</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentTools.cpp" line="976"/>
+        <location filename="../src/PDFDocumentTools.cpp" line="978"/>
         <source>Text extraction is not allowed for this document.</source>
         <translation>本文档不允许提取文字。</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2577"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2264"/>
         <source>Goto page %1</source>
         <translation>前往 %1 页</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2589"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2276"/>
         <source>Execute `%1`</source>
         <translation>运行 `%1`</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2835"/>
-        <location filename="../src/PDFDocumentView.cpp" line="2852"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2541"/>
+        <source>Layers</source>
+        <translation>层</translation>
+    </message>
+    <message>
+        <location filename="../src/InfoWidgets.cpp" line="48"/>
+        <location filename="../src/InfoWidgets.cpp" line="65"/>
         <source>Table of Contents</source>
         <translation>目录</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2944"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3151"/>
+        <location filename="../src/InfoWidgets.cpp" line="157"/>
+        <location filename="../src/InfoWidgets.cpp" line="364"/>
         <source>Meta Data</source>
         <translation>元数据</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3000"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3161"/>
+        <location filename="../src/InfoWidgets.cpp" line="213"/>
+        <location filename="../src/InfoWidgets.cpp" line="374"/>
         <source>Processing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3032"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3168"/>
+        <location filename="../src/InfoWidgets.cpp" line="245"/>
+        <location filename="../src/InfoWidgets.cpp" line="381"/>
         <source>Other</source>
         <translation>其它</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3095"/>
+        <location filename="../src/InfoWidgets.cpp" line="308"/>
         <source>Yes</source>
         <translation>是</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3098"/>
+        <location filename="../src/InfoWidgets.cpp" line="311"/>
         <source>No</source>
         <translation>否</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3101"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3138"/>
+        <location filename="../src/InfoWidgets.cpp" line="314"/>
+        <location filename="../src/InfoWidgets.cpp" line="351"/>
         <source>Unknown</source>
         <translation>未知</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3153"/>
+        <location filename="../src/InfoWidgets.cpp" line="366"/>
         <source>Document</source>
         <translation>文档</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3154"/>
+        <location filename="../src/InfoWidgets.cpp" line="367"/>
         <source>Title:</source>
         <translation>标题：</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3155"/>
+        <location filename="../src/InfoWidgets.cpp" line="368"/>
         <source>Author:</source>
         <translation>作者：</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3156"/>
+        <location filename="../src/InfoWidgets.cpp" line="369"/>
         <source>Subject:</source>
         <translation>主题：</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3157"/>
+        <location filename="../src/InfoWidgets.cpp" line="370"/>
         <source>Keywords:</source>
         <translation>关键字：</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3162"/>
+        <location filename="../src/InfoWidgets.cpp" line="375"/>
         <source>Creator:</source>
         <translation>创建者：</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3163"/>
+        <location filename="../src/InfoWidgets.cpp" line="376"/>
         <source>Producer:</source>
-        <translation type="unfinished"></translation>
+        <translation>创建工具：</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3164"/>
+        <location filename="../src/InfoWidgets.cpp" line="377"/>
         <source>Creation date:</source>
         <translation>创建日期：</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3165"/>
+        <location filename="../src/InfoWidgets.cpp" line="378"/>
         <source>Modification date:</source>
         <translation>修改日期：</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3166"/>
+        <location filename="../src/InfoWidgets.cpp" line="379"/>
         <source>Trapped:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3177"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3271"/>
+        <location filename="../src/InfoWidgets.cpp" line="390"/>
+        <location filename="../src/InfoWidgets.cpp" line="484"/>
         <source>Fonts</source>
         <translation>字体</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3227"/>
+        <location filename="../src/InfoWidgets.cpp" line="440"/>
         <source>Type 0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3230"/>
+        <location filename="../src/InfoWidgets.cpp" line="443"/>
         <source>Type 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3233"/>
+        <location filename="../src/InfoWidgets.cpp" line="446"/>
         <source>Type 1 (multiple master)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3236"/>
+        <location filename="../src/InfoWidgets.cpp" line="449"/>
         <source>Type 3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3239"/>
+        <location filename="../src/InfoWidgets.cpp" line="452"/>
         <source>TrueType</source>
         <translation>TrueType</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3242"/>
+        <location filename="../src/InfoWidgets.cpp" line="455"/>
         <source>yes</source>
         <translation>是</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3242"/>
+        <location filename="../src/InfoWidgets.cpp" line="455"/>
         <source>no</source>
         <translation>否</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3245"/>
+        <location filename="../src/InfoWidgets.cpp" line="458"/>
         <source>[embedded]</source>
         <translation>[已嵌入]</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3248"/>
+        <location filename="../src/InfoWidgets.cpp" line="461"/>
         <source>[builtin]</source>
         <translation>[内建]</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
+        <location filename="../src/InfoWidgets.cpp" line="485"/>
         <source>Name</source>
         <translation>名称</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
+        <location filename="../src/InfoWidgets.cpp" line="485"/>
         <source>Type</source>
         <translation>类型</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
+        <location filename="../src/InfoWidgets.cpp" line="485"/>
         <source>Subset</source>
         <translation>子集</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
+        <location filename="../src/InfoWidgets.cpp" line="485"/>
         <source>Source</source>
         <translation>来源</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3280"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3375"/>
+        <location filename="../src/InfoWidgets.cpp" line="493"/>
+        <location filename="../src/InfoWidgets.cpp" line="588"/>
         <source>Permissions</source>
         <translation>权限</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3329"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3338"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3347"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3354"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3359"/>
+        <location filename="../src/InfoWidgets.cpp" line="542"/>
+        <location filename="../src/InfoWidgets.cpp" line="551"/>
+        <location filename="../src/InfoWidgets.cpp" line="560"/>
+        <location filename="../src/InfoWidgets.cpp" line="567"/>
+        <location filename="../src/InfoWidgets.cpp" line="572"/>
         <source>Allowed</source>
         <translation>允许</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3331"/>
+        <location filename="../src/InfoWidgets.cpp" line="544"/>
         <source>Low resolution only</source>
         <translation>仅低分辨率</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3334"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3344"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3351"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3356"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3361"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3366"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3367"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3368"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3369"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3370"/>
+        <location filename="../src/InfoWidgets.cpp" line="547"/>
+        <location filename="../src/InfoWidgets.cpp" line="557"/>
+        <location filename="../src/InfoWidgets.cpp" line="564"/>
+        <location filename="../src/InfoWidgets.cpp" line="569"/>
+        <location filename="../src/InfoWidgets.cpp" line="574"/>
+        <location filename="../src/InfoWidgets.cpp" line="579"/>
+        <location filename="../src/InfoWidgets.cpp" line="580"/>
+        <location filename="../src/InfoWidgets.cpp" line="581"/>
+        <location filename="../src/InfoWidgets.cpp" line="582"/>
+        <location filename="../src/InfoWidgets.cpp" line="583"/>
         <source>Denied</source>
         <translation>拒绝</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3340"/>
+        <location filename="../src/InfoWidgets.cpp" line="553"/>
         <source>Assembling only</source>
         <translation>仅组装</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3341"/>
+        <location filename="../src/InfoWidgets.cpp" line="554"/>
         <source>Insert, rotate, or delete pages and create bookmarks or thumbnail images</source>
         <translation>插入、旋转或删除页面以及创建书签或缩略图</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3349"/>
+        <location filename="../src/InfoWidgets.cpp" line="562"/>
         <source>Accessibility support only</source>
         <translation>仅可访问性支持</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3377"/>
+        <location filename="../src/InfoWidgets.cpp" line="590"/>
         <source>Printing:</source>
         <translation>打印：</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3378"/>
+        <location filename="../src/InfoWidgets.cpp" line="591"/>
         <source>Modifications:</source>
         <translation>修改：</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3379"/>
+        <location filename="../src/InfoWidgets.cpp" line="592"/>
         <source>Extraction:</source>
         <translation>提取：</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3380"/>
+        <location filename="../src/InfoWidgets.cpp" line="593"/>
         <source>Annotation:</source>
         <translation>标注：</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3381"/>
+        <location filename="../src/InfoWidgets.cpp" line="594"/>
         <source>Filling forms:</source>
         <translation>填充表格：</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3389"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3481"/>
+        <location filename="../src/InfoWidgets.cpp" line="602"/>
+        <location filename="../src/InfoWidgets.cpp" line="694"/>
         <source>Annotations</source>
         <translation>标注</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
+        <location filename="../src/InfoWidgets.cpp" line="695"/>
         <source>Page</source>
         <translation>页面</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
+        <location filename="../src/InfoWidgets.cpp" line="695"/>
         <source>Subject</source>
         <translation>主题</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
+        <location filename="../src/InfoWidgets.cpp" line="695"/>
         <source>Author</source>
         <translation>作者</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
+        <location filename="../src/InfoWidgets.cpp" line="695"/>
         <source>Contents</source>
         <translation>目录</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3057"/>
+        <location filename="../src/InfoWidgets.cpp" line="270"/>
         <source>B</source>
         <extracomment>File size: bytes</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3059"/>
+        <location filename="../src/InfoWidgets.cpp" line="272"/>
         <source>kB</source>
         <extracomment>File size: kilobytes</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3061"/>
+        <location filename="../src/InfoWidgets.cpp" line="274"/>
         <source>MB</source>
         <extracomment>File size: megabytes</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3063"/>
+        <location filename="../src/InfoWidgets.cpp" line="276"/>
         <source>GB</source>
         <extracomment>File size: gigabytes</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3065"/>
+        <location filename="../src/InfoWidgets.cpp" line="278"/>
         <source>TB</source>
         <extracomment>File size: terabytes</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3158"/>
+        <location filename="../src/InfoWidgets.cpp" line="371"/>
         <source>Page size:</source>
         <translation>页面尺寸：</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3159"/>
+        <location filename="../src/InfoWidgets.cpp" line="372"/>
         <source>File size:</source>
         <translation>文件大小：</translation>
     </message>

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -113,8 +113,8 @@ void CompletingEdit::prefixLines(const QString &prefix)
 {
 	QTextCursor cursor = textCursor();
 	cursor.beginEditBlock();
-	int selStart = cursor.selectionStart();
-	int selEnd = cursor.selectionEnd();
+	pos_type selStart = cursor.selectionStart();
+	pos_type selEnd = cursor.selectionEnd();
 	cursor.setPosition(selStart);
 	if (!cursor.atBlockStart()) {
 		cursor.movePosition(QTextCursor::StartOfBlock);
@@ -136,7 +136,7 @@ void CompletingEdit::prefixLines(const QString &prefix)
 	handle_end_of_doc:
 		cursor.insertText(prefix);
 		cursor.movePosition(QTextCursor::StartOfBlock);
-		selEnd += prefix.length();
+		selEnd += static_cast<pos_type>(prefix.length());
 	}
 	cursor.setPosition(selStart);
 	cursor.setPosition(selEnd, QTextCursor::KeepAnchor);
@@ -148,8 +148,8 @@ void CompletingEdit::unPrefixLines(const QString &prefix)
 {
 	QTextCursor cursor = textCursor();
 	cursor.beginEditBlock();
-	int selStart = cursor.selectionStart();
-	int selEnd = cursor.selectionEnd();
+	pos_type selStart = cursor.selectionStart();
+	pos_type selEnd = cursor.selectionEnd();
 	cursor.setPosition(selStart);
 	if (!cursor.atBlockStart()) {
 		cursor.movePosition(QTextCursor::StartOfBlock);
@@ -171,7 +171,7 @@ void CompletingEdit::unPrefixLines(const QString &prefix)
 		QString		str = cursor.selectedText();
 		if (str == prefix) {
 			cursor.removeSelectedText();
-			selEnd -= prefix.length();
+			selEnd -= static_cast<pos_type>(prefix.length());
 		}
 		else
 			cursor.movePosition(QTextCursor::PreviousCharacter);
@@ -466,8 +466,8 @@ bool CompletingEdit::selectWord(QTextCursor& cursor)
 
 	QString::size_type start{0}, end{0};
 	bool result = Tw::Document::TeXDocument::findNextWord(text, cursor.selectionStart() - block.position(), start, end);
-	cursor.setPosition(block.position() + start);
-	cursor.setPosition(block.position() + end, QTextCursor::KeepAnchor);
+	cursor.setPosition(block.position() + static_cast<pos_type>(start));
+	cursor.setPosition(block.position() + static_cast<pos_type>(end), QTextCursor::KeepAnchor);
 
 	return result;
 }
@@ -506,14 +506,14 @@ QTextCursor CompletingEdit::wordSelectionForPos(const QPoint& mousePos)
 		QChar curChr = plainText[cursorPos];
 		QChar c;
 		if (!(c = TWUtils::closerMatching(curChr)).isNull()) {
-			auto balancePos = TWUtils::balanceDelim(plainText, cursorPos + 1, c, 1);
+			auto balancePos = static_cast<pos_type>(TWUtils::balanceDelim(plainText, cursorPos + 1, c, 1));
 			if (balancePos < 0)
 				QApplication::beep();
 			else
 				cursor.setPosition(balancePos + 1, QTextCursor::KeepAnchor);
 		}
 		else if (!(c = TWUtils::openerMatching(curChr)).isNull()) {
-			auto balancePos = TWUtils::balanceDelim(plainText, cursorPos - 1, c, -1);
+			auto balancePos = static_cast<pos_type>(TWUtils::balanceDelim(plainText, cursorPos - 1, c, -1));
 			if (balancePos < 0)
 				QApplication::beep();
 			else {
@@ -658,7 +658,7 @@ void CompletingEdit::handleBackspace(QKeyEvent *e)
 		curs.beginEditBlock();
 		// note that prefixLength will get reset on the first deletion,
 		// so it is important that the loop counts down rather than up!
-		for (int i = prefixLength; i > 0; --i)
+		for (auto i = prefixLength; i > 0; --i)
 			curs.deletePreviousChar();
 		curs.endEditBlock();
 	}
@@ -673,8 +673,8 @@ void CompletingEdit::handleBackspace(QKeyEvent *e)
 
 void CompletingEdit::handleOtherKey(QKeyEvent *e)
 {
-	int pos = textCursor().selectionStart(); // remember cursor before the keystroke
-	int end = textCursor().selectionEnd();
+	pos_type pos = textCursor().selectionStart(); // remember cursor before the keystroke
+	pos_type end = textCursor().selectionEnd();
 	QTextEdit::keyPressEvent(e);
 	QTextCursor cursor = textCursor();
 	bool arrowKey = false;
@@ -698,12 +698,12 @@ void CompletingEdit::handleOtherKey(QKeyEvent *e)
 				if (cursor.selectionStart() == pos - 1) // we moved backward, set pos to look at the char we just passed over
 					--pos;
 				const QString text = document()->toPlainText();
-				int match = -2;
+				pos_type match = -2;
 				QChar c;
 				if (pos > 0 && pos < text.length() && !(c = TWUtils::openerMatching(text[pos])).isNull())
-					match = TWUtils::balanceDelim(text, pos - 1, c, -1);
+					match = static_cast<pos_type>(TWUtils::balanceDelim(text, pos - 1, c, -1));
 				else if (pos < text.length() - 1 && !(c = TWUtils::closerMatching(text[pos])).isNull())
-					match = TWUtils::balanceDelim(text, pos + 1, c, 1);
+					match = static_cast<pos_type>(TWUtils::balanceDelim(text, pos + 1, c, 1));
 				if (match >= 0) {
 					QList<ExtraSelection> selList = extraSelections();
 					ExtraSelection	sel;
@@ -831,8 +831,8 @@ void CompletingEdit::smartenQuotes()
 	const QString& text = document()->toPlainText();
 
 	QTextCursor curs = textCursor();
-	int selStart = curs.selectionStart();
-	int selEnd = curs.selectionEnd();
+	pos_type selStart = curs.selectionStart();
+	pos_type selEnd = curs.selectionEnd();
 	bool changed = false;
 	for (int offset = selEnd; offset > selStart; ) {
 		--offset;
@@ -850,7 +850,7 @@ void CompletingEdit::smartenQuotes()
 		const QString& replacement((offset == 0 || text[offset - 1].isSpace()) ?
 								   iter.value().first : iter.value().second);
 		curs.insertText(replacement);
-		selEnd += replacement.length() - 1;
+		selEnd += static_cast<pos_type>(replacement.length()) - 1;
 	}
 	if (changed) {
 		curs.endEditBlock();
@@ -983,7 +983,7 @@ void CompletingEdit::handleTab(QKeyEvent * e)
 	}
 }
 
-void CompletingEdit::showCompletion(const QString& completion, int insOffset)
+void CompletingEdit::showCompletion(const QString& completion, QString::size_type insOffset)
 {
 	disconnect(this, &CompletingEdit::cursorPositionChanged, this, &CompletingEdit::cursorPositionChangedSlot);
 
@@ -993,15 +993,15 @@ void CompletingEdit::showCompletion(const QString& completion, int insOffset)
 	QTextCursor tc = cmpCursor;
 	if (tc.isNull()) {
 		tc = textCursor();
-		tc.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, c->completionPrefix().length());
+		tc.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, static_cast<pos_type>(c->completionPrefix().length()));
 	}
 
 	tc.insertText(completion);
 	cmpCursor = tc;
-	cmpCursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, completion.length());
+	cmpCursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, static_cast<pos_type>(completion.length()));
 
 	if (insOffset != -1)
-		tc.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor, completion.length() - insOffset);
+		tc.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor, static_cast<pos_type>(completion.length() - insOffset));
 	setTextCursor(tc);
 
 	currentCompletionRange = cmpCursor;
@@ -1041,7 +1041,7 @@ void CompletingEdit::showCurrentCompletion()
 
 	QString completion = model->item(items[itemIndex]->row(), 1)->text();
 
-	int insOffset = completion.indexOf(QLatin1String("#INS#"));
+	auto insOffset = completion.indexOf(QLatin1String("#INS#"));
 	if (insOffset != -1)
 		completion.replace(QLatin1String("#INS#"), QLatin1String(""));
 
@@ -1239,11 +1239,11 @@ void CompletingEdit::dropEvent(QDropEvent *event)
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	QTextCursor dropCursor = cursorForPosition(event->pos());
 #else
-  QTextCursor dropCursor = cursorForPosition(event->position().toPoint());
+	QTextCursor dropCursor = cursorForPosition(event->position().toPoint());
 #endif
 	if (!dropCursor.isNull()) {
 		droppedOffset = dropCursor.position();
-		droppedLength = event->mimeData()->text().length();
+		droppedLength = static_cast<pos_type>(event->mimeData()->text().length());
 	}
 	else
 		droppedOffset = -1;

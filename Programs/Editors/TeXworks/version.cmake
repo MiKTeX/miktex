@@ -7,9 +7,9 @@
 ## without modifications, as long as this notice is preserved.
 
 set(MIKTEX_COMP_MAJOR_VERSION 4)
-set(MIKTEX_COMP_MINOR_VERSION 9)
+set(MIKTEX_COMP_MINOR_VERSION 10)
 set(MIKTEX_COMP_PATCH_VERSION 0)
 
 set(MIKTEX_COMP_ORIG_VERSION_STR "${TeXworks_VERSION}")
 
-set(MIKTEX_COMP_COPYRIGHT_STR "© 2007-2020 Jonathan Kew, Stefan Löffler, Charlie Sharpsteen")
+set(MIKTEX_COMP_COPYRIGHT_STR "© 2007-2023 Jonathan Kew, Stefan Löffler, Charlie Sharpsteen")

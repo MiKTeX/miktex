@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2022  Stefan Löffler
+ * Copyright (C) 2022-2023  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,6 +20,7 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QMenu>
+#include <QVector>
 #include <QWidget>
 
 namespace QtPDF {
@@ -32,6 +33,7 @@ class PDFRuler : public QWidget
   friend class PDFGuideline;
 public:
   constexpr static unsigned int rulerSize = 20;
+  using size_type = QVector<int>::size_type;
 
   PDFRuler(PDFDocumentView * parent);
 
@@ -51,9 +53,9 @@ protected:
   void mouseMoveEvent(QMouseEvent * event) override;
   void mouseReleaseEvent(QMouseEvent * event) override;
 
-  QRectF pageRectPx(const int pageIdx) const;
-  QRectF pageRectBp(const int pageIdx) const;
-  QTransform pagePx2Bp(const int pageIdx) const;
+  QRectF pageRectPx(const size_type pageIdx) const;
+  QRectF pageRectBp(const size_type pageIdx) const;
+  QTransform pagePx2Bp(const size_type pageIdx) const;
 
 private:
   Physical::Length::Unit m_Unit{Physical::Length::Centimeters};

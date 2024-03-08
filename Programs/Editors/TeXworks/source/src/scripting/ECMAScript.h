@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2020  Stefan Löffler
+	Copyright (C) 2008-2023  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,13 +23,15 @@
 
 #include "scripting/Script.h"
 
+#include <QCoreApplication>
+
 namespace Tw {
 namespace Scripting {
 
 class ECMAScript : public Script
 {
-	Q_OBJECT
 	Q_INTERFACES(Tw::Scripting::Script)
+	Q_DECLARE_TR_FUNCTIONS(Tw::Scripting::ECMAScript)
 
 public:
 	ECMAScript(QObject * plugin, const QString& filename)

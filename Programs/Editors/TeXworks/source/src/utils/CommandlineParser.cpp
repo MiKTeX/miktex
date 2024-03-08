@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -28,8 +28,16 @@ namespace Utils {
 
 bool CommandlineParser::parse()
 {
+	bool requiredArg{false};
+
 	foreach (const QString& rawItem, m_rawItems) {
 		bool found = false;
+
+		if (requiredArg) {
+			requiredArg = false;
+			m_items.last().value = rawItem;
+			continue;
+		}
 
 		foreach (const CommandlineItemSpec& spec, m_specs) {
 			CommandlineItem item;
@@ -50,6 +58,14 @@ bool CommandlineParser::parse()
 						item.value = rawItem.mid(strShort.length() + 1);
 						found = true;
 					}
+					else if (!spec.longName.isEmpty() && rawItem == strLong) {
+						requiredArg = true;
+						found = true;
+					}
+					else if (!spec.shortName.isEmpty() && rawItem == strShort) {
+						requiredArg = true;
+						found = true;
+					}
 					break;
 				case Commandline_Switch:
 					if (!spec.longName.isEmpty() && rawItem == strLong)
@@ -57,7 +73,8 @@ bool CommandlineParser::parse()
 					else if (!spec.shortName.isEmpty() && rawItem == strShort)
 						found = true;
 					break;
-				default:
+				case Commandline_Argument:
+					// should not happen
 					break;
 			}
 
@@ -95,7 +112,8 @@ void CommandlineParser::printUsage(QTextStream & stream)
 				if (!spec.shortName.isEmpty())
 					stream << ", -" << spec.shortName;
 				break;
-			default:
+			case Commandline_Argument:
+				// should not happen
 				continue;
 		}
 		stream << "   " << spec.description << "\n";

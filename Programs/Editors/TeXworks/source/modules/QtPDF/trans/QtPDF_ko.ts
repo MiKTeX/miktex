@@ -19,17 +19,17 @@
         <translation>위치:</translation>
     </message>
     <message>
-        <location filename="../src/GuidelineEditDialog.ui" line="53"/>
+        <location filename="../src/GuidelineEditDialog.ui" line="59"/>
         <source>cm</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/GuidelineEditDialog.ui" line="58"/>
+        <location filename="../src/GuidelineEditDialog.ui" line="64"/>
         <source>in</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/GuidelineEditDialog.ui" line="63"/>
+        <location filename="../src/GuidelineEditDialog.ui" line="69"/>
         <source>bp</source>
         <translation></translation>
     </message>
@@ -752,12 +752,12 @@
 <context>
     <name>QtPDF</name>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="33"/>
+        <location filename="../src/PDFDocumentView.cpp" line="34"/>
         <source>[language name]</source>
         <translation>한국어</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="34"/>
+        <location filename="../src/PDFDocumentView.cpp" line="35"/>
         <source>[translator&apos;s name/email]</source>
         <translation>Dohyun Kim&amp;lt;nomosnomos@gmail.com&amp;gt;</translation>
     </message>
@@ -770,32 +770,32 @@
         <translation>페이지 준비 중</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2013"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="243"/>
         <source>Unlock PDF</source>
         <translation>PDF 잠금 해제</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2013"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="243"/>
         <source>Please enter the password to unlock the PDF</source>
         <translation>PDF 잠금 해제를 위해 패스워드를 입력하세요</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2029"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="259"/>
         <source>Incorrect password</source>
         <translation>패스워드 오류</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2029"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="259"/>
         <source>The password you entered was incorrect.</source>
         <translation>패스워드를 잘못 입력하셨습니다.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2035"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="265"/>
         <source>This document is locked. You need a password to open it.</source>
         <translation>문서가 잠겨 있습니다. 패스워드가 있어야 문서를 열 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2036"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="266"/>
         <source>Unlock</source>
         <translation>잠금 해제</translation>
     </message>
@@ -803,323 +803,328 @@
 <context>
     <name>QtPDF::PDFDocumentView</name>
     <message>
-        <location filename="../src/PDFDocumentTools.cpp" line="976"/>
+        <location filename="../src/PDFDocumentTools.cpp" line="978"/>
         <source>Insufficient permission</source>
         <translation>권한 없음</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentTools.cpp" line="976"/>
+        <location filename="../src/PDFDocumentTools.cpp" line="978"/>
         <source>Text extraction is not allowed for this document.</source>
         <translation>이 문서는 텍스트 추출이 허용되지 않습니다.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2577"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2264"/>
         <source>Goto page %1</source>
         <translation>%1쪽으로 가기</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2589"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2276"/>
         <source>Execute `%1`</source>
         <translation>`%1` 실행</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2835"/>
-        <location filename="../src/PDFDocumentView.cpp" line="2852"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2541"/>
+        <source>Layers</source>
+        <translation>레이어</translation>
+    </message>
+    <message>
+        <location filename="../src/InfoWidgets.cpp" line="48"/>
+        <location filename="../src/InfoWidgets.cpp" line="65"/>
         <source>Table of Contents</source>
         <translation>차례</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2944"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3151"/>
+        <location filename="../src/InfoWidgets.cpp" line="157"/>
+        <location filename="../src/InfoWidgets.cpp" line="364"/>
         <source>Meta Data</source>
         <translation>메타 정보</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3000"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3161"/>
+        <location filename="../src/InfoWidgets.cpp" line="213"/>
+        <location filename="../src/InfoWidgets.cpp" line="374"/>
         <source>Processing</source>
         <translation>경과</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3032"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3168"/>
+        <location filename="../src/InfoWidgets.cpp" line="245"/>
+        <location filename="../src/InfoWidgets.cpp" line="381"/>
         <source>Other</source>
         <translation>기타</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3095"/>
+        <location filename="../src/InfoWidgets.cpp" line="308"/>
         <source>Yes</source>
         <translation>예</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3098"/>
+        <location filename="../src/InfoWidgets.cpp" line="311"/>
         <source>No</source>
         <translation>아니오</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3101"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3138"/>
+        <location filename="../src/InfoWidgets.cpp" line="314"/>
+        <location filename="../src/InfoWidgets.cpp" line="351"/>
         <source>Unknown</source>
         <translation>알 수 없음</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3153"/>
+        <location filename="../src/InfoWidgets.cpp" line="366"/>
         <source>Document</source>
         <translation>문서</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3154"/>
+        <location filename="../src/InfoWidgets.cpp" line="367"/>
         <source>Title:</source>
         <translation>제목:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3155"/>
+        <location filename="../src/InfoWidgets.cpp" line="368"/>
         <source>Author:</source>
         <translation>작성자:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3156"/>
+        <location filename="../src/InfoWidgets.cpp" line="369"/>
         <source>Subject:</source>
         <translation>주제:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3157"/>
+        <location filename="../src/InfoWidgets.cpp" line="370"/>
         <source>Keywords:</source>
         <translation>키워드:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3162"/>
+        <location filename="../src/InfoWidgets.cpp" line="375"/>
         <source>Creator:</source>
         <translation>작성 도구:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3163"/>
+        <location filename="../src/InfoWidgets.cpp" line="376"/>
         <source>Producer:</source>
         <translation>제작 도구:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3164"/>
+        <location filename="../src/InfoWidgets.cpp" line="377"/>
         <source>Creation date:</source>
         <translation>작성 날짜:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3165"/>
+        <location filename="../src/InfoWidgets.cpp" line="378"/>
         <source>Modification date:</source>
         <translation>수정 날짜:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3166"/>
+        <location filename="../src/InfoWidgets.cpp" line="379"/>
         <source>Trapped:</source>
         <translation>트랩됨:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3177"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3271"/>
+        <location filename="../src/InfoWidgets.cpp" line="390"/>
+        <location filename="../src/InfoWidgets.cpp" line="484"/>
         <source>Fonts</source>
         <translation>글꼴</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3227"/>
+        <location filename="../src/InfoWidgets.cpp" line="440"/>
         <source>Type 0</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3230"/>
+        <location filename="../src/InfoWidgets.cpp" line="443"/>
         <source>Type 1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3233"/>
+        <location filename="../src/InfoWidgets.cpp" line="446"/>
         <source>Type 1 (multiple master)</source>
         <translation>Type 1 (다중 마스터)</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3236"/>
+        <location filename="../src/InfoWidgets.cpp" line="449"/>
         <source>Type 3</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3239"/>
+        <location filename="../src/InfoWidgets.cpp" line="452"/>
         <source>TrueType</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3242"/>
+        <location filename="../src/InfoWidgets.cpp" line="455"/>
         <source>yes</source>
         <translation>예</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3242"/>
+        <location filename="../src/InfoWidgets.cpp" line="455"/>
         <source>no</source>
         <translation>아니오</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3245"/>
+        <location filename="../src/InfoWidgets.cpp" line="458"/>
         <source>[embedded]</source>
         <translation>[내장됨]</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3248"/>
+        <location filename="../src/InfoWidgets.cpp" line="461"/>
         <source>[builtin]</source>
         <translation>[내장]</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
+        <location filename="../src/InfoWidgets.cpp" line="485"/>
         <source>Name</source>
         <translation>이름</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
+        <location filename="../src/InfoWidgets.cpp" line="485"/>
         <source>Type</source>
         <translation>유형</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
+        <location filename="../src/InfoWidgets.cpp" line="485"/>
         <source>Subset</source>
         <translation>서브셋</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
+        <location filename="../src/InfoWidgets.cpp" line="485"/>
         <source>Source</source>
         <translation>위치</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3280"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3375"/>
+        <location filename="../src/InfoWidgets.cpp" line="493"/>
+        <location filename="../src/InfoWidgets.cpp" line="588"/>
         <source>Permissions</source>
         <translation>권한</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3329"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3338"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3347"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3354"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3359"/>
+        <location filename="../src/InfoWidgets.cpp" line="542"/>
+        <location filename="../src/InfoWidgets.cpp" line="551"/>
+        <location filename="../src/InfoWidgets.cpp" line="560"/>
+        <location filename="../src/InfoWidgets.cpp" line="567"/>
+        <location filename="../src/InfoWidgets.cpp" line="572"/>
         <source>Allowed</source>
         <translation>허용됨</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3331"/>
+        <location filename="../src/InfoWidgets.cpp" line="544"/>
         <source>Low resolution only</source>
         <translation>저해상도만 허용</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3334"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3344"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3351"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3356"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3361"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3366"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3367"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3368"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3369"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3370"/>
+        <location filename="../src/InfoWidgets.cpp" line="547"/>
+        <location filename="../src/InfoWidgets.cpp" line="557"/>
+        <location filename="../src/InfoWidgets.cpp" line="564"/>
+        <location filename="../src/InfoWidgets.cpp" line="569"/>
+        <location filename="../src/InfoWidgets.cpp" line="574"/>
+        <location filename="../src/InfoWidgets.cpp" line="579"/>
+        <location filename="../src/InfoWidgets.cpp" line="580"/>
+        <location filename="../src/InfoWidgets.cpp" line="581"/>
+        <location filename="../src/InfoWidgets.cpp" line="582"/>
+        <location filename="../src/InfoWidgets.cpp" line="583"/>
         <source>Denied</source>
         <translation>허용 안됨</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3340"/>
+        <location filename="../src/InfoWidgets.cpp" line="553"/>
         <source>Assembling only</source>
         <translation>어셈블리만 허용</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3341"/>
+        <location filename="../src/InfoWidgets.cpp" line="554"/>
         <source>Insert, rotate, or delete pages and create bookmarks or thumbnail images</source>
         <translation>페이지 삽입·회전·삭제 및 북마크·썸네일 넣기</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3349"/>
+        <location filename="../src/InfoWidgets.cpp" line="562"/>
         <source>Accessibility support only</source>
         <translation>접근성 지원만 허용</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3377"/>
+        <location filename="../src/InfoWidgets.cpp" line="590"/>
         <source>Printing:</source>
         <translation>인쇄:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3378"/>
+        <location filename="../src/InfoWidgets.cpp" line="591"/>
         <source>Modifications:</source>
         <translation>내용 변경:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3379"/>
+        <location filename="../src/InfoWidgets.cpp" line="592"/>
         <source>Extraction:</source>
         <translation>텍스트 추출:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3380"/>
+        <location filename="../src/InfoWidgets.cpp" line="593"/>
         <source>Annotation:</source>
         <translation>주석 달기:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3381"/>
+        <location filename="../src/InfoWidgets.cpp" line="594"/>
         <source>Filling forms:</source>
         <translation>양식 채우기:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3389"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3481"/>
+        <location filename="../src/InfoWidgets.cpp" line="602"/>
+        <location filename="../src/InfoWidgets.cpp" line="694"/>
         <source>Annotations</source>
         <translation>주석</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
+        <location filename="../src/InfoWidgets.cpp" line="695"/>
         <source>Page</source>
         <translation>쪽</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
+        <location filename="../src/InfoWidgets.cpp" line="695"/>
         <source>Subject</source>
         <translation>이름</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
+        <location filename="../src/InfoWidgets.cpp" line="695"/>
         <source>Author</source>
         <translation>작성자</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
+        <location filename="../src/InfoWidgets.cpp" line="695"/>
         <source>Contents</source>
         <translation>내용</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3057"/>
+        <location filename="../src/InfoWidgets.cpp" line="270"/>
         <source>B</source>
         <extracomment>File size: bytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3059"/>
+        <location filename="../src/InfoWidgets.cpp" line="272"/>
         <source>kB</source>
         <extracomment>File size: kilobytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3061"/>
+        <location filename="../src/InfoWidgets.cpp" line="274"/>
         <source>MB</source>
         <extracomment>File size: megabytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3063"/>
+        <location filename="../src/InfoWidgets.cpp" line="276"/>
         <source>GB</source>
         <extracomment>File size: gigabytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3065"/>
+        <location filename="../src/InfoWidgets.cpp" line="278"/>
         <source>TB</source>
         <extracomment>File size: terabytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3158"/>
+        <location filename="../src/InfoWidgets.cpp" line="371"/>
         <source>Page size:</source>
         <translation>쪽 크기:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3159"/>
+        <location filename="../src/InfoWidgets.cpp" line="372"/>
         <source>File size:</source>
         <translation>파일 크기:</translation>
     </message>

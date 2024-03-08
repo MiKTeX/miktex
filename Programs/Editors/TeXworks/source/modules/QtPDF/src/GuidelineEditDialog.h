@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2022  Stefan Löffler
+ * Copyright (C) 2022-2023  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,6 +19,7 @@
 #include "PhysicalUnits.h"
 
 #include <QDialog>
+#include <QVector>
 
 namespace QtPDF {
 
@@ -28,16 +29,18 @@ class GuidelineEditDialog : public QDialog, private Ui::GuidelineEditDialog
 {
   Q_OBJECT
 public:
+  using size_type = QVector<int>::size_type;
+
   explicit GuidelineEditDialog(PDFGuideline * parent);
 
-  int guidelinePage() const;
-  void setGuidelinePage(const int p);
+  size_type guidelinePage() const;
+  void setGuidelinePage(const size_type p);
 
   Physical::Length guidelinePos() const;
   void setGuidelinePos(const Physical::Length & pos);
 
-  int numPages() const;
-  void setNumPages(const int n);
+  size_type numPages() const;
+  void setNumPages(const size_type n);
 
   Physical::Length::Unit unit() const { return m_unit; }
   void setUnit(const Physical::Length::Unit unit);

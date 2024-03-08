@@ -19,17 +19,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GuidelineEditDialog.ui" line="53"/>
+        <location filename="../src/GuidelineEditDialog.ui" line="59"/>
         <source>cm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GuidelineEditDialog.ui" line="58"/>
+        <location filename="../src/GuidelineEditDialog.ui" line="64"/>
         <source>in</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GuidelineEditDialog.ui" line="63"/>
+        <location filename="../src/GuidelineEditDialog.ui" line="69"/>
         <source>bp</source>
         <translation type="unfinished"></translation>
     </message>
@@ -752,12 +752,12 @@
 <context>
     <name>QtPDF</name>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="33"/>
+        <location filename="../src/PDFDocumentView.cpp" line="34"/>
         <source>[language name]</source>
         <translation type="unfinished">slovenščino</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="34"/>
+        <location filename="../src/PDFDocumentView.cpp" line="35"/>
         <source>[translator&apos;s name/email]</source>
         <translation type="unfinished">&lt;a href=&quot;mailto:mojca.miklavec.lists@gmail.com&quot;&gt;Mojca Miklavec&lt;/a&gt;</translation>
     </message>
@@ -770,32 +770,32 @@
         <translation>izris strani</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2013"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="243"/>
         <source>Unlock PDF</source>
         <translation>Odklep datoteke PDF</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2013"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="243"/>
         <source>Please enter the password to unlock the PDF</source>
         <translation>Vnesite geslo za odklep datoteke PDF</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2029"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="259"/>
         <source>Incorrect password</source>
         <translation>Nepravilno geslo</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2029"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="259"/>
         <source>The password you entered was incorrect.</source>
         <translation>Geslo, ki ste ga vpisali, ni pravilno.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2035"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="265"/>
         <source>This document is locked. You need a password to open it.</source>
         <translation>Dokument je zaklenjen. Za odklep potrebujete geslo.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2036"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="266"/>
         <source>Unlock</source>
         <translation>Odkleni</translation>
     </message>
@@ -803,342 +803,347 @@
 <context>
     <name>QtPDF::PDFDocumentView</name>
     <message>
-        <location filename="../src/PDFDocumentTools.cpp" line="976"/>
+        <location filename="../src/PDFDocumentTools.cpp" line="978"/>
         <source>Insufficient permission</source>
         <translation type="unfinished">Nezadostne pravice</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentTools.cpp" line="976"/>
+        <location filename="../src/PDFDocumentTools.cpp" line="978"/>
         <source>Text extraction is not allowed for this document.</source>
         <translation>Kopiranje besedila iz tega dokumenta ni dovoljeno.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2577"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2264"/>
         <source>Goto page %1</source>
         <translatorcomment>morda raje kar &apos;Na stran %1&apos;</translatorcomment>
         <translation type="unfinished">Pojdi na stran %1</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2589"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2276"/>
         <source>Execute `%1`</source>
         <translation type="unfinished">Izvedi `%1`</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2835"/>
-        <location filename="../src/PDFDocumentView.cpp" line="2852"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2541"/>
+        <source>Layers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/InfoWidgets.cpp" line="48"/>
+        <location filename="../src/InfoWidgets.cpp" line="65"/>
         <source>Table of Contents</source>
         <translatorcomment>Vsebina</translatorcomment>
         <translation type="unfinished">Kazalo</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2944"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3151"/>
+        <location filename="../src/InfoWidgets.cpp" line="157"/>
+        <location filename="../src/InfoWidgets.cpp" line="364"/>
         <source>Meta Data</source>
         <translation type="unfinished">Meta podatki</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3000"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3161"/>
+        <location filename="../src/InfoWidgets.cpp" line="213"/>
+        <location filename="../src/InfoWidgets.cpp" line="374"/>
         <source>Processing</source>
         <translation type="unfinished">Obdelujem</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3032"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3168"/>
+        <location filename="../src/InfoWidgets.cpp" line="245"/>
+        <location filename="../src/InfoWidgets.cpp" line="381"/>
         <source>Other</source>
         <translatorcomment>Drugo</translatorcomment>
         <translation type="unfinished">Ostalo</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3057"/>
+        <location filename="../src/InfoWidgets.cpp" line="270"/>
         <source>B</source>
         <extracomment>File size: bytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3059"/>
+        <location filename="../src/InfoWidgets.cpp" line="272"/>
         <source>kB</source>
         <extracomment>File size: kilobytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3061"/>
+        <location filename="../src/InfoWidgets.cpp" line="274"/>
         <source>MB</source>
         <extracomment>File size: megabytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3063"/>
+        <location filename="../src/InfoWidgets.cpp" line="276"/>
         <source>GB</source>
         <extracomment>File size: gigabytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3065"/>
+        <location filename="../src/InfoWidgets.cpp" line="278"/>
         <source>TB</source>
         <extracomment>File size: terabytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3095"/>
+        <location filename="../src/InfoWidgets.cpp" line="308"/>
         <source>Yes</source>
         <translation>Da</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3098"/>
+        <location filename="../src/InfoWidgets.cpp" line="311"/>
         <source>No</source>
         <translation>Ne</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3101"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3138"/>
+        <location filename="../src/InfoWidgets.cpp" line="314"/>
+        <location filename="../src/InfoWidgets.cpp" line="351"/>
         <source>Unknown</source>
         <translation type="unfinished">Neznano</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3153"/>
+        <location filename="../src/InfoWidgets.cpp" line="366"/>
         <source>Document</source>
         <translation>Dokument</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3154"/>
+        <location filename="../src/InfoWidgets.cpp" line="367"/>
         <source>Title:</source>
         <translation>Naslov:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3155"/>
+        <location filename="../src/InfoWidgets.cpp" line="368"/>
         <source>Author:</source>
         <translation>Avtor:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3156"/>
+        <location filename="../src/InfoWidgets.cpp" line="369"/>
         <source>Subject:</source>
         <translation type="unfinished">Zadeva:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3157"/>
+        <location filename="../src/InfoWidgets.cpp" line="370"/>
         <source>Keywords:</source>
         <translation>Ključne besede:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3158"/>
+        <location filename="../src/InfoWidgets.cpp" line="371"/>
         <source>Page size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3159"/>
+        <location filename="../src/InfoWidgets.cpp" line="372"/>
         <source>File size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3162"/>
+        <location filename="../src/InfoWidgets.cpp" line="375"/>
         <source>Creator:</source>
         <translatorcomment>Program, ki je ustvaril dokument, kreator, ...?</translatorcomment>
         <translation type="unfinished">Ustvarjeno z:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3163"/>
+        <location filename="../src/InfoWidgets.cpp" line="376"/>
         <source>Producer:</source>
         <translatorcomment>Program, ki je stavil dokument, &apos;producent&apos;, ...? (Običajno knjižnica.)</translatorcomment>
         <translation type="unfinished">Sestavljeno z:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3164"/>
+        <location filename="../src/InfoWidgets.cpp" line="377"/>
         <source>Creation date:</source>
         <translation>Datum nastanka:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3165"/>
+        <location filename="../src/InfoWidgets.cpp" line="378"/>
         <source>Modification date:</source>
         <translation type="unfinished">Zadnje spremembe:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3166"/>
+        <location filename="../src/InfoWidgets.cpp" line="379"/>
         <source>Trapped:</source>
         <translatorcomment>Postopek prekrivanja sosednje ležečih polno potiskanih površin, s katerimi se izognemo napakam zaradi neskladja barvnih izvlečkov v tisku CMYK. Trapping je proces, ki barvne izvlečke tako prilagodi, da se na končnem odtisu izognemo vidnim napakam zaradi tehničnih omejitev tiskanja. (Tehnologija grafičnih procesov, NTF)</translatorcomment>
         <translation type="unfinished">Barvno prekrivanje:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3177"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3271"/>
+        <location filename="../src/InfoWidgets.cpp" line="390"/>
+        <location filename="../src/InfoWidgets.cpp" line="484"/>
         <source>Fonts</source>
         <translation>Pisave</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3227"/>
+        <location filename="../src/InfoWidgets.cpp" line="440"/>
         <source>Type 0</source>
         <translation>Type 0</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3230"/>
+        <location filename="../src/InfoWidgets.cpp" line="443"/>
         <source>Type 1</source>
         <translation>Type 1</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3233"/>
+        <location filename="../src/InfoWidgets.cpp" line="446"/>
         <source>Type 1 (multiple master)</source>
         <translation>Type 1 (multiple master)</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3236"/>
+        <location filename="../src/InfoWidgets.cpp" line="449"/>
         <source>Type 3</source>
         <translation>Type 3</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3239"/>
+        <location filename="../src/InfoWidgets.cpp" line="452"/>
         <source>TrueType</source>
         <translation>TrueType</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3242"/>
+        <location filename="../src/InfoWidgets.cpp" line="455"/>
         <source>yes</source>
         <translation>da</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3242"/>
+        <location filename="../src/InfoWidgets.cpp" line="455"/>
         <source>no</source>
         <translation>ne</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3245"/>
+        <location filename="../src/InfoWidgets.cpp" line="458"/>
         <source>[embedded]</source>
         <translatorcomment>ali so pisave vključene v dokumentu</translatorcomment>
         <translation type="unfinished">[vključene v dokument]</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3248"/>
+        <location filename="../src/InfoWidgets.cpp" line="461"/>
         <source>[builtin]</source>
         <translatorcomment>standardne pisave, ki niso dodane v dokument, pač pa so del pregledovalnika</translatorcomment>
         <translation type="unfinished">[vgrajene]</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
+        <location filename="../src/InfoWidgets.cpp" line="485"/>
         <source>Name</source>
         <translation>Ime</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
+        <location filename="../src/InfoWidgets.cpp" line="485"/>
         <source>Type</source>
         <translation>Vrsta</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
+        <location filename="../src/InfoWidgets.cpp" line="485"/>
         <source>Subset</source>
         <translatorcomment>Potreben je boljši prevod za &apos;font subsetting&apos;</translatorcomment>
         <translation type="unfinished">Podmnožica</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
+        <location filename="../src/InfoWidgets.cpp" line="485"/>
         <source>Source</source>
         <translatorcomment>Kaj je &apos;source&apos; pri pisavah?</translatorcomment>
         <translation type="unfinished">Izvor</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3280"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3375"/>
+        <location filename="../src/InfoWidgets.cpp" line="493"/>
+        <location filename="../src/InfoWidgets.cpp" line="588"/>
         <source>Permissions</source>
         <translation type="unfinished">Dovoljenja</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3329"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3338"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3347"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3354"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3359"/>
+        <location filename="../src/InfoWidgets.cpp" line="542"/>
+        <location filename="../src/InfoWidgets.cpp" line="551"/>
+        <location filename="../src/InfoWidgets.cpp" line="560"/>
+        <location filename="../src/InfoWidgets.cpp" line="567"/>
+        <location filename="../src/InfoWidgets.cpp" line="572"/>
         <source>Allowed</source>
         <translation type="unfinished">Dovoljeno</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3331"/>
+        <location filename="../src/InfoWidgets.cpp" line="544"/>
         <source>Low resolution only</source>
         <translatorcomment>ali je dovoljeno tiskati</translatorcomment>
         <translation>Samo v nizki resoluciji</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3334"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3344"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3351"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3356"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3361"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3366"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3367"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3368"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3369"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3370"/>
+        <location filename="../src/InfoWidgets.cpp" line="547"/>
+        <location filename="../src/InfoWidgets.cpp" line="557"/>
+        <location filename="../src/InfoWidgets.cpp" line="564"/>
+        <location filename="../src/InfoWidgets.cpp" line="569"/>
+        <location filename="../src/InfoWidgets.cpp" line="574"/>
+        <location filename="../src/InfoWidgets.cpp" line="579"/>
+        <location filename="../src/InfoWidgets.cpp" line="580"/>
+        <location filename="../src/InfoWidgets.cpp" line="581"/>
+        <location filename="../src/InfoWidgets.cpp" line="582"/>
+        <location filename="../src/InfoWidgets.cpp" line="583"/>
         <source>Denied</source>
         <translation type="unfinished">Zavrnjeno</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3340"/>
+        <location filename="../src/InfoWidgets.cpp" line="553"/>
         <source>Assembling only</source>
         <translatorcomment>ali je dovoljeno spreminjati dokument PDF</translatorcomment>
         <translation type="unfinished">Samo sestavljanje dokumenta</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3341"/>
+        <location filename="../src/InfoWidgets.cpp" line="554"/>
         <source>Insert, rotate, or delete pages and create bookmarks or thumbnail images</source>
         <translatorcomment>ali je dovoljeno spreminjati dokument PDF</translatorcomment>
         <translation type="unfinished">Vstavljanje, rotacija ali izbris strani, dodajanje zaznamkov ali predoglednih sličic</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3349"/>
+        <location filename="../src/InfoWidgets.cpp" line="562"/>
         <source>Accessibility support only</source>
         <translation type="unfinished">Samo podpora dostopnosti</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3377"/>
+        <location filename="../src/InfoWidgets.cpp" line="590"/>
         <source>Printing:</source>
         <translatorcomment>dovoljenja</translatorcomment>
         <translation>Tiskanje:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3378"/>
+        <location filename="../src/InfoWidgets.cpp" line="591"/>
         <source>Modifications:</source>
         <translatorcomment>dovoljenja</translatorcomment>
         <translation>Spremembe:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3379"/>
+        <location filename="../src/InfoWidgets.cpp" line="592"/>
         <source>Extraction:</source>
         <translatorcomment>dovoljenja</translatorcomment>
         <translation type="unfinished">Izvleček strani:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3380"/>
+        <location filename="../src/InfoWidgets.cpp" line="593"/>
         <source>Annotation:</source>
         <translatorcomment>dovoljenja</translatorcomment>
         <translation type="unfinished">Dodajanje opomb:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3381"/>
+        <location filename="../src/InfoWidgets.cpp" line="594"/>
         <source>Filling forms:</source>
         <translatorcomment>dovoljenja</translatorcomment>
         <translation type="unfinished">Izpolnjevanje obrazcev:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3389"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3481"/>
+        <location filename="../src/InfoWidgets.cpp" line="602"/>
+        <location filename="../src/InfoWidgets.cpp" line="694"/>
         <source>Annotations</source>
         <translation>Opombe</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
+        <location filename="../src/InfoWidgets.cpp" line="695"/>
         <source>Page</source>
         <translation>Stran</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
+        <location filename="../src/InfoWidgets.cpp" line="695"/>
         <source>Subject</source>
         <translatorcomment>Zadeva, predmet, ...?</translatorcomment>
         <translation type="unfinished">Naslov</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
+        <location filename="../src/InfoWidgets.cpp" line="695"/>
         <source>Author</source>
         <translation>Avtor</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
+        <location filename="../src/InfoWidgets.cpp" line="695"/>
         <source>Contents</source>
         <translation>Vsebina</translation>
     </message>

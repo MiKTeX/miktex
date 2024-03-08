@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2021  Stefan Löffler
+ * Copyright (C) 2013-2023  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -319,6 +319,7 @@ protected:
 class Select : public AbstractTool
 {
   friend class QtPDF::PDFDocumentView;
+  using size_type = Backend::Document::size_type;
 public:
   Select(PDFDocumentView * parent);
   Type type() const override { return Tool_Select; }
@@ -335,7 +336,7 @@ protected:
   void mouseReleaseEvent(QMouseEvent * event) override;
   void keyPressEvent(QKeyEvent * event) override;
 
-  void resetBoxes(const int pageNum = -1);
+  void resetBoxes(const size_type pageNum = -1);
   // Call this to notify Select that the page graphics item it has been working
   // on has been destroyed so all pointers to graphics items should be
   // invalidated
@@ -354,9 +355,9 @@ protected:
   OwningQObjectPointer<QRubberBand> _rubberBand;
   QColor _highlightColor;
 
-  int _pageNum;
+  size_type _pageNum;
   QList<Backend::Page::Box> _boxes;
-  int _startBox, _startSubbox;
+  size_type _startBox, _startSubbox;
 #ifdef DEBUG
   // All elements of _displayBoxes are automatically added to a QGraphicsScene,
   // which takes ownership. So we don't need a std::unqiue_ptr or similar

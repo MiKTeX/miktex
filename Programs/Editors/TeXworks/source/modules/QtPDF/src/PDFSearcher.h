@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2022  Stefan Löffler
+ * Copyright (C) 2022-2023  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -25,25 +25,9 @@ class PDFSearcher : public QThread
 {
 	Q_OBJECT
 
-  struct SearchResult {
-    QList<Backend::SearchResult> occurences;
-    bool finished{false};
-  };
-
-  QString m_searchString;
-  Backend::SearchFlags m_searchFlags;
-  int m_startPage{0};
-  QVector<SearchResult> m_results;
-  QWeakPointer<Backend::Document> m_doc;
-  QVector<int> m_pages;
-  mutable QMutex m_mutex;
-
-  void populatePages();
-
-protected:
-  void stopAndClear();
-
 public:
+  using size_type = Backend::Document::size_type;
+
   void ensureStopped();
   void clear();
 
@@ -53,21 +37,38 @@ public:
   void setSearchFlags(const Backend::SearchFlags & flags);
   QWeakPointer<QtPDF::Backend::Document> document() const;
   void setDocument(const QWeakPointer<QtPDF::Backend::Document> & doc);
-  int startPage() const;
-  void setStartPage(int page);
+  size_type startPage() const;
+  void setStartPage(size_type page);
 
-  int progressValue() const;
-  int progressMinimum() const { return 0; }
-  int progressMaximum() const;
+  size_type progressValue() const;
+  size_type progressMinimum() const { return 0; }
+  size_type progressMaximum() const;
 
-  QList<Backend::SearchResult> resultAt(int page) const;
+  QList<Backend::SearchResult> resultAt(size_type page) const;
 
 signals:
-  void resultReady(int page);
-  void progressValueChanged(int progressValue);
+  void resultReady(QtPDF::PDFSearcher::size_type page);
+  void progressValueChanged(QtPDF::PDFSearcher::size_type progressValue);
 
 protected:
   void run() final;
+  void stopAndClear();
+
+private:
+  struct SearchResult {
+    QList<Backend::SearchResult> occurences;
+    bool finished{false};
+  };
+
+  QString m_searchString;
+  Backend::SearchFlags m_searchFlags;
+  size_type m_startPage{0};
+  QVector<SearchResult> m_results;
+  QWeakPointer<Backend::Document> m_doc;
+  QVector<size_type> m_pages;
+  mutable QMutex m_mutex;
+
+  void populatePages();
 };
 
 } // namespace QtPDF

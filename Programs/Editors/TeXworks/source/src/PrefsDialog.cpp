@@ -465,6 +465,7 @@ static bool dictPairLessThan(const DictPair& d1, const DictPair& d2)
 QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 {
 	PrefsDialog dlg(nullptr);
+	using index_type = decltype(QComboBox().currentIndex());
 
 	QStringList nameList;
 	foreach (QTextCodec *codec, *TWUtils::findCodecs())
@@ -493,11 +494,18 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 		if (loc.language() == QLocale::C)
 			label = dict;
 		else {
-			QLocale::Country country = loc.country();
-			if (country != QLocale::AnyCountry)
-				label = QString::fromLatin1("%1 - %2 (%3)").arg(QLocale::languageToString(loc.language()), QLocale::countryToString(country), dict);
-			else
-				label = QString::fromLatin1("%1 (%2)").arg(QLocale::languageToString(loc.language()), dict);
+			const QString languageString = QLocale::languageToString(loc.language());
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
+			const QString territoryString = (loc.country() != QLocale::AnyCountry ? QLocale::countryToString(loc.country()) : QString());
+#else
+			const QString territoryString = (loc.territory() != QLocale::AnyTerritory ? QLocale::territoryToString(loc.territory()) : QString());
+#endif
+			if (!territoryString.isEmpty()) {
+				label = tr("%1 - %2 (%3)").arg(languageString, territoryString, dict);
+			}
+			else {
+				label = tr("%1 (%2)").arg(languageString, dict);
+			}
 		}
 
 		dictList << qMakePair(label, dict);
@@ -550,13 +558,18 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 		if (language == QLocale::C)
 			locName = trans;
 		else {
-			QLocale::Country country  = loc.country();
-			if (trans.contains(QChar::fromLatin1('_')) && country != QLocale::AnyCountry) {
+			const QString languageString = QLocale::languageToString(language);
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
+			const QString territoryString = (loc.country() != QLocale::AnyCountry ? QLocale::countryToString(loc.country()) : QString());
+#else
+			const QString territoryString = (loc.territory() != QLocale::AnyTerritory ? QLocale::territoryToString(loc.territory()) : QString());
+#endif
+			if (trans.contains(QChar::fromLatin1('_')) && !territoryString.isEmpty()) {
 				//: Language (%1) and Country (%2) for TeXworks translations (ex. "Portuguese (Brazil)")
-				locName = tr("%1 (%2)").arg(QLocale::languageToString(language), QLocale::countryToString(country));
+				locName = tr("%1 (%2)").arg(languageString, territoryString);
 			}
 			else {
-				locName = QLocale::languageToString(language);
+				locName = languageString;
 			}
 		}
 		displayList << qMakePair(locName, trans);
@@ -571,28 +584,34 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	dlg.localePopup->setCurrentIndex(oldLocaleIndex);
 
 	// Editor
-	dlg.syntaxColoring->setCurrentIndex(settings.contains(QString::fromLatin1("syntaxColoring"))
+	dlg.syntaxColoring->setCurrentIndex(static_cast<index_type>(settings.contains(QString::fromLatin1("syntaxColoring"))
 	                        ? 1 + syntaxOptions.indexOf(settings.value(QString::fromLatin1("syntaxColoring")).toString())
-							: 1 + kDefault_SyntaxColoring);
-	dlg.autoIndent->setCurrentIndex(settings.contains(QString::fromLatin1("autoIndent"))
+							: 1 + kDefault_SyntaxColoring));
+	dlg.autoIndent->setCurrentIndex(static_cast<index_type>(settings.contains(QString::fromLatin1("autoIndent"))
 	                        ? 1 + indentModes.indexOf(settings.value(QString::fromLatin1("autoIndent")).toString())
-							: 1 + kDefault_IndentMode);
-	dlg.smartQuotes->setCurrentIndex(settings.contains(QString::fromLatin1("smartQuotes"))
+							: 1 + kDefault_IndentMode));
+	dlg.smartQuotes->setCurrentIndex(static_cast<index_type>(settings.contains(QString::fromLatin1("smartQuotes"))
 	                        ? 1 + quotesModes.indexOf(settings.value(QString::fromLatin1("smartQuotes")).toString())
-							: 1 + kDefault_QuotesMode);
+							: 1 + kDefault_QuotesMode));
 	dlg.lineNumbers->setChecked(settings.value(QString::fromLatin1("lineNumbers"), kDefault_LineNumbers).toBool());
 	dlg.wrapLines->setChecked(settings.value(QString::fromLatin1("wrapLines"), kDefault_WrapLines).toBool());
 	dlg.tabWidth->setValue(settings.value(QString::fromLatin1("tabWidth"), kDefault_TabWidth).toInt());
 	dlg.lineSpacing->setValue(settings.value(QStringLiteral("lineSpacing"), kDefault_LineSpacing).toInt());
-	QFontDatabase fdb;
-	dlg.editorFont->addItems(fdb.families());
+	const QStringList fontFamilies = []() {
+		#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+		return QFontDatabase().families();
+		#else
+		return QFontDatabase::families();
+		#endif
+	}();
+	dlg.editorFont->addItems(fontFamilies);
 	QString fontString = settings.value(QString::fromLatin1("font")).toString();
 	QFont font;
 	if (!fontString.isEmpty())
 		font.fromString(fontString);
-	dlg.editorFont->setCurrentIndex(fdb.families().indexOf(font.family()));
+	dlg.editorFont->setCurrentIndex(static_cast<index_type>(fontFamilies.indexOf(font.family())));
 	dlg.fontSize->setValue(font.pointSize());
-	dlg.encoding->setCurrentIndex(nameList.indexOf(QString::fromUtf8(TWApp::instance()->getDefaultCodec()->name().constData())));
+	dlg.encoding->setCurrentIndex(static_cast<index_type>(nameList.indexOf(QString::fromUtf8(TWApp::instance()->getDefaultCodec()->name().constData()))));
 	dlg.highlightCurrentLine->setChecked(settings.value(QString::fromLatin1("highlightCurrentLine"), kDefault_HighlightCurrentLine).toBool());
 	dlg.cursorWidth->setValue(settings.value(QStringLiteral("cursorWidth"), kDefault_CursorWidth).toInt());
 	dlg.autocompleteEnabled->setChecked(settings.value(QString::fromLatin1("autocompleteEnabled"), kDefault_AutocompleteEnabled).toBool());

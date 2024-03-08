@@ -225,7 +225,7 @@ void Wrapper::Sorry(string reason)
 namespace Tw {
 #if defined(MIKTEX_WINDOWS)
     Settings::Settings() :
-        QSettings("\\HKEY_CURRENT_USER\\" MIKTEX_REGPATH_SERIES "\\" TEXWORKS_NAME, QSettings::NativeFormat)
+        QSettings("\\HKEY_CURRENT_USER\\" MIKTEX_REGPATH_SERIES "\\" "TeXworks", QSettings::NativeFormat)
     {
     }
 #else

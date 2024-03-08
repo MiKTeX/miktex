@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2017  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2024  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,5 +21,5 @@
 
 #define VER_MAJOR			0
 #define VER_MINOR			6
-#define VER_BUGFIX			8
-#define TEXWORKS_VERSION	"0.6.8"
+#define VER_BUGFIX			9
+#define TEXWORKS_VERSION	"0.6.9"

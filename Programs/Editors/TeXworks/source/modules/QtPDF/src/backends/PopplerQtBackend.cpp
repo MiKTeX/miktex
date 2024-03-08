@@ -206,6 +206,7 @@ void Document::reload()
 void Document::parseDocument()
 {
   QWriteLocker docLocker(_docLock.data());
+  using poppler_size_type = decltype(_poppler_doc->numPages());
 
   clearMetaData();
   _meta_fileSize = QFileInfo(_fileName).size();
@@ -281,14 +282,14 @@ void Document::parseDocument()
   }
 
   // Get the most often used page size
-  QMap<QSizeF, int> pageSizes;
-  for (int i = 0; i < _numPages; ++i) {
+  QMap<QSizeF, size_type> pageSizes;
+  for (poppler_size_type i = 0; i < _numPages; ++i) {
     const std::unique_ptr<::Poppler::Page> page{_poppler_doc->page(i)};
     QSizeF ps = page->pageSizeF();
     if (pageSizes.contains(ps)) ++pageSizes[ps];
     else pageSizes[ps] = 1;
   }
-  int occurrences = -1;
+  size_type occurrences = -1;
   _meta_pageSize = QSizeF();
   Q_FOREACH(QSizeF ps, pageSizes.keys()) {
       if (occurrences < pageSizes[ps]) {
@@ -307,7 +308,7 @@ void Document::parseDocument()
     _meta_other[key] = _poppler_doc->info(key);
 }
 
-QWeakPointer<Backend::Page> Document::page(int at)
+QWeakPointer<Backend::Page> Document::page(size_type at)
 {
   {
     QReadLocker docLocker(_docLock.data());
@@ -528,6 +529,18 @@ QList<PDFFontInfo> Document::fonts() const
   return _fonts;
 }
 
+QAbstractItemModel *Document::optionalContentModel() const
+{
+  if (!_poppler_doc) {
+    return nullptr;
+  }
+  QMutexLocker l(_poppler_docLock);
+  if (_poppler_doc->isLocked() || !_poppler_doc->hasOptionalContent()) {
+    return nullptr;
+  }
+  return _poppler_doc->optionalContentModel();
+}
+
 QColor Document::paperColor() const
 {
   if (!_poppler_doc) {
@@ -569,10 +582,12 @@ bool Document::unlock(const QString password)
 
 // Page Class
 // ==========
-Page::Page(Document *parent, int at, QSharedPointer<QReadWriteLock> docLock):
+Page::Page(Document *parent, size_type at, QSharedPointer<QReadWriteLock> docLock):
   Super(parent, at, docLock)
 {
-  _poppler_page = std::unique_ptr< ::Poppler::Page >(dynamic_cast<Document *>(_parent)->_poppler_doc->page(at));
+  const auto & poppler_doc = dynamic_cast<Document *>(_parent)->_poppler_doc;
+  using poppler_size_type = decltype(poppler_doc->numPages());
+  _poppler_page = std::unique_ptr<::Poppler::Page>(poppler_doc->page(static_cast<poppler_size_type>(at)));
   loadTransitionData();
 }
 
@@ -647,7 +662,7 @@ QList< QSharedPointer<Annotation::Link> > Page::loadLinks()
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     const QList<::Poppler::Link *> poppler_links = _poppler_page->links();
     std::vector< std::unique_ptr<::Poppler::Link> > rv;
-    rv.reserve(poppler_links.size());
+    rv.reserve(static_cast<decltype(rv)::size_type>(poppler_links.size()));
     for (::Poppler::Link * link : poppler_links) {
       rv.emplace_back(link);
     }
@@ -662,7 +677,7 @@ QList< QSharedPointer<Annotation::Link> > Page::loadLinks()
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     const QList<::Poppler::Annotation *> poppler_annots = _poppler_page->annotations();
     std::vector< std::unique_ptr<::Poppler::Annotation> > rv;
-    rv.reserve(poppler_annots.size());
+    rv.reserve(static_cast<decltype(rv)::size_type>(poppler_annots.size()));
     for (::Poppler::Annotation * annot : poppler_annots) {
       rv.emplace_back(annot);
     }
@@ -742,6 +757,64 @@ QList< QSharedPointer<Annotation::Link> > Page::loadLinks()
       case ::Poppler::Link::JavaScript:
       case ::Poppler::Link::Rendition: // Since poppler 0.20
       */
+#if POPPLER_HAS_OCGSTATELINK
+      case ::Poppler::Link::OCGState: // Since poppler-qt 0.50
+      {
+        PDFOCGAction::MapType map;
+        std::vector<QVariant> origState;
+        using OrigStateSizeType = std::vector<QVariant>::size_type;
+        Document * popplerDoc = dynamic_cast<Backend::PopplerQt::Document *>(_parent);
+        Poppler::OptContentModel * ocgModel = popplerDoc->_poppler_doc->optionalContentModel();
+        if (!ocgModel) {
+          break;
+        }
+
+        // Save original state
+        if (ocgModel->rowCount() > 0) {
+          origState.reserve(static_cast<OrigStateSizeType>(ocgModel->rowCount()));
+        }
+        for (int row = 0; row < ocgModel->rowCount(); ++row) {
+          origState.push_back(ocgModel->data(ocgModel->index(row, 0, {}), Qt::CheckStateRole));
+        }
+
+        // 1) Toggle alls ocg's off, apply poppler state change, and see which
+        // ones were turned back on
+        for (int row = 0; row < ocgModel->rowCount(); ++row) {
+          ocgModel->setData(ocgModel->index(row, 0, {}), Qt::Unchecked, Qt::CheckStateRole);
+        }
+        ocgModel->applyLink(dynamic_cast<::Poppler::LinkOCGState*>(popplerLink.get()));
+        for (int row = 0; row < ocgModel->rowCount(); ++row) {
+          if (ocgModel->data(ocgModel->index(row, 0, {}), Qt::CheckStateRole) == QVariant(Qt::Checked)) {
+            map.insert({row, PDFOCGAction::OCGStateChange::Show});
+          }
+        }
+
+        // 2) Toggle alls ocg's on, apply poppler state change, and see which
+        // ones were turned back off
+        for (int row = 0; row < ocgModel->rowCount(); ++row) {
+          ocgModel->setData(ocgModel->index(row, 0, {}), Qt::Checked, Qt::CheckStateRole);
+        }
+        ocgModel->applyLink(dynamic_cast<::Poppler::LinkOCGState*>(popplerLink.get()));
+        for (int row = 0; row < ocgModel->rowCount(); ++row) {
+          if (ocgModel->data(ocgModel->index(row, 0, {}), Qt::CheckStateRole) == QVariant(Qt::Unchecked)) {
+            if (map.find(row) != map.end()) {
+              map[row] = PDFOCGAction::OCGStateChange::Toggle;
+            }
+            else {
+              map.insert({row, PDFOCGAction::OCGStateChange::Hide});
+            }
+          }
+        }
+
+        // Restore original state
+        for (int row = 0; row < ocgModel->rowCount(); ++row) {
+          ocgModel->setData(ocgModel->index(row, 0, {}), origState[static_cast<OrigStateSizeType>(row)], Qt::CheckStateRole);
+        }
+
+        link->setActionOnActivation(new PDFOCGAction(map));
+        break;
+      }
+#endif // POPPLER_HAS_OCGSTATELINK
       default:
         // We don't handle these types yet
         link.clear();
@@ -776,7 +849,7 @@ QList< QSharedPointer<Annotation::AbstractAnnotation> > Page::loadAnnotations()
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     const QList<::Poppler::Annotation *> poppler_annots = _poppler_page->annotations();
     std::vector< std::unique_ptr<::Poppler::Annotation> > rv;
-    rv.reserve(poppler_annots.size());
+    rv.reserve(static_cast<decltype(rv)::size_type>(poppler_annots.size()));
     for (::Poppler::Annotation * annot : poppler_annots) {
       rv.emplace_back(annot);
     }
@@ -883,7 +956,7 @@ QList<SearchResult> Page::search(const QString & searchText, const SearchFlags &
   if (!_parent)
     return results;
 
-  result.pageNum = static_cast<unsigned int>(_n);
+  result.pageNum = _n;
 
   QMutexLocker popplerDocLock(dynamic_cast<Document *>(_parent)->_poppler_docLock);
 
@@ -1001,7 +1074,7 @@ QList< Backend::Page::Box > Page::boxes() const
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     const QList<::Poppler::TextBox*> popplerList = _poppler_page->textList();
     std::vector< std::unique_ptr<::Poppler::TextBox> > rv;
-    rv.reserve(popplerList.size());
+    rv.reserve(static_cast<decltype(rv)::size_type>(popplerList.size()));
     for (::Poppler::TextBox* box : popplerList) {
       rv.emplace_back(box);
     }
@@ -1026,10 +1099,11 @@ QList< Backend::Page::Box > Page::boxes() const
   return retVal;
 }
 
-QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF> * wordBoxes /* = nullptr */, QMap<int, QRectF> * charBoxes /* = nullptr */, const bool onlyFullyEnclosed /* = false */) const
+QString Page::selectedText(const QList<QPolygonF> & selection, BoxBoundaryList * wordBoxes /* = nullptr */, BoxBoundaryList * charBoxes /* = nullptr */, const bool onlyFullyEnclosed /* = false */) const
 {
   QReadLocker pageLocker(&_pageLock);
   Q_ASSERT(_poppler_page != nullptr);
+  using poppler_size_type = decltype(dynamic_cast<Document*>(_parent)->_poppler_doc->numPages());
   // Using the bounding rects of the selection polygons is almost
   // certainly wrong! However, poppler-qt4 doesn't offer any alternative AFAICS
   // (except for positioning each char in the string manually).
@@ -1039,12 +1113,19 @@ QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF>
   QString retVal;
   bool insertSpace = false;
 
+  if (wordBoxes) {
+    wordBoxes->clear();
+  }
+  if (charBoxes) {
+    charBoxes->clear();
+  }
+
   // Get a list of all boxes
   const std::vector< std::unique_ptr<::Poppler::TextBox> > poppler_boxes = [&]() {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     const QList<::Poppler::TextBox*> popplerList = _poppler_page->textList();
     std::vector< std::unique_ptr<::Poppler::TextBox> > rv;
-    rv.reserve(popplerList.size());
+    rv.reserve(static_cast<decltype(rv)::size_type>(popplerList.size()));
     for (::Poppler::TextBox* box : popplerList) {
       rv.emplace_back(box);
     }
@@ -1062,7 +1143,7 @@ QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF>
 
     // Determine which characters to include (if any)
     QBitArray include(poppler_box->text().length());
-    for (int i = 0; i < poppler_box->text().length(); ++i) {
+    for (poppler_size_type i = 0; i < poppler_box->text().length(); ++i) {
       QPolygonF remainder(poppler_box->charBoundingBox(i));
       foreach (const QPolygonF & p, selection) {
         // Include characters if they are entirely inside the selection area or
@@ -1098,9 +1179,9 @@ QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF>
       retVal += QString::fromLatin1("\n");
 
       if (wordBoxes)
-        (*wordBoxes)[wordBoxes->count()] = lastPopplerBox->boundingBox();
+        (*wordBoxes).append(lastPopplerBox->boundingBox());
       if (charBoxes)
-        (*charBoxes)[charBoxes->count()] = lastPopplerBox->boundingBox();
+        (*charBoxes).append(lastPopplerBox->boundingBox());
       // If we queued a space to be inserted, ignore that as we inserted a
       // newline instead anyway
       insertSpace = false;
@@ -1112,24 +1193,24 @@ QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF>
       // As word and char Boxes, insert those of the lastPopplerBox since that
       // was the one causing insertSpace to be true
       if (wordBoxes)
-        (*wordBoxes)[wordBoxes->count()] = lastPopplerBox->boundingBox();
+        (*wordBoxes).append(lastPopplerBox->boundingBox());
       if (charBoxes)
-        (*charBoxes)[charBoxes->count()] = lastPopplerBox->boundingBox();
+        (*charBoxes).append(lastPopplerBox->boundingBox());
     }
 
     // Default to not inserting a space after this word
     insertSpace = false;
 
     // Insert the actual characters
-    for (int i = 0; i < poppler_box->text().length(); ++i) {
+    for (poppler_size_type i = 0; i < poppler_box->text().length(); ++i) {
       if (!include.testBit(i)) continue;
 
       retVal += poppler_box->text()[i];
 
       if (wordBoxes)
-        (*wordBoxes)[wordBoxes->count()] = poppler_box->boundingBox();
+        (*wordBoxes).append(poppler_box->boundingBox());
       if (charBoxes)
-        (*charBoxes)[charBoxes->count()] = poppler_box->charBoundingBox(i);
+        (*charBoxes).append(poppler_box->charBoundingBox(i));
 
       // If we reached the end of the word, possibly queue a space to be
       // inserted. By queuing this until the next word is processed, we ensure

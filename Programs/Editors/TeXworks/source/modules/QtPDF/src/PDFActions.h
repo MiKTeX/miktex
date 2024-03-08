@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2021  Stefan Löffler
+ * Copyright (C) 2013-2023  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,6 +20,8 @@
 #include <QRectF>
 #include <QString>
 #include <QUrl>
+#include <QVector>
+#include <unordered_map>
 
 namespace QtPDF {
 
@@ -34,7 +36,8 @@ public:
   enum Type { Destination_XYZ, Destination_Fit, Destination_FitH, \
               Destination_FitV, Destination_FitR, Destination_FitB, \
               Destination_FitBH, Destination_FitBV };
-  PDFDestination(const int page = -1) : _page(page), _rect(QRectF(-1, -1, -1, -1)) { }
+  using size_type = QVector<int>::size_type;
+  PDFDestination(const size_type page = -1) : _page(page), _rect(QRectF(-1, -1, -1, -1)) { }
   PDFDestination(const QString destinationName) : _page(-1), _destinationName(destinationName) { }
 
   bool isValid() const { return _page >= 0 || !_destinationName.isEmpty(); }
@@ -44,7 +47,7 @@ public:
   // has changed since the PDFDestination object was constructed.
   bool isExplicit() const { return _destinationName.isEmpty() && _page >= 0; }
 
-  int page() const { return _page; }
+  size_type page() const { return _page; }
   Type type() const { return _type; }
   QString destinationName() const { return _destinationName; }
   qreal zoom() const { return _zoom; }
@@ -63,14 +66,14 @@ public:
 
   bool operator==(const PDFDestination & o) const;
 
-  void setPage(const int page) { _page = page; }
+  void setPage(const size_type page) { _page = page; }
   void setType(const Type type) { _type = type; }
   void setZoom(const qreal zoom) { _zoom = zoom; }
   void setRect(const QRectF rect) { _rect = rect; }
   void setDestinationName(const QString destinationName) { _destinationName = destinationName; }
 
 private:
-  int _page;
+  size_type _page;
   Type _type{Destination_XYZ};
   QString _destinationName;
   QRectF _rect; // depending on _type, only some of the components might be significant
@@ -131,6 +134,26 @@ public:
 private:
   QUrl _url;
   bool _isMap{false};
+};
+
+class PDFOCGAction : public PDFAction
+{
+public:
+  enum class OCGStateChange { NoChange, Show, Hide, Toggle};
+  using MapType = std::unordered_map<int, OCGStateChange>;
+
+  PDFOCGAction(MapType changes) : _changes(changes) { }
+
+  ActionType type() const override { return ActionTypeSetOCGState; }
+  PDFAction * clone() const override { return new PDFOCGAction(*this); }
+
+  MapType changes() const { return _changes; }
+
+  bool operator==(const PDFAction & o) const override;
+  bool operator==(const PDFOCGAction & o) const;
+
+private:
+  MapType _changes;
 };
 
 class PDFGotoAction : public PDFAction

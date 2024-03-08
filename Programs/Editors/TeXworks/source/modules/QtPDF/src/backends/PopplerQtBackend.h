@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2022  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2023  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -77,11 +77,12 @@ public:
   void reload() override;
   bool unlock(const QString password) override;
 
-  QWeakPointer<Backend::Page> page(int at) override;
+  QWeakPointer<Backend::Page> page(size_type at) override;
   PDFDestination resolveDestination(const PDFDestination & namedDestination) const override;
 
   PDFToC toc() const override;
   QList<PDFFontInfo> fonts() const override;
+  QAbstractItemModel * optionalContentModel() const override;
 
   QColor paperColor() const override;
   void setPaperColor(const QColor & color) override;
@@ -104,7 +105,7 @@ class Page: public Backend::Page
   void loadTransitionData();
 
 protected:
-  Page(Document *parent, int at, QSharedPointer<QReadWriteLock> docLock);
+  Page(Document *parent, size_type at, QSharedPointer<QReadWriteLock> docLock);
 
 public:
   ~Page() override;
@@ -116,7 +117,7 @@ public:
   QList< QSharedPointer<Annotation::Link> > loadLinks() override;
   QList< QSharedPointer<Annotation::AbstractAnnotation> > loadAnnotations() override;
   QList< Backend::Page::Box > boxes() const override;
-  QString selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF> * wordBoxes = nullptr, QMap<int, QRectF> * charBoxes = nullptr, const bool onlyFullyEnclosed = false) const override;
+  QString selectedText(const QList<QPolygonF> & selection, BoxBoundaryList * wordBoxes = nullptr, BoxBoundaryList * charBoxes = nullptr, const bool onlyFullyEnclosed = false) const override;
 
   QList<Backend::SearchResult> search(const QString & searchText, const SearchFlags & flags) const override;
 };

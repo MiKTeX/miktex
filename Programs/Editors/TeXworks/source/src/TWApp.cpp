@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2024  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -168,7 +168,8 @@ void TWApp::init()
 
 	setOrganizationName(QString::fromLatin1("TUG"));
 	setOrganizationDomain(QString::fromLatin1("tug.org"));
-	setApplicationName(QString::fromLatin1(TEXWORKS_NAME));
+	setApplicationName(QStringLiteral("TeXworks"));
+	setApplicationVersion(Tw::Utils::VersionInfo::fullVersionString());
 
 	// <Check for portable mode>
 #if defined(Q_OS_DARWIN)
@@ -251,6 +252,32 @@ void TWApp::init()
 
 	scriptManager = new TWScriptManager;
 
+	connect(this, &QGuiApplication::focusObjectChanged, this, [=](QObject * focusObj) {
+		QWidget * widget = qobject_cast<QWidget*>(focusObj);
+		if (!widget) {
+			return;
+		}
+		// Get the corresponding top level widget
+		while (widget && widget->parentWidget()) {
+			widget = widget->parentWidget();
+		}
+		if (!m_focusStack.empty() && m_focusStack.top() == widget) {
+			return;
+		}
+		// Remove all empty pointers (to widgets that were destroyed already)
+		// and all mentions of the current widget
+		// NB: Using one indexed loop instead of two removeAll invocations (the
+		// latter was only introduced in Qt 5.4) to only traverse the stack once
+		for (decltype(m_focusStack)::size_type  i = 0; i < m_focusStack.size(); ) {
+			if (!m_focusStack[i] || m_focusStack[i] == widget) {
+				m_focusStack.remove(i);
+				continue;
+			}
+			++i;
+		}
+		m_focusStack.push(widget);
+	});
+
 #if defined(Q_OS_DARWIN)
 	setQuitOnLastWindowClosed(false);
 	setAttribute(Qt::AA_DontShowIconsInMenus);
@@ -311,6 +338,8 @@ TWApp::CommandLineData TWApp::processCommandLine()
 	Tw::Utils::CommandlineParser clp;
 	clp.registerSwitch(QString::fromLatin1("help"), tr("Display this message"), QString::fromLatin1("?"));
 	clp.registerOption(QString::fromLatin1("position"), tr("Open the following file at the given position (line or page)"), QString::fromLatin1("p"));
+	clp.registerOption(QStringLiteral("insert-text"), tr("Insert the given text in the top-most TeX editor window (only works if TeXworks is already running)"));
+	clp.registerOption(QStringLiteral("insert-cite"), tr("Alias for --insert-text"));
 	clp.registerSwitch(QString::fromLatin1("version"), tr("Display version information"), QString::fromLatin1("v"));
 
 	if (clp.parse()) {
@@ -340,7 +369,7 @@ TWApp::CommandLineData TWApp::processCommandLine()
 Copyright (C) %1  %2\n\
 License GPLv2+: GNU GPL (version 2 or later) <http://gnu.org/licenses/gpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
-There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLatin1("2007-2023"), QString::fromUtf8("Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"));
+There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLatin1("2007-2024"), QString::fromUtf8("Stefan Löffler, Jonathan Kew, Charlie Sharpsteen"));
 			strm.flush();
 		}
 		if ((i = clp.getNextSwitch(QString::fromLatin1("help"))) >= 0) {
@@ -351,6 +380,16 @@ There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLat
 			clp.at(i).processed = true;
 			QTextStream strm(stdout);
 			clp.printUsage(strm);
+		}
+		if ((i = clp.getNextOption(QStringLiteral("insert-text"))) >= 0) {
+			Tw::Utils::CommandlineParser::CommandlineItem & item = clp.at(i);
+			item.processed = true;
+			retVal.insertText.append(item.value.toString());
+		}
+		if ((i = clp.getNextOption(QStringLiteral("insert-cite"))) >= 0) {
+			Tw::Utils::CommandlineParser::CommandlineItem & item = clp.at(i);
+			item.processed = true;
+			retVal.insertText.append(item.value.toString());
 		}
 	}
 	return retVal;
@@ -366,11 +405,15 @@ bool TWApp::ensureSingleInstance(const CommandLineData &cld)
 				continue;
 			m_IPC.sendOpenFile(fi.absoluteFilePath(), fileToOpen.position);
 		}
+		if (!cld.insertText.isEmpty()) {
+			m_IPC.sendInsertText(cld.insertText);
+		}
 		exitLater(0);
 		return false;
 	}
 	QObject::connect(&m_IPC, &Tw::InterProcessCommunicator::receivedBringToFront, this, &TWApp::bringToFront);
 	QObject::connect(&m_IPC, &Tw::InterProcessCommunicator::receivedOpenFile, this, &TWApp::openFile);
+	QObject::connect(&m_IPC, &Tw::InterProcessCommunicator::receivedInsertText, this, &TWApp::insertText);
 	return true;
 }
 
@@ -441,7 +484,7 @@ void TWApp::recreateSpecialMenuItems()
 	connect(actionPreferences, &QAction::triggered, this, &TWApp::preferences);
 
 	delete aboutAction;
-	aboutAction = menuHelp->addAction(tr("About " TEXWORKS_NAME "..."));
+	aboutAction = menuHelp->addAction(tr("About %1...").arg(applicationName()));
 	aboutAction->setMenuRole(QAction::AboutRole);
 	connect(aboutAction, &QAction::triggered, this, &TWApp::about);
 }
@@ -464,7 +507,7 @@ void TWApp::changeLanguage()
 	menuRecent->setTitle(tr("Open Recent"));
 
 	menuHelp->setTitle(tr("Help"));
-	aboutAction->setText(tr("About " TEXWORKS_NAME "..."));
+	aboutAction->setText(tr("About %1...").arg(applicationName()));
 	homePageAction->setText(tr("Go to TeXworks home page"));
 	mailingListAction->setText(tr("Email to the mailing list"));
 	TWUtils::insertHelpMenuItems(menuHelp);
@@ -473,9 +516,9 @@ void TWApp::changeLanguage()
 
 void TWApp::about()
 {
-	QString aboutText = tr("<p>%1 is a simple environment for editing, typesetting, and previewing TeX documents.</p>").arg(QString::fromLatin1(TEXWORKS_NAME));
+	QString aboutText = tr("<p>%1 is a simple environment for editing, typesetting, and previewing TeX documents.</p>").arg(applicationName());
 	aboutText += QLatin1String("<small>");
-	aboutText += QLatin1String("<p>&#xA9; 2007-2023  Jonathan Kew, Stefan L&#xF6;ffler, Charlie Sharpsteen");
+	aboutText += QLatin1String("<p>&#xA9; 2007-2024  Stefan L&#xF6;ffler, Jonathan Kew, Charlie Sharpsteen");
 #if defined(MIKTEX)
 	aboutText += tr("<br>Version %1 (%2)").arg(Tw::Utils::VersionInfo::versionString(), QString::fromUtf8(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str()));
 #else
@@ -492,13 +535,13 @@ void TWApp::about()
 	if (!trText.contains(QString::fromLatin1("[language name]")))
 		aboutText += trText;	// omit this if it hasn't been translated!
 	aboutText += QLatin1String("</small>");
-	QMessageBox::about(nullptr, tr("About %1").arg(QString::fromLatin1(TEXWORKS_NAME)), aboutText);
+	QMessageBox::about(nullptr, tr("About %1").arg(applicationName()), aboutText);
 }
 
 void TWApp::openUrl(const QUrl& url)
 {
 	if (!QDesktopServices::openUrl(url))
-		QMessageBox::warning(nullptr, QString::fromLatin1(TEXWORKS_NAME),
+		QMessageBox::warning(nullptr, applicationName(),
 							 tr("Unable to access \"%1\"; perhaps your browser or mail application is not properly configured?")
 							 .arg(url.toString()));
 }
@@ -701,7 +744,35 @@ void TWApp::writeToMailingList()
 {
 	// The strings here are deliberately NOT localizable!
 	QString address(QLatin1String("texworks@tug.org"));
-	QString body(QLatin1String("Thank you for taking the time to write an email to the TeXworks mailing list. Please read the instructions below carefully as following them will greatly facilitate the communication.\n\nInstructions:\n-) Please write your message in English (it's in your own best interest; otherwise, many people will not be able to understand it and therefore will not answer).\n\n-) Please type something meaningful in the subject line.\n\n-) If you are having a problem, please describe it step-by-step in detail.\n\n-) After reading, please delete these instructions (up to the \"configuration info\" below which we may need to find the source of problems).\n\n\n\n----- configuration info -----\n"));
+	QString body(QLatin1String(
+		"Thank you for taking the time to write an email to the TeXworks mailing list. "
+		"Please note that this mailing list is intended for discussing the TeXworks "
+		"editor/previewer program only. For general questions about TeX typesetting "
+		"or problems with your own TeX code, please consult better suited resources like "
+		"tex.stackexchange.com or post to the texhax@tug.org mailing list instead.\n"
+		"\n"
+		"If you think the TeXworks mailing list is the right place for what's on your "
+		"mind, we're looking forward to receiving your message.\n"
+		"Please read the instructions below carefully as following them will greatly "
+		"facilitate the communication.\n"
+		"\n"
+		"Instructions:\n"
+		"-) Please write your message "
+		"in English (it's in your own best interest; otherwise, many people will not "
+		"be able to understand it and therefore will not answer).\n"
+		"\n"
+		"-) Please type something meaningful in the subject line.\n"
+		"\n"
+		"-) If you are having a problem, please describe it step-by-step in detail.\n"
+		"\n"
+		"-) After reading, please delete these instructions (up to the \"configuration info\" "
+		"below which we may need to find the source of problems) and type your own "
+		"message in their place.\n"
+		"\n"
+		"\n"
+		"\n"
+		"----- configuration info -----\n"
+	));
 
 #if defined(MIKTEX)
 	body += QStringLiteral("TeXworks version : %1 (%2)\n").arg(Tw::Utils::VersionInfo::versionString(), QString::fromUtf8(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str()));
@@ -798,7 +869,7 @@ void TWApp::launchAction()
 			// something went wrong, give up!
 			(void)QMessageBox::critical(nullptr, tr("Unable to create window"),
 					tr("Something is badly wrong; %1 was unable to create a document window. "
-			           "The application will now quit.").arg(QString::fromLatin1(TEXWORKS_NAME)),
+					   "The application will now quit.").arg(applicationName()),
 					QMessageBox::Close, QMessageBox::Close);
 			quit();
 		}
@@ -902,6 +973,14 @@ QObject* TWApp::openFile(const QString &fileName, int pos /* = 0 */)
 		return nullptr;
 	}
 	return TeXDocumentWindow::openDocument(fileName, true, true, pos, 0, 0);
+}
+
+void TWApp::insertText(const QString &text)
+{
+	TeXDocumentWindow * topTeXWin = qobject_cast<TeXDocumentWindow*>(topTeXWindow());
+	if (topTeXWin != nullptr) {
+		topTeXWin->textCursor().insertText(text);
+	}
 }
 
 void TWApp::preferences()
@@ -1298,10 +1377,10 @@ QStringList TWApp::getTranslationList()
 	QVector<QDir> dirs({QDir(QStringLiteral(":/resfiles/translations")), QDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("translations")))});
 
 	for (QDir transDir : dirs) {
-		for (QFileInfo qmFileInfo : transDir.entryInfoList(QStringList(QStringLiteral(TEXWORKS_NAME "_*.qm")),
+		for (QFileInfo qmFileInfo : transDir.entryInfoList(QStringList(QStringLiteral("%1_*.qm").arg(applicationName())),
 					QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase)) {
 			QString locName = qmFileInfo.completeBaseName();
-			locName.remove(QStringLiteral(TEXWORKS_NAME "_"));
+			locName.remove(QStringLiteral("%1_").arg(applicationName()));
 			if (!translationList.contains(locName, Qt::CaseInsensitive))
 				translationList << locName;
 		}
@@ -1312,6 +1391,58 @@ QStringList TWApp::getTranslationList()
 	translationList.prepend(QString::fromLatin1("en"));
 
 	return translationList;
+}
+
+QWidget * TWApp::topWindow() const
+{
+	if (m_focusStack.empty()) {
+		return nullptr;
+	}
+	return m_focusStack.top().data();
+}
+
+QWidget *TWApp::topTeXWindow() const
+{
+	// NB: using iterators is safer, in case QStack::size_type is turned into an
+	// unsigned type at some point
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+	for (decltype(m_focusStack)::size_type i = m_focusStack.size() - 1; i >= 0; --i) {
+		auto * win = qobject_cast<TeXDocumentWindow *>(m_focusStack[i]);
+		if (win) {
+			return win;
+		}
+	}
+#else
+	for (auto it = m_focusStack.crbegin(); it != m_focusStack.crend(); ++it) {
+		auto * win = qobject_cast<TeXDocumentWindow *>(it->data());
+		if (win) {
+			return win;
+		}
+	}
+#endif
+	return nullptr;
+}
+
+QWidget *TWApp::topPDFWindow() const
+{
+  // NB: using iterators is safer, in case QStack::size_type is turned into an
+  // unsigned type at some point
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+	for (decltype(m_focusStack)::size_type i = m_focusStack.size() - 1; i >= 0; --i) {
+		auto * win = qobject_cast<PDFDocumentWindow *>(m_focusStack[i]);
+		if (win) {
+			return win;
+		}
+	}
+#else
+	for (auto it = m_focusStack.crbegin(); it != m_focusStack.crend(); ++it) {
+		auto * win = qobject_cast<PDFDocumentWindow *>(it->data());
+		if (win) {
+			return win;
+		}
+	}
+#endif
+	return nullptr;
 }
 
 void TWApp::applyTranslation(const QString& locale)
@@ -1334,7 +1465,7 @@ void TWApp::applyTranslation(const QString& locale)
 		QStringList names, directories;
 		names << QString::fromLatin1("qt_") + locale \
 					<< QString::fromLatin1("QtPDF_") + locale \
-					<< QString::fromLatin1(TEXWORKS_NAME) + QString::fromLatin1("_") + locale;
+					<< applicationName() + QString::fromLatin1("_") + locale;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 		directories << QString::fromLatin1(":/resfiles/translations") \
 					<< QLibraryInfo::location(QLibraryInfo::TranslationsPath) \
@@ -1417,7 +1548,7 @@ void TWApp::openHelpFile(const QString& helpDirName)
 	if (helpDir.exists(QString::fromLatin1("index.html")))
 		openUrl(QUrl::fromLocalFile(helpDir.absoluteFilePath(QString::fromLatin1("index.html"))));
 	else
-		QMessageBox::warning(nullptr, QString::fromLatin1(TEXWORKS_NAME), tr("Unable to find help file."));
+		QMessageBox::warning(nullptr, applicationName(), tr("Unable to find help file."));
 }
 
 void TWApp::updateScriptsList()
@@ -1522,13 +1653,13 @@ QMap<QString, QVariant> TWApp::openFileFromScript(const QString& fileName, QObje
 	if (fi.isRelative() || !settings.value(QString::fromLatin1("allowScriptFileReading"), kDefault_AllowScriptFileReading).toBool()) {
 		if (!scriptApi)
 			return retVal;
-		Tw::Scripting::Script * script = qobject_cast<Tw::Scripting::Script*>(scriptApi->GetScript());
-		if (!script)
+		Tw::Scripting::ScriptObject * scriptObj = qobject_cast<Tw::Scripting::ScriptObject*>(scriptApi->GetScript());
+		if (!scriptObj)
 			return retVal; // this should never happen
 
 		// relative paths are taken to be relative to the folder containing the
 		// executing script's file
-		QDir scriptDir(QFileInfo(script->getFilename()).dir());
+		QDir scriptDir(QFileInfo(scriptObj->getFilename()).dir());
 		QString path = scriptDir.absoluteFilePath(fileName);
 
 		if (!scriptApi->mayReadFile(path, scriptApi->GetTarget())) {
@@ -1538,7 +1669,7 @@ QMap<QString, QVariant> TWApp::openFileFromScript(const QString& fileName, QObje
 			if (QMessageBox::warning(qobject_cast<QWidget*>(scriptApi->GetTarget()),
 				tr("Permission request"),
 				tr("The script \"%1\" is trying to open the file \"%2\" without sufficient permissions. Do you want to open the file?")\
-					.arg(script->getTitle(), path),
+					.arg(scriptObj->getTitle(), path),
 				QMessageBox::Yes | QMessageBox::No, QMessageBox::No
 			) != QMessageBox::Yes)
 				return retVal;

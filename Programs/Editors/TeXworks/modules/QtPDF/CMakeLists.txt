@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2008-2023 Christian Schenk
+## Copyright (C) 2008-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -14,19 +14,22 @@ include_directories(BEFORE
 
 set(qtpdf_sources
     ${projdir}/source/modules/QtPDF/src/GuidelineEditDialog.cpp
+    ${projdir}/source/modules/QtPDF/src/InfoWidgets.cpp
     ${projdir}/source/modules/QtPDF/src/PDFActions.cpp
     ${projdir}/source/modules/QtPDF/src/PDFAnnotations.cpp
     ${projdir}/source/modules/QtPDF/src/PDFBackend.cpp
+    ${projdir}/source/modules/QtPDF/src/PDFDocumentScene.cpp
     ${projdir}/source/modules/QtPDF/src/PDFDocumentTools.cpp
     ${projdir}/source/modules/QtPDF/src/PDFDocumentView.cpp
     ${projdir}/source/modules/QtPDF/src/PDFDocumentWidget.cpp
     ${projdir}/source/modules/QtPDF/src/PDFFontDescriptor.cpp
     ${projdir}/source/modules/QtPDF/src/PDFGuideline.cpp
     ${projdir}/source/modules/QtPDF/src/PDFPageCache.cpp
+    ${projdir}/source/modules/QtPDF/src/PDFPageLayout.cpp
     ${projdir}/source/modules/QtPDF/src/PDFPageProcessingThread.cpp
     ${projdir}/source/modules/QtPDF/src/PDFPageTile.cpp
     ${projdir}/source/modules/QtPDF/src/PDFRuler.cpp
-    ${projdir}/source/modules/QtPDF/src/PDFSearcher.cpp 
+    ${projdir}/source/modules/QtPDF/src/PDFSearcher.cpp
     ${projdir}/source/modules/QtPDF/src/PDFToC.cpp
     ${projdir}/source/modules/QtPDF/src/PDFTransitions.cpp
     ${projdir}/source/modules/QtPDF/src/PaperSizes.cpp
@@ -36,9 +39,11 @@ set(qtpdf_sources
 
 set(qtpdf_headers
     ${projdir}/source/modules/QtPDF/src/GuidelineEditDialog.h
+    ${projdir}/source/modules/QtPDF/src/InfoWidgets.h
     ${projdir}/source/modules/QtPDF/src/PDFActions.h
     ${projdir}/source/modules/QtPDF/src/PDFAnnotations.h
     ${projdir}/source/modules/QtPDF/src/PDFBackend.h
+    ${projdir}/source/modules/QtPDF/src/PDFDocumentScene.h
     ${projdir}/source/modules/QtPDF/src/PDFDocumentTools.h
     ${projdir}/source/modules/QtPDF/src/PDFDocumentView.h
     ${projdir}/source/modules/QtPDF/src/PDFDocumentWidget.h
@@ -46,6 +51,7 @@ set(qtpdf_headers
     ${projdir}/source/modules/QtPDF/src/PDFFontInfo.h
     ${projdir}/source/modules/QtPDF/src/PDFGuideline.h
     ${projdir}/source/modules/QtPDF/src/PDFPageCache.h
+    ${projdir}/source/modules/QtPDF/src/PDFPageLayout.h
     ${projdir}/source/modules/QtPDF/src/PDFPageProcessingThread.h
     ${projdir}/source/modules/QtPDF/src/PDFPageTile.h
     ${projdir}/source/modules/QtPDF/src/PDFRuler.h

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -123,22 +123,22 @@ int LuaScript::pushVariant(lua_State * L, const QVariant & v, const bool throwEr
 #else
 	switch (v.metaType().id()) {
 #endif
-		case QVariant::Bool:
+		case QMetaType::Bool:
 			lua_pushboolean(L, v.toBool());
 			return 1;
-		case QVariant::Double:
-		case QVariant::Int:
-		case QVariant::LongLong:
-		case QVariant::UInt:
-		case QVariant::ULongLong:
+		case QMetaType::Double:
+		case QMetaType::Int:
+		case QMetaType::LongLong:
+		case QMetaType::UInt:
+		case QMetaType::ULongLong:
 			lua_pushnumber(L, v.toDouble());
 			return 1;
-		case QVariant::Char:
-		case QVariant::String:
+		case QMetaType::Char:
+		case QMetaType::QString:
 			lua_pushstring(L, v.toString().toUtf8().constData());
 			return 1;
-		case QVariant::List:
-		case QVariant::StringList:
+		case QMetaType::QVariantList:
+		case QMetaType::QStringList:
 		{
 			QVariantList list = v.toList();
 
@@ -151,7 +151,7 @@ int LuaScript::pushVariant(lua_State * L, const QVariant & v, const bool throwEr
 			}
 			return 1;
 		}
-		case QVariant::Hash:
+		case QMetaType::QVariantHash:
 		{
 			QVariantHash hash = v.toHash();
 
@@ -162,7 +162,7 @@ int LuaScript::pushVariant(lua_State * L, const QVariant & v, const bool throwEr
 			}
 			return 1;
 		}
-		case QVariant::Map:
+		case QMetaType::QVariantMap:
 		{
 			QVariantMap map = v.toMap();
 

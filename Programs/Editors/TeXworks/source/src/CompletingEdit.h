@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@ class QTextCodec;
 class CompletingEdit : public QTextEdit, private Ui::CompletingEdit
 {
 	Q_OBJECT
+	using pos_type = decltype(QTextCursor().position());
 
 public:
 	CompletingEdit(QWidget *parent = nullptr);
@@ -128,7 +129,7 @@ private:
 
 	void setCompleter(QCompleter *c);
 
-	void showCompletion(const QString& completion, int insOffset = -1);
+	void showCompletion(const QString& completion, QString::size_type insOffset = -1);
 	void showCurrentCompletion();
 
 	void loadCompletionsFromFile(QStandardItemModel *model, const QString& filename);
@@ -158,7 +159,7 @@ private:
 
 	QTextCursor dragStartCursor;
 
-	int droppedOffset{-1}, droppedLength{0};
+	pos_type droppedOffset{-1}, droppedLength{0};
 
 	QBasicTimer clickTimer;
 	QPoint clickPos;
@@ -192,7 +193,7 @@ private:
 	QTextCursor cmpCursor;
 
 	QString prevCompletion; // used with multiple entries for the same key (e.g., "--")
-	int itemIndex{0};
+	QList<void*>::size_type itemIndex{0};
 	int prevRow{-1};
 
 	QTextCursor currentWord;

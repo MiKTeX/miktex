@@ -14,6 +14,7 @@
 * luatex 1.18.0
 * metapost 2.10
 * pdftex 1.40.26
+* texworks 0.6.9
 * xetex 0.999996
 
 ## 24.1 - 2024-01-27

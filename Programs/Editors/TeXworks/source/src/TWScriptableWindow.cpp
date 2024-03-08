@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -29,12 +29,12 @@
 #include "Settings.h"
 #include "TWApp.h"
 #include "TWScriptManager.h"
-#include "TWUtils.h"
 #include "scripting/ECMAScriptInterface.h"
 #if WITH_QTSCRIPT
 #	include "scripting/JSScriptInterface.h"
 #endif
 #include "scripting/ScriptLanguageInterface.h"
+#include "scripting/ScriptObject.h"
 #include "utils/WindowManager.h"
 
 #include <QAction>
@@ -95,21 +95,21 @@ TWScriptableWindow::addScriptsToMenu(QMenu *menu, TWScriptList *scripts)
 {
 	int count = 0;
 	foreach (QObject *obj, scripts->children()) {
-		Tw::Scripting::Script *script = qobject_cast<Tw::Scripting::Script*>(obj);
-		if (script) {
-			if (!script->isEnabled())
+		Tw::Scripting::ScriptObject *scriptObject = qobject_cast<Tw::Scripting::ScriptObject*>(obj);
+		if (scriptObject) {
+			if (!scriptObject->isEnabled())
 				continue;
-			if (script->getContext().isEmpty() || script->getContext() == scriptContext()) {
-				QAction *a = menu->addAction(script->getTitle());
-				connect(script, &Tw::Scripting::Script::destroyed, this, [this,a]() { scriptsMenu->removeAction(a); });
-				if (!script->getKeySequence().isEmpty())
-					a->setShortcut(script->getKeySequence());
+			if (scriptObject->getContext().isEmpty() || scriptObject->getContext() == scriptContext()) {
+				QAction *a = menu->addAction(scriptObject->getTitle());
+				connect(scriptObject, &Tw::Scripting::ScriptObject::destroyed, this, [this,a]() { scriptsMenu->removeAction(a); });
+				if (!scriptObject->getKeySequence().isEmpty())
+					a->setShortcut(scriptObject->getKeySequence());
 //				a->setEnabled(script->isEnabled());
 				// give the action an object name so it could possibly included in the
 				// customization process of keyboard shortcuts in the future
-				a->setObjectName(QString::fromLatin1("Script: %1").arg(script->getTitle()));
-				a->setStatusTip(script->getDescription());
-				connect(a, &QAction::triggered, this, [this, script](){ runScript(script); });
+				a->setObjectName(QString::fromLatin1("Script: %1").arg(scriptObject->getTitle()));
+				a->setStatusTip(scriptObject->getDescription());
+				connect(a, &QAction::triggered, this, [this, scriptObject](){ runScript(scriptObject); });
 				++count;
 			}
 			continue;
@@ -125,7 +125,7 @@ TWScriptableWindow::addScriptsToMenu(QMenu *menu, TWScriptList *scripts)
 }
 
 void
-TWScriptableWindow::runScript(QObject* script, Tw::Scripting::Script::ScriptType scriptType)
+TWScriptableWindow::runScript(QObject* scriptObj, Tw::Scripting::Script::ScriptType scriptType)
 {
 	QVariant result;
 
@@ -133,11 +133,15 @@ TWScriptableWindow::runScript(QObject* script, Tw::Scripting::Script::ScriptType
 	if (!sm)
 		return;
 
-	Tw::Scripting::Script * s = qobject_cast<Tw::Scripting::Script*>(script);
+	Tw::Scripting::ScriptObject * so = qobject_cast<Tw::Scripting::ScriptObject*>(scriptObj);
+	if (!so) {
+		return;
+	}
+	Tw::Scripting::Script * s = so->getScript();
 	if (!s || s->getType() != scriptType)
 		return;
 
-	bool success = sm->runScript(script, this, result, scriptType);
+	bool success = sm->runScript(scriptObj, this, result, scriptType);
 
 	if (success) {
 		if (!result.isNull() && !result.toString().isEmpty()) {
@@ -157,7 +161,7 @@ TWScriptableWindow::runScript(QObject* script, Tw::Scripting::Script::ScriptType
 void
 TWScriptableWindow::runHooks(const QString& hookName)
 {
-	foreach (Tw::Scripting::Script *s, TWApp::instance()->getScriptManager()->getHookScripts(hookName)) {
+	foreach (Tw::Scripting::ScriptObject *s, TWApp::instance()->getScriptManager()->getHookScripts(hookName)) {
 		// Don't use TWScriptManager::runHooks here to get status bar messages
 		runScript(s, Tw::Scripting::Script::ScriptHook);
 	}
@@ -172,11 +176,11 @@ TWScriptableWindow::doAboutScripts()
 	QString scriptingLink = QString::fromLatin1("<a href=\"%1\">%1</a>").arg(QString::fromLatin1("https://github.com/TeXworks/texworks/wiki/ScriptingTeXworks"));
 	QString aboutText = QLatin1String("<p>");
 	aboutText += tr("Scripts may be used to add new commands to %1, "
-	                "and to extend or modify its behavior.").arg(QString::fromLatin1(TEXWORKS_NAME));
+					"and to extend or modify its behavior.").arg(QCoreApplication::applicationName());
 	aboutText += QLatin1String("</p><p><small>");
 	aboutText += tr("For more information on creating and using scripts, see %1</p>").arg(scriptingLink);
 	aboutText += QLatin1String("</small></p><p>");
-	aboutText += tr("Scripting languages currently available in this copy of %1:").arg(QString::fromLatin1(TEXWORKS_NAME));
+	aboutText += tr("Scripting languages currently available in this copy of %1:").arg(QCoreApplication::applicationName());
 	aboutText += QLatin1String("</p><ul>");
 	foreach (const QObject * plugin,
 			 TWApp::instance()->getScriptManager()->languages()) {
@@ -250,8 +254,10 @@ void TWScriptableWindow::selectWindow(bool activate)
 {
 	show();
 	raise();
-	if (activate)
+	if (activate) {
 		activateWindow();
+		emit TWApp::instance()->focusObjectChanged(this);
+	}
 	if (isMinimized())
 		showNormal();
 }

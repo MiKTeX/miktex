@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2020-2021  Stefan Löffler
+	Copyright (C) 2020-2023  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -35,8 +35,6 @@ namespace Utils {
 
 QString ResourcesLibrary::m_portableLibPath;
 
-#define TEXWORKS_NAME "TeXworks"
-
 #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 // compile-time default paths - customize by defining in the .pro file
 #	ifndef TW_DICPATH
@@ -59,11 +57,11 @@ const QStringList ResourcesLibrary::getLegacyLibraryRootPaths()
 {
 	QStringList retVal;
 #if defined(Q_OS_DARWIN)
-	retVal << QDir::homePath() + QLatin1String("/Library/" TEXWORKS_NAME "/");
+	retVal << QStringLiteral("%1/Library/%2/").arg(QDir::homePath(), QCoreApplication::applicationName());
 #elif defined(Q_OS_UNIX) // && !defined(Q_OS_DARWIN)
-	retVal << QDir::homePath() + QLatin1String("/." TEXWORKS_NAME "/");
+	retVal << QStringLiteral("%1/.%2/").arg(QDir::homePath(), QCoreApplication::applicationName());
 #else // defined(Q_OS_WIN)
-	retVal << QDir::homePath() + QLatin1String("/" TEXWORKS_NAME "/");
+	retVal << QStringLiteral("%1/%2/").arg(QDir::homePath(), QCoreApplication::applicationName());
 #endif
 	return retVal;
 }

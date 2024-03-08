@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2017-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2017-2024  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -56,6 +56,7 @@ protected:
 	QList<BibTeXFile> _bibFiles;
 	QVector<const BibTeXFile::Entry *> _entries;
 	QSet<QString> _selectedKeys;
+	QStringList m_columns;
 };
 
 class CitationProxyModel : public QSortFilterProxyModel

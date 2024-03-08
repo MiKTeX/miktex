@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2023  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,32 +19,38 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#ifndef JSScript_H
-#define JSScript_H
+#ifndef ConsoleWidget_H
+#define ConsoleWidget_H
 
-#include "scripting/Script.h"
-
-#include <QCoreApplication>
+#include <QProcess>
+#include <QTextEdit>
 
 namespace Tw {
-namespace Scripting {
+namespace UI {
 
-class JSScript : public Script
+class ConsoleWidget : public QTextEdit
 {
-	Q_INTERFACES(Tw::Scripting::Script)
-	Q_DECLARE_TR_FUNCTIONS(Tw::Scripting::JSScript)
-
+	Q_OBJECT
 public:
-	JSScript(QObject * plugin, const QString& filename)
-		: Tw::Scripting::Script(plugin, filename) { }
+	ConsoleWidget(QWidget * parent = nullptr);
+	~ConsoleWidget() override;
 
-	bool parseHeader() override { return doParseHeader(QString(), QString(), QString::fromLatin1("//")); }
+	QProcess * process() const { return m_process; }
+	void setProcess(QProcess * p, const bool clearConsole = true);
 
-protected:
-	bool execute(ScriptAPIInterface *tw) const override;
+	void echo(const QString & str, const QColor foregroundColor = {});
+
+private slots:
+	void appendOutput(QByteArray output);
+
+private:
+	void processIncompleteUTF8Codes(QByteArray & data);
+
+	QProcess * m_process{nullptr};
+	QByteArray m_unicodeCarry;
 };
 
-} // namespace Scripting
+} // namespace UI
 } // namespace Tw
 
-#endif // !defined(JSScript_H)
+#endif // !defined(ConsoleWidget_H)

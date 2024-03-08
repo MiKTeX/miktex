@@ -207,10 +207,10 @@ Document::~Document()
   _pageCache.removeDocumentTiles(this);
 }
 
-int Document::numPages() const { QReadLocker docLocker(_docLock.data()); return _numPages; }
+Document::size_type Document::numPages() const { QReadLocker docLocker(_docLock.data()); return _numPages; }
 PDFPageProcessingThread &Document::processingThread() { QReadLocker docLocker(_docLock.data()); return _processingThread; }
 
-QWeakPointer<Page> Document::page(int at)
+QWeakPointer<Page> Document::page(size_type at)
 {
   QReadLocker l(_docLock.data());
   if (at < 0 || at >= _pages.size()) {
@@ -219,15 +219,15 @@ QWeakPointer<Page> Document::page(int at)
   return _pages[at];
 }
 
-QList<SearchResult> Document::search(const QString & searchText, const SearchFlags & flags, const int startPage)
+QList<SearchResult> Document::search(const QString & searchText, const SearchFlags & flags, const size_type startPage)
 {
   QReadLocker docLocker(_docLock.data());
   QList<SearchResult> results;
-  int start = startPage;
-  int end = (flags.testFlag(Search_Backwards) ? -1 : _numPages);
-  int step = (flags.testFlag(Search_Backwards) ? -1 : +1);
+  size_type start = startPage;
+  size_type end = (flags.testFlag(Search_Backwards) ? -1 : _numPages);
+  size_type step = (flags.testFlag(Search_Backwards) ? -1 : +1);
 
-  for (int i = start; i != end; i += step) {
+  for (size_type i = start; i != end; i += step) {
     QSharedPointer<Page> page(_pages[i]);
     if (!page)
       continue;
@@ -237,7 +237,7 @@ QList<SearchResult> Document::search(const QString & searchText, const SearchFla
   if (flags.testFlag(Search_WrapAround)) {
     start = ((flags & Search_Backwards) ? _numPages - 1 : 0);
     end = startPage;
-    for (int i = start; i != end; i += step) {
+    for (size_type i = start; i != end; i += step) {
       QSharedPointer<Page> page(_pages[i]);
       if (!page)
         continue;
@@ -297,7 +297,7 @@ void Document::clearMetaData()
 // Note that the Page may exist in a detached state, i.e., _parent == nullptr. This
 // is typically the case when the document discarded the page object but some
 // other object (typically in another thread) still holds a QSharedPointer to it.
-Page::Page(Document *parent, int at, QSharedPointer<QReadWriteLock> docLock):
+Page::Page(Document *parent, size_type at, QSharedPointer<QReadWriteLock> docLock):
   _parent(parent),
   _n(at),
   _docLock(docLock)
@@ -328,7 +328,7 @@ Page::Page(Document *parent, int at, QSharedPointer<QReadWriteLock> docLock):
   }
 }
 
-int Page::pageNum() const { QReadLocker pageLocker(&_pageLock); return _n; }
+Page::size_type Page::pageNum() const { QReadLocker pageLocker(&_pageLock); return _n; }
 
 void Page::detachFromParent()
 {

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -67,17 +67,17 @@ TWScriptManager::saveDisabledList()
 
 	QList<QObject*> list = m_Scripts.findChildren<QObject*>();
 	foreach (QObject* i, list) {
-		Tw::Scripting::Script * s = qobject_cast<Tw::Scripting::Script*>(i);
-		if (!s || s->isEnabled())
+		Tw::Scripting::ScriptObject * so = qobject_cast<Tw::Scripting::ScriptObject*>(i);
+		if (!so || so->isEnabled())
 			continue;
-		disabled << scriptRoot.relativeFilePath(s->getFilename());
+		disabled << scriptRoot.relativeFilePath(so->getFilename());
 	}
 	list = m_Hooks.findChildren<QObject*>();
 	foreach (QObject* i, list) {
-		Tw::Scripting::Script * s = qobject_cast<Tw::Scripting::Script*>(i);
-		if (!s || s->isEnabled())
+		Tw::Scripting::ScriptObject * so = qobject_cast<Tw::Scripting::ScriptObject*>(i);
+		if (!so || so->isEnabled())
 			continue;
-		disabled << scriptRoot.relativeFilePath(s->getFilename());
+		disabled << scriptRoot.relativeFilePath(so->getFilename());
 	}
 
 	Tw::Settings settings;
@@ -169,35 +169,39 @@ void TWScriptManager::reloadScriptsInList(TWScriptList * list, QStringList & pro
 	foreach(QObject * item, list->children()) {
 		if (qobject_cast<TWScriptList*>(item))
 			reloadScriptsInList(qobject_cast<TWScriptList*>(item), processed);
-		else if (qobject_cast<Tw::Scripting::Script*>(item)) {
-			Tw::Scripting::Script * s = qobject_cast<Tw::Scripting::Script*>(item);
-			if (s->hasChanged()) {
+		else if (qobject_cast<Tw::Scripting::ScriptObject*>(item)) {
+			Tw::Scripting::ScriptObject * so = qobject_cast<Tw::Scripting::ScriptObject*>(item);
+			if (so->hasChanged()) {
 				// File has been removed
-				if (!(QFileInfo(s->getFilename()).exists())) {
-					delete s;
+				if (!(QFileInfo(so->getFilename()).exists())) {
+					delete so;
 					continue;
 				}
 				// File has been changed - reparse; if an error occurs or the
 				// script type has changed treat it as if has been removed (and
 				// possibly re-add it later)
-				Tw::Scripting::Script::ScriptType oldType = s->getType();
-				if (!s->parseHeader() || s->getType() != oldType) {
-					delete s;
+				if (!so->getScript()) {
+					delete so;
+					continue;
+				}
+				Tw::Scripting::Script::ScriptType oldType = so->getType();
+				if (!so->getScript()->parseHeader() || so->getType() != oldType) {
+					delete so;
 					continue;
 				}
 			}
 			const bool needsPlugin = (
 #if WITH_QTSCRIPT
-				qobject_cast<const Tw::Scripting::JSScriptInterface*>(s->getScriptLanguagePlugin()) == nullptr &&
+				qobject_cast<const Tw::Scripting::JSScriptInterface*>(so->getScriptLanguagePlugin()) == nullptr &&
 #endif
-				qobject_cast<const Tw::Scripting::ECMAScriptInterface*>(s->getScriptLanguagePlugin()) == nullptr
+				qobject_cast<const Tw::Scripting::ECMAScriptInterface*>(so->getScriptLanguagePlugin()) == nullptr
 			);
 			if (needsPlugin && !enableScriptsPlugins) {
 				// the plugin necessary to execute this scripts has been disabled
-				delete s;
+				delete so;
 				continue;
 			}
-			processed << s->getFilename();
+			processed << so->getFilename();
 		}
 		else {
 			 // should never happen
@@ -215,7 +219,7 @@ void TWScriptManager::clear()
 		delete s;
 }
 
-bool TWScriptManager::addScript(QObject* scriptList, Tw::Scripting::Script * script)
+bool TWScriptManager::addScript(QObject* scriptList, Tw::Scripting::ScriptObject * scriptObj)
 {
 	/// \TODO This no longer works since we introduced multiple levels of scripts
 /*
@@ -227,20 +231,9 @@ bool TWScriptManager::addScript(QObject* scriptList, Tw::Scripting::Script * scr
 			return false;
 	}
 */
-	script->setParent(scriptList);
+	scriptObj->setParent(scriptList);
 	return true;
 }
-
-static bool scriptListLessThan(const TWScriptList* l1, const TWScriptList* l2)
-{
-	return l1->getName().toLower() < l2->getName().toLower();
-}
-
-static bool scriptLessThan(const Tw::Scripting::Script* s1, const Tw::Scripting::Script* s2)
-{
-	return s1->getTitle().toLower() < s2->getTitle().toLower();
-}
-
 
 void TWScriptManager::addScriptsInDirectory(TWScriptList *scriptList,
 											TWScriptList *hookList,
@@ -322,24 +315,21 @@ void TWScriptManager::addScriptsInDirectory(TWScriptList *scriptList,
 				continue;
 			if (!i->canHandleFile(info))
 				continue;
-			Tw::Scripting::Script *script = i->newScript(info.absoluteFilePath());
+			std::unique_ptr<Tw::Scripting::Script> script{i->newScript(info.absoluteFilePath())};
 			if (script) {
 				if (disabled.contains(info.canonicalFilePath()))
 					script->setEnabled(false);
 				script->parseHeader();
 				switch (script->getType()) {
 					case Tw::Scripting::Script::ScriptHook:
-						if (!addScript(hookList, script))
-							delete script;
+						addScript(hookList, new Tw::Scripting::ScriptObject(std::move(script)));
 						break;
 
 					case Tw::Scripting::Script::ScriptStandalone:
-						if (!addScript(scriptList, script))
-							delete script;
+						addScript(scriptList, new Tw::Scripting::ScriptObject(std::move(script)));
 						break;
 
-					default: // must be unknown/invalid
-						delete script;
+					case Tw::Scripting::Script::ScriptUnknown:
 						break;
 				}
 				break;
@@ -353,13 +343,13 @@ void TWScriptManager::addScriptsInDirectory(TWScriptList *scriptList,
 	// correct order
 
 	QList<TWScriptList*> childLists;
-	QList<Tw::Scripting::Script*> childScripts;
+	QList<Tw::Scripting::ScriptObject*> childScriptObjs;
 
 	// Note: we can't use QObject::findChildren here because it's recursive
 	const QObjectList& children = scriptList->children();
 	foreach (QObject *obj, children) {
-		if (Tw::Scripting::Script *script = qobject_cast<Tw::Scripting::Script*>(obj))
-			childScripts.append(script);
+		if (Tw::Scripting::ScriptObject *scriptObj = qobject_cast<Tw::Scripting::ScriptObject*>(obj))
+			childScriptObjs.append(scriptObj);
 		else if (TWScriptList *list = qobject_cast<TWScriptList*>(obj))
 			childLists.append(list);
 		else { // shouldn't happen
@@ -368,34 +358,43 @@ void TWScriptManager::addScriptsInDirectory(TWScriptList *scriptList,
 
 	// unset parents; this effectively removes the objects from
 	// scriptList->children()
-	foreach (Tw::Scripting::Script* childScript, childScripts)
-		childScript->setParent(nullptr);
+	foreach (Tw::Scripting::ScriptObject* childScriptObj, childScriptObjs)
+		childScriptObj->setParent(nullptr);
 	foreach (TWScriptList* childList, childLists)
 		childList->setParent(nullptr);
 
+	static auto scriptListLessThan = [](const TWScriptList* l1, const TWScriptList* l2)
+	{
+		return l1->getName().toLower() < l2->getName().toLower();
+	};
+	static auto scriptLessThan = [](const Tw::Scripting::ScriptObject* so1, const Tw::Scripting::ScriptObject* so2)
+	{
+		return so1->getTitle().toLower() < so2->getTitle().toLower();
+	};
+
 	// sort the sublists
 	std::sort(childLists.begin(), childLists.end(), scriptListLessThan);
-	std::sort(childScripts.begin(), childScripts.end(), scriptLessThan);
+	std::sort(childScriptObjs.begin(), childScriptObjs.end(), scriptLessThan);
 
 	// add the scripts again, one-by-one
-	foreach (Tw::Scripting::Script* childScript, childScripts)
-		childScript->setParent(scriptList);
+	foreach (Tw::Scripting::ScriptObject* childScriptObj, childScriptObjs)
+		childScriptObj->setParent(scriptList);
 	foreach (TWScriptList* childList, childLists)
 		childList->setParent(scriptList);
 }
 
-QList<Tw::Scripting::Script *> TWScriptManager::getHookScripts(const QString& hook) const
+QList<Tw::Scripting::ScriptObject *> TWScriptManager::getHookScripts(const QString& hook) const
 {
-	QList<Tw::Scripting::Script*> result;
+	QList<Tw::Scripting::ScriptObject*> result;
 
 	foreach (QObject *obj, m_Hooks.findChildren<QObject*>()) {
-		Tw::Scripting::Script *script = qobject_cast<Tw::Scripting::Script*>(obj);
-		if (!script)
+		Tw::Scripting::ScriptObject *scriptObject = qobject_cast<Tw::Scripting::ScriptObject*>(obj);
+		if (!scriptObject)
 			continue;
-		if (!script->isEnabled())
+		if (!scriptObject->isEnabled())
 			continue;
-		if (script->getHook().compare(hook, Qt::CaseInsensitive) == 0)
-			result.append(script);
+		if (scriptObject->getHook().compare(hook, Qt::CaseInsensitive) == 0)
+			result.append(scriptObject);
 	}
 	return result;
 }
@@ -405,34 +404,34 @@ TWScriptManager::runScript(QObject* script, QObject * context, QVariant & result
 {
 	Tw::Settings settings;
 
-	Tw::Scripting::Script * s = qobject_cast<Tw::Scripting::Script*>(script);
-	if (!s || s->getType() != scriptType)
+	Tw::Scripting::ScriptObject * so = qobject_cast<Tw::Scripting::ScriptObject*>(script);
+	if (!so || so->getType() != scriptType)
 		return false;
 
 	const bool needsPlugin = (
 #if WITH_QTSCRIPT
-		qobject_cast<const Tw::Scripting::JSScriptInterface*>(s->getScriptLanguagePlugin()) == nullptr &&
+		qobject_cast<const Tw::Scripting::JSScriptInterface*>(so->getScriptLanguagePlugin()) == nullptr &&
 #endif
-		qobject_cast<const Tw::Scripting::ECMAScriptInterface*>(s->getScriptLanguagePlugin()) == nullptr
+		qobject_cast<const Tw::Scripting::ECMAScriptInterface*>(so->getScriptLanguagePlugin()) == nullptr
 	);
 	if (needsPlugin && !settings.value(QString::fromLatin1("enableScriptingPlugins"), false).toBool())
 		return false;
 
-	if (!s->isEnabled())
+	if (!so->isEnabled())
 		return false;
 
-	Tw::Scripting::ScriptAPI api(s, qApp, context, result);
+	Tw::Scripting::ScriptAPI api(so, qApp, context, result);
 #if defined(MIKTEX)
         std::unique_ptr<MiKTeX::Trace::StopWatch> stopWatch =
-          MiKTeX::Trace::StopWatch::Start(MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream(), "texworks", s->getFilename().toUtf8().data());
+          MiKTeX::Trace::StopWatch::Start(MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream(), "texworks", so->getFilename().toUtf8().data());
 #endif
-	return s->run(api);
+	return so->run(api);
 }
 
 void
 TWScriptManager::runHooks(const QString& hookName, QObject * context /* = nullptr */)
 {
-	foreach (Tw::Scripting::Script *s, getHookScripts(hookName)) {
-		runScript(s, context, Tw::Scripting::Script::ScriptHook);
+	foreach (Tw::Scripting::ScriptObject *so, getHookScripts(hookName)) {
+		runScript(so, context, Tw::Scripting::Script::ScriptHook);
 	}
 }

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2017-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2017-2024  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -36,10 +36,16 @@ BibTeXFile::Entry::Type BibTeXFile::Entry::type() const
 
 QString BibTeXFile::Entry::howPublished() const
 {
-	if (_cache.valid) return _cache.howPublished;
-	if (hasField(QString::fromLatin1("howpublished")))
+	if (_cache.valid) {
+		return _cache.howPublished;
+	}
+	if (hasField(QString::fromLatin1("howpublished"))) {
 		return value(QString::fromLatin1("howpublished"));
-	return value(QString::fromLatin1("journal"));
+	}
+	if (hasField(QStringLiteral("journal"))) {
+		return value(QString::fromLatin1("journal"));
+	}
+	return value(QString::fromLatin1("booktitle"));
 }
 
 QString BibTeXFile::Entry::value(const QString & key) const

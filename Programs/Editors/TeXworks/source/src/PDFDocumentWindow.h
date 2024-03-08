@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -63,6 +63,8 @@ class PDFDocumentWindow : public TWScriptableWindow, private Ui::PDFDocumentWind
     Q_PROPERTY(QString fileName READ fileName)
 
 public:
+	using size_type = QtPDF::Backend::Document::size_type;
+
 	PDFDocumentWindow(const QString &fileName, TeXDocumentWindow *sourceDoc = nullptr);
 	~PDFDocumentWindow() override;
 
@@ -76,7 +78,7 @@ public:
 		{ return curFile; }
 
 	void showScale(qreal scale);
-	void showPage(int page);
+	void showPage(size_type page);
 	void setResolution(const double res);
 	void resetMagnifier();
 	void enableTypesetAction(bool enabled);
@@ -120,9 +122,9 @@ private slots:
 	void changedDocument(const QWeakPointer<QtPDF::Backend::Document> & newDoc);
 	void updateRecentFileActions();
 	void updateWindowMenu();
-	void enablePageActions(int);
-	void syncClick(int page, const QPointF& pos);
-	void syncRange(const int pageIndex, const QPointF & start, const QPointF & end, const TWSynchronizer::Resolution resolution);
+	void enablePageActions(PDFDocumentWindow::size_type);
+	void syncClick(PDFDocumentWindow::size_type page, const QPointF& pos);
+	void syncRange(const PDFDocumentWindow::size_type pageIndex, const QPointF & start, const QPointF & end, const TWSynchronizer::Resolution resolution);
 	void invalidateSyncHighlight();
 	void scaleLabelClick(QMouseEvent * event) { showScaleContextMenu(event->pos()); }
 	void showScaleContextMenu(const QPoint pos);
@@ -132,7 +134,7 @@ private slots:
 	void doPageDialog();
 	void doScaleDialog();
 	void jumpToSource();
-	void searchResultHighlighted(const int pageNum, const QList<QPolygonF> & pdfRegion);
+	void searchResultHighlighted(const PDFDocumentWindow::size_type pageNum, const QList<QPolygonF> & pdfRegion);
 	void setDefaultScale();
 	void maybeOpenUrl(const QUrl & url);
 	void maybeOpenPdf(const QString & filename, const QtPDF::PDFDestination & destination, const bool newWindow);

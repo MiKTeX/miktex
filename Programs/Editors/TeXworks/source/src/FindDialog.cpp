@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -465,7 +465,7 @@ void SearchResults::presentResults(const QString& searchText,
 	SearchResults* resultsWindow = new SearchResults(parent);
 	resultsWindow->setWindowTitle(tr("Search Results - %1 (%2 found)").arg(searchText).arg(results.count()));
 
-	resultsWindow->table->setRowCount(results.count());
+	resultsWindow->table->setRowCount(static_cast<decltype(resultsWindow->table->rowCount())>(results.count()));
 	int i = 0;
 	foreach (const SearchResult &result, results) {
 		QTableWidgetItem * item = new QTableWidgetItem();

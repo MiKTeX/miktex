@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 namespace Tw {
 namespace Scripting {
 
-class Script;
+class ScriptObject;
 
 class ScriptAPI : public QObject, public ScriptAPIInterface
 {
@@ -44,7 +44,7 @@ class ScriptAPI : public QObject, public ScriptAPIInterface
 	Q_PROPERTY(QObject * script READ GetScript)
 
 public:
-	ScriptAPI(Script* script, QObject* twapp, QObject* ctx, QVariant& res);
+	ScriptAPI(ScriptObject* script, QObject* twapp, QObject* ctx, QVariant& res);
 
 	QObject* clone() const override { return new ScriptAPI(m_script, m_app, m_target, m_result); }
 
@@ -195,7 +195,7 @@ public:
 	bool mayReadFile(const QString& filename, QObject * context) const override;
 
 protected:
-	Script* m_script;
+	ScriptObject* m_script;
 	QObject* m_app;
 	QObject* m_target;
 	QVariant& m_result;

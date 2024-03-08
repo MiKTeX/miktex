@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2022  Stefan Löffler
+ * Copyright (C) 2022-2023  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,6 +14,7 @@
 #include "PDFGuideline.h"
 
 #include "GuidelineEditDialog.h"
+#include "PDFDocumentScene.h"
 #include "PDFDocumentView.h"
 
 namespace QtPDF {
@@ -100,7 +101,7 @@ void PDFGuideline::setPosPage(const QPointF pt)
   }
 }
 
-void PDFGuideline::setPage(const int page)
+void PDFGuideline::setPage(const size_type page)
 {
   m_pageIdx = page;
   setPosPage(m_posPage);

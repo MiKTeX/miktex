@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2022  Stefan Löffler
+ * Copyright (C) 2022-2023  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -25,14 +25,15 @@ GuidelineEditDialog::GuidelineEditDialog(PDFGuideline * parent)
   connect(cPositionUnit, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &GuidelineEditDialog::convertPositionToNewUnit);
 }
 
-int GuidelineEditDialog::guidelinePage() const
+GuidelineEditDialog::size_type GuidelineEditDialog::guidelinePage() const
 {
   return cPage->value();
 }
 
-void GuidelineEditDialog::setGuidelinePage(const int p)
+void GuidelineEditDialog::setGuidelinePage(const size_type p)
 {
-  cPage->setValue(p);
+  using value_type = decltype(cPage->value());
+  cPage->setValue(static_cast<value_type>(p));
 }
 
 Physical::Length GuidelineEditDialog::guidelinePos() const
@@ -45,14 +46,15 @@ void GuidelineEditDialog::setGuidelinePos(const Physical::Length & pos)
   cPosition->setValue(pos.val(m_unit));
 }
 
-int GuidelineEditDialog::numPages() const
+GuidelineEditDialog::size_type GuidelineEditDialog::numPages() const
 {
   return cPage->maximum();
 }
 
-void GuidelineEditDialog::setNumPages(const int n)
+void GuidelineEditDialog::setNumPages(const size_type n)
 {
-  cPage->setMaximum(n);
+  using value_type = decltype(cPage->value());
+  cPage->setMaximum(static_cast<value_type>(n));
 }
 
 void GuidelineEditDialog::setUnit(const Physical::Length::Unit unit)

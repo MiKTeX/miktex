@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2019  Stefan Löffler
+	Copyright (C) 2008-2024  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -47,10 +47,12 @@ public:
 
 	void sendBringToFront();
 	void sendOpenFile(const QString & path, const int position = -1);
+	void sendInsertText(const QString & text);
 
 signals:
 	void receivedBringToFront();
 	void receivedOpenFile(const QString & path, const int position);
+	void receivedInsertText(const QString & text);
 };
 
 } // namespace Tw
