@@ -419,7 +419,8 @@ pdf_ximage_load_image (const char *ident, const char *filename, load_options opt
   }
   if (id >= 0) {
     if (I->attr.page_no == options.page_no &&
-        strcmp(I->attr.page_name, options.page_name) == 0 &&
+        (I->attr.page_name && options.page_name &&
+         strcmp(I->attr.page_name, options.page_name) == 0) &&
         !pdf_compare_object(I->attr.dict, options.dict) && /* ????? */
         I->attr.bbox_type == options.bbox_type) {
       return id;
