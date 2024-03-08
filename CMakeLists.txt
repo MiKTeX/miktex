@@ -1938,22 +1938,6 @@ else()
     add_subdirectory(${MIKTEX_REL_XZ_DIR})
 endif()
 
-if(USE_SYSTEM_MPFI)
-    get_filename_component(suffix ${MPFI_LIBRARY} EXT)
-    if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
-        add_library(MiKTeX::Imported::MPFI SHARED IMPORTED)
-    else()
-        add_library(MiKTeX::Imported::MPFI STATIC IMPORTED)
-    endif()
-    set_target_properties(MiKTeX::Imported::MPFI
-        PROPERTIES
-        IMPORTED_LOCATION "${MPFI_LIBRARY}"
-        INTERFACE_INCLUDE_DIRECTORIES "${MPFI_INCLUDE_DIRS}"
-    )
-else()
-    add_subdirectory(${MIKTEX_REL_MPFI_DIR})
-endif()
-
 if(USE_SYSTEM_MPFR)
     get_filename_component(suffix ${MPFR_LIBRARY} EXT)
     if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
@@ -1968,6 +1952,22 @@ if(USE_SYSTEM_MPFR)
     )
 else()
     add_subdirectory(${MIKTEX_REL_MPFR_DIR})
+endif()
+
+if(USE_SYSTEM_MPFI)
+    get_filename_component(suffix ${MPFI_LIBRARY} EXT)
+    if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+        add_library(MiKTeX::Imported::MPFI SHARED IMPORTED)
+    else()
+        add_library(MiKTeX::Imported::MPFI STATIC IMPORTED)
+    endif()
+    set_target_properties(MiKTeX::Imported::MPFI
+        PROPERTIES
+        IMPORTED_LOCATION "${MPFI_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${MPFI_INCLUDE_DIRS}"
+    )
+else()
+    add_subdirectory(${MIKTEX_REL_MPFI_DIR})
 endif()
 
 if(USE_SYSTEM_MSPACK)
