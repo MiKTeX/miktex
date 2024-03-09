@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## next
+## 24.3 - 2024-03-10
 
 ### Fixed issues
 
