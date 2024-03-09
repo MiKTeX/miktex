@@ -1045,7 +1045,7 @@ struct versionOption : public option {
     eigen=true;
 #endif
 
-#ifdef HAVE_RPC_RPC_H
+#ifdef HAVE_LIBTIRPC
     xdr=true;
 #endif
 
@@ -1530,7 +1530,7 @@ void initSettings() {
   addOption(new realSetting("paperheight", 0, "bp", "Default page height"));
 
   addOption(new stringSetting("dvipsOptions", 0, "str", ""));
-  addOption(new stringSetting("dvisvgmOptions", 0, "str", ""));
+  addOption(new stringSetting("dvisvgmOptions", 0, "str", "", "--optimize"));
   addOption(new boolSetting("dvisvgmMultipleFiles", 0,
                             "dvisvgm supports multiple files", true));
   addOption(new stringSetting("convertOptions", 0, "str", ""));

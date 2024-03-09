@@ -450,9 +450,8 @@ namespace AsymptoteLsp
     ExternalRefs(ExternalRefs const& exRef) = default;
     ExternalRefs& operator=(ExternalRefs const& exRef) = default;
 
-    ExternalRefs(ExternalRefs&& exRef) noexcept = default;
-    ExternalRefs& operator=(ExternalRefs&& exRef) noexcept = default;
-
+//  ExternalRefs(ExternalRefs&& exRef) noexcept = default;
+//  ExternalRefs& operator=(ExternalRefs&& exRef) noexcept = default;
 
     void clear()
     {

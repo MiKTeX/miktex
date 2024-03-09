@@ -19,11 +19,11 @@
 #include "angle.h"
 #include "pair.h"
 
-#ifdef HAVE_RPC_RPC_H
+#ifdef HAVE_LIBTIRPC
 #include "xstream.h"
 #endif
 #if defined(MIKTEX)
-#  include <algorithm>
+#include <algorithm>
 #endif
 
 namespace camp {
@@ -335,7 +335,7 @@ public:
   }
 
 
-#ifdef HAVE_RPC_RPC_H
+#ifdef HAVE_LIBTIRPC
   friend xdr::oxstream& operator << (xdr::oxstream& out, triple const& v)
   {
     out << v.x << v.y << v.z;

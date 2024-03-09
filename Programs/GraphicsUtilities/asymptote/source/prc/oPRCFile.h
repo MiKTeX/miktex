@@ -44,7 +44,7 @@
 #include "writePRC.h"
 
 
-#ifdef HAVE_RPC_RPC_H
+#ifdef HAVE_LIBTIRPC
 #include "xstream.h"
 #endif
 
@@ -97,7 +97,7 @@ struct RGBAColour
   friend RGBAColour operator * (const double d, const RGBAColour& a)
   { return RGBAColour(a.R*d,a.G*d,a.B*d,a.A*d); }
 
-#ifdef HAVE_RPC_RPC_H
+#ifdef HAVE_LIBTIRPC
   friend xdr::oxstream& operator<<(xdr::oxstream& out, RGBAColour const& col)
   {
     out << (float) col.R << (float) col.G << (float) col.B << (float) col.A;

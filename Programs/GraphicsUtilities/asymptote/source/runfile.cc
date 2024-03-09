@@ -130,7 +130,7 @@ void gen_runfile3(stack *Stack)
   if(mode == "binary")
     f=new ibfile(name,check);
   else if(mode == "xdr" || mode == "xdrgz") {
-#ifdef HAVE_RPC_RPC_H
+#ifdef HAVE_LIBTIRPC
     if(mode == "xdr")
       f=new ixfile(name,check);
     else if(mode == "xdrgz")
@@ -170,7 +170,7 @@ void gen_runfile4(stack *Stack)
     if(update) f=new iobfile(name);
     else f=new obfile(name);
   } else if(mode == "xdr") {
-#ifdef HAVE_RPC_RPC_H
+#ifdef HAVE_LIBTIRPC
     if(update)
       f=new ioxfile(name);
     else f=new oxfile(name);

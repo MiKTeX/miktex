@@ -953,7 +953,7 @@ void gen_runpicture46(stack *Stack)
   }
 
   string outname=buildname(prefix,xformat);
-  F->shipout(preamble,outname,xformat,false,false);
+  F->shipout(preamble,stripExt(outname),xformat,false,false);
   fprintf(pipeout,"%s\n",Done.c_str());
   fflush(pipeout);
   delete F;

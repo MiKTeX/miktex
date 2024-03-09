@@ -21,7 +21,7 @@
 #include "transform.h"
 #include "parser.h"
 
-#ifdef HAVE_RPC_RPC_H
+#ifdef HAVE_LIBTIRPC
 #include "xstream.h"
 #endif
 
@@ -116,7 +116,7 @@ struct processDataStruct {
 
   terminator<std::ofstream> ofile;
   terminator<std::fstream> ifile;
-#ifdef HAVE_RPC_RPC_H
+#ifdef HAVE_LIBTIRPC
   terminator<xdr::ixstream> ixfile;
   terminator<xdr::oxstream> oxfile;
 #endif

@@ -8,7 +8,7 @@
 
 #include "v3dfile.h"
 
-#ifdef HAVE_RPC_RPC_H
+#ifdef HAVE_LIBTIRPC
 
 #ifdef HAVE_LIBGLM
 

@@ -480,7 +480,6 @@ string dvisvgmCommand(mem::vector<string>& cmd, const string& outname)
   string libgs=getSetting<string>("libgs");
   if(!libgs.empty())
     cmd.push_back("--libgs="+libgs);
-  cmd.push_back("--optimize=collapse-groups,group-attributes,remove-clippaths,simplify-text,simplify-transform");
   push_split(cmd,getSetting<string>("dvisvgmOptions"));
   string outfile=stripDir(outname);
   if(!outfile.empty())
@@ -684,7 +683,7 @@ int picture::epstopdf(const string& epsname, const string& pdfname)
   cmd.push_back("-dMaxSubsetPct=100");
   cmd.push_back("-dEncodeColorImages="+compress);
   cmd.push_back("-dEncodeGrayImages="+compress);
-  cmd.push_back("-dCompatibilityLevel=1.4");
+  cmd.push_back("-dCompatibilityLevel=1.5");
   cmd.push_back("-dTransferFunctionInfo=/Apply");
   if(!getSetting<bool>("autorotate"))
     cmd.push_back("-dAutoRotatePages=/None");

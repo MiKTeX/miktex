@@ -108,7 +108,7 @@ public:
     return stdev(varH,2.0);
   }
   double stderror() {
-    return stdev()/sqrt(N);
+    return stdev()/sqrt((double) N);
   }
   double median() {
     if(!computeMedian) {

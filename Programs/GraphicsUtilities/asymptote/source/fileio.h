@@ -15,7 +15,7 @@
 
 #include "common.h"
 
-#ifdef HAVE_RPC_RPC_H
+#ifdef HAVE_LIBTIRPC
 #include "xstream.h"
 #endif
 
@@ -649,7 +649,7 @@ public:
   void writeline() {}
 };
 
-#ifdef HAVE_RPC_RPC_H
+#ifdef HAVE_LIBTIRPC
 
 class ixfile : public file {
 protected:
