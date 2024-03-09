@@ -6,6 +6,8 @@
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 add_library(${mpfr_lib_name} STATIC ${mpfr_sources})
 
 set_property(TARGET ${mpfr_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})

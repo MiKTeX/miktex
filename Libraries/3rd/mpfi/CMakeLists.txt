@@ -18,6 +18,9 @@ set(public_include_directories
     ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
+set(HAVE_MPFR_Z_DIV 1)
+set(HAVE_MPFR_Z_SUB 1)
+set(MPFR_Q_SUB 1)
 set(HAVE_STDARG 1)
 
 configure_file(
