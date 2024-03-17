@@ -102,7 +102,7 @@ template<typename CharType> size_t GenericCopyString(CharType* lpszBuf, size_t b
         FATAL_ERROR();
     }
 
-    memcpy(lpszBuf, lpszSource, sizeof(CharType) * (length + 1));
+    memmove(lpszBuf, lpszSource, sizeof(CharType) * (length + 1));
 
     return length;
 }
