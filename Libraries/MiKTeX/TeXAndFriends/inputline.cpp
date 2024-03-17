@@ -87,11 +87,11 @@ int CheckBom(FILE* file)
         int bom = val & Bom::UTF8_mask;
         if (bom == Bom::UTF8)
         {
-        return bom;
+            return bom;
         }
         else
         {
-        maybeUtf16bom = true;
+            maybeUtf16bom = true;
         }
     }
     if (n == Bom::UTF16_length || maybeUtf16bom)
@@ -99,8 +99,8 @@ int CheckBom(FILE* file)
         int bom = val & Bom::UTF16_mask;
         if (bom == Bom::UTF16be || bom == Bom::UTF16le)
         {
-        Seek(file, Bom::UTF16_length);
-        return bom;
+            Seek(file, Bom::UTF16_length);
+            return bom;
         }
     }
     Seek(file, 0);
