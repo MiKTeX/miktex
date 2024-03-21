@@ -1554,6 +1554,8 @@ constexpr auto encode_types() -> unsigned long long {
 template <typename T, typename Char> struct type_is_unformattable_for;
 #endif
 
+#undef PACKED
+
 template <bool PACKED, typename Context, typename T, FMT_ENABLE_IF(PACKED)>
 FMT_CONSTEXPR FMT_INLINE auto make_arg(T& val) -> value<Context> {
   using arg_type = remove_cvref_t<decltype(arg_mapper<Context>().map(val))>;
