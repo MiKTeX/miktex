@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## next
+
+### Upgraded programs
+
+* luatex 1.18.1
+
 ## 24.3 - 2024-03-10
 
 ### Fixed issues
