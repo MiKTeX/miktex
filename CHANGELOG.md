@@ -1,10 +1,14 @@
 # MiKTeX Change Log
 
-## next
+## 24.3.31 - 2024-03-31
 
 ### Upgraded programs
 
 * luatex 1.18.1
+
+### Fixed issues
+
+- [1473](https://github.com/MiKTeX/miktex/issues/1473): l3sys-query
 
 ## 24.3 - 2024-03-10
 
