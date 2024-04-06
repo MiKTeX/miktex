@@ -63,7 +63,7 @@ using namespace std;
 #define T_(x) MIKTEXTEXT(x)
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-const char* const TheNameOfTheGame = T_("MiKTeX Package Creator");
+const std::string TheNameOfTheGame = T_("MiKTeX Package Creator");
 
 #define PROGNAME "mpc"
 
@@ -211,7 +211,7 @@ public:
     void Init(const char* argv0);
     void Run(int argc, const char** argv);
 
-    static const char* GetFileNameExtension(ArchiveFileType archiveFileType)
+    static std::string GetFileNameExtension(ArchiveFileType archiveFileType)
     {
         switch (archiveFileType)
         {
@@ -237,7 +237,7 @@ protected:
     void CollectFiles(const PathName& rootDir, const PathName& subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles);
     void CollectPackage(MpcPackageInfo& packageInfo);
     void CollectPackages(const PathName& stagingRoot, map<string, MpcPackageInfo>& packageTable);
-    void CollectSubTree(const PathName& path, const char* subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles);
+    void CollectSubTree(const PathName& path, const std::string& subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles);
     void CompressArchive(const PathName& toBeCompressed, ArchiveFileType archiveFileType, const PathName& outFile);
     void CopyPackage(const MpcPackageInfo& packageinfo, const PathName& destDir);
     ArchiveFileType CreateArchiveFile(MpcPackageInfo& packageInfo, const PathName& repository, Cfg& repositoryManifest);
@@ -245,34 +245,34 @@ protected:
     void CreateRepositoryInformationFile(const PathName& repository, Cfg& repositoryManifest, const map<string, MpcPackageInfo>& packageTable);
     void DisassemblePackage(const PathName& packageManifestFile, const PathName& sourceDir, const PathName& stagingDir);
     void DumpPackageManifests(const map<string, MpcPackageInfo>& packageTable, const PathName& path, Cfg& repositoryManifest);
-    void ExecuteSystemCommand(const char* command, const PathName& workingDirectory);
+    void ExecuteSystemCommand(const std::string& command, const PathName& workingDirectory);
     void Extract(const PathName& archiveFile, ArchiveFileType archiveFileType, const PathName& outDir);
     void ExtractFile(const PathName& archiveFile, ArchiveFileType archiveFileType, const PathName& toBeExtracted, const PathName& outFile);
     void FatalError(const string& s);
     PathName FindXz();
     ArchiveFileType GetDbArchiveFileType();
-    PathName GetDbFileName(int id, const VersionNumber& versionNumber);
+    std::string GetDbFileName(int id, const VersionNumber& versionNumber);
     ArchiveFileType GetPackageArchiveFileType(const MpcPackageInfo& packageInfo);
     char GetPackageLevel(const MpcPackageInfo& packageInfo) const;
-    PathName GetPackageManifestsArchiveFileName();
-    PathName GetRepositoryManifestArchiveFileName();
+    std::string GetPackageManifestsArchiveFileName();
+    std::string GetRepositoryManifestArchiveFileName();
     MD5 GetTdsDigest(const FileDigestTable& fileDigests);
-    PathName GetTpmArchiveFileName();
+    std::string GetTpmArchiveFileName();
     bool HavePackageArchiveFile(const PathName& repository, const string& id, PathName& archiveFile, ArchiveFileType& archiveFileType);
-    MpcPackageInfo InitializePackageInfo(const char* stagingDir);
+    MpcPackageInfo InitializePackageInfo(const MiKTeX::Util::PathName& stagingDir);
     void InitializeStagingDirectory(const PathName& stagingDir, const PackageInfo& packageInfo, const FileDigestTable& fileDigests, const MD5& digest);
-    bool IsInTeXMFDirectory(const PathName& relPath, const char* dir);
+    bool IsInTeXMFDirectory(const PathName& relPath, const std::string& subDir);
     bool IsPureContainerPackage(const MpcPackageInfo& packageInfo) const;
     bool IsToBeIgnored(const MpcPackageInfo& packageInfo) const;
     map<string, MpcPackageInfo> LoadPackageManifests(const PathName& repository);
     unique_ptr<Cfg> LoadRepositoryManifest(const PathName& repository);
-    void MD5CopyFiles(const vector<string>& files, const PathName& sourceDir, const char* sourceSubDir, const PathName& destDir, const char* destSupDir, FileDigestTable& fileDigests);
+    void MD5CopyFiles(const vector<string>& files, const PathName& sourceDir, const std::string& sourceSubDir, const PathName& destDir, const std::string& destSubDir, FileDigestTable& fileDigests);
     MD5 MD5CopyFile(const PathName& source, const PathName& dest);
     void MD5WildCopy(const PathName& sourceTemplate, const PathName& destDir, const PathName& prefix, FileDigestTable& fileDigests);
-    void ReadDescriptionFile(const char* stagingDir, string& description);
+    void ReadDescriptionFile(const MiKTeX::Util::PathName& stagingDir, string& description);
     void ReadList(const PathName& path, map<string, PackageSpec>& mapPackageList);
     void ReadList(const PathName& path, set<string>& packageList);
-    void RunArchiver(ArchiveFileType archiveFileType, const PathName& archiveFile, const char* filter);
+    void RunArchiver(ArchiveFileType archiveFileType, const PathName& archiveFile, const std::string& filter);
     void Verbose(const string& s);
     void Warning(const string& s);
     void WriteDatabase(const map<string, MpcPackageInfo>& packageTable, const PathName& repository, bool removeObsoleteSections, Cfg& repositoryManifest);
@@ -280,7 +280,7 @@ protected:
     void WritePackageManifestFiles(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& repositoryManifest);
     void UpdateRepository(map<string, MpcPackageInfo>& packageTable, const PathName& repository, Cfg& repositoryManifest);
 
-    void ExecuteSystemCommand(const char* command)
+    void ExecuteSystemCommand(const std::string& command)
     {
         ExecuteSystemCommand(command, PathName());
     }
@@ -434,27 +434,22 @@ ArchiveFileType PackageCreator::GetDbArchiveFileType()
     }
 }
 
-PathName PackageCreator::GetDbFileName(int id, const VersionNumber& versionNumber)
+string PackageCreator::GetDbFileName(int id, const VersionNumber& versionNumber)
 {
-    PathName ret("miktex-zzdb");
-    ret.Append(std::to_string(id), false);
-    ret.Append("-", false);
-    ret.Append(versionNumber.ToString(), false);
-    ret.AppendExtension(PackageCreator::GetFileNameExtension(GetDbArchiveFileType()));
-    return ret;
+    return fmt::format("miktex-zzdb{0}-{1}{2}", id, versionNumber.ToString(), GetFileNameExtension(GetDbArchiveFileType()));
 }
 
-PathName PackageCreator::GetRepositoryManifestArchiveFileName()
+string PackageCreator::GetRepositoryManifestArchiveFileName()
 {
     return GetDbFileName(1, majorMinorVersion);
 }
 
-PathName PackageCreator::GetTpmArchiveFileName()
+string PackageCreator::GetTpmArchiveFileName()
 {
     return GetDbFileName(2, majorMinorVersion);
 }
 
-PathName PackageCreator::GetPackageManifestsArchiveFileName()
+string PackageCreator::GetPackageManifestsArchiveFileName()
 {
     return GetDbFileName(3, majorMinorVersion);
 }
@@ -577,7 +572,7 @@ void PackageCreator::MD5WildCopy(const PathName& sourceTemplate, const PathName&
     }
 }
 
-void PackageCreator::MD5CopyFiles(const vector<string>& files, const PathName& sourceDir, const char* sourceSubDir, const PathName& destDir, const char* destSubDir, FileDigestTable& fileDigests)
+void PackageCreator::MD5CopyFiles(const vector<string>& files, const PathName& sourceDir, const string& sourceSubDir, const PathName& destDir, const string& destSubDir, FileDigestTable& fileDigests)
 {
     // path to source root directory
     PathName sourceRootDir(sourceDir / sourceSubDir);
@@ -678,7 +673,7 @@ void PackageCreator::CopyPackage(const MpcPackageInfo& packageinfo, const PathNa
     }
 }
 
-void PackageCreator::ReadDescriptionFile(const char* stagingDir, string& description)
+void PackageCreator::ReadDescriptionFile(const PathName& stagingDir, string& description)
 {
     PathName descriptionFileName = PathName(stagingDir) / "Description";
     if (!File::Exists(descriptionFileName))
@@ -691,7 +686,7 @@ void PackageCreator::ReadDescriptionFile(const char* stagingDir, string& descrip
     stream.close();
 }
 
-MpcPackageInfo PackageCreator::InitializePackageInfo(const char* stagingDir)
+MpcPackageInfo PackageCreator::InitializePackageInfo(const PathName& stagingDir)
 {
     MpcPackageInfo packageInfo;
 
@@ -811,10 +806,10 @@ bool PackageCreator::IsPureContainerPackage(const MpcPackageInfo& packageInfo) c
     return false;
 }
 
-bool PackageCreator::IsInTeXMFDirectory(const PathName& relPath, const char* dir)
+bool PackageCreator::IsInTeXMFDirectory(const PathName& relPath, const string& subDir)
 {
     PathName texmfDirectory(texmfPrefix);
-    texmfDirectory /= dir;
+    texmfDirectory /= subDir;
     return PathName::ComparePrefixes(texmfDirectory, relPath, texmfDirectory.GetLength()) == 0;
 }
 
@@ -871,7 +866,7 @@ void PackageCreator::CollectFiles(const PathName& rootDir, const PathName& subDi
     lister.reset();
 }
 
-void PackageCreator::CollectSubTree(const PathName& path, const char* subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles)
+void PackageCreator::CollectSubTree(const PathName& path, const string& subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles)
 {
     PathName sourceDir(path / subDir);
     CollectFiles(sourceDir, PathName(), runFiles, sizeRunFiles, docFiles, sizeDocFiles, sourceFiles, sizeSourceFiles);
@@ -919,7 +914,7 @@ void PackageCreator::CollectPackages(const PathName& stagingRoot, map<string, Mp
         }
 
         // read package.ini and Description
-        MpcPackageInfo packageInfo = InitializePackageInfo(stagingDir.GetData());
+        MpcPackageInfo packageInfo = InitializePackageInfo(stagingDir);
 
         if (IsToBeIgnored(packageInfo))
         {
@@ -1052,7 +1047,7 @@ bool PackageCreator::OnProcessOutput(const void* output, size_t n)
     return true;
 }
 
-void PackageCreator::ExecuteSystemCommand(const char* command, const PathName& workingDirectory)
+void PackageCreator::ExecuteSystemCommand(const string& command, const PathName& workingDirectory)
 {
     processOutput.Clear();
     int exitCode = 0;
@@ -1073,7 +1068,7 @@ void PackageCreator::ExecuteSystemCommand(const char* command, const PathName& w
     }
 }
 
-void PackageCreator::RunArchiver(ArchiveFileType archiveFileType, const PathName& archiveFile, const char* filter)
+void PackageCreator::RunArchiver(ArchiveFileType archiveFileType, const PathName& archiveFile, const string& filter)
 {
     string command;
     switch (archiveFileType)
@@ -1320,7 +1315,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
     }
 
     // create repository manifest archive
-    PathName dbPath1 = GetRepositoryManifestArchiveFileName();
+    PathName dbPath1(GetRepositoryManifestArchiveFileName());
     RunArchiver(GetDbArchiveFileType(), dbPath1, MIKTEX_MPM_INI_FILENAME);
 
     // delete temporary mpm.ini
@@ -1336,7 +1331,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
     WritePackageManifestFiles(packageTable, packageManifestDir, repositoryManifest);
 
     // create TPM archive
-    PathName dbPath2 = GetTpmArchiveFileName();
+    PathName dbPath2(GetTpmArchiveFileName());
     RunArchiver(GetDbArchiveFileType(), dbPath2, texmfPrefix.c_str());
 
     // delete package manifest files
@@ -1347,7 +1342,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
     DumpPackageManifests(packageTable, tempIni->GetPathName(), repositoryManifest);
 
     // create package-manifests.ini archive
-    PathName dbPath3 = GetPackageManifestsArchiveFileName();
+    PathName dbPath3(GetPackageManifestsArchiveFileName());
     RunArchiver(GetDbArchiveFileType(), dbPath3, "package-manifests.ini");
 
     // delete temporary package-manifests.ini
@@ -1641,7 +1636,7 @@ unique_ptr<Cfg> PackageCreator::LoadRepositoryManifest(const PathName& repositor
 {
     // path to the repository manifest archive file
     PathName pathRepositoryManifestArchive = repository;
-    pathRepositoryManifestArchive /= GetRepositoryManifestArchiveFileName().ToString();
+    pathRepositoryManifestArchive /= GetRepositoryManifestArchiveFileName();
 #if defined(MIKTEX_WINDOWS)
     pathRepositoryManifestArchive.ConvertToUnix();
 #endif
@@ -1671,7 +1666,7 @@ map<string, MpcPackageInfo> PackageCreator::LoadPackageManifests(const PathName&
 
     // path to the TPM archive file
     PathName pathTpmArchive = repository;
-    pathTpmArchive /= GetTpmArchiveFileName().ToString();
+    pathTpmArchive /= GetTpmArchiveFileName();
 #if defined(MIKTEX_WINDOWS)
     pathTpmArchive.ConvertToUnix();
 #endif
@@ -2058,7 +2053,7 @@ void PackageCreator::Run(int argc, const char** argv)
     {
         cout
             << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMP_MAJOR_VERSION, MIKTEX_COMP_MINOR_VERSION, MIKTEX_COMP_PATCH_VERSION, 0)) << endl
-            << "Copyright (C) 2006-2022 Christian Schenk" << endl
+            << "Copyright (C) 2006-2024 Christian Schenk" << endl
             << "This is free software; see the source for copying conditions.  There is NO" << endl
             << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
     }
@@ -2076,7 +2071,7 @@ void PackageCreator::Run(int argc, const char** argv)
         unique_ptr<Cfg> repositoryManifest(LoadRepositoryManifest(repository));
         map<string, MpcPackageInfo> packageTable = LoadPackageManifests(repository);
         Verbose(fmt::format(T_("Reading staging directory {0}..."), Q_(stagingDir)));
-        MpcPackageInfo packageInfo = InitializePackageInfo(stagingDir.GetData());
+        MpcPackageInfo packageInfo = InitializePackageInfo(stagingDir);
         CollectPackage(packageInfo);
         packageTable[packageInfo.id] = packageInfo;
         UpdateRepository(packageTable, repository, *repositoryManifest);
