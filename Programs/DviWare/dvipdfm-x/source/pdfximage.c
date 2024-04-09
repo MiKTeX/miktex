@@ -400,6 +400,8 @@ int utf8name_failed = 0;
 #endif /* WIN32 */
 #endif
 
+#define dpx_streq(a, b) ((a) == (b) || (a) && (b) && strcmp(a, b) == 0)
+
 int
 pdf_ximage_load_image (const char *ident, const char *filename, load_options options)
 {
@@ -412,20 +414,21 @@ pdf_ximage_load_image (const char *ident, const char *filename, load_options opt
 
   for (i = 0; i < ic->count; i++) {
     I = &ic->ximages[i];
-    if (I->filename && !strcmp(filename, I->filename)) {
-      id = i;
-      break;
-    }
-  }
-  if (id >= 0) {
-    if (I->attr.page_no == options.page_no &&
-        (I->attr.page_name && options.page_name &&
-         strcmp(I->attr.page_name, options.page_name) == 0) &&
-        !pdf_compare_object(I->attr.dict, options.dict) && /* ????? */
-        I->attr.bbox_type == options.bbox_type) {
-      return id;
-    }
+    if (I->filename == NULL || strcmp(filename, I->filename) != 0)
+      continue;
+    id = i;
     f = I->fullname;
+
+    if (I->attr.page_no != options.page_no)
+      continue;
+    if (!dpx_streq(I->attr.page_name, options.page_name))
+      continue;
+    if (pdf_compare_object(I->attr.dict, options.dict) != 0) /* ????? */
+      continue;
+    if (I->attr.bbox_type != options.bbox_type)
+      continue;
+
+    return id;
   }
   if (f) {
     /* we already have converted this file; f is the temporary file name */

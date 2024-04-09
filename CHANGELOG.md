@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## next
+
+### Upgraded programs
+
+* dvipdfmx 20240407
+
 ## 24.3.31 - 2024-03-31
 
 ### Upgraded programs
