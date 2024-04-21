@@ -46,6 +46,9 @@ typedef enum {
     TAG_TYPE_STRUCTURE = 1,
     TAG_TYPE_LINK = 2,
     TAG_TYPE_DEST = 4,
+    TAG_TYPE_CONTENT = 8,
+    TAG_TYPE_CONTENT_REF = 16,
+    TAG_TYPE_ARTIFACT = 16,
 } cairo_tag_type_t;
 
 /* The type of the structure tree. */
@@ -99,9 +102,18 @@ cairo_private cairo_tag_stack_elem_t *
 _cairo_tag_stack_top_elem (cairo_tag_stack_t *stack);
 
 cairo_private void
+_cairo_tag_stack_foreach (cairo_tag_stack_t *stack,
+			  void (*func)(cairo_tag_stack_elem_t *elem,
+				       void *closure),
+			  void *closure);
+
+cairo_private void
 _cairo_tag_stack_free_elem (cairo_tag_stack_elem_t *elem);
 
 cairo_private cairo_tag_type_t
 _cairo_tag_get_type (const char *name);
+
+cairo_private cairo_status_t
+_cairo_tag_error (const char *fmt, ...) CAIRO_PRINTF_FORMAT (1, 2);
 
 #endif /* CAIRO_TAG_STACK_PRIVATE_H */

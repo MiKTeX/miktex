@@ -35,15 +35,6 @@
  *      Vladimir Vukicevic <vladimir@pobox.com>
  */
 
-#define WIN32_LEAN_AND_MEAN
-/* We require Windows 2000 features such as ETO_PDY */
-#if !defined(WINVER) || (WINVER < 0x0500)
-# define WINVER 0x0500
-#endif
-#if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0500)
-# define _WIN32_WINNT 0x0500
-#endif
-
 #include "cairoint.h"
 
 #include "cairo-default-context-private.h"
@@ -167,8 +158,15 @@ _cairo_win32_printing_surface_init_language_pack (cairo_win32_printing_surface_t
 
     module = GetModuleHandleW (L"GDI32.DLL");
     if (module) {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
 	gdi_init_lang_pack = (gdi_init_lang_pack_func_t)
 	    GetProcAddress (module, "GdiInitializeLanguagePack");
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 	if (gdi_init_lang_pack)
 	    gdi_init_lang_pack (0);
     }
@@ -244,7 +242,7 @@ _cairo_win32_printing_surface_acquire_image_pattern (
     case CAIRO_PATTERN_TYPE_MESH:
     default:
 	ASSERT_NOT_REACHED;
-	break;
+	return CAIRO_INT_STATUS_UNSUPPORTED;
     }
 
     _cairo_pattern_init_for_surface (image_pattern, &image->base);
@@ -534,7 +532,8 @@ _cairo_win32_printing_surface_paint_solid_pattern (cairo_win32_printing_surface_
 
 static cairo_status_t
 _cairo_win32_printing_surface_paint_recording_pattern (cairo_win32_printing_surface_t   *surface,
-						       cairo_surface_pattern_t *pattern)
+						       cairo_surface_pattern_t *pattern,
+						       cairo_surface_t *source)
 {
     cairo_content_t old_content;
     cairo_matrix_t old_ctm;
@@ -546,9 +545,8 @@ _cairo_win32_printing_surface_paint_recording_pattern (cairo_win32_printing_surf
     XFORM xform;
     int x_tile, y_tile, left, right, top, bottom;
     RECT clip;
-    cairo_recording_surface_t *recording_surface = (cairo_recording_surface_t *) pattern->surface;
+    cairo_recording_surface_t *recording_surface = (cairo_recording_surface_t *) source;
     cairo_box_t bbox;
-    cairo_surface_t *free_me = NULL;
     cairo_bool_t is_subsurface;
 
     extend = cairo_pattern_get_extend (&pattern->base);
@@ -564,11 +562,6 @@ _cairo_win32_printing_surface_paint_recording_pattern (cairo_win32_printing_surf
     surface->ctm = p2d;
     SaveDC (surface->win32.dc);
     _cairo_matrix_to_win32_xform (&p2d, &xform);
-
-    if (_cairo_surface_is_snapshot (&recording_surface->base)) {
-	free_me = _cairo_surface_snapshot_get_target (&recording_surface->base);
-	recording_surface = (cairo_recording_surface_t *) free_me;
-    }
 
     if (recording_surface->base.backend->type == CAIRO_SURFACE_TYPE_SUBSURFACE) {
 	cairo_surface_subsurface_t *sub = (cairo_surface_subsurface_t *) recording_surface;
@@ -661,6 +654,7 @@ _cairo_win32_printing_surface_paint_recording_pattern (cairo_win32_printing_surf
 
 	    SaveDC (surface->win32.dc); /* Allow clip path to be reset during replay */
 	    status = _cairo_recording_surface_replay_region (&recording_surface->base,
+							     pattern->region_array_id,
 							     is_subsurface ? &recording_extents : NULL,
 							     &surface->win32.base,
 							     CAIRO_RECORDING_REGION_NATIVE);
@@ -679,7 +673,6 @@ _cairo_win32_printing_surface_paint_recording_pattern (cairo_win32_printing_surf
     RestoreDC (surface->win32.dc, -1);
 
   err:
-    cairo_surface_destroy (free_me);
     return status;
 }
 
@@ -1118,11 +1111,18 @@ _cairo_win32_printing_surface_paint_pattern (cairo_win32_printing_surface_t *sur
 
     case CAIRO_PATTERN_TYPE_SURFACE: {
 	cairo_surface_pattern_t *surface_pattern = (cairo_surface_pattern_t *) pattern;
+	cairo_surface_t *source = surface_pattern->surface;
+	cairo_surface_t *to_destroy = NULL;
 
-	if ( _cairo_surface_is_recording (surface_pattern->surface))
-	    status = _cairo_win32_printing_surface_paint_recording_pattern (surface, surface_pattern);
+	if (_cairo_surface_is_snapshot (source))
+	    to_destroy = source = _cairo_surface_snapshot_get_target (source);
+
+	if ( _cairo_surface_is_recording (source))
+	    status = _cairo_win32_printing_surface_paint_recording_pattern (surface, surface_pattern, source);
 	else
 	    status = _cairo_win32_printing_surface_paint_image_pattern (surface, pattern, extents);
+
+	cairo_surface_destroy (to_destroy);
 
 	if (status)
 	    return status;
@@ -1520,7 +1520,7 @@ _cairo_win32_printing_surface_stroke (void			*abstract_surface,
     cairo_matrix_multiply (&mat, stroke_ctm, &surface->ctm);
     _cairo_matrix_factor_out_scale (&mat, &scale);
 
-    pen_style = PS_GEOMETRIC;
+    pen_style = style->is_hairline ? PS_COSMETIC : PS_GEOMETRIC;
     dash_array = NULL;
     if (style->num_dashes) {
 	pen_style |= PS_USERSTYLE;
@@ -1546,10 +1546,12 @@ _cairo_win32_printing_surface_stroke (void			*abstract_surface,
     brush.lbStyle = BS_SOLID;
     brush.lbColor = color;
     brush.lbHatch = 0;
-    pen_style |= _cairo_win32_line_cap (style->line_cap);
-    pen_style |= _cairo_win32_line_join (style->line_join);
+    if (!style->is_hairline) {
+	pen_style |= _cairo_win32_line_cap (style->line_cap);
+	pen_style |= _cairo_win32_line_join (style->line_join);
+    }
     pen = ExtCreatePen(pen_style,
-		       scale * style->line_width,
+		       style->is_hairline ? 1 : scale * style->line_width,
 		       &brush,
 		       style->num_dashes,
 		       dash_array);
@@ -1808,6 +1810,7 @@ _cairo_win32_printing_surface_show_glyphs (void                 *abstract_surfac
     cairo_solid_pattern_t clear;
     cairo_composite_rectangles_t extents;
     cairo_bool_t overlap;
+    cairo_scaled_font_t *local_scaled_font = NULL;
 
     status = _cairo_composite_rectangles_init_for_glyphs (&extents,
 							  &surface->win32.base,
@@ -1851,6 +1854,13 @@ _cairo_win32_printing_surface_show_glyphs (void                 *abstract_surfac
 	}
 #endif
 
+#if CAIRO_HAS_DWRITE_FONT
+        if (cairo_scaled_font_get_type (scaled_font) == CAIRO_FONT_TYPE_DWRITE) {
+            status = _cairo_win32_printing_surface_analyze_operation (surface, op, source, &extents.bounded);
+            goto cleanup_composite;
+        }
+#endif
+
 	/* For non win32 fonts we need to check that each glyph has a
 	 * path available. If a path is not available,
 	 * _cairo_scaled_glyph_lookup() will return
@@ -1862,6 +1872,7 @@ _cairo_win32_printing_surface_show_glyphs (void                 *abstract_surfac
 	    status = _cairo_scaled_glyph_lookup (scaled_font,
 						 glyphs[i].index,
 						 CAIRO_SCALED_GLYPH_INFO_PATH,
+						 NULL, /* foreground color */
 						 &scaled_glyph);
 	    if (status)
                 break;
@@ -1890,6 +1901,23 @@ _cairo_win32_printing_surface_show_glyphs (void                 *abstract_surfac
 	source = opaque;
     }
 
+#if CAIRO_HAS_DWRITE_FONT
+    /* For a printer, the dwrite path is not desirable as it goes through the
+     * bitmap-blitting GDI interop route. Better to create a win32 (GDI) font
+     * so that ExtTextOut can be used, giving the printer driver the chance
+     * to do the right thing with the text.
+     */
+    if (cairo_scaled_font_get_type (scaled_font) == CAIRO_FONT_TYPE_DWRITE) {
+        status = _cairo_dwrite_scaled_font_create_win32_scaled_font (scaled_font, &local_scaled_font);
+        if (status == CAIRO_STATUS_SUCCESS) {
+            scaled_font = local_scaled_font;
+        } else {
+            /* Reset status; we'll fall back to drawing glyphs as paths */
+            status = CAIRO_STATUS_SUCCESS;
+        }
+    }
+#endif
+
 #if CAIRO_HAS_WIN32_FONT
     if (cairo_scaled_font_get_type (scaled_font) == CAIRO_FONT_TYPE_WIN32 &&
 	source->type == CAIRO_PATTERN_TYPE_SOLID)
@@ -1916,6 +1944,7 @@ _cairo_win32_printing_surface_show_glyphs (void                 *abstract_surfac
 	status = _cairo_scaled_glyph_lookup (scaled_font,
 					     glyphs[i].index,
 					     CAIRO_SCALED_GLYPH_INFO_PATH,
+					     NULL, /* foreground color */
 					     &scaled_glyph);
 	if (status)
 	    break;
@@ -1948,6 +1977,10 @@ _cairo_win32_printing_surface_show_glyphs (void                 *abstract_surfac
 
 cleanup_composite:
     _cairo_composite_rectangles_fini (&extents);
+
+    if (local_scaled_font)
+        cairo_scaled_font_destroy (local_scaled_font);
+
     return status;
 }
 
@@ -2041,7 +2074,7 @@ _cairo_win32_printing_surface_start_page (void *abstract_surface)
      * coordinates.
      *
      * If the device context is an EMF file, using an identity
-     * transform often provides insufficent resolution. The workaround
+     * transform often provides insufficient resolution. The workaround
      * is to set the GDI CTM to a scale < 1 eg [1.0/16 0 0 1/0/16 0 0]
      * and scale the cairo CTM by [16 0 0 16 0 0]. The
      * SetWorldTransform function call to scale the GDI CTM by 1.0/16
@@ -2121,6 +2154,9 @@ _cairo_win32_printing_surface_supports_fine_grained_fallbacks (void *abstract_su
  * provide correct complex rendering behaviour; cairo_surface_show_page() and
  * associated methods must be used for correct output.
  *
+ * The following mime types are supported on source patterns:
+ * %CAIRO_MIME_TYPE_JPEG, %CAIRO_MIME_TYPE_PNG.
+ *
  * Return value: the newly created surface
  *
  * Since: 1.6
@@ -2179,6 +2215,12 @@ cairo_win32_printing_surface_create (HDC hdc)
     cairo_surface_destroy (&surface->win32.base);
 
     return paginated;
+}
+
+cairo_bool_t
+_cairo_surface_is_win32_printing (const cairo_surface_t *surface)
+{
+    return surface->backend && surface->backend->type == CAIRO_SURFACE_TYPE_WIN32_PRINTING;
 }
 
 static const cairo_surface_backend_t cairo_win32_printing_surface_backend = {

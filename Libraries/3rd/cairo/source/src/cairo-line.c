@@ -278,7 +278,8 @@ static int bbox_compare (const cairo_line_t *a,
     return 0;
 }
 
-int cairo_lines_compare_at_y (const cairo_line_t *a,
+int
+_cairo_lines_compare_at_y (const cairo_line_t *a,
 			      const cairo_line_t *b,
 			      int y)
 {

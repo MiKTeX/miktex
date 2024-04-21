@@ -104,6 +104,9 @@ struct _cairo_surface {
      * cairo_surface_create_similar().
      */
     cairo_font_options_t font_options;
+
+    cairo_pattern_t *foreground_source;
+    cairo_bool_t foreground_used;
 };
 
 cairo_private cairo_surface_t *

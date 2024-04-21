@@ -36,13 +36,7 @@
  *	Carl D. Worth <cworth@cworth.org>
  */
 
-#define CAIRO_VERSION_H 1
-
 #include "cairoint.h"
-
-/* get the "real" version info instead of dummy cairo-version.h */
-#undef CAIRO_VERSION_H
-#include "../cairo-version.h"
 
 /**
  * SECTION:cairo-version
@@ -258,4 +252,3 @@ cairo_version_string (void)
 {
     return CAIRO_VERSION_STRING;
 }
-slim_hidden_def (cairo_version_string);

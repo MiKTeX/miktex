@@ -798,7 +798,7 @@ _cairo_pdf_operators_emit_stroke (cairo_pdf_operators_t		*pdf_operators,
     }
 
     /* The PDF CTM is transformed to the user space CTM when stroking
-     * so the corect pen shape will be used. This also requires that
+     * so the correct pen shape will be used. This also requires that
      * the path be transformed to user space when emitted. The
      * conversion of path coordinates to user space may cause rounding
      * errors. For example the device space point (1.234, 3.142) when
@@ -1326,7 +1326,7 @@ _cairo_pdf_operators_emit_glyph (cairo_pdf_operators_t             *pdf_operator
      * current position to the next glyph. We also use the Td
      * operator to move the current position if the horizontal
      * position changes by more than 10 (in text space
-     * units). This is becauses the horizontal glyph positioning
+     * units). This is because the horizontal glyph positioning
      * in the TJ operator is intended for kerning and there may be
      * PDF consumers that do not handle very large position
      * adjustments in TJ.
@@ -1568,10 +1568,16 @@ _cairo_pdf_operators_tag_begin (cairo_pdf_operators_t *pdf_operators,
 	    return status;
     }
 
-    _cairo_output_stream_printf (pdf_operators->stream,
-				 "/%s << /MCID %d >> BDC\n",
-				 tag_name,
-				 mcid);
+    if (mcid >= 0) {
+	_cairo_output_stream_printf (pdf_operators->stream,
+				     "/%s << /MCID %d >> BDC\n",
+				     tag_name,
+				     mcid);
+    } else {
+	_cairo_output_stream_printf (pdf_operators->stream,
+				     "/%s BMC\n",
+				     tag_name);
+    }
 
     return _cairo_output_stream_get_status (pdf_operators->stream);
 }

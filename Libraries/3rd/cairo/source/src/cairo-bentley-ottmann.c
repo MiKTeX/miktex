@@ -368,7 +368,7 @@ _cairo_bo_sweep_line_compare_edges (const cairo_bo_sweep_line_t	*sweep_line,
 {
     int cmp;
 
-    cmp = cairo_lines_compare_at_y (&a->edge.line,
+    cmp = _cairo_lines_compare_at_y (&a->edge.line,
 				    &b->edge.line,
 				    sweep_line->current_y);
     if (cmp)

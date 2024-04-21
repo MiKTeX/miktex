@@ -47,6 +47,15 @@
 
 #include "cairoint.h"
 
+/**
+ * CAIRO_HAS_XLIB_XCB_FUNCTIONS:
+ *
+ * Defined if Cairo has support for XCB integration with Xlib.
+ * This macro can be used to conditionally compile backend-specific code.
+ *
+ * Since: 1.10
+ **/
+
 #if !CAIRO_HAS_XLIB_XCB_FUNCTIONS
 
 #include "cairo-xlib-private.h"
@@ -71,8 +80,6 @@
 #include <X11/extensions/XShm.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-
-#define XLIB_COORD_MAX 32767
 
 #define DEBUG 0
 
@@ -986,7 +993,7 @@ _get_image_surface (cairo_xlib_surface_t    *surface,
 		in_pixel = XGetPixel (ximage, x, y);
 		if (visual_info == NULL) {
 		    out_pixel = (
-			_field_to_8 (in_pixel & a_mask, a_width, a_shift) << 24 |
+			(uint32_t)_field_to_8 (in_pixel & a_mask, a_width, a_shift) << 24 |
 			_field_to_8_undither (in_pixel & r_mask, r_width, r_shift, dither_adjustment) << 16 |
 			_field_to_8_undither (in_pixel & g_mask, g_width, g_shift, dither_adjustment) << 8 |
 			_field_to_8_undither (in_pixel & b_mask, b_width, b_shift, dither_adjustment));

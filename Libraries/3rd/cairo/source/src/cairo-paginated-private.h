@@ -80,7 +80,7 @@ struct _cairo_paginated_surface_backend {
     (*supports_fine_grained_fallbacks) (void	    *surface);
 
     /* Optional. Indicates whether the page requires a thumbnail image to be
-     * supplied. If a thumbnail is required, set width, heigh to size required
+     * supplied. If a thumbnail is required, set width, height to size required
      * and return TRUE.
      */
     cairo_bool_t
@@ -178,7 +178,7 @@ _cairo_surface_is_paginated (cairo_surface_t *surface);
 
 cairo_private cairo_status_t
 _cairo_paginated_surface_set_size (cairo_surface_t 	*surface,
-				   int			 width,
-				   int			 height);
+				   double		 width,
+				   double		 height);
 
 #endif /* CAIRO_PAGINATED_H */

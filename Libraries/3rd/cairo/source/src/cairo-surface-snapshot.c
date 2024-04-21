@@ -71,7 +71,9 @@ _cairo_surface_snapshot_flush (void *abstract_surface, unsigned flags)
     cairo_status_t status;
 
     target = _cairo_surface_snapshot_get_target (&surface->base);
-    status = _cairo_surface_flush (target, flags);
+    status = target->status;
+    if (status == CAIRO_STATUS_SUCCESS)
+	status = _cairo_surface_flush (target, flags);
     cairo_surface_destroy (target);
 
     return status;

@@ -455,6 +455,7 @@ static pixman_image_t *
 _pixel_to_solid (cairo_image_surface_t *image, int x, int y)
 {
     uint32_t pixel;
+    float *rgba;
     pixman_color_t color;
 
     TRACE ((stderr, "%s\n", __FUNCTION__));
@@ -522,6 +523,32 @@ _pixel_to_solid (cairo_image_surface_t *image, int x, int y)
 	color.red = (pixel >> 16 & 0xff) | (pixel >> 8 & 0xff00);
 	color.green = (pixel >> 8 & 0xff) | (pixel & 0xff00);
 	color.blue = (pixel & 0xff) | (pixel << 8 & 0xff00);
+	return pixman_image_create_solid_fill (&color);
+
+    case CAIRO_FORMAT_RGB96F:
+    case CAIRO_FORMAT_RGBA128F:
+	if (image->format == CAIRO_FORMAT_RGBA128F)
+	{
+	    rgba = (float *)&image->data[y * image->stride + 16 * x];
+	    color.alpha = 65535.f * rgba[3];
+
+	    if (color.alpha == 0)
+		return _pixman_transparent_image ();
+	}
+	else
+	{
+	    rgba = (float *)&image->data[y * image->stride + 12 * x];
+	    color.alpha = 0xffff;
+	}
+
+	if (color.alpha == 0xffff && rgba[0] == 0.f && rgba[1] == 0.f && rgba[2] == 0.f)
+	    return _pixman_black_image ();
+	if (color.alpha == 0xffff && rgba[0] == 1.f && rgba[1] == 1.f && rgba[2] == 1.f)
+	    return _pixman_white_image ();
+
+	color.red = rgba[0] * 65535.f;
+	color.green = rgba[1] * 65535.f;
+	color.blue = rgba[2] * 65535.f;
 	return pixman_image_create_solid_fill (&color);
     }
 }
@@ -1180,6 +1207,8 @@ _pixman_image_for_recording (cairo_image_surface_t *dst,
 	    clone = _cairo_image_surface_create_with_content (source->content,
 							      limit.width,
 							      limit.height);
+	if (dst->base.foreground_source)
+	    clone->foreground_source = cairo_pattern_reference (dst->base.foreground_source);
     }
 
     m = NULL;
@@ -1197,6 +1226,8 @@ _pixman_image_for_recording (cairo_image_surface_t *dst,
     /* Handle recursion by returning future reads from the current image */
     proxy = attach_proxy (source, clone);
     status = _cairo_recording_surface_replay_with_clip (source, m, clone, NULL);
+    if (clone->foreground_used)
+	dst->base.foreground_used = clone->foreground_used;
     detach_proxy (source, proxy);
     if (unlikely (status)) {
 	cairo_surface_destroy (clone);

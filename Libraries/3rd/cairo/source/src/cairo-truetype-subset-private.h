@@ -52,7 +52,7 @@
  * if you add new tables/structs that should be packed.
  */
 
-#define MAKE_TT_TAG(a, b, c, d)    (a<<24 | b<<16 | c<<8 | d)
+#define MAKE_TT_TAG(a, b, c, d)    ((int)((uint32_t)a<<24 | b<<16 | c<<8 | d))
 #define TT_TAG_CFF    MAKE_TT_TAG('C','F','F',' ')
 #define TT_TAG_cmap   MAKE_TT_TAG('c','m','a','p')
 #define TT_TAG_cvt    MAKE_TT_TAG('c','v','t',' ')

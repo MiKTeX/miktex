@@ -65,6 +65,8 @@ typedef struct _cairo_xlib_surface cairo_xlib_surface_t;
 #define RAMP_SIZE 16
 /* maximum number of cached GC's */
 #define GC_CACHE_SIZE 4
+/* maximum width/height of an X11 drawable */
+#define XLIB_COORD_MAX 32767
 
 struct _cairo_xlib_display {
     cairo_device_t base;

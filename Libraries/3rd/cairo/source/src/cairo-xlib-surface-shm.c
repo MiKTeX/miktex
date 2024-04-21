@@ -43,7 +43,10 @@
 #include "cairo-xlib-surface-private.h"
 
 #if !HAVE_X11_EXTENSIONS_XSHM_H || !(HAVE_X11_EXTENSIONS_SHMPROTO_H || HAVE_X11_EXTENSIONS_SHMSTR_H)
-void _cairo_xlib_display_init_shm (cairo_xlib_display_t *display) {}
+void _cairo_xlib_display_init_shm (cairo_xlib_display_t *display)
+{
+    display->shm = NULL;
+}
 
 cairo_surface_t *
 _cairo_xlib_surface_get_shm (cairo_xlib_surface_t *surface,
@@ -808,6 +811,9 @@ _cairo_xlib_shm_surface_create (cairo_xlib_surface_t *other,
     cairo_xlib_display_t *display;
     pixman_image_t *image;
     int stride, size;
+
+    if (width > XLIB_COORD_MAX || height > XLIB_COORD_MAX)
+	return NULL;
 
     stride = CAIRO_STRIDE_FOR_WIDTH_BPP (width, PIXMAN_FORMAT_BPP(format));
     size = stride * height;

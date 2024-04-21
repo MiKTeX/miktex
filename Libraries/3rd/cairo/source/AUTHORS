@@ -29,7 +29,7 @@ Larry Ewing <lewing@novell.com> Test case for group-clip
 Brian Ewins <Brian.Ewins@gmail.com> ATSUI maintenance (first success at making it really work)
 Bertram Felgenhauer <int-e@gmx.de> Fixes for subtle arithmetic errors
 Damian Frank <damian.frank@gmail.com> Build system improvements for win32
-Bdale Garbee <bdale@gag.com> Provided essential support for cairo achitecture sessions
+Bdale Garbee <bdale@gag.com> Provided essential support for cairo architecture sessions
 Jens Granseuer <jensgr@gmx.net> Fixes to generate proper compiler flags
 Laxmi Harikumar <laxmi.harikumar@digital.com> Build fix
 J. Ali Harlow <ali@avrc.city.ac.uk> win32 backend updates
@@ -42,7 +42,7 @@ Thomas Hunger <info@teh-web.de> Initial version of cairo_in_stroke/fill
 Thomas Jaeger <ThJaeger@gmail.com> Extended repeat modes for X
 Björn Lindqvist <bjourne@gmail.com> Performance test cases
 Kristian Høgsberg <krh@redhat.com> PDF backend, PS backend with meta-surfaces
-Amaury Jacquot <sxpert@esitcom.org> Documentation review, appplication testing
+Amaury Jacquot <sxpert@esitcom.org> Documentation review, application testing
 Adrian Johnson <ajohnson@redneon.com> PDF backend improvement
 Michael Johnson <ahze@ahze.net> Bug fix for pre-C99 compilers
 Jonathon Jongsma <jonathon.jongsma@gmail.com> Fix documentation typos
@@ -61,7 +61,7 @@ Jordi Mas <jordi@ximian.com> Bug fix for cairo_show_text
 Nicholas Miell <nmiell@gmail.com> Fixes for linking bugs on AMD64
 Eugeniy Meshcheryakov <eugen@debian.org> PS/PDF font subsetting improvements
 Zakharov Mikhail <zmey20000@yahoo.com> Build fix for HP-UX
-Christopher (Monty) Montgomery <xiphmont@gmail.com> Performnace fix (subimage_copy), multi-thread testing
+Christopher (Monty) Montgomery <xiphmont@gmail.com> Performance fix (subimage_copy), multi-thread testing
 Tim Mooney <enchanter@users.sourceforge.net> Fix test suite to compile with Solaris compiler
 Jeff Muizelaar <jeff@infidigm.net> Patient, painful, pixman code merge. Many fixes for intricacies of dashing.
 Yevgen Muntyan <muntyan@tamu.edu> win32 build fix
@@ -105,7 +105,7 @@ Sasha Vasko <sasha@aftercode.net> Build fix to compile without xlib backend
 Vladimir Vukicevic <vladimir@pobox.com> Quartz backend rewrite, win32/quartz maintenance
 Jonathan Watt <jwatt@jwatt.org> win32 fixes
 Peter Weilbacher <pmw@avila.aip.de> OS/2 backend
-Dan Williams <dcbw@redhat.com> Implemnt MMX function to help OLPC
+Dan Williams <dcbw@redhat.com> Implement MMX function to help OLPC
 Chris Wilson <chris@chris-wilson.co.uk> Large-scale robustness improvements, (warn_unsed_result and malloc failure injection)
 Carl Worth <cworth@isi.edu> Original library, support for paths, images
 Richard D. Worth <richard@theworths.org> Build fixes for cygwin

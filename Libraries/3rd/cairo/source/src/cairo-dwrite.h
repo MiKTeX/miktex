@@ -1,7 +1,6 @@
-/* vim: set sw=4 sts=4 et cin: */
 /* cairo - a vector graphics library with display and print output
  *
- * Copyright (c) 2005-2006 netlabs.org
+ * Copyright © 2023 Adrian Johnson
  *
  * This library is free software; you can redistribute it and/or
  * modify it either under the terms of the GNU Lesser General Public
@@ -28,40 +27,46 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is
- *     Doodle <doodle@scenergy.dfmk.hu>
- *
  * Contributor(s):
- *     Peter Weilbacher <mozilla@Weilbacher.org>
+ *	Adrian Johnson <ajohnson@redneon.com>
  */
 
-#ifndef CAIRO_OS2_PRIVATE_H
-#define CAIRO_OS2_PRIVATE_H
+#ifndef _CAIRO_DWRITE_H_
+#define _CAIRO_DWRITE_H_
 
-#include "cairo-os2.h"
-#include "cairoint.h"
+#include "cairo.h"
 
-typedef struct _cairo_os2_surface
-{
-    cairo_surface_t        base;
+#if CAIRO_HAS_DWRITE_FONT
 
-    /* Mutex semaphore to protect private fields from concurrent access */
-    HMTX                   hmtx_use_private_fields;
-    /* Private fields: */
-    HPS                    hps_client_window;
-    HWND                   hwnd_client_window;
-    BITMAPINFO2            bitmap_info;
-    unsigned char         *pixels;
-    cairo_image_surface_t *image_surface;
-    int                    pixel_array_lend_count;
-    HEV                    hev_pixel_array_came_back;
+#ifdef __cplusplus
 
-    RECTL                  rcl_dirty_area;
-    cairo_bool_t           dirty_area_present;
+#include <dwrite.h>
 
-    /* General flags: */
-    cairo_bool_t           blit_as_changes;
-    cairo_bool_t           use_24bpp;
-} cairo_os2_surface_t;
+CAIRO_BEGIN_DECLS
 
-#endif /* CAIRO_OS2_PRIVATE_H */
+cairo_public cairo_font_face_t *
+cairo_dwrite_font_face_create_for_dwrite_fontface (IDWriteFontFace *dwrite_font_face);
+
+cairo_public IDWriteRenderingParams *
+cairo_dwrite_font_face_get_rendering_params (cairo_font_face_t *font_face);
+
+cairo_public void
+cairo_dwrite_font_face_set_rendering_params (cairo_font_face_t *font_face, IDWriteRenderingParams *params);
+
+cairo_public DWRITE_MEASURING_MODE
+cairo_dwrite_font_face_get_measuring_mode (cairo_font_face_t *font_face);
+
+cairo_public void
+cairo_dwrite_font_face_set_measuring_mode (cairo_font_face_t *font_face, DWRITE_MEASURING_MODE mode);
+
+CAIRO_END_DECLS
+
+#else  /* __cplusplus */
+#error DWrite font backend requires C++
+#endif /* __cplusplus */
+
+#else  /* CAIRO_HAS_DWRITE_FONT */
+# error Cairo was not compiled with support for DWrite font backend
+#endif /* CAIRO_HAS_DWRITE_FONT */
+
+#endif /* _CAIRO_DWRITE_H_ */

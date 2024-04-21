@@ -53,7 +53,7 @@ _expand_four_tuple_to_five (unsigned char four_tuple[4],
     uint32_t value;
     int digit, i;
 
-    value = four_tuple[0] << 24 | four_tuple[1] << 16 | four_tuple[2] << 8 | four_tuple[3];
+    value = (uint32_t)four_tuple[0] << 24 | four_tuple[1] << 16 | four_tuple[2] << 8 | four_tuple[3];
     if (all_zero)
 	*all_zero = TRUE;
     for (i = 0; i < 5; i++) {

@@ -623,16 +623,6 @@ cell_list_rewind (struct cell_list *cells)
 }
 
 inline static void
-cell_list_maybe_rewind (struct cell_list *cells, int x)
-{
-    if (x < cells->cursor->x) {
-	cells->cursor = cells->rewind;
-	if (x < cells->cursor->x)
-	    cells->cursor = &cells->head;
-    }
-}
-
-inline static void
 cell_list_set_rewind (struct cell_list *cells)
 {
     cells->rewind = cells->cursor;
@@ -1287,12 +1277,15 @@ glitter_scan_converter_reset(
 			     int xmax, int ymax)
 {
     glitter_status_t status;
+    int max_num_spans;
 
     converter->xmin = 0; converter->xmax = 0;
     converter->ymin = 0; converter->ymax = 0;
 
-    if (xmax - xmin > ARRAY_LENGTH(converter->spans_embedded)) {
-	converter->spans = _cairo_malloc_ab (xmax - xmin,
+    max_num_spans = xmax - xmin + 1;
+
+    if (max_num_spans > ARRAY_LENGTH(converter->spans_embedded)) {
+	converter->spans = _cairo_malloc_ab (max_num_spans,
 					     sizeof (cairo_half_open_span_t));
 	if (unlikely (converter->spans == NULL))
 	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);

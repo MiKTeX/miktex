@@ -1,6 +1,6 @@
 /* cairo - a vector graphics library with display and print output
  *
- * Copyright © 2011 Intel Corporation.
+ * Copyright © 2009,2016,2021,2022 Adrian Johnson
  *
  * This library is free software; you can redistribute it and/or
  * modify it either under the terms of the GNU Lesser General Public
@@ -19,34 +19,68 @@
  * The contents of this file are subject to the Mozilla Public License
  * Version 1.1 (the "License"); you may not use this file except in
  * compliance with the License. You may obtain a copy of the License at
- * http://www.mozilla.og/MPL/
+ * http://www.mozilla.org/MPL/
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
  * OF ANY KIND, either express or implied. See the LGPL or the MPL for
  * the specific language governing rights and limitations.
  *
+ * The Original Code is the cairo graphics library.
+ *
+ * The Initial Developer of the Original Code is University of Southern
+ * California.
+ *
  * Contributor(s):
- *      Robert Bragg <robert@linux.intel.com>
+ *	Adrian Johnson <ajohnson@redneon.com>
  */
 
-#ifndef CAIRO_COGL_CONTEXT_PRIVATE_H
-#define CAIRO_COGL_CONTEXT_PRIVATE_H
+#ifndef _CAIRO_CTYPE_INLINE_H_
+#define _CAIRO_CTYPE_INLINE_H_
 
-#include "cairo-default-context-private.h"
-#include "cairo-cogl-private.h"
+#include "cairo-error-private.h"
 
-typedef struct _cairo_cogl_context {
-    cairo_default_context_t base;
+CAIRO_BEGIN_DECLS
 
-    cairo_cogl_device_t *dev;
-    int path_ctm_age;
-    cairo_path_fixed_t user_path;
+/* ASCII only versions of some ctype.h character classification functions.
+ * The glibc versions are slow in UTF-8 locales.
+ */
 
-    cairo_bool_t path_is_rectangle;
-    double x, y, width, height;
-} cairo_cogl_context_t;
+static inline int cairo_const
+_cairo_isspace (int c)
+{
+    return (c == 0x20 || (c >= 0x09 && c <= 0x0d));
+}
 
-cairo_t *
-_cairo_cogl_context_create (void *target);
+static inline int cairo_const
+_cairo_isdigit (int c)
+{
+    return (c >= '0' && c <= '9');
+}
 
-#endif /* CAIRO_COGL_CONTEXT_PRIVATE_H */
+static inline int cairo_const
+_cairo_isxdigit (int c)
+{
+    return ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
+}
+
+static inline int cairo_const
+_cairo_isalpha (int c)
+{
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+static inline int cairo_const
+_cairo_isprint (int c)
+{
+    return (c >= 0x20 && c <= 0x7e);
+}
+
+static inline int cairo_const
+_cairo_isalnum (int c)
+{
+    return ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+}
+
+CAIRO_END_DECLS
+
+#endif /* _CAIRO_CTYPE_INLINE_H_ */

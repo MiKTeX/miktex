@@ -1,12 +1,18 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2013-2022 Christian Schenk
+## Copyright (C) 2013-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
 
-set(${cairo_dll_name}_sources ${cairo_sources})
+set(${cairo_dll_name}_sources
+    ${cairo_headers}
+    ${cairo_sources}
+    ${configured_headers}
+    ${feature_headers}
+    ${feature_sources}
+)
 
 if(MIKTEX_NATIVE_WINDOWS)
     configure_file(

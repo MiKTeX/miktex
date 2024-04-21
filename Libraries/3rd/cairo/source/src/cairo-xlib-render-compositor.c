@@ -1074,8 +1074,7 @@ _cairo_xlib_glyph_fini (cairo_scaled_glyph_private_t *glyph_private,
 	    to_free->count = 0;
 	}
 
-	to_free->indices[to_free->count++] =
-	    _cairo_scaled_glyph_index (glyph);
+	to_free->indices[to_free->count++] = glyph->hash_entry.hash;
     }
 
     cairo_list_del (&glyph_private->link);
@@ -1193,7 +1192,7 @@ _cairo_xlib_surface_add_glyph (cairo_xlib_display_t *display,
     cairo_bool_t already_had_glyph_surface;
     cairo_xlib_font_glyphset_t *info;
 
-    glyph_index = _cairo_scaled_glyph_index (glyph);
+    glyph_index = glyph->hash_entry.hash;
 
     /* check to see if we have a pending XRenderFreeGlyph for this glyph */
     info = find_pending_free_glyph (display, font, glyph_index, glyph_surface);
@@ -1205,6 +1204,7 @@ _cairo_xlib_surface_add_glyph (cairo_xlib_display_t *display,
 					     glyph_index,
 					     CAIRO_SCALED_GLYPH_INFO_METRICS |
 					     CAIRO_SCALED_GLYPH_INFO_SURFACE,
+                                             NULL, /* foreground color */
 					     pscaled_glyph);
 	if (unlikely (status))
 	    return status;
@@ -1570,6 +1570,9 @@ check_composite_glyphs (const cairo_composite_rectangles_t *extents,
  * enough room for padding */
 #define _cairo_sz_xGlyphElt (sz_xGlyphElt + 4)
 
+#define PHASE(x) ((int)(floor (4 * (x + 0.125)) - 4 * floor (x + 0.125)))
+#define POSITION(x) ((int) floor (x + 0.125))
+
 static cairo_int_status_t
 composite_glyphs (void				*surface,
 		  cairo_operator_t		 op,
@@ -1605,18 +1608,25 @@ composite_glyphs (void				*surface,
     op = _render_operator (op),
     _cairo_xlib_surface_ensure_picture (dst);
     for (i = 0; i < num_glyphs; i++) {
+        unsigned long xphase, yphase;
 	int this_x, this_y;
 	int old_width;
+
+        xphase = PHASE(glyphs[i].d.x);
+        yphase = PHASE(glyphs[i].d.y);
+
+        glyphs[i].index |= (xphase << 24) | (yphase << 26);
 
 	status = _cairo_scaled_glyph_lookup (info->font,
 					     glyphs[i].index,
 					     CAIRO_SCALED_GLYPH_INFO_METRICS,
+                                             NULL, /* foreground color */
 					     &glyph);
 	if (unlikely (status))
 	    return status;
 
-	this_x = _cairo_lround (glyphs[i].d.x);
-	this_y = _cairo_lround (glyphs[i].d.y);
+	this_x = POSITION (glyphs[i].d.x);
+	this_y = POSITION (glyphs[i].d.y);
 
 	/* Send unsent glyphs to the server */
 	if (glyph->dev_private_key != display) {

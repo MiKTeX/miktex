@@ -99,6 +99,9 @@ static const char * _cairo_tag_stack_struct_pdf_list[] =
     "Formula",
     "Form",
 
+    /* Section 14.8.2.2.2 - Artifacts */
+    "Artifact",
+
     NULL
 };
 
@@ -106,6 +109,8 @@ static const char * _cairo_tag_stack_struct_pdf_list[] =
 static const char * _cairo_tag_stack_cairo_tag_list[] =
 {
     CAIRO_TAG_DEST,
+    CAIRO_TAG_CONTENT,
+    CAIRO_TAG_CONTENT_REF,
     NULL
 };
 
@@ -163,7 +168,18 @@ _cairo_tag_stack_push (cairo_tag_stack_t *stack,
 	! name_in_list (name, _cairo_tag_stack_cairo_tag_list))
     {
 	stack->type = TAG_TYPE_INVALID;
-	return _cairo_error (CAIRO_STATUS_TAG_ERROR);
+	return _cairo_tag_error ("Invalid tag: %s", name);
+    }
+
+    cairo_tag_stack_elem_t *top = _cairo_tag_stack_top_elem (stack);
+    if (top &&
+	(strcmp (top->name, CAIRO_TAG_CONTENT) == 0 ||
+	 strcmp (top->name, CAIRO_TAG_CONTENT_REF) == 0 ||
+	 strcmp (top->name, "Artifact") == 0))
+    {
+	return _cairo_tag_error ("%s tag can not contain nested tags",
+				 (strcmp (top->name, CAIRO_TAG_CONTENT) == 0) ? "CAIRO_TAG_CONTENT" :
+				 ((strcmp (top->name, CAIRO_TAG_CONTENT_REF) == 0) ? "CAIRO_TAG_CONTENT_REF" : top->name));
     }
 
     if (stack->type == TAG_TREE_TYPE_NO_TAGS) {
@@ -227,15 +243,18 @@ _cairo_tag_stack_pop (cairo_tag_stack_t *stack,
     top = _cairo_tag_stack_top_elem (stack);
     if (!top) {
 	stack->type = TAG_TYPE_INVALID;
-	return _cairo_error (CAIRO_STATUS_TAG_ERROR);
+	return _cairo_tag_error ("cairo_tag_end(\"%s\") no matching begin tag", name);
     }
 
     cairo_list_del (&top->link);
     stack->size--;
     if (strcmp (top->name, name) != 0) {
+	cairo_status_t status =
+	    _cairo_tag_error ("cairo_tag_end(\"%s\") does not matching previous begin tag \"%s\"",
+			      name, top->name);
 	stack->type = TAG_TYPE_INVALID;
 	_cairo_tag_stack_free_elem (top);
-	return _cairo_error (CAIRO_STATUS_TAG_ERROR);
+	return status;
     }
 
     if (elem)
@@ -256,6 +275,19 @@ _cairo_tag_stack_top_elem (cairo_tag_stack_t *stack)
 }
 
 void
+_cairo_tag_stack_foreach (cairo_tag_stack_t *stack,
+			  void (*func)(cairo_tag_stack_elem_t *elem,
+				       void *closure),
+			  void *closure)
+{
+    cairo_tag_stack_elem_t *elem;
+
+    cairo_list_foreach_entry (elem, cairo_tag_stack_elem_t, &stack->list, link) {
+	func (elem, closure);
+    }
+}
+
+void
 _cairo_tag_stack_free_elem (cairo_tag_stack_elem_t *elem)
 {
     free (elem->name);
@@ -273,8 +305,29 @@ _cairo_tag_get_type (const char *name)
     if (strcmp(name, "Link") == 0)
 	return (TAG_TYPE_LINK | TAG_TYPE_STRUCTURE);
 
-    if (strcmp(name, "cairo.dest") == 0)
+    if (strcmp(name, CAIRO_TAG_DEST) == 0)
 	return TAG_TYPE_DEST;
 
+    if (strcmp(name, CAIRO_TAG_CONTENT) == 0)
+	return TAG_TYPE_CONTENT;
+
+    if (strcmp(name, CAIRO_TAG_CONTENT_REF) == 0)
+	return TAG_TYPE_CONTENT_REF;
+
     return TAG_TYPE_STRUCTURE;
+}
+
+cairo_status_t
+_cairo_tag_error (const char *fmt, ...)
+{
+    va_list ap;
+
+    if (getenv ("CAIRO_DEBUG_TAG") != NULL) {
+	printf ("TAG ERROR: ");
+	va_start (ap, fmt);
+	vprintf (fmt, ap);
+	va_end (ap);
+	printf ("\n");
+    }
+    return _cairo_error (CAIRO_STATUS_TAG_ERROR);
 }

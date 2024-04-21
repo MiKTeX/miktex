@@ -383,6 +383,10 @@ _cairo_xlib_display_get_xrender_format_for_pixman(cairo_xlib_display_t *display,
     XRenderPictFormat tmpl;
     int mask;
 
+    /* No equivalent in X11 yet. */
+    if (format == PIXMAN_rgba_float || format == PIXMAN_rgb_float)
+	return NULL;
+
 #define MASK(x) ((1<<(x))-1)
 
     tmpl.depth = PIXMAN_FORMAT_DEPTH(format);
@@ -509,6 +513,14 @@ _cairo_xlib_display_get_xrender_format (cairo_xlib_display_t	*display,
 	case CAIRO_FORMAT_RGB30:
 	    xrender_format = _cairo_xlib_display_get_xrender_format_for_pixman(display,
 									       PIXMAN_x2r10g10b10);
+	    break;
+	case CAIRO_FORMAT_RGBA128F:
+	    xrender_format = _cairo_xlib_display_get_xrender_format_for_pixman(display,
+									       PIXMAN_rgba_float);
+	    break;
+	case CAIRO_FORMAT_RGB96F:
+	    xrender_format = _cairo_xlib_display_get_xrender_format_for_pixman(display,
+									       PIXMAN_rgb_float);
 	    break;
 	case CAIRO_FORMAT_INVALID:
 	default:

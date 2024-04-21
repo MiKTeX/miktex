@@ -284,7 +284,7 @@ _cairo_traps_tessellate_convex_quad (cairo_traps_t *traps,
      * cases to tessellate.
      *
      * First, we have to determine the Y-axis sort of the four
-     * vertices, (either abcd or abdc). After that we need to detemine
+     * vertices, (either abcd or abdc). After that we need to determine
      * which edges will be "left" and which will be "right" in the
      * resulting trapezoids. This can be determined by computing a
      * slope comparison of ab and ad to determine if b is left of d or
@@ -404,7 +404,7 @@ static void add_tri (cairo_traps_t *traps,
 	y2 = tmp;
     }
 
-    if (cairo_lines_compare_at_y (left, right, y1) > 0) {
+    if (_cairo_lines_compare_at_y (left, right, y1) > 0) {
 	const cairo_line_t *tmp = left;
 	left = right;
 	right = tmp;

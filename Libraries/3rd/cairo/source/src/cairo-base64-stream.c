@@ -85,6 +85,7 @@ _cairo_base64_stream_write (cairo_output_stream_t *base,
 	switch (stream->trailing) {
 	    case 2:
 		dst[2] = '=';
+		/* fall through */
 	    case 1:
 		dst[3] = '=';
 	    default:
