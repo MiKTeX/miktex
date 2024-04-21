@@ -1,6 +1,6 @@
 /* poppler-sound.cc: qt interface to poppler
  * Copyright (C) 2006-2007, Pino Toscano <pino@kde.org>
- * Copyright (C) 2008, 2018, 2020, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2008, 2018, 2020, 2024, Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

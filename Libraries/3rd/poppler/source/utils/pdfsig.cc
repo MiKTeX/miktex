@@ -17,8 +17,8 @@
 // Copyright 2021 Georgiy Sgibnev <georgiy@sgibnev.com>. Work sponsored by lab50.net.
 // Copyright 2021 Theofilos Intzoglou <int.teo@gmail.com>
 // Copyright 2022 Felix Jung <fxjung@posteo.de>
-// Copyright 2022 Erich E. Hoover <erich.e.hoover@gmail.com>
-// Copyright 2023 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
+// Copyright 2022, 2024 Erich E. Hoover <erich.e.hoover@gmail.com>
+// Copyright 2023, 2024 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
 //
 //========================================================================
 
@@ -38,6 +38,7 @@
 #include "Page.h"
 #include "PDFDoc.h"
 #include "PDFDocFactory.h"
+#include "DateInfo.h"
 #include "Error.h"
 #include "GlobalParams.h"
 #ifdef ENABLE_NSS3
@@ -50,6 +51,14 @@
 #include "UTF.h"
 #if __has_include(<libgen.h>)
 #    include <libgen.h>
+#endif
+
+#ifdef HAVE_GETTEXT
+#    include <libintl.h>
+#    include <clocale>
+#    define _(STRING) gettext(STRING)
+#else
+#    define _(STRING) STRING
 #endif
 
 static const char *getReadableSigState(SignatureValidationStatus sig_vs)
@@ -139,6 +148,7 @@ static bool printHelp = false;
 static bool printCryptoSignBackends = false;
 static bool dontVerifyCert = false;
 static bool noOCSPRevocationCheck = false;
+static bool noAppearance = false;
 static bool dumpSignatures = false;
 static bool etsiCAdESdetached = false;
 static char backendString[256] = "";
@@ -156,6 +166,7 @@ static const ArgDesc argDesc[] = { { "-nssdir", argGooString, &nssDir, 0, "path 
                                    { "-nss-pwd", argGooString, &nssPassword, 0, "password to access the NSS database (if any)" },
                                    { "-nocert", argFlag, &dontVerifyCert, 0, "don't perform certificate validation" },
                                    { "-no-ocsp", argFlag, &noOCSPRevocationCheck, 0, "don't perform online OCSP certificate revocation check" },
+                                   { "-no-appearance", argFlag, &noAppearance, 0, "don't add appearance information when signing existing fields" },
                                    { "-aia", argFlag, &useAIACertFetch, 0, "use Authority Information Access (AIA) extension for certificate fetching" },
                                    { "-dump", argFlag, &dumpSignatures, 0, "dump all signatures into current directory" },
                                    { "-add-signature", argFlag, &addNewSignature, 0, "adds a new signature to the document" },
@@ -275,21 +286,23 @@ static std::string TextStringToUTF8(const std::string &str)
 {
     const UnicodeMap *utf8Map = globalParams->getUtf8Map();
 
-    Unicode *u;
-    const int len = TextStringToUCS4(str, &u);
+    std::vector<Unicode> u = TextStringToUCS4(str);
 
     std::string convertedStr;
-    for (int i = 0; i < len; ++i) {
+    for (auto &c : u) {
         char buf[8];
-        const int n = utf8Map->mapUnicode(u[i], buf, sizeof(buf));
+        const int n = utf8Map->mapUnicode(c, buf, sizeof(buf));
         convertedStr.append(buf, n);
     }
-    gfree(u);
 
     return convertedStr;
 }
 
+#if defined(MIKTEX)
 int main(int argc, char *argv[])
+#else
+int main(int argc, char *argv[])
+#endif
 {
     char *time_str = nullptr;
     globalParams = std::make_unique<GlobalParams>();
@@ -514,8 +527,28 @@ int main(int argc, char *argv[])
             printf("Unexpected number of widgets for the signature: %d\n", ffs->getNumWidgets());
             return 2;
         }
+#ifdef HAVE_GETTEXT
+        if (!noAppearance) {
+            setlocale(LC_ALL, "");
+            bindtextdomain("pdfsig", CMAKE_INSTALL_LOCALEDIR);
+            textdomain("pdfsig");
+        }
+#endif
         FormWidgetSignature *fws = static_cast<FormWidgetSignature *>(ffs->getWidget(0));
-        const bool success = fws->signDocument(std::string { argv[2] }, std::string { certNickname }, std::string { password }, rs.get());
+        auto backend = CryptoSign::Factory::createActive();
+        auto sigHandler = backend->createSigningHandler(certNickname, HashAlgorithm::Sha256);
+        std::unique_ptr<X509CertificateInfo> certInfo = sigHandler->getCertificateInfo();
+        if (!certInfo) {
+            fprintf(stderr, "signDocument: error getting signature info\n");
+            return 2;
+        }
+        const std::string signerName = certInfo->getSubjectInfo().commonName;
+        const std::string timestamp = timeToStringWithFormat(nullptr, "%Y.%m.%d %H:%M:%S %z");
+        const AnnotColor blackColor(0, 0, 0);
+        const std::string signatureText(GooString::format(_("Digitally signed by {0:s}"), signerName.c_str())->toStr() + "\n" + GooString::format(_("Date: {0:s}"), timestamp.c_str())->toStr());
+        const auto gSignatureText = std::make_unique<GooString>((signatureText.empty() || noAppearance) ? "" : utf8ToUtf16WithBom(signatureText));
+        const auto gSignatureLeftText = std::make_unique<GooString>((signerName.empty() || noAppearance) ? "" : utf8ToUtf16WithBom(signerName));
+        const bool success = fws->signDocumentWithAppearance(argv[2], std::string { certNickname }, std::string { password }, rs.get(), nullptr, {}, {}, *gSignatureText, *gSignatureLeftText, 0, 0, std::make_unique<AnnotColor>(blackColor));
         return success ? 0 : 3;
     }
 

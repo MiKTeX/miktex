@@ -15,7 +15,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2007-2008, 2010, 2018, 2022 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2008, 2010, 2018, 2022, 2024 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2010 Jakob Voss <jakob.voss@gbv.de>
 // Copyright (C) 2012, 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
@@ -23,6 +23,8 @@
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
 // Copyright (C) 2019, 2021 Oliver Sander <oliver.sander@tu-dresden.de>
 // Copyright (C) 2019 Hartmut Goebel <h.goebel@crazy-compilers.com>
+// Copyright (C) 2024 Fernando Herrera <fherrera@onirica.com>
+// Copyright (C) 2024 Sebastian J. Bronner <waschtl@sbronner.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -63,6 +65,7 @@ static bool dumpJBIG2 = false;
 static bool dumpCCITT = false;
 static bool allFormats = false;
 static bool pageNames = false;
+static bool printFilenames = false;
 static char ownerPassword[33] = "\001";
 static char userPassword[33] = "\001";
 static bool quiet = false;
@@ -86,6 +89,7 @@ static const ArgDesc argDesc[] = { { "-f", argInt, &firstPage, 0, "first page to
                                    { "-opw", argString, ownerPassword, sizeof(ownerPassword), "owner password (for encrypted files)" },
                                    { "-upw", argString, userPassword, sizeof(userPassword), "user password (for encrypted files)" },
                                    { "-p", argFlag, &pageNames, 0, "include page numbers in output file names" },
+                                   { "-print-filenames", argFlag, &printFilenames, 0, "print image filenames to stdout" },
                                    { "-q", argFlag, &quiet, 0, "don't print any messages or errors" },
                                    { "-v", argFlag, &printVersion, 0, "print copyright and version info" },
                                    { "-h", argFlag, &printHelp, 0, "print usage information" },
@@ -100,16 +104,13 @@ int Main(int argc, char** argv)
 int main(int argc, char *argv[])
 #endif
 {
-    GooString *fileName;
     char *imgRoot = nullptr;
     std::optional<GooString> ownerPW, userPW;
-    ImageOutputDev *imgOut;
-    bool ok;
 
     Win32Console win32Console(&argc, &argv);
 
     // parse args
-    ok = parseArgs(argDesc, &argc, argv);
+    const bool ok = parseArgs(argDesc, &argc, argv);
     if (!ok || (listImages && argc != 2) || (!listImages && argc != 3) || printVersion || printHelp) {
         fprintf(stderr, "pdfimages version %s\n", PACKAGE_VERSION);
         fprintf(stderr, "%s\n", popplerCopyright);
@@ -122,7 +123,7 @@ int main(int argc, char *argv[])
         }
         return 99;
     }
-    fileName = new GooString(argv[1]);
+    GooString *fileName = new GooString(argv[1]);
     if (!listImages) {
         imgRoot = argv[2];
     }
@@ -177,7 +178,7 @@ int main(int argc, char *argv[])
     }
 
     // write image files
-    imgOut = new ImageOutputDev(imgRoot, pageNames, listImages);
+    ImageOutputDev *imgOut = new ImageOutputDev(imgRoot, pageNames, listImages);
     if (imgOut->isOk()) {
         if (allFormats) {
             imgOut->enablePNG(true);
@@ -194,9 +195,10 @@ int main(int argc, char *argv[])
             imgOut->enableJBig2(dumpJBIG2);
             imgOut->enableCCITT(dumpCCITT);
         }
+        imgOut->enablePrintFilenames(printFilenames);
         doc->displayPages(imgOut, firstPage, lastPage, 72, 72, 0, true, false, false);
     }
+    const int exitCode = imgOut->isOk() ? 0 : imgOut->getErrorCode();
     delete imgOut;
-
-    return 0;
+    return exitCode;
 }

@@ -27,6 +27,7 @@
 // Copyright (C) 2019, 2022 Oliver Sander <oliver.sander@tu-dresden.de>
 // Copyright (C) 2019 Dan Shea <dan.shea@logical-innovations.com>
 // Copyright (C) 2020 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
+// Copyright (C) 2024 Stefan Brüns <stefan.bruens@rwth-aachen.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -171,16 +172,16 @@ public:
     void visitSelection(TextSelectionVisitor *visitor, const PDFRectangle *selection, SelectionStyle style);
 
     // Get the TextFontInfo object associated with a character.
-    const TextFontInfo *getFontInfo(int idx) const { return font[idx]; }
+    const TextFontInfo *getFontInfo(int idx) const { return chars[idx].font; }
 
     // Get the next TextWord on the linked list.
     const TextWord *getNext() const { return next; }
 
 #ifdef TEXTOUT_WORD_LIST
-    int getLength() const { return len; }
-    const Unicode *getChar(int idx) const { return &text[idx]; }
+    int getLength() const { return chars.size(); }
+    const Unicode *getChar(int idx) const { return &chars[idx].text; }
     GooString *getText() const;
-    const GooString *getFontName(int idx) const { return font[idx]->fontName; }
+    const GooString *getFontName(int idx) const { return chars[idx].font->fontName; }
     void getColor(double *r, double *g, double *b) const
     {
         *r = colorR;
@@ -197,19 +198,19 @@ public:
     void getCharBBox(int charIdx, double *xMinA, double *yMinA, double *xMaxA, double *yMaxA) const;
     double getFontSize() const { return fontSize; }
     int getRotation() const { return rot; }
-    int getCharPos() const { return charPos[0]; }
-    int getCharLen() const { return charPos[len] - charPos[0]; }
+    int getCharPos() const { return chars.empty() ? 0 : chars.front().charPos; }
+    int getCharLen() const { return chars.empty() ? 0 : chars.back().charPos - chars.front().charPos; }
     bool getSpaceAfter() const { return spaceAfter; }
 #endif
     bool isUnderlined() const { return underlined; }
     const AnnotLink *getLink() const { return link; }
-    double getEdge(int i) const { return edge[i]; }
+    double getEdge(int i) const { return chars[i].edge; }
     double getBaseline() const { return base; }
     bool hasSpaceAfter() const { return spaceAfter; }
     const TextWord *nextWord() const { return next; };
+    auto len() const { return chars.size(); }
 
 private:
-    void ensureCapacity(int capacity);
     void setInitialBounds(TextFontInfo *fontA, double x, double y);
 
     int rot; // rotation, multiple of 90 degrees
@@ -218,18 +219,22 @@ private:
     double xMin, xMax; // bounding box x coordinates
     double yMin, yMax; // bounding box y coordinates
     double base; // baseline x or y coordinate
-    Unicode *text; // the text
-    CharCode *charcode; // glyph indices
-    double *edge; // "near" edge x or y coord of each char
-                  //   (plus one extra entry for the last char)
-    int *charPos; // character position (within content stream)
-                  //   of each char (plus one extra entry for
-                  //   the last char)
-    int len; // length of text/edge/charPos/font arrays
-    int size; // size of text/edge/charPos/font arrays
-    TextFontInfo **font; // font information for each char
-    Matrix *textMat; // transformation matrix for each char
+
     double fontSize; // font size
+
+    struct CharInfo
+    {
+        Unicode text;
+        CharCode charcode;
+        int charPos;
+        double edge;
+        TextFontInfo *font;
+        Matrix textMat;
+    };
+    std::vector<CharInfo> chars;
+    int charPosEnd = 0;
+    double edgeEnd = 0;
+
     bool spaceAfter; // set if there is a space between this
                      //   word and the next word on the line
     bool underlined;

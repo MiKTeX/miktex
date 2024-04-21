@@ -17,6 +17,7 @@
 // Copyright (C) 2016, 2018, 2021 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2019, 2020 Oliver Sander <oliver.sander@tu-dresden.de>
 // Copyright (C) 2021 RM <rm+git@arcsin.org>
+// Copyright (C) 2024 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -27,6 +28,7 @@
 #define OUTLINE_H
 
 #include <memory>
+#include <vector>
 #include "Object.h"
 #include "CharTypes.h"
 #include "poppler_private_export.h"
@@ -91,9 +93,8 @@ public:
     OutlineItem(const OutlineItem &) = delete;
     OutlineItem &operator=(const OutlineItem &) = delete;
     static std::vector<OutlineItem *> *readItemList(OutlineItem *parent, const Object *firstItemRef, XRef *xrefA, PDFDoc *docA);
-    const Unicode *getTitle() const { return title; }
+    const std::vector<Unicode> &getTitle() const { return title; }
     void setTitle(const std::string &titleA);
-    int getTitleLength() const { return titleLen; }
     bool setPageDest(int i);
     // OutlineItem keeps the ownership of the action
     const LinkAction *getAction() const { return action.get(); }
@@ -112,8 +113,7 @@ private:
     OutlineItem *parent;
     PDFDoc *doc;
     XRef *xref;
-    Unicode *title;
-    int titleLen;
+    std::vector<Unicode> title;
     std::unique_ptr<LinkAction> action;
     bool startsOpen;
     std::vector<OutlineItem *> *kids; // nullptr if this item is closed or has no kids

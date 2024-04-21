@@ -47,6 +47,7 @@
 // Copyright (C) 2020 Eddie Kohler <ekohler@gmail.com>
 // Copyright (C) 2021 Christopher Hasse <hasse.christopher@gmail.com>
 // Copyright (C) 2022 Brian Rosenfield <brosenfi@yahoo.com>
+// Copyright (C) 2024 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -124,11 +125,11 @@ static bool debug = false;
 
 #if 0
 static GooString* Dirname(GooString* str){
-  
+
   char *p=str->c_str();
   int len=str->getLength();
   for (int i=len-1;i>=0;i--)
-    if (*(p+i)==SLASH) 
+    if (*(p+i)==SLASH)
       return new GooString(p,i+1);
   return new GooString();
 }
@@ -219,14 +220,13 @@ HtmlString::HtmlString(GfxState *state, double fontSize, HtmlFontAccu *_fonts) :
     len = size = 0;
     yxNext = nullptr;
     xyNext = nullptr;
-    htext = new GooString();
+    htext = std::make_unique<GooString>();
     dir = textDirUnknown;
 }
 
 HtmlString::~HtmlString()
 {
     gfree(text);
-    delete htext;
     gfree(xRight);
 }
 
@@ -345,7 +345,6 @@ void HtmlPage::beginString(GfxState *state, const GooString *s)
 void HtmlPage::conv()
 {
     for (HtmlString *tmp = yxStrings; tmp; tmp = tmp->yxNext) {
-        delete tmp->htext;
         tmp->htext = HtmlFont::HtmlFilter(tmp->text, tmp->len);
 
         size_t linkIndex = 0;
@@ -641,7 +640,7 @@ void HtmlPage::coalesce()
             bool finish_a = switch_links && hlink1 != nullptr;
             bool finish_italic = hfont1->isItalic() && (!hfont2->isItalic() || finish_a);
             bool finish_bold = hfont1->isBold() && (!hfont2->isBold() || finish_a || finish_italic);
-            CloseTags(str1->htext, finish_a, finish_italic, finish_bold);
+            CloseTags(str1->htext.get(), finish_a, finish_italic, finish_bold);
             if (switch_links && hlink2 != nullptr) {
                 GooString *ls = hlink2->getLinkStart();
                 str1->htext->append(ls);
@@ -654,7 +653,7 @@ void HtmlPage::coalesce()
                 str1->htext->append("<b>", 3);
             }
 
-            str1->htext->append(str2->htext);
+            str1->htext->append(str2->htext.get());
             // str1 now contains href for link of str2 (if it is defined)
             str1->link = str2->link;
             hfont1 = hfont2;
@@ -671,7 +670,7 @@ void HtmlPage::coalesce()
             bool finish_a = str1->getLink() != nullptr;
             bool finish_bold = hfont1->isBold();
             bool finish_italic = hfont1->isItalic();
-            CloseTags(str1->htext, finish_a, finish_italic, finish_bold);
+            CloseTags(str1->htext.get(), finish_a, finish_italic, finish_bold);
 
             str1->xMin = curX;
             str1->yMin = curY;
@@ -698,14 +697,14 @@ void HtmlPage::coalesce()
     bool finish_bold = hfont1->isBold();
     bool finish_italic = hfont1->isItalic();
     bool finish_a = str1->getLink() != nullptr;
-    CloseTags(str1->htext, finish_a, finish_italic, finish_bold);
+    CloseTags(str1->htext.get(), finish_a, finish_italic, finish_bold);
 
 #if 0 //~ for debugging
   for (str1 = yxStrings; str1; str1 = str1->yxNext) {
     printf("x=%3d..%3d  y=%3d..%3d  size=%2d ",
 	   (int)str1->xMin, (int)str1->xMax, (int)str1->yMin, (int)str1->yMax,
 	   (int)(str1->yMax - str1->yMin));
-    printf("'%s'\n", str1->htext->c_str());  
+    printf("'%s'\n", str1->htext->c_str());
   }
   printf("\n------------------------------------------------------------\n\n");
 #endif
@@ -1225,10 +1224,10 @@ void HtmlOutputDev::startPage(int pageNumA, GfxState *state, XRef *xref)
 	exit(1);
       }
       delete fname;
-    // if(state->getRotation()!=0) 
+    // if(state->getRotation()!=0)
     //  fprintf(tin,"ROTATE=%d rotate %d neg %d neg translate\n",state->getRotation(),state->getX1(),-state->getY1());
-    // else 
-      fprintf(tin,"ROTATE=%d neg %d neg translate\n",state->getX1(),state->getY1());  
+    // else
+      fprintf(tin,"ROTATE=%d neg %d neg translate\n",state->getX1(),state->getY1());
     }
   }
 #endif
@@ -1723,10 +1722,11 @@ bool HtmlOutputDev::newHtmlOutlineLevel(FILE *output, const std::vector<OutlineI
     fputs("<ul>\n", output);
 
     for (OutlineItem *item : *outlines) {
-        GooString *titleStr = HtmlFont::HtmlFilter(item->getTitle(), item->getTitleLength());
+        const auto &title = item->getTitle();
+        std::unique_ptr<GooString> titleStr = HtmlFont::HtmlFilter(title.data(), title.size());
 
         GooString *linkName = nullptr;
-        ;
+
         const int itemPage = getOutlinePageNum(item);
         if (itemPage > 0) {
             /*		complex		simple
@@ -1753,12 +1753,13 @@ bool HtmlOutputDev::newHtmlOutlineLevel(FILE *output, const std::vector<OutlineI
         if (linkName) {
             fprintf(output, "<a href=\"%s\">", linkName->c_str());
         }
-        fputs(titleStr->c_str(), output);
+        if (titleStr) {
+            fputs(titleStr->c_str(), output);
+        }
         if (linkName) {
             fputs("</a>", output);
             delete linkName;
         }
-        delete titleStr;
         atLeastOne = true;
 
         item->open();
@@ -1778,14 +1779,14 @@ void HtmlOutputDev::newXmlOutlineLevel(FILE *output, const std::vector<OutlineIt
     fputs("<outline>\n", output);
 
     for (OutlineItem *item : *outlines) {
-        GooString *titleStr = HtmlFont::HtmlFilter(item->getTitle(), item->getTitleLength());
+        const std::vector<Unicode> &title = item->getTitle();
+        auto titleStr = HtmlFont::HtmlFilter(title.data(), title.size());
         const int itemPage = getOutlinePageNum(item);
         if (itemPage > 0) {
             fprintf(output, "<item page=\"%d\">%s</item>\n", itemPage, titleStr->c_str());
         } else {
             fprintf(output, "<item>%s</item>\n", titleStr->c_str());
         }
-        delete titleStr;
 
         item->open();
         if (item->hasKids() && item->getKids()) {

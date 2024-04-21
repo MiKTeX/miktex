@@ -34,7 +34,7 @@
 // Copyright (C) 2010 Nils Höglund <nils.hoglund@gmail.com>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2011 Axel Strübing <axel.struebing@freenet.de>
-// Copyright (C) 2012 Even Rouault <even.rouault@mines-paris.org>
+// Copyright (C) 2012, 2024 Even Rouault <even.rouault@spatialys.com>
 // Copyright (C) 2012, 2013 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
 // Copyright (C) 2014 Jason Crain <jason@aquaticape.us>
@@ -47,6 +47,7 @@
 // Copyright (C) 2020 Philipp Knechtges <philipp-dev@knechtges.com>
 // Copyright (C) 2021 Steve Rosenhamer <srosenhamer@me.com>
 // Copyright (C) 2023 Anton Thomasson <antonthomasson@gmail.com>
+// Copyright (C) 2024 Nelson Benítez León <nbenitezl@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -4192,6 +4193,11 @@ void Gfx::doImage(Object *ref, Stream *str, bool inlineImg)
         }
     }
 
+    const double *ctm = state->getCTM();
+    const double det = ctm[0] * ctm[3] - ctm[1] * ctm[2];
+    // Detect singular matrix (non invertible) to avoid drawing Image in such case
+    const bool singular_matrix = fabs(det) < 0.000001;
+
     // get size
     Object obj1 = dict->lookup("Width");
     if (obj1.isNull()) {
@@ -4216,7 +4222,7 @@ void Gfx::doImage(Object *ref, Stream *str, bool inlineImg)
         goto err1;
     }
 
-    if (width < 1 || height < 1) {
+    if (width < 1 || height < 1 || width > INT_MAX / height) {
         goto err1;
     }
 
@@ -4572,7 +4578,7 @@ void Gfx::doImage(Object *ref, Stream *str, bool inlineImg)
         }
 
         // if drawing is disabled, skip over inline image data
-        if (!ocState || !out->needNonText()) {
+        if (!ocState || !out->needNonText() || singular_matrix) {
             str->reset();
             n = height * ((width * colorMap.getNumPixelComps() * colorMap.getBits() + 7) / 8);
             for (i = 0; i < n; ++i) {
@@ -5374,6 +5380,7 @@ void Gfx::restoreState()
     state = state->restore();
     out->restoreState(state);
     stackHeight--;
+    clip = clipNone;
 }
 
 // Create a new state stack, and initialize it with a copy of the

@@ -12,6 +12,7 @@
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
 // Copyright (C) 2019 Christian Persch <chpe@src.gnome.org>
+// Copyright (C) 2024 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -86,12 +87,12 @@ EmbFile::~EmbFile()
     delete m_mimetype;
 }
 
-bool EmbFile::save(const char *path)
+bool EmbFile::save(const std::string &path)
 {
     FILE *f;
     bool ret;
 
-    if (!(f = openFile(path, "wb"))) {
+    if (!(f = openFile(path.c_str(), "wb"))) {
         return false;
     }
     ret = save2(f);

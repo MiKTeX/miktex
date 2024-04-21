@@ -37,7 +37,7 @@
 // Copyright (C) 2015 Tamas Szekeres <szekerest@gmail.com>
 // Copyright (C) 2015 Kenji Uno <ku@digitaldolphins.jp>
 // Copyright (C) 2016 Takahiro Hashimoto <kenya888.en@gmail.com>
-// Copyright (C) 2017, 2021 Even Rouault <even.rouault@spatialys.com>
+// Copyright (C) 2017, 2021, 2024 Even Rouault <even.rouault@spatialys.com>
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 // Copyright (C) 2018, 2019 Stefan Brüns <stefan.bruens@rwth-aachen.de>
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
@@ -2660,7 +2660,9 @@ void SplashOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str, i
     splash->fillImageMask(&imageMaskSrc, &imgMaskData, width, height, mat, t3GlyphStack != nullptr);
     if (inlineImg) {
         while (imgMaskData.y < height) {
-            imgMaskData.imgStr->getLine();
+            if (!imgMaskData.imgStr->getLine()) {
+                break;
+            }
             ++imgMaskData.y;
         }
     }

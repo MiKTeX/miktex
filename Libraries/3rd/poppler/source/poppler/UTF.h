@@ -10,7 +10,7 @@
 // Copyright (C) 2018 Nelson Benítez León <nbenitezl@gmail.com>
 // Copyright (C) 2019-2022 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2021 Georgiy Sgibnev <georgiy@sgibnev.com>. Work sponsored by lab50.net.
-// Copyright (C) 2023 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
+// Copyright (C) 2023, 2024 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
 // Copyright (C) 2023 Even Rouault <even.rouault@spatialys.com>
 // Copyright (C) 2023 Oliver Sander <oliver.sander@tu-dresden.de>
 //
@@ -22,6 +22,7 @@
 #include <cstdint>
 #include <climits>
 #include <string>
+#include <vector>
 
 #include "CharTypes.h"
 #include "poppler_private_export.h"
@@ -32,19 +33,20 @@ constexpr std::string_view unicodeByteOrderMark = "\xFE\xFF";
 // Convert a UTF-16 string to a UCS-4
 //   utf16      - utf16 bytes
 //   utf16_len  - number of UTF-16 characters
-//   ucs4_out   - if not NULL, allocates and returns UCS-4 string. Free with gfree.
 //   returns number of UCS-4 characters
-int UTF16toUCS4(const Unicode *utf16, int utf16Len, Unicode **ucs4_out);
+std::vector<Unicode> UTF16toUCS4(const Unicode *utf16, int utf16Len);
 
 // Convert a PDF Text String to UCS-4
 //   s          - PDF text string
-//   ucs4       - if the number of UCS-4 characters is > 0, allocates and
-//                returns UCS-4 string. Free with gfree.
-//   returns number of UCS-4 characters
-int POPPLER_PRIVATE_EXPORT TextStringToUCS4(const std::string &textStr, Unicode **ucs4);
+//   returns UCS-4 characters
+// Convert a PDF text string to UCS-4
+std::vector<Unicode> POPPLER_PRIVATE_EXPORT TextStringToUCS4(const std::string &textStr);
 
 // check if UCS-4 character is valid
-bool UnicodeIsValid(Unicode ucs4);
+inline bool UnicodeIsValid(Unicode ucs4)
+{
+    return (ucs4 < 0x110000) && ((ucs4 & 0xfffff800) != 0xd800) && (ucs4 < 0xfdd0 || ucs4 > 0xfdef) && ((ucs4 & 0xfffe) != 0xfffe);
+}
 
 // is a unicode whitespace character
 bool UnicodeIsWhitespace(Unicode ucs4);

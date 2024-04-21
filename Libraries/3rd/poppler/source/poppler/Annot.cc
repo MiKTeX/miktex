@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
 // Copyright (C) 2007, 2008 Julien Rebetez <julienr@svn.gnome.org>
-// Copyright (C) 2007-2013, 2015-2023 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2013, 2015-2024 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007-2013, 2018 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007, 2008 Iñigo Martínez <inigomartinez@gmail.com>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
@@ -54,7 +54,7 @@
 // Copyright (C) 2021 Georgiy Sgibnev <georgiy@sgibnev.com>. Work sponsored by lab50.net.
 // Copyright (C) 2022 Martin <martinbts@gmx.net>
 // Copyright (C) 2022 Andreas Naumann <42870-ANaumann85@users.noreply.gitlab.freedesktop.org>
-// Copyright (C) 2022 Erich E. Hoover <erich.e.hoover@gmail.com>
+// Copyright (C) 2022, 2024 Erich E. Hoover <erich.e.hoover@gmail.com>
 // Copyright (C) 2023 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
 //
 // To see a description of the changes please see the Changelog file that
@@ -3036,7 +3036,7 @@ public:
             *availableWidth -= blockWidth;
         }
 
-        while (newFontNeeded && (!availableWidth || *availableWidth > 0)) {
+        while (newFontNeeded && (!availableWidth || *availableWidth > 0 || (isUnicode && i == 2) || (!isUnicode && i == 0))) {
             if (!form) {
                 // There's no fonts to look for, so just skip the characters
                 i += isUnicode ? 2 : 1;
@@ -3067,7 +3067,9 @@ public:
                     }
                     // layoutText will always at least layout one character even if it doesn't fit in
                     // the given space which makes sense (except in the case of switching fonts, so we control if we ran out of space here manually)
-                    if (!availableWidth || *availableWidth > 0) {
+                    // we also need to allow the character if we have not layouted anything yet because otherwise we will end up in an infinite loop
+                    // because it is assumed we at least layout one character
+                    if (!availableWidth || *availableWidth > 0 || (isUnicode && i == 2) || (!isUnicode && i == 0)) {
                         i += isUnicode ? 2 : 1;
                         data.emplace_back(outputText.toStr(), auxFontName, blockWidth, charCount);
                     }
@@ -3129,6 +3131,36 @@ public:
     std::vector<Data> data;
     int consumedText;
 };
+
+double Annot::calculateFontSize(const Form *form, const GfxFont *font, const GooString *text, double wMax, double hMax, const bool forceZapfDingbats)
+{
+    const bool isUnicode = text->hasUnicodeMarker();
+    double fontSize;
+
+    for (fontSize = 20; fontSize > 1; --fontSize) {
+        const double availableWidthInFontSize = wMax / fontSize;
+        double y = hMax - 3;
+        int i = 0;
+        while (i < text->getLength()) {
+            GooString lineText(text->toStr().substr(i));
+            if (!lineText.hasUnicodeMarker() && isUnicode) {
+                lineText.prependUnicodeMarker();
+            }
+            const HorizontalTextLayouter textLayouter(&lineText, form, font, availableWidthInFontSize, forceZapfDingbats);
+            y -= fontSize;
+            if (i == 0) {
+                i += textLayouter.consumedText;
+            } else {
+                i += textLayouter.consumedText - (isUnicode ? 2 : 0);
+            }
+        }
+        // approximate the descender for the last line
+        if (y >= 0.33 * fontSize) {
+            break;
+        }
+    }
+    return fontSize;
+}
 
 struct DrawMultiLineTextResult
 {
@@ -4601,32 +4633,10 @@ bool AnnotAppearanceBuilder::drawText(const GooString *text, const Form *form, c
         // note: comb is ignored in multiline mode as mentioned in the spec
 
         const double wMax = dx - 2 * borderWidth - 4;
-        const bool isUnicode = text->hasUnicodeMarker();
 
         // compute font autosize
         if (fontSize == 0) {
-            for (fontSize = 20; fontSize > 1; --fontSize) {
-                const double availableWidthInFontSize = wMax / fontSize;
-                double y = dy - 3;
-                int i = 0;
-                while (i < text->getLength()) {
-                    GooString lineText(text->toStr().substr(i));
-                    if (!lineText.hasUnicodeMarker() && isUnicode) {
-                        lineText.prependUnicodeMarker();
-                    }
-                    const HorizontalTextLayouter textLayouter(&lineText, form, font, availableWidthInFontSize, forceZapfDingbats);
-                    y -= fontSize;
-                    if (i == 0) {
-                        i += textLayouter.consumedText;
-                    } else {
-                        i += textLayouter.consumedText - (isUnicode ? 2 : 0);
-                    }
-                }
-                // approximate the descender for the last line
-                if (y >= 0.33 * fontSize) {
-                    break;
-                }
-            }
+            fontSize = Annot::calculateFontSize(form, font, text, wMax, dy, forceZapfDingbats);
             daToks[tfPos + 1] = GooString().appendf("{0:.2f}", fontSize)->toStr();
         }
 
@@ -6008,6 +6018,7 @@ void AnnotGeometry::setInteriorColor(std::unique_ptr<AnnotColor> &&new_color)
         interiorColor = std::move(new_color);
     } else {
         interiorColor = nullptr;
+        update("IC", Object(objNull));
     }
     invalidateAppearance();
 }
@@ -6240,6 +6251,9 @@ void AnnotPolygon::setInteriorColor(std::unique_ptr<AnnotColor> &&new_color)
         Object obj1 = new_color->writeToObject(doc->getXRef());
         update("IC", std::move(obj1));
         interiorColor = std::move(new_color);
+    } else {
+        interiorColor = nullptr;
+        update("IC", Object(objNull));
     }
     invalidateAppearance();
 }

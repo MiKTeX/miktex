@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2009, 2010, 2018, 2019, 2021 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2010, 2018, 2019, 2021, 2024 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2011 Andrea Canciani <ranma42@gmail.com>
 // Copyright (C) 2012 Thomas Freitag <Thomas.Freitag@alfa.de>
@@ -61,13 +61,16 @@ public:
 
     virtual Function *copy() const = 0;
 
-    // Return the function type:
-    //   -1 : identity
-    //    0 : sampled
-    //    2 : exponential
-    //    3 : stitching
-    //    4 : PostScript
-    virtual int getType() const = 0;
+    enum class Type
+    {
+        Identity,
+        Sampled,
+        Exponential,
+        Stitching,
+        PostScript
+    };
+
+    virtual Type getType() const = 0;
 
     // Return size of input and output tuples.
     int getInputSize() const { return m; }
@@ -108,7 +111,7 @@ public:
     IdentityFunction();
     ~IdentityFunction() override;
     Function *copy() const override { return new IdentityFunction(); }
-    int getType() const override { return -1; }
+    Type getType() const override { return Type::Identity; }
     void transform(const double *in, double *out) const override;
     bool isOk() const override { return true; }
 
@@ -125,7 +128,7 @@ public:
     SampledFunction(Object *funcObj, Dict *dict);
     ~SampledFunction() override;
     Function *copy() const override { return new SampledFunction(this); }
-    int getType() const override { return 0; }
+    Type getType() const override { return Type::Sampled; }
     void transform(const double *in, double *out) const override;
     bool isOk() const override { return ok; }
     bool hasDifferentResultSet(const Function *func) const override;
@@ -168,7 +171,7 @@ public:
     ExponentialFunction(Object *funcObj, Dict *dict);
     ~ExponentialFunction() override;
     Function *copy() const override { return new ExponentialFunction(this); }
-    int getType() const override { return 2; }
+    Type getType() const override { return Type::Exponential; }
     void transform(const double *in, double *out) const override;
     bool isOk() const override { return ok; }
 
@@ -196,7 +199,7 @@ public:
     StitchingFunction(Object *funcObj, Dict *dict, std::set<int> *usedParents);
     ~StitchingFunction() override;
     Function *copy() const override { return new StitchingFunction(this); }
-    int getType() const override { return 3; }
+    Type getType() const override { return Type::Stitching; }
     void transform(const double *in, double *out) const override;
     bool isOk() const override { return ok; }
 
@@ -227,7 +230,7 @@ public:
     PostScriptFunction(Object *funcObj, Dict *dict);
     ~PostScriptFunction() override;
     Function *copy() const override { return new PostScriptFunction(this); }
-    int getType() const override { return 4; }
+    Type getType() const override { return Type::PostScript; }
     void transform(const double *in, double *out) const override;
     bool isOk() const override { return ok; }
 

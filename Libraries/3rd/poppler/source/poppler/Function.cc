@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006, 2008-2010, 2013-2015, 2017-2020, 2022, 2023 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2008-2010, 2013-2015, 2017-2020, 2022-2024 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2011 Andrea Canciani <ranma42@gmail.com>
@@ -524,7 +524,7 @@ void SampledFunction::transform(const double *in, double *out) const
 
 bool SampledFunction::hasDifferentResultSet(const Function *func) const
 {
-    if (func->getType() == 0) {
+    if (func->getType() == Type::Sampled) {
         SampledFunction *compTo = (SampledFunction *)func;
         if (compTo->getSampleNumber() != nSamples) {
             return true;

@@ -26,6 +26,7 @@
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 // Copyright (C) 2019 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2024 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -95,7 +96,7 @@ private:
     HtmlString *yxNext; // next string in y-major order
     HtmlString *xyNext; // next string in x-major order
     int fontpos;
-    GooString *htext;
+    std::unique_ptr<GooString> htext;
     int len; // length of text and xRight
     int size; // size of text and xRight arrays
     UnicodeTextDirection dir; // direction (left to right/right to left)

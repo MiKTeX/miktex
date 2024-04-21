@@ -12,6 +12,7 @@
  * Copyright (C) 2021 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>
  * Copyright (C) 2021 Mahmoud Khalil <mahmoudkhalil11@gmail.com>
  * Copyright (C) 2023 Shivodit Gill <shivodit.gill@gmail.com>
+ * Copyright (C) 2024 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
  * Inspired on code by
  * Copyright (C) 2004 by Albert Astals Cid <tsdgeos@terra.es>
  * Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>
@@ -106,6 +107,11 @@ QString unicodeToQString(const Unicode *u, int len)
     }
 
     return QString::fromUtf8(convertedStr.c_str(), convertedStr.getLength());
+}
+
+QString unicodeToQString(const std::vector<Unicode> &u)
+{
+    return unicodeToQString(u.data(), u.size());
 }
 
 QString UnicodeParsedString(const GooString *s1)

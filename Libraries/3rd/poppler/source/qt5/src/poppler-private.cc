@@ -12,6 +12,7 @@
  * Copyright (C) 2021 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>
  * Copyright (C) 2021 Mahmoud Khalil <mahmoudkhalil11@gmail.com>
  * Copyright (C) 2023 Shivodit Gill <shivodit.gill@gmail.com>
+ * Copyright (C) 2024 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
  * Inspired on code by
  * Copyright (C) 2004 by Albert Astals Cid <tsdgeos@terra.es>
  * Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>
@@ -106,6 +107,11 @@ QString unicodeToQString(const Unicode *u, int len)
     }
 
     return QString::fromUtf8(convertedStr.c_str(), convertedStr.getLength());
+}
+
+QString unicodeToQString(const std::vector<Unicode> &u)
+{
+    return unicodeToQString(u.data(), u.size());
 }
 
 QString UnicodeParsedString(const GooString *s1)
@@ -303,13 +309,7 @@ void DocumentData::addTocChildren(QDomDocument *docSyn, QDomNode *parent, const 
         // iterate over every object in 'items'
 
         // 1. create element using outlineItem's title as tagName
-        QString name;
-        const Unicode *uniChar = outlineItem->getTitle();
-        int titleLength = outlineItem->getTitleLength();
-        name = unicodeToQString(uniChar, titleLength);
-        if (name.isEmpty()) {
-            continue;
-        }
+        QString name = unicodeToQString(outlineItem->getTitle());
 
         QDomElement item = docSyn->createElement(name);
         parent->appendChild(item);

@@ -7,6 +7,7 @@
 //
 // Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2017-2019, 2021 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2024 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -36,7 +37,7 @@ public:
     Object *streamObject() { return &m_objStr; }
     Stream *stream() { return isOk() ? m_objStr.getStream() : nullptr; }
     bool isOk() const { return m_objStr.isStream(); }
-    bool save(const char *path);
+    bool save(const std::string &path);
 
 private:
     bool save2(FILE *f);

@@ -28,6 +28,7 @@
 // Copyright (C) 2019 Christian Persch <chpe@src.gnome.org>
 // Copyright (C) 2019-2021 Oliver Sander <oliver.sander@tu-dresden.de>
 // Copyright (C) 2019 Thomas Fischer <fischer@unix-ag.uni-kl.de>
+// Copyright (C) 2024 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -114,14 +115,12 @@ static const ArgDesc argDesc[] = { { "-f", argInt, &firstPage, 0, "first page to
 
 static void printTextString(const GooString *s, const UnicodeMap *uMap)
 {
-    Unicode *u;
     char buf[8];
-    int len = TextStringToUCS4(s->toStr(), &u);
-    for (int i = 0; i < len; i++) {
-        int n = uMap->mapUnicode(u[i], buf, sizeof(buf));
+    std::vector<Unicode> u = TextStringToUCS4(s->toStr());
+    for (const auto &c : u) {
+        int n = uMap->mapUnicode(c, buf, sizeof(buf));
         fwrite(buf, 1, n, stdout);
     }
-    gfree(u);
 }
 
 static void printUCS4String(const Unicode *u, int len, const UnicodeMap *uMap)

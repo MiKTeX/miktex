@@ -18,7 +18,7 @@
 // Copyright (C) 2016 Tor Lillqvist <tml@collabora.com>
 // Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
-// Copyright (C) 2018 Stefan Br�ns <stefan.bruens@rwth-aachen.de>
+// Copyright (C) 2018 Stefan Brüns <stefan.bruens@rwth-aachen.de>
 // Copyright (C) 2020 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
@@ -117,7 +117,7 @@
 //------------------------------------------------------------------------
 
 // copyright notice
-#define popplerCopyright "Copyright 2005-2023 The Poppler Developers - http://poppler.freedesktop.org"
+#define popplerCopyright "Copyright 2005-2024 The Poppler Developers - http://poppler.freedesktop.org"
 #define xpdfCopyright "Copyright 1996-2011, 2022 Glyph & Cog, LLC"
 
 //------------------------------------------------------------------------

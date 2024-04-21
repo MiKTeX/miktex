@@ -34,7 +34,7 @@
 // Copyright 2021 Theofilos Intzoglou <int.teo@gmail.com>
 // Copyright 2021 Even Rouault <even.rouault@spatialys.com>
 // Copyright 2022 Alexander Sulfrian <asulfrian@zedat.fu-berlin.de>
-// Copyright 2022 Erich E. Hoover <erich.e.hoover@gmail.com>
+// Copyright 2022, 2024 Erich E. Hoover <erich.e.hoover@gmail.com>
 // Copyright 2023 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
 //
 //========================================================================
@@ -701,6 +701,23 @@ bool FormWidgetSignature::signDocument(const std::string &saveFilename, const st
     return true;
 }
 
+static std::tuple<double, double> calculateDxDy(int rot, const PDFRectangle *rect)
+{
+    switch (rot) {
+    case 90:
+        return { rect->y2 - rect->y1, rect->x2 - rect->x1 };
+
+    case 180:
+        return { rect->x2 - rect->y2, rect->y2 - rect->y1 };
+
+    case 270:
+        return { rect->y2 - rect->y1, rect->x2 - rect->x1 };
+
+    default: // assume rot == 0
+        return { rect->x2 - rect->x1, rect->y2 - rect->y1 };
+    }
+}
+
 bool FormWidgetSignature::signDocumentWithAppearance(const std::string &saveFilename, const std::string &certNickname, const std::string &password, const GooString *reason, const GooString *location,
                                                      const std::optional<GooString> &ownerPassword, const std::optional<GooString> &userPassword, const GooString &signatureText, const GooString &signatureTextLeft, double fontSize,
                                                      double leftFontSize, std::unique_ptr<AnnotColor> &&fontColor, double borderWidth, std::unique_ptr<AnnotColor> &&borderColor, std::unique_ptr<AnnotColor> &&backgroundColor)
@@ -714,11 +731,26 @@ bool FormWidgetSignature::signDocumentWithAppearance(const std::string &saveFile
     if (pdfFontName.empty()) {
         return false;
     }
+    std::shared_ptr<GfxFont> font = form->getDefaultResources()->lookupFont(pdfFontName.c_str());
 
+    double x1, y1, x2, y2;
+    getRect(&x1, &y1, &x2, &y2);
+    const PDFRectangle rect(x1, y1, x2, y2);
+    std::unique_ptr<AnnotAppearanceCharacs> origAppearCharacs = getWidgetAnnotation()->getAppearCharacs() ? getWidgetAnnotation()->getAppearCharacs()->copy() : nullptr;
+    const int rot = origAppearCharacs ? origAppearCharacs->getRotation() : 0;
+    const auto dxdy = calculateDxDy(rot, &rect);
+    const double dx = std::get<0>(dxdy);
+    const double dy = std::get<1>(dxdy);
+    const double wMax = dx - 2 * borderWidth - 4;
+    if (fontSize == 0) {
+        fontSize = Annot::calculateFontSize(form, font.get(), &signatureText, wMax / 2.0, dy);
+    }
+    if (leftFontSize == 0) {
+        leftFontSize = Annot::calculateFontSize(form, font.get(), &signatureTextLeft, wMax / 2.0, dy);
+    }
     const DefaultAppearance da { { objName, pdfFontName.c_str() }, fontSize, std::move(fontColor) };
     getField()->setDefaultAppearance(da.toAppearanceString());
 
-    std::unique_ptr<AnnotAppearanceCharacs> origAppearCharacs = getWidgetAnnotation()->getAppearCharacs() ? getWidgetAnnotation()->getAppearCharacs()->copy() : nullptr;
     auto appearCharacs = std::make_unique<AnnotAppearanceCharacs>(nullptr);
     appearCharacs->setBorderColor(std::move(borderColor));
     appearCharacs->setBackColor(std::move(backgroundColor));

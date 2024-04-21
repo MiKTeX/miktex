@@ -26,7 +26,7 @@
 // Copyright (C) 2012, 2013, 2020 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2012, 2021 Oliver Sander <oliver.sander@tu-dresden.de>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
-// Copyright (C) 2012 Even Rouault <even.rouault@mines-paris.org>
+// Copyright (C) 2012, 2024 Even Rouault <even.rouault@spatialys.com>
 // Copyright (C) 2013, 2017, 2018 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013, 2018 Adam Reichold <adamreichold@myopera.com>
 // Copyright (C) 2013 Pino Toscano <pino@kde.org>
@@ -656,7 +656,7 @@ bool ImageStream::getPixel(unsigned char *pix)
 
 unsigned char *ImageStream::getLine()
 {
-    if (unlikely(inputLine == nullptr)) {
+    if (unlikely(inputLine == nullptr || imgLine == nullptr)) {
         return nullptr;
     }
 

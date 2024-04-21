@@ -329,7 +329,6 @@ private:
 class POPPLER_PRIVATE_EXPORT BaseStream : public Stream
 {
 public:
-    // TODO Mirar si puedo hacer que dictA sea un puntero
     BaseStream(Object &&dictA, Goffset lengthA);
     ~BaseStream() override;
     virtual BaseStream *copy() = 0;

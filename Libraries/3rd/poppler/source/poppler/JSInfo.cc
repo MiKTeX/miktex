@@ -9,6 +9,7 @@
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 // Copyright (C) 2020 Oliver Sander <oliver.sander@tu-dresden.de>
 // Copyright (C) 2020 Nelson Benítez León <nbenitezl@gmail.com>
+// Copyright (C) 2024 g10 Code GmbH, Author: Sune Stolborg Vuorela <sune@vuorela.dk>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -38,20 +39,17 @@ JSInfo::~JSInfo() { }
 
 void JSInfo::printJS(const GooString *js)
 {
-    Unicode *u = nullptr;
     char buf[8];
-    int i, n, len;
 
     if (!js || !js->c_str()) {
         return;
     }
 
-    len = TextStringToUCS4(js->toStr(), &u);
-    for (i = 0; i < len; i++) {
-        n = uniMap->mapUnicode(u[i], buf, sizeof(buf));
+    std::vector<Unicode> u = TextStringToUCS4(js->toStr());
+    for (auto &c : u) {
+        int n = uniMap->mapUnicode(c, buf, sizeof(buf));
         fwrite(buf, 1, n, file);
     }
-    gfree(u);
 }
 
 void JSInfo::scanLinkAction(LinkAction *link, const char *action)

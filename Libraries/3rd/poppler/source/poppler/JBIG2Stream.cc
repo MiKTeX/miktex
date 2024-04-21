@@ -28,6 +28,7 @@
 // Copyright (C) 2019-2021 Oliver Sander <oliver.sander@tu-dresden.de>
 // Copyright (C) 2019 Volker Krause <vkrause@kde.org>
 // Copyright (C) 2019-2021 Even Rouault <even.rouault@spatialys.com>
+// Copyright (C) 2014 Nelson Benítez León <nbenitezl@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1803,6 +1804,7 @@ bool JBIG2Stream::readSymbolDictSeg(unsigned int segNum, unsigned int length, un
                     }
                     *p++ = (unsigned char)c;
                 }
+                byteCounter += k;
             } else {
                 collBitmap = readGenericBitmap(true, totalWidth, symHeight, 0, false, false, nullptr, nullptr, nullptr, bmSize).release();
             }

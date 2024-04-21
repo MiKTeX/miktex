@@ -776,10 +776,18 @@ NSSSignatureVerification::NSSSignatureVerification(std::vector<unsigned char> &&
     CMSSignedData = CMS_SignedDataCreate(CMSMessage);
     if (CMSSignedData) {
         CMSSignerInfo = CMS_SignerInfoCreate(CMSSignedData);
-        SECItem usedAlgorithm = NSS_CMSSignedData_GetDigestAlgs(CMSSignedData)[0]->algorithm;
-        auto hashAlgorithm = SECOID_FindOIDTag(&usedAlgorithm);
-        HASH_HashType hashType = HASH_GetHashTypeByOidTag(hashAlgorithm);
-        hashContext = HashContext::create(ConvertHashTypeFromNss(hashType));
+        SECAlgorithmID **algs = NSS_CMSSignedData_GetDigestAlgs(CMSSignedData);
+        while (*algs != nullptr) {
+            SECItem usedAlgorithm = (*algs)->algorithm;
+            auto hashAlgorithm = SECOID_FindOIDTag(&usedAlgorithm);
+            HASH_HashType hashType = HASH_GetHashTypeByOidTag(hashAlgorithm);
+            hashContext = HashContext::create(ConvertHashTypeFromNss(hashType));
+
+            if (hashContext) {
+                break;
+            }
+            ++algs;
+        }
     }
 }
 

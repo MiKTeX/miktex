@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Martin Kretzschmar <martink@gnome.org>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2006-2009, 2011-2013, 2015-2022 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2009, 2011-2013, 2015-2022, 2024 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2007, 2008 Brad Hards <bradh@kde.org>
 // Copyright (C) 2008, 2009 Koji Otani <sho@bbr.jp>
@@ -7128,11 +7128,11 @@ void PSOutputDev::cvtFunction(const Function *func, bool invertPSFunction)
 
     switch (func->getType()) {
 
-    case -1: // identity
+    case Function::Type::Identity:
         writePS("{}\n");
         break;
 
-    case 0: // sampled
+    case Function::Type::Sampled:
         func0 = (const SampledFunction *)func;
         thisFunc = nextFunc++;
         m = func0->getInputSize();
@@ -7206,7 +7206,7 @@ void PSOutputDev::cvtFunction(const Function *func, bool invertPSFunction)
         writePS("}\n");
         break;
 
-    case 2: // exponential
+    case Function::Type::Exponential:
         func2 = (const ExponentialFunction *)func;
         n = func2->getOutputSize();
         writePSFmt("{{ dup {0:.6g} lt {{ pop {1:.6g} }} {{ dup {2:.6g} gt {{ pop {3:.6g} }} if }} ifelse\n", func2->getDomainMin(0), func2->getDomainMin(0), func2->getDomainMax(0), func2->getDomainMax(0));
@@ -7229,7 +7229,7 @@ void PSOutputDev::cvtFunction(const Function *func, bool invertPSFunction)
         writePS("}\n");
         break;
 
-    case 3: // stitching
+    case Function::Type::Stitching:
         func3 = (const StitchingFunction *)func;
         thisFunc = nextFunc++;
         for (i = 0; i < func3->getNumFuncs(); ++i) {
@@ -7254,7 +7254,7 @@ void PSOutputDev::cvtFunction(const Function *func, bool invertPSFunction)
         writePS("}\n");
         break;
 
-    case 4: // PostScript
+    case Function::Type::PostScript:
         func4 = (const PostScriptFunction *)func;
         if (invertPSFunction) {
             GooString *codeString = new GooString(func4->getCodeString());
