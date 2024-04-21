@@ -1,6 +1,6 @@
 %% tie-miktex.ch
 %%
-%% Copyright (C) 2000-2022 Christian Schenk
+%% Copyright (C) 2000-2024 Christian Schenk
 %% 
 %% This file is free software; the copyright holder gives
 %% unlimited permission to copy and/or distribute it, with or
@@ -63,4 +63,15 @@ xchr[nl_mark]='\n';
     if(out_name[0] == '-' && out_name[1] == 0) out_file=stdout;
     else
     out_file=fopen(out_name,"w");
+@z
+
+% _____________________________________________________________________________
+%
+% [9.59]
+% _____________________________________________________________________________
+
+@x
+main(argc,argv)
+@y
+int main(argc,argv)
 @z
