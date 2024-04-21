@@ -1,5 +1,8 @@
 #ifndef SYSDEP_H_INCLUDED
 #define SYSDEP_H_INCLUDED
+#if defined(MIKTEX_UNIX)
+#include <unistd.h>
+#endif
 #undef USE_LARGEFILE
 #ifndef NO_LONG_LONG
 
