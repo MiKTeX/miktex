@@ -1,6 +1,6 @@
 /* pmxab-version.h: version number                      -*- C++ -*-
 
-   Copyright (C) 2016-2023 Christian Schenk
+   Copyright (C) 2016-2024 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -18,7 +18,7 @@
    USA.  */
 
 #define MIKTEX_COMP_MAJOR_VERSION 4
-#define MIKTEX_COMP_MINOR_VERSION 4
+#define MIKTEX_COMP_MINOR_VERSION 5
 #define MIKTEX_COMP_PATCH_VERSION 0
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "3.00"

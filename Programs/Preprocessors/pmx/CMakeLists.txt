@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016-2020 Christian Schenk
+## Copyright (C) 2016-2024 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -285,6 +285,10 @@ target_link_libraries(f2c
 )
 
 if(MIKTEX_UNIX_ALIKE)
+  target_compile_options(f2c
+    PRIVATE
+      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-implicit-function-declaration>
+  )
   target_link_libraries(f2c
     PRIVATE
       m
