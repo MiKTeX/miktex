@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2013-2022 Christian Schenk
+## Copyright (C) 2013-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -12,23 +12,17 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/pixman")
 
 include_directories(BEFORE
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
 set(public_include_directories
+    ${CMAKE_CURRENT_BINARY_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman
 )
 
-add_definitions(
-    -DPACKAGE=pixman-1
-    -DPACKAGE_BUGREPORT=""
-    -DPACKAGE_VERSION=""
-    -DUSE_SSE2
-    -DUSE_SSSE3
-)
-
-if(NOT CMAKE_CL_64)
-    add_definitions(-DUSE_X86_MMX)
-endif()
+set(PIXMAN_VERSION_MAJOR ${MIKTEX_COMP_ORIG_MAJOR_VERSION})
+set(PIXMAN_VERSION_MINOR ${MIKTEX_COMP_ORIG_MINOR_VERSION})
+set(PIXMAN_VERSION_MICRO ${MIKTEX_COMP_ORIG_PATCH_VERSION})
 
 set(pixman_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman.c
@@ -74,6 +68,16 @@ set(pixman_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-inlines.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-private.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman.h
+)
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/include/pixman-version.h
+)
+
+configure_file(
+    pixman-config.h.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/pixman-config.h
 )
 
 configure_file(
