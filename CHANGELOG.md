@@ -1,10 +1,15 @@
 # MiKTeX Change Log
 
-## next
+## 24.4 - 2024-04-26
 
 ### Upgraded programs
 
 * dvipdfmx 20240407
+
+### Fixed issues
+
+- [1481](https://github.com/MiKTeX/miktex/issues/1481): MiKTeX support for Fedora 40
+- [1482](https://github.com/MiKTeX/miktex/issues/1482): MiKTeX support for Ubuntu 24.04
 
 ## 24.3.31 - 2024-03-31
 
