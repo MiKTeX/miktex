@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 24.4 - 2024-04-26
+## 24.4 - 2024-04-27
 
 ### Upgraded programs
 
