@@ -1,6 +1,6 @@
 /* SiteWizSheet.cpp:
 
-   Copyright (C) 2008-2020 Christian Schenk
+   Copyright (C) 2008-2024 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -40,6 +40,7 @@ SiteWizSheetImpl::SiteWizSheetImpl(QWidget* parent) :
   QWizard(parent),
   packageManager(PackageManager::Create())
 {
+  setWizardStyle(QWizard::ModernStyle);
   setWindowTitle(tr("Change Package Repository"));
   setPage(Page_Type, new SiteWizType(packageManager));
   setPage(Page_Remote, new SiteWizRemote(packageManager));
