@@ -78,22 +78,22 @@ add_custom_command(
         ${MIKTEX_PREFIX}tie
         -m ${CMAKE_CURRENT_BINARY_DIR}/euptex-final.web
             ${CMAKE_CURRENT_BINARY_DIR}/euptex-1.web
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/etex.ch0
+            ${CMAKE_CURRENT_SOURCE_DIR}/source/etex.ch0
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex-adapter.ch
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/source/ptex-base.ch
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/source/uptex-m.ch
 	        ${CMAKE_CURRENT_SOURCE_DIR}/source/euptex.ch0
-	        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/eptex.ech
-	        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/etex.ch1
+	        ${CMAKE_CURRENT_SOURCE_DIR}/source/eptex.ech
+	        ${CMAKE_CURRENT_SOURCE_DIR}/source/etex.ch1
 	        ${CMAKE_CURRENT_SOURCE_DIR}/source/euptex.ch1
 	        ${euptex_ch_synctex}
-	        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/fam256.ch
+	        ${CMAKE_CURRENT_SOURCE_DIR}/source/fam256.ch
             ${CMAKE_CURRENT_SOURCE_DIR}/source/pdfstrcmp-eup-pre.ch
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/pdfutils.ch
+            ${CMAKE_CURRENT_SOURCE_DIR}/source/pdfutils.ch
             ${CMAKE_CURRENT_SOURCE_DIR}/source/pdfstrcmp-eup-post.ch
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/suppresserrors.ch
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/unbalanced-braces-eptex.ch
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/char-warning-eptex.ch
+            ${CMAKE_CURRENT_SOURCE_DIR}/source/suppresserrors.ch
+            ${CMAKE_CURRENT_SOURCE_DIR}/source/unbalanced-braces-eptex.ch
+            ${CMAKE_CURRENT_SOURCE_DIR}/source/char-warning-eptex.ch
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex.ch
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/uptex/miktex-uptex.ch
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/miktex-etex.ch
@@ -107,12 +107,12 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/source/euptex.ch1
         ${CMAKE_CURRENT_SOURCE_DIR}/source/pdfstrcmp-eup-post.ch
         ${CMAKE_CURRENT_SOURCE_DIR}/source/pdfstrcmp-eup-pre.ch
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/char-warning-eptex.ch
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/eptex.ech
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/etex.ch0
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/etex.ch1
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/fam256.ch
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/pdfutils.ch
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/char-warning-eptex.ch
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/eptex.ech
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/etex.ch0
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/etex.ch1
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/fam256.ch
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/pdfutils.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/miktex-etex.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex-adapter.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex.ch

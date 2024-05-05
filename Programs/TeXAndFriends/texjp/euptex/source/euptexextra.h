@@ -3,7 +3,7 @@
    This is included by e-upTeX, from euptexextra.c
 */
 
-#include <eptexdir/eptex_version.h> /* for EPTEX_VERSION */
+#include <euptexdir/eptex_version.h> /* for EPTEX_VERSION */
 #include <etexdir/etex_version.h> /* for ETEX_VERSION */
 #include <ptexdir/ptex_version.h> /* for PTEX_VERSION */
 #include <uptexdir/uptex_version.h> /* for UPTEX_VERSION */

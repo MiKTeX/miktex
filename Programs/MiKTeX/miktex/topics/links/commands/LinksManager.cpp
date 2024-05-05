@@ -365,7 +365,7 @@ const vector<FileLink> LinksManager::miktexFileLinks =
   { MIKTEX_EPSFFIT_EXE, { "epsffit" } },
   { MIKTEX_EPSTOPDF_EXE,{ "epstopdf", "repstopdf", MIKTEX_PREFIX "epstopdf-unrestricted" } },
   { MIKTEX_EPTEX_EXE, { "eptex", "ptex" } },
-  { MIKTEX_EUPTEX_EXE, { "euptex", "uptex" } },
+  { MIKTEX_EUPTEX_EXE, { "eptex", "euptex", "ptex", "uptex" } },
   { MIKTEX_EXTCONV_EXE, { "extconv" } },
   { MIKTEX_FRIBIDIXETEX_EXE, { "fribidixetex" } },
   { MIKTEX_GFTODVI_EXE, { "gftodvi" } },
