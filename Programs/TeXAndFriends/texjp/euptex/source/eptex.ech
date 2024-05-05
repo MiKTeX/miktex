@@ -25,6 +25,7 @@
 @y
 \def\eTeX{$\varepsilon$-\TeX}
 \def\epTeX{$\varepsilon$-\pTeX}
+\def\eupTeX{$\varepsilon$-\upTeX}
 @z
 
 @x [1.2] l.190 - epTeX:
@@ -36,23 +37,23 @@
 @d epTeX_version_number==230214
 @z
 
-@x e-pTeX: banner
-  {printed when \pTeX\ starts}
+@x e-upTeX: banner
+  {printed when \upTeX\ starts}
 @y
-  {printed when \pTeX\ starts}
+  {printed when \upTeX\ starts}
 @#
-@d epTeX_version==pTeX_version_string,epTeX_version_string,eTeX_version_string
-@d epTeX_banner=='This is e-pTeX, Version 3.141592653',epTeX_version
-@d epTeX_banner_k==epTeX_banner
-  {printed when \epTeX\ starts}
+@d eupTeX_version==pTeX_version_string,upTeX_version_string,epTeX_version_string,eTeX_version_string
+@d eupTeX_banner=='This is e-upTeX, Version 3.141592653',eupTeX_version
+@d eupTeX_banner_k==eupTeX_banner
+  {printed when \eupTeX\ starts}
 @z
 
 @x [1.2]
-@d banner==pTeX_banner
-@d banner_k==pTeX_banner_k
+@d banner==upTeX_banner
+@d banner_k==upTeX_banner_k
 @y
-@d banner==epTeX_banner
-@d banner_k==epTeX_banner_k
+@d banner==eupTeX_banner
+@d banner_k==eupTeX_banner_k
 @z
 
 @x [10.135] l.2895 - e-pTeX: box_lr and box_dir
@@ -86,6 +87,12 @@ In \epTeX\ the |subtype| field is |qi(16*box_lr+box_dir)|.
 @d read_papersize_special==int_par(read_papersize_special_code)
 @z
 
+@x
+@d protected_token=@'7001 {$2^8\cdot|end_match|+1$}
+@y
+@d protected_token=@"E01 {$2^8\cdot|end_match|+1$}
+@z
+
 @x [26.???] prepare for |scan_font_ident| to recognize \lastnodefont
 @p procedure@?scan_int; forward; {scans an integer value}
 @y
@@ -105,7 +112,7 @@ var m:halfword; {|chr_code| part of the operand token}
 end;
 @y
 @<Fix the reference count, if any, and negate |cur_val| if |negative|@>;
-end;
+exit:end;
 
 @ @p procedure scan_something_internal_ident;
   begin scan_something_internal(ident_val,false); end;
@@ -123,16 +130,18 @@ end;
 @z
 
 @x
-@d ptex_minor_version_code=ptex_version_code+1 {code for \.{\\ptexminorversion}}
+@d uptex_version_code=ptex_version_code+1 {code for \.{\\uptexversion}}
+@d ptex_minor_version_code=uptex_version_code+1 {code for \.{\\ptexminorversion}}
 @y
-@d eptex_version_code=ptex_version_code+1 {code for \.{\\epTeXversion}}
+@d uptex_version_code=ptex_version_code+1 {code for \.{\\uptexversion}}
+@d eptex_version_code=uptex_version_code+1 {code for \.{\\epTeXversion}}
 @d ptex_minor_version_code=eptex_version_code+1 {code for \.{\\ptexminorversion}}
 @z
 
 @x e-pTeX: \current(x)spacingmode
 @d eTeX_dim=eTeX_int+8 {first of \eTeX\ codes for dimensions}
 @y
-@d eTeX_dim=eTeX_int+10 {first of \eTeX\ codes for dimensions}
+@d eTeX_dim=eTeX_int+11 {first of \eTeX\ codes for dimensions}
 @z
 
 @x
@@ -146,8 +155,10 @@ primitive("ptexminorversion",last_item,ptex_minor_version_code);
 @z
 
 @x
+  uptex_version_code: print_esc("uptexversion");
   ptex_minor_version_code: print_esc("ptexminorversion");
 @y
+  uptex_version_code: print_esc("uptexversion");
   eptex_version_code: print_esc("epTeXversion");
   ptex_minor_version_code: print_esc("ptexminorversion");
 @z
@@ -188,7 +199,7 @@ if not is_char_node(tx) then
 @d find_effective_tail==find_effective_tail_epTeX
 @#
 @d find_last_char==
-if font_dir[font(tx)]<>dir_default then cur_val:=KANJI(info(link(tx)))
+if font_dir[font(tx)]<>dir_default then cur_val:=KANJI(info(link(tx))) mod max_cjk_val
 else cur_val:=qo(character(tx))
 
 @d ignore_font_kerning==
@@ -705,22 +716,37 @@ if j=1 then
 @ @<Handle \.{\\readline} and |goto done|@>=
 if j=1 then
   begin while loc<=limit do {current line not yet finished}
-    begin cur_chr:=buffer[loc]; incr(loc);
-    if multistrlen(ustringcast(buffer), limit+1, loc-1)=2 then
-      begin cur_tok:=fromBUFF(ustringcast(buffer),  limit+1, loc-1); incr(loc);
+    begin cur_chr:=fromBUFF(ustringcast(buffer), limit+1, loc);
+    cur_tok:=kcat_code(kcatcodekey(cur_chr));
+    if (multistrlen(ustringcast(buffer), limit+1,loc)>1)and
+         check_kcat_code(cur_tok) then
+      begin if (cur_tok=not_cjk) then cur_tok:=other_kchar;
+	  cur_tok:=cur_chr+cur_tok*max_cjk_val;
+	  loc:=loc+multistrlen(ustringcast(buffer), limit+1,loc);
       end
-    else if cur_chr=" " then cur_tok:=space_token
-    @+else cur_tok:=cur_chr+other_token;
+    else begin cur_chr:=buffer[loc]; incr(loc);
+      if cur_chr=" " then cur_tok:=space_token
+      else cur_tok:=cur_chr+other_token;
+    end;
 @z
 
 @x e-pTeX: ifcsname l.28620
   buffer[m]:=info(p) mod @'400; incr(m); p:=link(p);
 @y
   if check_kanji(info(p)) then {|wchar_token|}
-    begin buffer[m]:=Hi(info(p)); buffer2[m]:=1; incr(m); buffer2[m]:=1;
+    begin
+    if BYTE1(toBUFF(info(p) mod max_cjk_val))<>0 then
+      begin buffer[m]:=BYTE1(toBUFF(info(p) mod max_cjk_val)); buffer2[m]:=1; incr(m); end;
+    if BYTE2(toBUFF(info(p) mod max_cjk_val))<>0 then
+      begin buffer[m]:=BYTE2(toBUFF(info(p) mod max_cjk_val)); buffer2[m]:=1; incr(m); end;
+    if BYTE3(toBUFF(info(p) mod max_cjk_val))<>0 then
+      begin buffer[m]:=BYTE3(toBUFF(info(p) mod max_cjk_val)); buffer2[m]:=1; incr(m); end;
+    buffer[m]:=BYTE4(toBUFF(info(p) mod max_cjk_val)); buffer2[m]:=1; incr(m);
+    p:=link(p);
     end
-  else buffer2[m]:=0;
-  buffer[m]:=Lo(info(p)); incr(m); p:=link(p);
+  else
+    begin buffer[m]:=info(p) mod max_char_val; buffer2[m]:=0; incr(m); p:=link(p);
+    end;
 @z
 
 @x e-pTeX: if_font_char_code l.28633
@@ -799,6 +825,21 @@ current_xspacing_mode_code: print_esc("currentxspacingmode");
 @ @<Cases for fetching an integer value@>=
 current_spacing_mode_code: cur_val:=auto_spacing;
 current_xspacing_mode_code: cur_val:=auto_xspacing;
+
+@ The \.{\\currentcjktoken} command returns the current \upTeX's
+status of \.{\\(disable|enable|force)cjktoken}.
+
+@d current_cjk_token_code=eTeX_int+10 {code for \.{\\currentcjktoken}}
+
+@<Generate all \eTeX...@>=
+primitive("currentcjktoken",last_item,current_cjk_token_code);
+@!@:current_cjk_token_}{\.{\\currentcjktoken} primitive@>
+
+@ @<Cases of |last_item| for |print_cmd_chr|@>=
+current_cjk_token_code: print_esc("currentcjktoken");
+
+@ @<Cases for fetching an integer value@>=
+current_cjk_token_code: cur_val:=enable_cjk_token;
 
 @* \[54] System-dependent changes.
 @z

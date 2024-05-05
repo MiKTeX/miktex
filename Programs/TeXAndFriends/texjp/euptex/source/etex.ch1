@@ -29,14 +29,6 @@ last_node_type:=-1; last_node_subtype:=-1;
     buffer[first+j]:=Lo(so(str_pool[k+j])); buffer2[first+j]:=Hi(so(str_pool[k+j])); end;
 @z
 
-@x [26.413]
-@<Fix the reference count, if any, and negate |cur_val| if |negative|@>;
-end;
-@y
-@<Fix the reference count, if any, and negate |cur_val| if |negative|@>;
-exit:end;
-@z
-
 @x
 @d eTeX_int=badness_code+1 {first of \eTeX\ codes for integers}
 @y
@@ -48,6 +40,7 @@ exit:end;
     input_line_no_code: cur_val:=line;
     badness_code: cur_val:=last_badness;
     ptex_version_code: cur_val:=pTeX_version;
+    uptex_version_code: cur_val:=upTeX_version;
     eptex_version_code: cur_val:=epTeX_version_number;
     ptex_minor_version_code: cur_val:=pTeX_minor_version;
   end; {there and no other cases}
@@ -63,6 +56,7 @@ exit:end;
   input_line_no_code: cur_val:=line;
   badness_code: cur_val:=last_badness;
   ptex_version_code: cur_val:=pTeX_version;
+  uptex_version_code: cur_val:=upTeX_version;
   eptex_version_code: cur_val:=epTeX_version_number;
   ptex_minor_version_code: cur_val:=pTeX_minor_version;
   @/@<Cases for fetching an integer value@>@/
