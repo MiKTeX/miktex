@@ -1,6 +1,6 @@
 %% miktex-uptex.ch
 %%
-%% Copyright (C) 2021-2022 Christian Schenk
+%% Copyright (C) 2021-2024 Christian Schenk
 %% 
 %% This file is free software; the copyright holder gives
 %% unlimited permission to copy and/or distribute it, with or
@@ -17,6 +17,29 @@
 @y
 @d min_halfhalfword==0
 @d max_halfhalfword==@"FFFF
+@z
+
+% _____________________________________________________________________________
+%
+% [26.399]
+% _____________________________________________________________________________
+
+@x
+@!j:0..buf_size; {index into |buffer|}
+@y
+@!j:0..sup_buf_size; {index into |buffer|}
+@z
+
+% _____________________________________________________________________________
+%
+% [30.565]
+% _____________________________________________________________________________
+
+@x
+@p procedure scan_file_name;
+@y
+@p @t\4@>@<Define procedure |scan_file_name_braced|@>@/
+procedure scan_file_name;
 @z
 
 % _____________________________________________________________________________

@@ -719,10 +719,11 @@ if j=1 then
     begin cur_chr:=fromBUFF(ustringcast(buffer), limit+1, loc);
     cur_tok:=kcat_code(kcatcodekey(cur_chr));
     if (multistrlen(ustringcast(buffer), limit+1,loc)>1)and
-         check_kcat_code(cur_tok) then
+         check_kcat_code(cur_tok,cur_chr) then
       begin if (cur_tok=not_cjk) then cur_tok:=other_kchar;
-	  cur_tok:=cur_chr+cur_tok*max_cjk_val;
-	  loc:=loc+multistrlen(ustringcast(buffer), limit+1,loc);
+        if (cur_tok=latin_ucs) then cur_tok:=other_token;
+        cur_tok:=cur_chr+cur_tok*max_cjk_val;
+        loc:=loc+multistrlen(ustringcast(buffer), limit+1,loc);
       end
     else begin cur_chr:=buffer[loc]; incr(loc);
       if cur_chr=" " then cur_tok:=space_token

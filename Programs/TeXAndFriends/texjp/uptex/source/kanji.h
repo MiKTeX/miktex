@@ -40,6 +40,10 @@ extern boolean is_char_kanji (integer c);
 extern boolean ismultiprn (integer c);
 extern integer calc_pos (integer c);
 #define calcpos calc_pos
+extern integer ktoken_to_cmd (integer c);
+extern integer ktoken_to_chr (integer c);
+#define ktokentocmd ktoken_to_cmd
+#define ktokentochr ktoken_to_chr
 extern integer kcatcodekey (integer c);
 extern integer multilenbuffchar (integer c);
 
@@ -79,6 +83,9 @@ inline long inputline2(FILE* f, unsigned char* buffer, long pos, const long buff
 #endif
 #endif
 #define ptencconvfirstline(pos,limit,buff,size) ptenc_conv_first_line(pos,limit,buff,size)
+#define UVScombinecode(ucv,uvs) UVS_combine_code(ucv,uvs)
+#define UVSgetcodepointlength(ucv) UVS_get_codepoint_length(ucv)
+#define UVSgetcodepointinsequence(ucv,n) UVS_get_codepoint_in_sequence(ucv,n)
 
 extern void init_kanji (const_string file_str, const_string internal_str);
 #if defined(MIKTEX)

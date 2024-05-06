@@ -882,7 +882,7 @@ function str_toks_cat(@!b:pool_pointer;@!cat:small_number):pointer;
 @x
     if (cc=not_cjk) then cc:=other_kchar;
 @y
-    if cat>=kanji then cc:=cat else if (cc=not_cjk) then cc:=other_kchar;
+    if (cat>=kanji)and(cat<=modifier) then cc:=cat else if (cc=not_cjk) then cc:=other_kchar;
 @z
 
 @x \Ucharcat: str_toks_cat
@@ -890,7 +890,7 @@ function str_toks_cat(@!b:pool_pointer;@!cat:small_number):pointer;
     else t:=other_token+t;
 @y
     if (t=" ")and(cat=0) then t:=space_token
-    else if (cat=0)or(cat>=kanji) then t:=other_token+t
+    else if (cat=0)or((cat>=kanji)and(cat<=modifier)) then t:=other_token+t
     else if cat=active_char then t:= cs_token_flag + active_base + t
     else t:=left_brace_token*cat+t;
 @z
@@ -968,7 +968,7 @@ we have to create a temporary string that is destroyed immediately after.
 
 @ Not all catcode values are allowed by \.{\\Ucharcat}:
 @d illegal_Ucharcat_ascii_catcode(#)==(#<left_brace)or(#>active_char)or(#=out_param)or(#=ignore)
-@d illegal_Ucharcat_wchar_catcode(#)==(#<kanji)or(#>hangul)
+@d illegal_Ucharcat_wchar_catcode(#)==(#<kanji)or(#>modifier)
 
 @p procedure conv_toks;
 @z
@@ -1156,7 +1156,7 @@ uniform_deviate_code:     scan_int;
 normal_deviate_code:      do_nothing;
 Uchar_convert_code: begin scan_char_num;
     if not is_char_ascii(cur_val) then
-	  if kcat_code(kcatcodekey(cur_val))=not_cjk then cat:=other_kchar;
+      if kcat_code(kcatcodekey(cur_val))=not_cjk then cat:=other_kchar;
     end;
 Ucharcat_convert_code:
   begin
@@ -1188,7 +1188,7 @@ Ucharcat_convert_code:
         help1("I'm going to use 18 instead of that illegal code value.");@/
         error; cat:=other_kchar;
       end else cat:=cur_val;
-	end;
+      end;
     cur_val:=i;
     end;
 @z
@@ -1880,27 +1880,6 @@ if_font_char_code:begin scan_font_ident; n:=cur_val;
 @y
 if_in_csname_code: b := is_in_csname;
 if_font_char_code:begin scan_font_ident; n:=cur_val;
-@z
-
-@x
-procedure print_kanji(@!s:KANJI_code); {prints a single character}
-begin
-s:=toBUFF(s mod max_cjk_val);
-if BYTE1(s)<>0 then print_char(@"100+BYTE1(s));
-if BYTE2(s)<>0 then print_char(@"100+BYTE2(s));
-if BYTE3(s)<>0 then print_char(@"100+BYTE3(s));
-                    print_char(@"100+BYTE4(s));
-end;
-@y
-procedure print_kanji(@!s:KANJI_code); {prints a single character}
-begin
-if isprint_utf8 then s:=UCStoUTF8(toUCS(s mod max_cjk_val))
-else s:=toBUFF(s mod max_cjk_val);
-if BYTE1(s)<>0 then print_char(@"100+BYTE1(s));
-if BYTE2(s)<>0 then print_char(@"100+BYTE2(s));
-if BYTE3(s)<>0 then print_char(@"100+BYTE3(s));
-                    print_char(@"100+BYTE4(s));
-end;
 @z
 
 @x

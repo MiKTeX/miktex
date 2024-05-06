@@ -1,6 +1,6 @@
 %% miktex-updvitype.ch
 %%
-%% Copyright (C) 2021-2022 Christian Schenk
+%% Copyright (C) 2021-2024 Christian Schenk
 %% 
 %% This file is free software; the copyright holder gives
 %% unlimited permission to copy and/or distribute it, with or
@@ -10,6 +10,13 @@
 %
 % [1.3]
 % _____________________________________________________________________________
+
+@x
+var @<Globals in the outer block@>@/
+@y
+var @<Globals in the outer block@>@/
+function isinternalUPTEX : boolean; forward;
+@z
 
 @x
   parse_arguments;

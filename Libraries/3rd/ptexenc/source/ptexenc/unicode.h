@@ -24,10 +24,17 @@ extern long PTENCDLL UCStoUTF8(long ucs);
 extern long UCStoUPTEX(long ucs);
 extern long UPTEXtoUCS(long uptex);
 
+#if defined(MIKTEX)
+extern PTENCDLL int  UVS_get_codepoint_length(long ucv);
+extern PTENCDLL long UVS_get_codepoint_in_sequence(long ucv, int n);
+extern PTENCDLL long UVS_combine_code(long ucv, long uvs);
+extern PTENCDLL long UVS_divide_code(long code, long* uvs);
+#else
 extern int  UVS_get_codepoint_length(long ucv);
 extern long UVS_get_codepoint_in_sequence(long ucv, int n);
 extern long UVS_combine_code(long ucv, long uvs);
 extern long UVS_divide_code(long code, long* uvs);
+#endif
 
 #define LONG(a,b,c,d) ( ((long)(a)<<24) | ((long)(b)<<16) | ((c)<<8) | (d) )
 #define BYTE1(x) (((x)>>24) & 0xff)

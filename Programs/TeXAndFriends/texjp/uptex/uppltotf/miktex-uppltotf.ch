@@ -1,6 +1,6 @@
 %% miktex-uppltotf.ch
 %%
-%% Copyright (C) 2021-2022 Christian Schenk
+%% Copyright (C) 2021-2024 Christian Schenk
 %% 
 %% This file is free software; the copyright holder gives
 %% unlimited permission to copy and/or distribute it, with or
@@ -23,6 +23,7 @@ var @<Globals in the outer block@>@/
 @y
 var @<Globals in the outer block@>@/
 function miktex_get_verbose_flag : boolean; forward;
+function is_internalUPTEX : boolean; forward;
 @z
 
 @x

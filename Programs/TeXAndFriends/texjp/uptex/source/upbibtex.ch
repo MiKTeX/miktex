@@ -60,7 +60,7 @@
 @d banner=='This is BibTeX, Version 0.99d' {printed when the program starts}
 @y
 @d my_name=='upbibtex'
-@d banner=='This is upBibTeX, Version 0.99d-j0.36-u1.30'
+@d banner=='This is upBibTeX, Version 0.99d-j0.36-u1.35'
   {printed when the program starts}
 @z
 

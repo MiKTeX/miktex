@@ -52,7 +52,6 @@ add_custom_command(
             ${miktex_tex_change_files}
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/miktex-w2c-adapter.ch
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/source/tex.ech
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/miktex-eptex-adapter.ch
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
@@ -63,7 +62,6 @@ add_custom_command(
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/source/etex.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/source/tex.ch0
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/source/tex.ech
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/miktex-eptex-adapter.ch
         ${MIKTEX_PREFIX}tie
         ${miktex_tex_change_files}
     VERBATIM
@@ -80,7 +78,8 @@ add_custom_command(
             ${CMAKE_CURRENT_BINARY_DIR}/euptex-1.web
             ${CMAKE_CURRENT_SOURCE_DIR}/source/etex.ch0
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex-adapter.ch
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/source/ptex-base.ch
+            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/source/ptex-base.ch
+            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/uptex/miktex-uptex-adapter.ch
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/source/uptex-m.ch
 	        ${CMAKE_CURRENT_SOURCE_DIR}/source/eptex.ech
 	        ${CMAKE_CURRENT_SOURCE_DIR}/source/etex.ch1
@@ -108,7 +107,7 @@ add_custom_command(
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/miktex-etex.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex-adapter.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex.ch
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/source/ptex-base.ch
+        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/source/ptex-base.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/source/uptex-m.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/uptex/miktex-uptex.ch
         ${MIKTEX_PREFIX}tie

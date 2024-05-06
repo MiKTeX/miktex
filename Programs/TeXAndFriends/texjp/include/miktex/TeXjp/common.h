@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX TeXjp base classes
  *
- * @copyright Copyright © 2021-2022 Christian Schenk
+ * @copyright Copyright © 2021-2024 Christian Schenk
  *
  * This file is free software; the copyright holder gives unlimited permission
  * to copy and/or distribute it, with or without modifications, as long as this
@@ -41,6 +41,9 @@
 #define tojis toJIS
 #define toucs toUCS
 #define ucstoutf8 UCStoUTF8
+#define uvscombinecode UVS_combine_code
+#define uvsgetcodepointlength UVS_get_codepoint_length
+#define uvsgetcodepointinsequence UVS_get_codepoint_in_sequence
 
 template<class FileType> inline void miktexprintencstring(FileType& f)
 {
