@@ -25,6 +25,9 @@
 
 #include "numbers.h"
 
+#define UCS_LASTCHAR   0x10FFFFUL
+#define JFM_LASTCHAR   0xFFFFFFUL
+
 extern int  tfm_open (const char * tex_name, int must_exist);
 extern void tfm_close_all (void);
 

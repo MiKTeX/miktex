@@ -51,7 +51,7 @@
 #define JFMV_ID  9
 #define IS_JFM(i) ((i) == JFM_ID || (i) == JFMV_ID)
 
-#define CHARACTER_INDEX(i)  ((i > 0x10FFFFUL ? 0x110000UL : i))
+#define CHARACTER_INDEX(i)  ((i > UCS_LASTCHAR ? UCS_LASTCHAR+1 : i))
 #else
 #define CHARACTER_INDEX(i)  ((i))
 #endif
@@ -164,6 +164,9 @@ struct coverage
 {
   int           first_char;
   int           num_chars;
+#ifndef WITHOUT_ASCII_PTEX
+  int           last_char;
+#endif
 };
 
 /*
@@ -214,8 +217,13 @@ lookup_char (const struct char_map *map, int charcode)
   if (charcode >= map->coverage.first_char &&
       charcode <= map->coverage.first_char + map->coverage.num_chars)
     return map->indices[CHARACTER_INDEX(charcode - map->coverage.first_char)];
-  else
-    return -1;
+
+#ifndef WITHOUT_ASCII_PTEX
+  if (charcode <= map->coverage.last_char)
+      return map->indices[0];
+#endif
+
+  return -1;
 }
 
 static int
@@ -229,6 +237,10 @@ lookup_range (const struct range_map *map, int charcode)
 	map->coverages[idx].first_char + map->coverages[idx].num_chars)
       return map->indices[CHARACTER_INDEX(idx)];
   }
+#ifndef WITHOUT_ASCII_PTEX
+  if (charcode <= JFM_LASTCHAR)
+      return map->indices[0];
+#endif
 
   return -1;
 }
@@ -464,15 +476,19 @@ jfm_do_char_type_array (FILE *tfm_file, struct tfm_font *tfm)
   unsigned short chartype;
   unsigned int i;
 
-  tfm->chartypes = NEW(1114112, unsigned int);
-  for (i = 0; i < 1114112; i++) {
+  tfm->chartypes = NEW(UCS_LASTCHAR + 1, unsigned int);
+  for (i = 0; i < (UCS_LASTCHAR + 1); i++) {
     tfm->chartypes[i] = 0;
   }
   for (i = 0; i < tfm->nt; i++) {
     /* support new JFM spec by texjporg */
     charcode = get_unsigned_triple_kanji(tfm_file);
     chartype = get_unsigned_byte(tfm_file);
-    tfm->chartypes[charcode] = chartype;
+    if (charcode < (UCS_LASTCHAR + 1))
+      tfm->chartypes[charcode] = chartype;
+    else {
+      /* Invalid charcode */
+    }
   }
 }
 
@@ -487,10 +503,11 @@ jfm_make_charmap (struct font_metric *fm, struct tfm_font *tfm)
     fm->charmap.data = map = NEW(1, struct char_map);
     map->coverage.first_char = 0;
 #ifndef WITHOUT_ASCII_PTEX
-    map->coverage.num_chars  = 0x10FFFFL;
-    map->indices    = NEW(0x110001L, unsigned int);
-    map->indices[0x110000L] = tfm->chartypes[0];
-    for (code = 0; code <= 0x10FFFFU; code++) {
+    map->coverage.num_chars  = UCS_LASTCHAR;
+    map->coverage.last_char  = JFM_LASTCHAR;
+    map->indices    = NEW(UCS_LASTCHAR + 2, unsigned int);
+    map->indices[UCS_LASTCHAR + 1] = tfm->chartypes[0];
+    for (code = 0; code <= UCS_LASTCHAR; code++) {
 #else
     map->coverage.num_chars  = 0xFFFFL;
     map->indices    = NEW(0x10000L, unsigned short);
@@ -507,7 +524,8 @@ jfm_make_charmap (struct font_metric *fm, struct tfm_font *tfm)
     map->coverages     = NEW(map->num_coverages, struct coverage);
     map->coverages[0].first_char = 0;
 #ifndef WITHOUT_ASCII_PTEX
-    map->coverages[0].num_chars  = 0x10FFFFL;
+    map->coverages[0].num_chars  = UCS_LASTCHAR;
+    map->coverages[0].last_char  = JFM_LASTCHAR;
 #else
     map->coverages[0].num_chars  = 0xFFFFL;
 #endif
@@ -812,7 +830,7 @@ read_tfm (struct font_metric *fm, FILE *tfm_file, off_t tfm_file_size)
     jfm_do_char_type_array(tfm_file, &tfm);
     jfm_make_charmap(fm, &tfm);
     fm->firstchar = 0;
-    fm->lastchar  = 0x10FFFFL;
+    fm->lastchar  = JFM_LASTCHAR;
     fm->fontdir   = (tfm.id == JFMV_ID) ? FONT_DIR_VERT : FONT_DIR_HORIZ;
     fm->source    = SOURCE_TYPE_JFM;
   }
@@ -1012,6 +1030,10 @@ tfm_get_fw_width (int font_id, int32_t ch)
     default:
       idx = ch;
     }
+#ifndef WITHOUT_ASCII_PTEX
+  } else if (ch > fm->lastchar && ch <= JFM_LASTCHAR) {
+    idx = 0;
+#endif /* !WITHOUT_ASCII_PTEX */
   } else {
     ERROR("Invalid char: %ld\n", ch);
   }
@@ -1043,6 +1065,10 @@ tfm_get_fw_height (int font_id, int32_t ch)
     default:
       idx = ch;
     }
+#ifndef WITHOUT_ASCII_PTEX
+  } else if (ch > fm->lastchar && ch <= JFM_LASTCHAR) {
+    idx = 0;
+#endif /* !WITHOUT_ASCII_PTEX */
   } else {
     ERROR("Invalid char: %ld\n", ch);
   }
@@ -1074,6 +1100,10 @@ tfm_get_fw_depth (int font_id, int32_t ch)
     default:
       idx = ch;
     }
+#ifndef WITHOUT_ASCII_PTEX
+  } else if (ch > fm->lastchar && ch <= JFM_LASTCHAR) {
+    idx = 0;
+#endif /* !WITHOUT_ASCII_PTEX */
   } else {
     ERROR("Invalid char: %ld\n", ch);
   }
