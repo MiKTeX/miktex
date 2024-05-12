@@ -403,9 +403,17 @@ long fromDVI (long kcode)
     /* EUC */               return JIStoEUC(kcode);
 }
 
+#define UCS_MAX 0x110000L
+
 /* internal (EUC/SJIS/UPTEX) to DVI (JIS/UCS) code conversion */
 long toDVI (long kcode)
 {
+    if (kcode >= UCS_MAX) {
+        if (kcode < UCS_MAX*2)      /* for Japanese OTF package */
+            return kcode % UCS_MAX;
+        else                        /* for upTeX internal encoding */
+            return kcode;
+    }
     if (is_internalUPTEX()) return UPTEXtoUCS(kcode);
     if (is_internalSJIS())  return SJIStoJIS(kcode);
     /* EUC */               return EUCtoJIS(kcode);

@@ -122,9 +122,6 @@ long UCStoUTF8(long ucs)
 }
 
 
-#define UCS_MAX 0x110000L
-
-/* using over U+10.FFFF Area */
 long UCStoUPTEX (long ucs)
 {
     return ucs;
@@ -139,8 +136,6 @@ long UPTEXtoUCS (long uptex)
         if (UVS_divide_code(uptex, vs) == 0) return 0;
         return uptex;
     }
-    if (uptex>=UCS_MAX*2) return uptex;
-    if (uptex>=UCS_MAX)   return uptex % UCS_MAX; /* for OTF package */
     return uptex;
 }
 

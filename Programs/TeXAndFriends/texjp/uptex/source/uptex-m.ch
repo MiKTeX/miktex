@@ -48,7 +48,7 @@
 % (2022-07-23) TTK  upTeX u1.29
 % (2022-12-09) HK   Hironori Kitagawa fixed a bug in \char, \kchar.
 % (2023-09-16) TTK  upTeX u1.30
-% (2024-04-27) TTK  upTeX u1.35
+% (2024-05-01) TTK  upTeX u1.35
 
 @x
 \def\pTeX{p\kern-.15em\TeX}
@@ -581,13 +581,6 @@ if cat=other_kchar then k:=k-multilenbuffchar(cur_chr)+1; {now |k| points to fir
 @z
 
 @x
-@!j:0..buf_size; {index into |buffer|}
-@y
-@!j:0..buf_size; {index into |buffer|}
-@!v,@!nn,@!jj: integer;
-@z
-
-@x
   if check_kanji(info(p)) then {|wchar_token|}
     begin buffer[j]:=Hi(info(p)); buffer2[j]:=1; incr(j); buffer2[j]:=1;
     end
@@ -595,31 +588,11 @@ if cat=other_kchar then k:=k-multilenbuffchar(cur_chr)+1; {now |k| points to fir
   buffer[j]:=Lo(info(p)); incr(j); p:=link(p);
 @y
   if check_kanji(info(p)) then {|wchar_token|}
-    begin
-    if (isinternalUPTEX) then begin
-      t:=ktokentochr(info(p));
-      t:=toUCS(t);
-      nn:=UVSgetcodepointlength(t);
-      jj:=1;
-      while jj<nn do begin
-        v:=UVSgetcodepointinsequence(t,jj);
-        if (v>0) then begin
-          v:=UCStoUTF8(v);
-          if BYTE1(v)<>0 then begin buffer[j]:=BYTE1(v); buffer2[j]:=1; incr(j); end;
-          if BYTE2(v)<>0 then begin buffer[j]:=BYTE2(v); buffer2[j]:=1; incr(j); end;
-          if BYTE3(v)<>0 then begin buffer[j]:=BYTE3(v); buffer2[j]:=1; incr(j); end;
-                                    buffer[j]:=BYTE4(v); buffer2[j]:=1; incr(j);
-          end;
-        incr(jj);
-        end
-      end
-    else begin
-      t:=toBUFF(info(p) mod max_cjk_val);
-      if BYTE1(t)<>0 then begin buffer[j]:=BYTE1(t); buffer2[j]:=1; incr(j); end;
-      if BYTE2(t)<>0 then begin buffer[j]:=BYTE2(t); buffer2[j]:=1; incr(j); end;
-      if BYTE3(t)<>0 then begin buffer[j]:=BYTE3(t); buffer2[j]:=1; incr(j); end;
-                                buffer[j]:=BYTE4(t); buffer2[j]:=1; incr(j);
-      end;
+    begin t:=toBUFF(info(p) mod max_cjk_val);
+    if BYTE1(t)<>0 then begin buffer[j]:=BYTE1(t); buffer2[j]:=1; incr(j); end;
+    if BYTE2(t)<>0 then begin buffer[j]:=BYTE2(t); buffer2[j]:=1; incr(j); end;
+    if BYTE3(t)<>0 then begin buffer[j]:=BYTE3(t); buffer2[j]:=1; incr(j); end;
+                              buffer[j]:=BYTE4(t); buffer2[j]:=1; incr(j);
     p:=link(p);
     end
   else
@@ -1343,9 +1316,8 @@ begin if is_char_node(link(p)) then
         ins_kp:=false;
         goto again_2
         end
-      end
       end;
-    begin if not disp_called then
+    if not disp_called then
       begin prev_node:=tail; tail_append(get_node(small_node_size));
       type(tail):=disp_node; disp_dimen(tail):=0; disp_called:=true
       end;

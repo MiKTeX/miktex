@@ -1883,6 +1883,21 @@ if_font_char_code:begin scan_font_ident; n:=cur_val;
 @z
 
 @x
+procedure print_kanji(@!s:KANJI_code); {prints a single character}
+@y
+procedure print_kanji(@!s:KANJI_code); {prints a single character}
+@z
+
+@x
+else begin
+  s:=toBUFF(s mod max_cjk_val);
+@y
+else begin
+  if isprint_utf8 then s:=UCStoUTF8(toUCS(s mod max_cjk_val))
+  else s:=toBUFF(s mod max_cjk_val);
+@z
+
+@x
 @* \[54] System-dependent changes.
 @y
 @* \[54/pdf\TeX] System-dependent changes for {\tt\char"5Cpdfstrcmp}.
