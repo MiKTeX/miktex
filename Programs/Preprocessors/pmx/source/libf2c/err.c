@@ -1,5 +1,8 @@
 #include "sysdep1.h"	/* here to get stat64 on some badly designed Linux systems */
 #include "f2c.h"
+#ifdef HAVE_UNISTD_H
+#include <unistd.h> /* for isatty() */
+#endif
 #ifdef KR_headers
 extern char *malloc();
 #else
