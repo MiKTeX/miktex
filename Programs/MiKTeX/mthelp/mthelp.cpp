@@ -313,6 +313,13 @@ void MiKTeXHelp::ViewFile(const PathName& fileName)
 #if defined(MIKTEX_WINDOWS)
   if (viewer.empty())
   {
+    // convert path to lowercase with backslashes to accommodate Windows programs that do not recognize other paths
+    string win32FileName = fileName.ToString();
+    std::transform(win32FileName.begin(), win32FileName.end(), win32FileName.begin(), [](char c) {
+      return std::tolower(c);
+    });
+    std::replace(win32FileName.begin(), win32FileName.end(), '/', '\\');
+
     wchar_t szExecutable[BufferSizes::MaxPath];
     HINSTANCE hInst = FindExecutableW(fileName.ToWideCharString().c_str(), L"C:\\", szExecutable);
     if (hInst >= reinterpret_cast<HINSTANCE>(32))
@@ -320,11 +327,11 @@ void MiKTeXHelp::ViewFile(const PathName& fileName)
       viewer = StringUtil::WideCharToUTF8(szExecutable);
       if (printOnly)
       {
-        cout << Q_(PathName(szExecutable)) << ' ' << Q_(fileName) << endl;
+        cout << Q_(PathName(szExecutable)) << ' ' << Q_(win32FileName) << endl;
       }
       else
       {
-        Process::Start(PathName(szExecutable), { PathName(szExecutable).GetFileNameWithoutExtension().ToString(), fileName.ToString() });
+        Process::Start(PathName(szExecutable), { PathName(szExecutable).GetFileNameWithoutExtension().ToString(), win32FileName });
       }
       return;
     }
