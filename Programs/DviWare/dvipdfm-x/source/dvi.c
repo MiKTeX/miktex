@@ -140,6 +140,9 @@ static unsigned      lr_width_stack_depth = 0;
 #define DVI      1
 #define VF       2
 
+#define ENC_UNICODE  1
+#define ENC_UTF16    2
+
 struct gm {
   spt_t advance, ascent, descent;
 };
@@ -1145,14 +1148,16 @@ dvi_locate_font (const char *tfm_name, spt_t ptsize)
   memset(loaded_fonts[cur_id].padbytes, 0, 4);
   if (mrec) {
     if (mrec->opt.mapc >= 0) {
-      loaded_fonts[cur_id].padbytes[2] = (mrec->opt.mapc >> 8) & 0xff; 
+      loaded_fonts[cur_id].padbytes[2] = (mrec->opt.mapc >> 8) & 0xff;
     }
     if (mrec->enc_name && !strcmp(mrec->enc_name, "unicode")) {
-      loaded_fonts[cur_id].is_unicode = 1;
+      loaded_fonts[cur_id].is_unicode = ENC_UNICODE;
       if (mrec->opt.mapc >= 0) {
         loaded_fonts[cur_id].padbytes[0] = (mrec->opt.mapc >> 24) & 0xff;
         loaded_fonts[cur_id].padbytes[1] = (mrec->opt.mapc >> 16) & 0xff;
       }
+    } else if (mrec->enc_name && strstr(mrec->enc_name, "UTF16") != NULL) {
+      loaded_fonts[cur_id].is_unicode = ENC_UTF16;
     }
   }
   loaded_fonts[cur_id].minbytes = pdf_dev_font_minbytes(font_id);
@@ -1476,7 +1481,7 @@ dvi_set (int32_t ch)
   case  PHYSICAL:
     if (ch > 65535) {
       /* FIXME: uptex specific undocumented */
-      if (!font->is_unicode && tfm_is_jfm(font->tfm_id)) {
+      if (font->is_unicode == ENC_UTF16 && tfm_is_jfm(font->tfm_id)) {
         wbuf[0] = (UTF32toUTF16HS(ch) >> 8) & 0xff;
         wbuf[1] =  UTF32toUTF16HS(ch)       & 0xff;
         wbuf[2] = (UTF32toUTF16LS(ch) >> 8) & 0xff;
@@ -1567,7 +1572,7 @@ dvi_put (int32_t ch)
      */    
     if (ch > 65535) {
       /* FIXME: uptex specific undocumented */
-      if (!font->is_unicode && tfm_is_jfm(font->tfm_id)) {
+      if (font->is_unicode == ENC_UTF16 && tfm_is_jfm(font->tfm_id)) {
         wbuf[0] = (UTF32toUTF16HS(ch) >> 8) & 0xff;
         wbuf[1] =  UTF32toUTF16HS(ch)       & 0xff;
         wbuf[2] = (UTF32toUTF16LS(ch) >> 8) & 0xff;

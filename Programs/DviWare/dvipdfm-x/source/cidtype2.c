@@ -463,73 +463,38 @@ cid_to_code (CMap *cmap, CID cid, int unicode_cmap, int32_t *puvs)
     return (int32_t) outbuf[0];
   else if (outbytesleft == 30)
     return (int32_t) (outbuf[0] << 8|outbuf[1]);
-  else if (outbytesleft == 28) {
-    if (unicode_cmap) {
-      /* We assume the output encoding is UTF-16. */
-      int32_t              uc, uvs;
-      const unsigned char *endptr;
+  else if (outbytesleft == 28 && !unicode_cmap)
+    return (int32_t) (outbuf[0] << 24)|(outbuf[1] << 16)|(outbuf[2] << 8)|outbuf[3];
+  else if ((outbytesleft == 28 || outbytesleft == 26 || outbytesleft == 24)
+            && unicode_cmap) {
+    /* We assume the output encoding is UTF-16. */
+    int32_t              uc, uvs;
+    const unsigned char *endptr;
 
-      p      = outbuf;
-      endptr = p + 4;
-      uc = UC_UTF16BE_decode_char(&p, endptr);
-      if (p == endptr)
-        return uc; /* single Unicode characters */
-      /* Check following Variation Selectors */
-      uvs = UC_UTF16BE_decode_char(&p, endptr);
-      if (p == endptr && uvs >= 0xfe00 && uvs <= 0xfe0f) {
+    p      = outbuf;
+    endptr = p + 32 - outbytesleft;
+    uc = UC_UTF16BE_decode_char(&p, endptr);
+    if (p == endptr)
+      return uc; /* single Unicode characters */
+    /* Check following Variation Selectors */
+    uvs = UC_UTF16BE_decode_char(&p, endptr);
+    if (p == endptr) {
+      if (uvs >= 0xfe00 && uvs <= 0xfe0f) {
         /* Standardized Variation Sequence */
         *puvs = uvs;
         return uc;
+      } else if (uvs >= 0xe0100 && uvs <= 0xe01ef) {
+        /* Ideographic Variation Sequence */
+        *puvs = uvs;
+        return uc;
+      } else if (uvs == 0x3099 || uvs == 0x309a) {
+        /* Combining Katakana-Hiragana (Semi-)Voiced Sound Mark */
+        *puvs = uvs;
+        return uc;
       }
-      WARN("CID=%u mapped to non-single Unicode characters...", cid);
-      return -1;
-    } else {
-      return (outbuf[0] << 24)|(outbuf[1] << 16)|(outbuf[2] << 8)|outbuf[3];
     }
-  } else if (outbytesleft == 26) { /* 6 bytes sequence */
-    if (unicode_cmap) {
-      /* We assume the output encoding is UTF-16. */
-      int32_t              uc, uvs;
-      const unsigned char *endptr;
-
-      p      = outbuf;
-      endptr = p + 6;
-      uc = UC_UTF16BE_decode_char(&p, endptr);
-      uvs = UC_UTF16BE_decode_char(&p, endptr);
-      if (p == endptr) {
-        if (uvs >= 0xfe00 && uvs <= 0xfe0f) {
-          /* Standardized Variation Sequence */
-          *puvs = uvs;
-          return uc;
-        } else if (uvs >= 0xe0100 && uvs <= 0xe01ef) {
-          /* Ideographic Variation Sequence */
-          *puvs = uvs;
-          return uc;
-        }
-      }
-      WARN("CID=%u mapped to non-single Unicode characters...", cid);
-      return -1;
-    }
-  } else if (outbytesleft == 24) {  /* 8 bytes sequence */
-    if (unicode_cmap) {
-      /* We assume the output encoding is UTF-16. */
-      int32_t              uc, uvs;
-      const unsigned char *endptr;
-
-      p      = outbuf;
-      endptr = p + 8;
-      uc = UC_UTF16BE_decode_char(&p, endptr);
-      uvs = UC_UTF16BE_decode_char(&p, endptr);
-      if (p == endptr) {
-        if (uvs >= 0xe0100 && uvs <= 0xe01ef) {
-          /* Ideographic Variation Sequence */
-          *puvs = uvs;
-          return uc;
-        }
-      }
-      WARN("CID=%u mapped to non-single Unicode characters...", cid);
-      return -1;
-      }
+    WARN("CID=%u mapped to non-single Unicode characters...", cid);
+    return -1;
   }
 
   return -1;
