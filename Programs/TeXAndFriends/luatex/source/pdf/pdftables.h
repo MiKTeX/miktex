@@ -144,6 +144,8 @@ typedef enum {
     c_pdf_omit_infodict,
     c_pdf_omit_mediabox,
     c_pdf_linking,
+    c_pdf_omit_procset,
+    c_pdf_ptex_prefix,
 } pdf_backend_counters ;
 
 typedef enum {
@@ -197,6 +199,8 @@ extern int pdf_cur_form;
 #  define pdf_omit_mediabox             get_tex_extension_count_register(c_pdf_omit_mediabox)
 #  define pdf_recompress                get_tex_extension_count_register(c_pdf_recompress)
 #  define pdf_linking                   get_tex_extension_count_register(c_pdf_linking)
+#  define pdf_omit_procset              get_tex_extension_count_register(c_pdf_omit_procset)
+#  define pdf_ptex_prefix               get_tex_extension_count_register(c_pdf_ptex_prefix)
 
 #  define pdf_h_origin                  get_tex_extension_dimen_register(d_pdf_h_origin)
 #  define pdf_v_origin                  get_tex_extension_dimen_register(d_pdf_v_origin)
@@ -224,6 +228,8 @@ extern int pdf_cur_form;
 #  define set_pdf_gen_tounicode(i)      set_tex_extension_count_register(c_pdf_gen_tounicode,i)
 #  define set_pdf_recompress(i)         set_tex_extension_count_register(c_pdf_recompress,i)
 #  define set_pdf_linking(i)            set_tex_extension_count_register(c_pdf_linking,i)
+#  define set_pdf_omit_procset(i)       set_tex_extension_count_register(c_pdf_omit_procset,i)
+#  define set_pdf_ptex_prefix(i)        set_tex_extension_count_register(c_pdf_ptex_prefix,i)
 
 #  define set_pdf_decimal_digits(i)     set_tex_extension_count_register(c_pdf_decimal_digits,i)
 #  define set_pdf_pk_resolution(i)      set_tex_extension_count_register(c_pdf_pk_resolution,i)

@@ -251,5 +251,8 @@ extern void pdf_set_reference_point(PDF pdf, posstructure *refpoint);
 extern void check_o_mode(PDF pdf, const char *s, int o_mode, boolean errorflag);
 extern void ensure_output_file_open(PDF pdf, const char *ext);
 
+/* PTEX prefix */
+extern const char *pdf_pdf_prefix_str(const char *a, const char *b);
+
 
 #endif

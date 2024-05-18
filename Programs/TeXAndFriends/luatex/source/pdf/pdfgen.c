@@ -2022,7 +2022,7 @@ void pdf_end_page(PDF pdf)
         pdf_end_dict(pdf);
     }
     /*tex Generate |ProcSet| in version 1.*/
-    if (pdf->major_version == 1) {
+    if (pdf->major_version == 1 && ! pdf_omit_procset) {
         pdf_add_name(pdf, "ProcSet");
         pdf_begin_array(pdf);
         if ((procset & PROCSET_PDF) != 0)
@@ -2132,6 +2132,11 @@ static boolean substr_of_str(const char *s, const char *t)
     return true;
 }
 
+const char* pdf_pdf_prefix_str(const char *a, const char *b)
+{
+    return (pdf_ptex_prefix ? a : b);
+}
+
 static int pdf_print_info(PDF pdf, int luatexversion, str_number luatexrevision)
 {
     boolean creator_given = false;
@@ -2197,7 +2202,7 @@ static int pdf_print_info(PDF pdf, int luatexversion, str_number luatexrevision)
         pdf_dict_add_name(pdf, "Trapped", "False");
     }
     if ((pdf_suppress_optional_info & 1) == 0) {
-        pdf_dict_add_string(pdf, "PTEX.FullBanner", luatex_banner);
+        pdf_dict_add_string(pdf, pdf_pdf_prefix_str("PTEX_FullBanner", "PTEX.FullBanner"), luatex_banner);
     }
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);

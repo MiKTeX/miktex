@@ -735,7 +735,7 @@ void pdf_dict_add_img_filename(PDF pdf, image_dict * idict)
             p = img_filepath(idict);
         }
         /*tex write additional information */
-        pdf_add_name(pdf, "PTEX.FileName");
+        pdf_add_name(pdf, pdf_pdf_prefix_str("PTEX_FileName", "PTEX.InfoDict"));
         pdf_printf(pdf, " (%s)", convertStringToPDFString(p, strlen(p)));
     }
 }

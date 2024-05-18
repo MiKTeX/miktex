@@ -122,7 +122,7 @@ void end_link(PDF pdf, halfword p)
                             pdf_ann_left(q) = pos.h;
                             if (pdf_ann_left(q) > pdf_ann_right(q)) {
                                 halfword r = pdf_ann_right(q);
-                                halfword l = pdf_ann_left(q);
+                                /* halfword l = pdf_ann_left(q); */
                                 pdf_ann_right(q) = pos.h - r;
                                 pdf_ann_left(q) = pos.h;
                             }

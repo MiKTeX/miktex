@@ -28,6 +28,8 @@
 typedef image_dict *idict_entry;
 extern idict_entry *idict_array;
 
+extern const char *pdf_pdf_prefix_str(const char *a, const char *b);
+
 void new_img_pdfstream_struct(image_dict *);
 image *new_image(void);
 image_dict *new_image_dict(void);

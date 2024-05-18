@@ -827,15 +827,12 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
     */
     pdf_dict_add_img_filename(pdf, idict);
     if ((suppress_optional_info & 4) == 0) {
-        pdf_dict_add_int(pdf, "PTEX.PageNumber", (int) img_pagenum(idict));
+        pdf_dict_add_int(pdf, pdf_pdf_prefix_str("PTEX_PageNumber", "PTEX.PageNumber"), (int) img_pagenum(idict));
     }
     if ((suppress_optional_info & 8) == 0) {
         infoDict = ppdoc_info(pdfe);
         if (infoDict != NULL) {
-            /* todo : check this
-                pdf_dict_add_ref(pdf, "PTEX.InfoDict", addInObj(pdf, pdf_doc, infoDict));
-            */
-            pdf_add_name(pdf, "PTEX.InfoDict");
+            pdf_add_name(pdf,pdf_pdf_prefix_str("PTEX_InfoDict", "PTEX.InfoDict"));
             copyDict(pdf, pdf_doc, infoDict);
         }
     }

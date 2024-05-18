@@ -105,6 +105,8 @@ extern void pdf_dict_add_ref(PDF, const char *key, int num);
 extern void pdf_dict_add_name(PDF, const char *key, const char *val);
 extern void pdf_dict_add_streaminfo(PDF);
 
+extern const char *pdf_pdf_prefix_str(const char *a, const char *b);
+
 /* Conflict with pdfgen.h */
 /*#  define pdf_out(pdf, A) do { pdf_room(pdf, 1); *(pdf->buf->p++) = A; } while (0)*/
 /*#  define pdf_quick_out(pdf,A) *(pdf->buf->p++)=(unsigned char)(A) */

@@ -498,6 +498,7 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                         break;
                     } else {
                         /*tex Fall through |mathskip|. */
+                        /* No break;  we have to go on to glue_node case.*/
                     }
                     /*tex End |mathskip| code. */
                 case glue_node:
@@ -812,8 +813,12 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
           MOVE_PAST:
             cur.h += rule.wd;
             if (synctex) {
-                synch_pos_with_cur(pdf->posstruct, refpos, cur);
+	      synch_pos_with_cur(pdf->posstruct, refpos, cur);
+	      if( type(p) == math_node && !glue_is_zero(p) ) {
+	        normal_warning("listout","synctex doesn't support math node with not zero glue");
+	      } else {
                 synctexhorizontalruleorglue(p, this_box);
+	      }
             }
           NEXTP:
             p = vlink(p);
