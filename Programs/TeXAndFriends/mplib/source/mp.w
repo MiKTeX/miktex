@@ -71,12 +71,12 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 2.10" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 2.11" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @<Metapost version header@>=
-#define metapost_version "2.10"
+#define metapost_version "2.11"
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
 few typedefs and the header defintions for the externally used
@@ -128,7 +128,7 @@ typedef int integer;
 #define MPOST_ABS abs
 #else
 /* See source/texk/web2c/w2c/config.h */
-#if INTEGER_MAX == LONG_MAX /* this should mean INTEGER_TYPE == long */
+#if INTEGER_MAX == LONG_MAX /* this should mean |INTEGER_TYPE| == long */
 #ifdef HAVE_LABS
 #define MPOST_ABS labs
 #else
@@ -136,8 +136,8 @@ typedef int integer;
 #endif
 #else
 #define MPOST_ABS abs
-#endif /* if INTEGER_TYPE == long */
-#endif /* ifndef INTEGER_TYPE */
+#endif /* if |INTEGER_TYPE| == long */
+#endif /* ifndef |INTEGER_TYPE| */
 
 
 @<Declare helpers@>;
@@ -3757,9 +3757,9 @@ mp_envelope_of, /* operation code for \.{envelope} */
 mp_boundingpath_of, /* operation code for \.{boundingpath} */
 mp_glyph_infont, /* operation code for \.{glyph} */
 mp_kern_flag, /* operation code for \.{kern} */
-mp_m_get_left_endpoint_op, /* math interval new primitives  operation code for \.{interval_get_left_endpoint} */
-mp_m_get_right_endpoint_op, /* math interval new primitives operation code for \.{interval_get_right_endpoint} */
-mp_interval_set_op, /* math interval new primitives operation code for \.{interval_set} */
+mp_m_get_left_endpoint_op, /* math interval new primitives  operation code for \.{interval\_get\_left\_endpoint} */
+mp_m_get_right_endpoint_op, /* math interval new primitives operation code for \.{interval\_get\_right\_endpoint} */
+mp_interval_set_op, /* math interval new primitives operation code for \.{interval\_set} */
 
 
 @ @c
@@ -10357,14 +10357,20 @@ if (number_positive(arc)) {
   new_number (v1);
 
   set_number_from_substraction (d1, arc0, arc); /* d1 = arc0 - arc */
-  set_number_from_div (n1, arc, d1); /* n1 = (arc / d1) */
+  if (number_greater (d1,arc)) {
+    set_number_to_zero(n1); /* n1 = 0 */
+  } else {
+    set_number_from_div (n1, arc, d1); /* n1 = (arc / d1) */
+    floor_scaled(n1);
+  }  
   number_clone (n, n1);
   set_number_from_mul (n1, n1, d1); /* n1 = (n1 * d1) */
   number_substract (arc, n1); /* arc = arc - n1 */
 
   number_clone (d1, inf_t);         /* reuse d1 */
   number_clone (v1, n);             /* v1 = n */
-  number_add (v1, epsilon_t);       /* v1 = n1+1 */
+    
+  set_number_from_int(v1, number_to_int(v1)+1); /* v1 = n1+1 */
   set_number_from_div (d1, d1, v1); /* |d1 = EL_GORDO / v1| */
   if (number_greater (t_tot, d1)) {
     mp->arith_error = true;
@@ -18220,7 +18226,7 @@ new level (having, initially, the same properties as the old).
     mp->max_in_stack=mp->input_ptr;
     if ( mp->input_ptr==mp->stack_size ) {
         int l = (mp->stack_size+(mp->stack_size/4));
-        /* The mp->stack_size < 1001 condition is necessary to prevent C stack overflow due infinite recursion. */
+        /* The mp->stack\_size < 1001 condition is necessary to prevent C stack overflow due infinite recursion. */
         if (l>1000) {fprintf(stderr, "input stack overflow\n");exit(EXIT_FAILURE);}
         XREALLOC(mp->input_stack, l, in_state_record);
         mp->stack_size = l;
@@ -19357,7 +19363,8 @@ static mp_node mp_scan_toks (MP mp, mp_command_code terminator,
 @
 @c
 void mp_print_sym  (mp_sym sym) {
-  printf("{type = %d, v = {type = %d, data = {indep = {scale = %d, serial = %d}, n = %d, str = %p, sym = %p, node = %p, p = %p}}, text = %p}\n", sym->type, sym->v.type, (int)sym->v.data.indep.scale, (int)sym->v.data.indep.serial,
+  printf("{type = %d, v = {type = %d, data = {indep = {scale = %d, serial = %d}, n = %d, str = %p, sym = %p, node = %p, p = %p}}, text = %p}\n", 
+    sym->type, sym->v.type, (int)sym->v.data.indep.scale, (int)sym->v.data.indep.serial,
     sym->v.data.n.type, sym->v.data.str, sym->v.data.sym, sym->v.data.node, sym->v.data.p, sym->text);
   if (is_number(sym->v.data.n)) {
       mp_number n = sym->v.data.n;
@@ -25422,11 +25429,11 @@ mp_primitive (mp, "boundingpath", mp_primary_binary, mp_boundingpath_of);
 mp_primitive (mp, "glyph", mp_primary_binary, mp_glyph_infont);
 @:glyph_infont_}{\&{glyph} primitive@>;
 mp_primitive (mp, "interval_get_left_endpoint", mp_unary, mp_m_get_left_endpoint_op);  /* math interval new primitives */
-@:m_get_left_endpoint_}{\&{mget_left_endpoint} primitive@>;
+@:m_get_left_endpoint_}{\&{mget\_left\_endpoint} primitive@>;
 mp_primitive (mp, "interval_get_right_endpoint", mp_unary, mp_m_get_right_endpoint_op); /* math interval new primitives */
-@:m_get_right_endpoint_}{\&{mget_right_endpoint} primitive@>;
+@:m_get_right_endpoint_}{\&{mget\_right\_endpoint} primitive@>;
 mp_primitive (mp, "interval_set", mp_unary, mp_interval_set_op); /* math interval new primitives */
-@:interval_set}{\&{interval_set} primitive@>;
+@:interval_set}{\&{interval\_set} primitive@>;
 
 
 @ @<Cases of |print_cmd...@>=

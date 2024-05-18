@@ -317,7 +317,9 @@ static int mpfi_remainder_1 (mpfi_t r, mpfi_t x, mpfr_t m) {
      mpfr_inits2(precision_bits, d, abs_m, rem_a, rem_b, zero, one, abs_m_1,(mpfr_ptr) 0);
      mpfr_sub(d, b, a, MPFR_RNDN);
      mpfr_abs(abs_m, m, MPFR_RNDN);
-     mpfr_remainder(rem_a, a, m, MPFR_RNDN);  mpfr_remainder(rem_b, b, m, MPFR_RNDN);
+     /*mpfr_remainder(rem_a, a, m, MPFR_RNDN);  mpfr_remainder(rem_b, b, m, MPFR_RNDN); */
+     /* This is consistent with scaled mode */
+     mpfr_fmod(rem_a, a, m, MPFR_RNDN);  mpfr_fmod(rem_b, b, m, MPFR_RNDN); 
      if (mpfr_less_p(d,abs_m) && mpfr_lessequal_p(rem_a,rem_b)) {
        /*return [a % m, b % m] */
        ret_val= mpfi_interv_fr(r, rem_a, rem_b);
@@ -1879,8 +1881,8 @@ void mp_interval_n_arg (MP mp, mp_number *ret, mp_number x_orig, mp_number y_ori
     ret->type = mp_angle_type;
     mpfi_set_si(oneeighty_angle, 180 * angle_multiplier);
     mpfi_div(oneeighty_angle, oneeighty_angle, PI_mpfi_t);
-    checkZero((mpfi_ptr)y_orig.data.num);
-    checkZero((mpfi_ptr)x_orig.data.num);
+    /*checkZero((mpfi_ptr)y_orig.data.num);*/
+    /*checkZero((mpfi_ptr)x_orig.data.num);*/
     mpfi_atan2(atan2val, y_orig.data.num, x_orig.data.num);
     mpfi_mul(ret->data.num, atan2val, oneeighty_angle);
     checkZero((mpfi_ptr)ret->data.num);

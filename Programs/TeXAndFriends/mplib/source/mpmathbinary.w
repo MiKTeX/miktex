@@ -149,7 +149,7 @@ static double precision_bits_to_digits (mpfr_prec_t i);
 
 @d mpfr_negative_p(a) (mpfr_sgn((a))<0)
 @d mpfr_positive_p(a) (mpfr_sgn((a))>0)
-@d checkZero(dec)  if (mpfr_zero_p(dec) && mpfr_negative_p(dec)) {
+@d checkZero(dec)  if (mpfr_zero_p(dec)) {
      mpfr_set_zero(dec,1);
    }
 
@@ -1677,7 +1677,9 @@ void mp_init_randoms (MP mp, int seed) {
 
 @ @c
 void mp_binary_number_modulo (mp_number *a, mp_number b) {
-   mpfr_remainder (a->data.num, a->data.num, b.data.num, ROUNDING);
+ /* mpfr_remainder (a->data.num, a->data.num, b.data.num, ROUNDING);*/ 
+ /* This is consistent with scaled mode */
+ mpfr_fmod (a->data.num, a->data.num, b.data.num, ROUNDING); 
 }
 
 @ To consume a random  integer for the uniform generator, the program below will say `|next_unif_random|'.

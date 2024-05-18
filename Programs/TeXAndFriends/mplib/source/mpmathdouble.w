@@ -1179,6 +1179,11 @@ void mp_double_n_arg (MP mp, mp_number *ret, mp_number x_orig, mp_number y_orig)
     @<Handle undefined arg@>;
   } else {
     ret->type = mp_angle_type;
+    /* Consistency with the other numbersystems */
+    if (x_orig.data.dval == -0.0)
+      x_orig.data.dval = 0.0;
+    if (y_orig.data.dval == -0.0)
+      y_orig.data.dval = 0.0;
     ret->data.dval = atan2 (y_orig.data.dval, x_orig.data.dval) * (180.0 / PI)  * angle_multiplier;
     if (ret->data.dval == -0.0) 
       ret->data.dval = 0.0;

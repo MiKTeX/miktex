@@ -5,6 +5,7 @@
 ### Upgraded programs
 
 * dvipdfmx 20240511
+* metapost 2.11
 
 ## 24.4 - 2024-04-27
 
