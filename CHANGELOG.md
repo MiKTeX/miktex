@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## next
+## 24.12 - 2024-12-23
 
 ### Upgraded programs
 
@@ -10,6 +10,8 @@
 
 ### Fixed issues
 
+- [1540](https://github.com/MiKTeX/miktex/issues/1540): Can't install on OpenSUSE Tumbleweed - requires hunspell 1.6
+- [1562](https://github.com/MiKTeX/miktex/issues/1562): libzzip-0.so.13 and opensuse leap 15.6 64 bit
 - [1571](https://github.com/MiKTeX/miktex/issues/1571): Fedora 41
 
 ## 24.4 - 2024-04-27
