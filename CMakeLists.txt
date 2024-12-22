@@ -2327,7 +2327,7 @@ if(WITH_BOOTSTRAPPING)
     if(DEFINED ENV{MIKTEX_REPOSITORY})
         set(default_repository $ENV{MIKTEX_REPOSITORY})
     else()
-        set(default_repository "http://ctan.org/tex-archive/systems/win32/miktex/tm/packages/")
+        set(default_repository "https://ctan.org/tex-archive/systems/win32/miktex/tm/packages/")
     endif()
     set(MIKTEX_DEFAULT_REPOSITORY
         ${default_repository}
@@ -2358,7 +2358,7 @@ if(WITH_BOOTSTRAPPING)
             OUTPUT
                 ${CMAKE_CURRENT_BINARY_DIR}/${f}
             COMMAND
-                ${CURL_EXECUTABLE} -o ${CMAKE_CURRENT_BINARY_DIR}/${f} -fsSL ${remote_repository}/${f}
+                ${CURL_EXECUTABLE} -o ${CMAKE_CURRENT_BINARY_DIR}/${f} -fsSL ${remote_repository}${f}
         )
         list(APPEND generated_bootstrapping_files ${CMAKE_CURRENT_BINARY_DIR}/${f})
     endforeach()

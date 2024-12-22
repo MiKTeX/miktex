@@ -8,6 +8,10 @@
 * luatex 1.18.2
 * metapost 2.11
 
+### Fixed issues
+
+- [1571](https://github.com/MiKTeX/miktex/issues/1571): Fedora 41
+
 ## 24.4 - 2024-04-27
 
 ### Upgraded programs
