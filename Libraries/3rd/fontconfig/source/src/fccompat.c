@@ -236,7 +236,9 @@ FcRandom(void)
 }
 
 #ifdef _WIN32
-#if !defined(MIKTEX_WINDOWS)
+#if defined(MIKTEX_WINDOWS)
+#define mkdir(path,mode) miktex_utf8__mkdir(path)
+#else
 #include <direct.h>
 #define mkdir(path,mode) _mkdir(path)
 #endif
