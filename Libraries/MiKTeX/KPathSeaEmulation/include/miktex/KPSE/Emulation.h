@@ -163,7 +163,10 @@ MIKTEX_END_EXTERN_C_BLOCK;
 /// @{
 
 #if !defined(HAVE_INDEX) && !defined(index)
-#define index(s, c) strchr(s, c)
+inline const char* index(const char* s, int c)
+{
+    return strchr(s, c);
+}
 #endif
 
 #if !defined(HAVE_RINDEX) && !defined(rindex)
