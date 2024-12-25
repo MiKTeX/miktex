@@ -1,6 +1,6 @@
 %% miktex-pdftex.ch
 %%
-%% Copyright (C) 2021-2023 Christian Schenk
+%% Copyright (C) 2021-2024 Christian Schenk
 %% 
 %% This file is free software; the copyright holder gives
 %% unlimited permission to copy and/or distribute it, with or
@@ -184,7 +184,7 @@ pdf_font_type:=xmalloc_array(eight_bits, font_max);
 pdf_font_attr:=xmalloc_array(str_number, font_max);
 pdf_font_blink:=xmalloc_array(internal_font_number, font_max);
 pdf_font_elink:=xmalloc_array(internal_font_number, font_max);
-pdf_font_has_space_char:=xmalloc_array(internal_font_number, font_max);
+pdf_font_has_space_char:=xmalloc_array(boolean, font_max);
 pdf_font_stretch:=xmalloc_array(integer, font_max);
 pdf_font_shrink:=xmalloc_array(integer, font_max);
 pdf_font_step:=xmalloc_array(integer, font_max);
@@ -306,7 +306,7 @@ pdf_font_type:=xmalloc_array(eight_bits,font_max);
 pdf_font_attr:=xmalloc_array(str_number,font_max);
 pdf_font_blink:=xmalloc_array(internal_font_number,font_max);
 pdf_font_elink:=xmalloc_array(internal_font_number,font_max);
-pdf_font_has_space_char:=xmalloc_array(internal_font_number,font_max);
+pdf_font_has_space_char:=xmalloc_array(boolean,font_max);
 pdf_font_stretch:=xmalloc_array(integer,font_max);
 pdf_font_shrink:=xmalloc_array(integer,font_max);
 pdf_font_step:=xmalloc_array(integer,font_max);

@@ -1631,7 +1631,7 @@ parameter |incr_offset| is set |false| except for the very last byte, to avoid
 calling |print_ln| in the middle of such character.
 
 @<Basic printing...@>=
-procedure print_raw_char(@!s:ASCII_code;@!incr_offset:boolean); {prints a single character}
+procedure print_raw_char(@!s:UnicodeScalar;@!incr_offset:boolean); {prints a single character}
 label exit; {label is not used but nonetheless kept (for other changes?)}
 begin
 case selector of
@@ -5372,7 +5372,7 @@ paragraphs is to define these names, and to set up the initial values of the
 equivalents.
 
 In the first region we have |number_usvs| equivalents for ``active characters''
-that act as control sequences, followed by |number_usvs| equivalents for
+that act as control sequences, followed by |too_big_char| equivalents for
 single-character control sequences.
 
 Then comes region~2, which corresponds to the hash table that we will
@@ -5384,7 +5384,9 @@ locations for control sequences that are perpetually defined
 @d active_base=1 {beginning of region 1, for active character equivalents}
 @d single_base=active_base+number_usvs
    {equivalents of one-character control sequences}
-@d null_cs=single_base+number_usvs {equivalent of \.{\\csname\\endcsname}}
+   {single-character sequence whose character code is ${}>|@"FFFF|$ are
+    treated as a multiletter sequence, because UTF-16 is used in the string pool. }
+@d null_cs=single_base+too_big_char {equivalent of \.{\\csname\\endcsname}}
 @d hash_base=null_cs+1 {beginning of region 2, for the hash table}
 @d frozen_control_sequence=hash_base+hash_size {for error recovery}
 @d frozen_protection=frozen_control_sequence {inaccessible but definable}
@@ -10436,7 +10438,19 @@ if cur_tok<cs_token_flag then
   end
 else if cur_tok<cs_token_flag+single_base then
   cur_val:=cur_tok-cs_token_flag-active_base
-else cur_val:=cur_tok-cs_token_flag-single_base;
+else if cur_tok<cs_token_flag+null_cs then
+  cur_val:=cur_tok-cs_token_flag-single_base
+else { check the cs is a single-letter whose character code is ${}>|@"FFFF|$ }
+  begin m:=text(cur_tok-cs_token_flag);
+  if str_start_macro(m+1)=2+str_start_macro(m) then begin
+    m:=str_start_macro(m);
+    if (so(str_pool[m])>=@"D800) and (so(str_pool[m])<=@"DBFF)
+      and (so(str_pool[m+1])>=@"DC00) and (so(str_pool[m+1])<=@"DFFF) then
+      cur_val:=@"10000 + (so(str_pool[m])-@"D800) * @"400 + so(str_pool[m+1])-@"DC00
+    else cur_val:=too_big_usv;
+    end
+  else cur_val:=too_big_usv;
+  end;
 if cur_val>biggest_usv then
   begin print_err("Improper alphabetic constant");
 @.Improper alphabetic constant@>

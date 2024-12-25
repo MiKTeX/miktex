@@ -1,4 +1,4 @@
-% Copyright 1996-2023 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh,
+% Copyright 1996-2024 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh,
 % <thanh@@pdftex.org>
 
 % This file is part of pdfTeX.
@@ -5704,10 +5704,11 @@ that will be defined later.
 @d pdf_suppress_warning_page_group_code  = pdftex_first_integer_code + 30 {suppress warning about multiple pdfs with page group}
 @d pdf_info_omit_date_code  = pdftex_first_integer_code + 31 {omit generating CreationDate and ModDate}
 @d pdf_suppress_ptex_info_code = pdftex_first_integer_code + 32 {suppress /PTEX.* entries in PDF dictionaries}
-@d pdf_omit_charset_code = pdftex_first_integer_code + 33 {suppress /PTEX.* entries in PDF dictionaries}
-@d pdf_omit_info_dict_code = pdftex_first_integer_code + 34 {suppress /PTEX.* entries in PDF dictionaries}
-@d pdf_omit_procset_code = pdftex_first_integer_code + 35 {suppress /PTEX.* entries in PDF dictionaries}
-@d pdf_int_pars=pdftex_first_integer_code + 36 {total number of \pdfTeX's integer parameters}
+@d pdf_omit_charset_code = pdftex_first_integer_code + 33 {omit CharSet in Font dict}
+@d pdf_omit_info_dict_code = pdftex_first_integer_code + 34 {omit Info dict}
+@d pdf_omit_procset_code = pdftex_first_integer_code + 35 {omit ProcSet in resources dict}
+@d pdf_ptex_use_underscore_code = pdftex_first_integer_code + 36 {use underscore for PTEX prefix}
+@d pdf_int_pars=pdftex_first_integer_code + 37 {total number of \pdfTeX's integer parameters}
 @#
 @d etex_int_base=pdf_int_pars {base for \eTeX's integer parameters}
 @d tracing_assigns_code=etex_int_base {show assignments}
@@ -5822,6 +5823,7 @@ that will be defined later.
 @d pdf_omit_charset == int_par(pdf_omit_charset_code)
 @d pdf_omit_info_dict == int_par(pdf_omit_info_dict_code)
 @d pdf_omit_procset == int_par(pdf_omit_procset_code)
+@d pdf_ptex_use_underscore == int_par(pdf_ptex_use_underscore_code)
 @#
 @d tracing_assigns==int_par(tracing_assigns_code)
 @d tracing_groups==int_par(tracing_groups_code)
@@ -5933,6 +5935,7 @@ pdf_suppress_ptex_info_code: print_esc("pdfsuppressptexinfo");
 pdf_omit_charset_code: print_esc("pdfomitcharset");
 pdf_omit_info_dict_code: print_esc("pdfomitinfodict");
 pdf_omit_procset_code: print_esc("pdfomitprocset");
+pdf_ptex_use_underscore_code: print_esc("pdfptexuseunderscore");
 @/@<Cases for |print_param|@>@/
 othercases print("[unknown integer parameter!]")
 endcases;
@@ -6136,6 +6139,9 @@ primitive("pdfomitinfodict",assign_int,int_base+pdf_omit_info_dict_code);@/
 
 primitive("pdfomitprocset",assign_int,int_base+pdf_omit_procset_code);@/
 @!@:pdf_omit_procset}{\.{\\pdfomitprocset} primitive@>
+
+primitive("pdfptexuseunderscore",assign_int,int_base+pdf_ptex_use_underscore_code);@/
+@!@:pdf_ptex_use_underscore}{\.{\\pdfptexuseunderscore} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
 assign_int: if chr_code<count_base then print_param(chr_code-int_base)
@@ -15154,6 +15160,12 @@ begin
     get_pdf_omit_charset := pdf_omit_charset;
 end;
 
+function get_ptex_use_underscore: boolean;
+begin
+    get_ptex_use_underscore
+      := (pdf_ptex_use_underscore > 0) or (pdf_major_version >= 2)
+end;
+
 function get_nullfont: internal_font_number;
 begin
     get_nullfont := null_font;
@@ -16240,7 +16252,7 @@ begin
     if gen_faked_interword_space
         and pdf_doing_string
         and (not must_end_string)
-        and (s_out > space(f) - space_shrink(f))
+        and (s_out > space(f) - space_shrink(f) - 65536)
         and (v = 0)
     then begin
         must_insert_space := true;
@@ -20300,7 +20312,10 @@ begin
         pdf_print_ln("/Trapped /False");
     end;
     if pdf_suppress_ptex_info mod 2 = 0 then begin
-        pdf_str_entry_ln("PTEX.Fullbanner", pdftex_banner);
+        if get_ptex_use_underscore then
+            pdf_str_entry_ln("PTEX_Fullbanner", pdftex_banner)
+        else
+            pdf_str_entry_ln("PTEX.Fullbanner", pdftex_banner);
     end;
     pdf_end_dict;
 end;

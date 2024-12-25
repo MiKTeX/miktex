@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX-pdfTeX
  *
- * @copyright Copyright © 1998-2023 Christian Schenk
+ * @copyright Copyright © 1998-2024 Christian Schenk
  *
  * This file is free software; the copyright holder gives unlimited permission
  * to copy and/or distribute it, with or without modifications, as long as this
@@ -571,6 +571,11 @@ inline auto getpdfsuppressptexinfo()
 inline auto getpdfsuppresswarningpagegroup()
 {
     return PDFTEXPROG.getpdfsuppresswarningpagegroup();
+}
+
+inline auto getptexuseunderscore()
+{
+    return PDFTEXPROG.getptexuseunderscore();
 }
 
 inline auto print(C4P::C4P_integer s)
