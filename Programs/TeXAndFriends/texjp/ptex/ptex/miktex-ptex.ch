@@ -1,6 +1,6 @@
 %% miktex-ptex.ch
 %%
-%% Copyright (C) 2021-2022 Christian Schenk
+%% Copyright (C) 2021-2024 Christian Schenk
 %% 
 %% This file is free software; the copyright holder gives
 %% unlimited permission to copy and/or distribute it, with or
@@ -241,6 +241,8 @@ font_enc:=xmalloc_array(eight_bits, font_max);
 font_num_ext:=xmalloc_array(integer, font_max);
 ctype_base:=xmalloc_array(integer, font_max);
 char_base:=xmalloc_array(integer, font_max);
+font_bc:=xmalloc_array(sixteen_bits, font_max);
+font_ec:=xmalloc_array(sixteen_bits, font_max);
 @y
 @z
 
@@ -266,6 +268,8 @@ char_base:=xmalloc_array(integer, font_max);
   font_enc:=xmalloc_array(eight_bits, font_max);
   font_num_ext:=xmalloc_array(integer, font_max);
   font_check:=xmalloc_array(four_quarters, font_max);
+  font_bc:=xmalloc_array(sixteen_bits, font_max);
+  font_ec:=xmalloc_array(sixteen_bits, font_max);
   ctype_base:=xmalloc_array(integer, font_max);
   char_base:=xmalloc_array(integer, font_max);
 @y

@@ -251,7 +251,7 @@
 
 @* Introduction.
 This is Hi\TeX, a program derived from \TeX, extending its capabilities
-using \eTeX and \Prote, and adding functions common to other engines from
+using \eTeX\ and \Prote, and adding functions common to other engines from
 the \TeX\ Live distribution. Hi\TeX\ writes output files in
 the \HINT\ file format. Like \TeX, it is
 a document compiler intended to produce typesetting of high
@@ -375,7 +375,7 @@ known as `\Prote'.
 @d Prote_banner "This is Prote, Version " Prote_version_string
    /*printed when \Prote\ starts*/
 @#
-@d banner "This is HiTeX, Version 3.141592653"
+@d banner "This is HiTeX, Version 3.141592653"@|
           eTeX_version_string"-"HINT_VERSION_STRING" "TL_VERSION
           /*printed when \TeX\ starts*/
 
@@ -435,7 +435,9 @@ uses identifiers that \TeX will declare as macros.
 
 @p @<Header files and function declarations@>@;
 @h
-enum {@+@<Constants in the outer block@>@+};
+enum {@<Constants in the outer block@>@;
+      @!empty_string=256 /*the empty string follows after 256 characters*/
+};
 @<Types in the outer block@>@;
 @<Forward declarations@>@;
 @<Global variables@>@;
@@ -564,7 +566,6 @@ in production versions of \TeX.
 @!file_name_size=1024, /*file names shouldn't be longer than this*/
 @!xchg_buffer_size=64, /*must be at least 64*/
    /*size of |eight_bits| buffer for exchange with system routines*/
-@!empty_string=256 /*the empty string follows after 256 characters*/
 
 @ Like the preceding parameters, the following quantities can be changed
 at compile time to extend or reduce \TeX's capacity. But if they are changed,
@@ -574,7 +575,7 @@ to generate new tables for the production \TeX\ program.
 One can't simply make helter-skelter changes to the following constants,
 since certain rather complex initialization
 numbers are computed from them. They are defined here using
-\.{WEB} macros, instead of being put into \PASCAL's |const| list, in order to
+\.{WEB} macros, instead of being put into the above |enum| list in order to
 emphasize this distinction.
 
 @d mem_bot 0 /*smallest index in the |mem| array dumped by \.{INITEX};
@@ -1500,7 +1501,7 @@ by changing |wterm|, |wterm_ln|, and |wterm_cr| in this section.
 
 @<Basic printing procedures@>=
 #define @[put(F)@]    @[fwrite(&((F).d)@],@[sizeof((F).d),1,(F).f)@]@;
-#define @[get(F)@]    @[fread(&((F).d),sizeof((F).d),1,(F).f)@]
+#define @[get(F)@]    @[(void)fread(&((F).d),sizeof((F).d),1,(F).f)@]
 
 #define @[pascal_close(F)@]    @[fclose((F).f)@]
 #define @[eof(F)@]    @[feof((F).f)@]
@@ -13483,7 +13484,7 @@ a height instead of a width; the parameter |m| is interpreted as in |hpack|.
 
 @d exactly 0 /*a box dimension is pre-specified*/
 @d additional 1 /*a box dimension is increased from the natural one*/
-@d natural 0, 0, 0, additional /*shorthand for parameters to |hpack| and |vpack|*/
+@d natural 0, 0, 0, additional, false /*shorthand for parameters to |hpack| and |vpack|*/
 
 @ The parameters to |hpack| and |vpack| correspond to \TeX's primitives
 like `\.{\\hbox} \.{to} \.{300pt}', `\.{\\hbox} \.{spread} \.{10pt}'; note
@@ -13559,7 +13560,7 @@ static pointer @!adjust_tail; /*tail of adjustment list*/
 
 @ Here now is |hpack|, which contains few if any surprises.
 
-@p static pointer hpack(pointer p, scaled w, scaled hf, scaled vf, small_number m);
+@p static pointer hpack(pointer p, scaled w, scaled hf, scaled vf, small_number m, bool keep_cs);
 
 @ @<Clear dimensions to zero@>=
 d=0;x=0;
@@ -13784,7 +13785,7 @@ point is simply moved down until the limiting depth is attained.
 
 @p
 #define vpack(...) @[vpackage(__VA_ARGS__, max_dimen)@] /*special case of unconstrained depth*/
-static pointer vpackage(pointer p, scaled h, scaled hf, scaled vf, small_number m, scaled l);
+static pointer vpackage(pointer p, scaled h, scaled hf, scaled vf, small_number m, bool keep_cs, scaled l);
 
 @ @<Examine node |p| in the vlist, taking account of its effect...@>=
 {@+if (is_char_node(p)) confusion("vpack");
@@ -14714,7 +14715,7 @@ if ((width(b)!=w)&&(list_ptr(b)!=null))
   b=new_glue(ss_glue);link(b)=p;
   while (link(p)!=null) p=link(p);
   link(p)=new_glue(ss_glue);
-  return hpack(b, w, 0, 0, exactly);
+  return hpack(b, w, 0, 0, exactly, false);
   }
 else{@+width(b)=w;return b;
   }
@@ -16518,12 +16519,12 @@ save_ptr=save_ptr-2;pack_begin_line=-mode_line;
 if (mode==-vmode)
   {@+rule_save=overfull_rule;
   overfull_rule=0; /*prevent rule from being packaged*/
-  p=hpack(preamble, saved(1), saved_hfactor(1), saved_vfactor(1), saved(0));overfull_rule=rule_save;
+  p=hpack(preamble, saved(1), saved_hfactor(1), saved_vfactor(1), saved(0), false);overfull_rule=rule_save;
   }
 else{@+q=link(preamble);
   @/do@+{height(q)=width(q);width(q)=0;q=link(link(q));
   }@+ while (!(q==null));
-  p=vpack(preamble, saved(1), saved_hfactor(1), saved_vfactor(1), saved(0));
+  p=vpack(preamble, saved(1), saved_hfactor(1), saved_vfactor(1), saved(0), false);
   q=link(preamble);
   @/do@+{width(q)=height(q);height(q)=0;q=link(link(q));
   }@+ while (!(q==null));
@@ -17981,6 +17982,7 @@ halfword @!cur_line; /*the current line number being justified*/
 @<Reverse the links of the relevant passive nodes, setting |cur_p| to the
 first breakpoint@>;
 cur_line=prev_graf+1;
+@<initialize the color stack@>@;
 @/do@+{@<Justify the line ending at breakpoint |cur_p|, and append it to the
 current vertical list, together with associated penalties and other insertions@>;
 incr(cur_line);cur_p=next_break(cur_p);
@@ -18141,7 +18143,27 @@ else if (par_shape_ptr==null)
 else{@+cur_width=mem[par_shape_ptr+2*cur_line].sc;
   cur_indent=mem[par_shape_ptr+2*cur_line-1].sc;
   }
-adjust_tail=adjust_head;just_box=hpack(q, cur_width, 0, 0, exactly);
+{ pointer before_color_tos=color_tos;
+  pointer before_link_tos=link_tos;
+  adjust_tail=adjust_head;just_box=hpack(q, cur_width, 0, 0, exactly, true);
+  if (before_link_tos!=before_color_tos)
+  { pointer r;
+    r=new_color_node(color_ref(before_color_tos));
+    link(r) = list_ptr(just_box);
+    list_ptr(just_box)=r;
+  }
+  if (before_link_tos!=null) /* an unfinished link was in the previous line */
+  { pointer r;
+    int words;
+    r=get_node(link_node_size);
+    for (words=0;words<link_node_size; words++)
+      mem[r+words]= mem[before_link_tos+words];
+    if (label_has_name(as_label(r)))
+      add_token_ref(label_ptr(as_label(r)));
+    link(r) = list_ptr(just_box);
+    list_ptr(just_box)=r;
+  }
+}
 shift_amount(just_box)=cur_indent
 
 @ Penalties between the lines of a paragraph come from club and widow lines,
@@ -19816,9 +19838,17 @@ q=vert_break(list_ptr(v), h, split_max_depth);
 to |null| at the break@>;
 q=prune_page_top(q, saving_vdiscards > 0);
 p=list_ptr(v);list_ptr(v)=null;flush_node_list(v);
-if (q!=null) q=vpack(q, natural);
+p=vpackage(p, h, 0, 0, exactly, false, split_max_depth);
+if (q!=null)
+{ if (color_tos!=null)
+  { pointer r = new_color_node(color_ref(color_tos));
+    color_tos=color_link(color_tos);
+    link(r)=q; q=r;
+  }
+  q=vpack(q, natural);
+}
 change_box(q); /*the |eq_level| of the box stays the same*/
-return vpackage(p, h, 0, 0, exactly, split_max_depth);
+return p;
 }
 
 @ @<Dispense with trivial cases of void or bad boxes@>=
@@ -20571,7 +20601,7 @@ if (p!=null)
   }
 save_vbadness=vbadness;vbadness=inf_bad;
 save_vfuzz=vfuzz;vfuzz=max_dimen; /*inhibit error messages*/
-box(255)=vpackage(link(page_head), best_size, 0, 0, exactly, page_max_depth);
+box(255)=vpackage(link(page_head), best_size, 0, 0, exactly, false, page_max_depth);
 vbadness=save_vbadness;vfuzz=save_vfuzz;
 if (last_glue!=max_halfword) delete_glue_ref(last_glue);
 @<Start a new current page@>; /*this sets |last_glue=max_halfword|*/
@@ -21138,7 +21168,7 @@ pace through the other combinations of possibilities.
 
 @<Cases of |main_control| that are not part of the inner loop@>=
 any_mode(relax): case vmode+spacer: case mmode+spacer:
-  case mmode+no_boundary: do_nothing;
+  case mmode+no_boundary: do_nothing;@+break;
 any_mode(ignore_spaces): {@+@<Get the next non-blank non-call...@>;
   goto reswitch;
   }
@@ -21847,8 +21877,8 @@ static void package(small_number @!c)
 pointer @!p; /*first node in a box*/
 scaled @!d; /*max depth*/
 d=box_max_depth;unsave();save_ptr=save_ptr-3;
-if (mode==-hmode) cur_box=hpack(link(head), saved(2), saved_hfactor(2), saved_vfactor(2),  saved(1));
-else{@+cur_box=vpackage(link(head), saved(2), saved_hfactor(2), saved_vfactor(2), saved(1), d);
+if (mode==-hmode) cur_box=hpack(link(head), saved(2), saved_hfactor(2), saved_vfactor(2),  saved(1), false);
+else{@+cur_box=vpackage(link(head), saved(2), saved_hfactor(2), saved_vfactor(2), saved(1), false, d);
   if (c==vtop_code) @<Readjust the height and depth of |cur_box|, for \.{\\vtop}@>;
   }
 pop_nest();box_end(saved(0));
@@ -22924,7 +22954,7 @@ case mmode+vcenter: {@+scan_spec(vcenter_group, false);normal_paragraph();
 
 @ @<Cases of |handle...@>=
 case vcenter_group: {@+end_graf();unsave();save_ptr=save_ptr-2;
-  p=vpack(link(head), saved(1), saved_hfactor(1), saved_vfactor(1), saved(0));pop_nest();
+  p=vpack(link(head), saved(1), saved_hfactor(1), saved_vfactor(1), saved(0), false);pop_nest();
   tail_append(new_noad());type(tail)=vcenter_noad;
   math_type(nucleus(tail))=sub_box;info(nucleus(tail))=p;
   } @+break;
@@ -23364,12 +23394,12 @@ by causing its width to be zero.
    (total_shrink[fil]!=0)||(total_shrink[fill]!=0)||
    (total_shrink[filll]!=0)))
   {@+list_ptr(b)=null;flush_node_list(b);
-  b=hpack(p, z-q, 0, 0, exactly);
+  b=hpack(p, z-q, 0, 0, exactly, false);
   }
 else{@+e=0;
   if (w > z)
     {@+list_ptr(b)=null;flush_node_list(b);
-    b=hpack(p, z, 0, 0, exactly);
+    b=hpack(p, z, 0, 0, exactly, false);
     }
   }
 w=width(b);
@@ -25674,21 +25704,31 @@ to hold the string numbers for name, area, and extension.
 @d ignore_info(A)    type(A+1)
 @d ignore_list(A)    link(A+1)
 
-@d label_node hitex_ext+17 /* represents a link to a another location */
+@d color_node hitex_ext+17 /* represent a color node */
+@d end_color_node hitex_ext+18 /* represent an end color node */
+@d default_color_node hitex_ext+19 /* set default colors*/
+@d link_color_node hitex_ext+20 /* set link colors */
+@d default_link_color_node hitex_ext+21 /* set default link colors */
+@d no_color_node  hitex_ext+22 /* a deleted end color node */
+@d color_node_size small_node_size
+@d color_ref(A)  type(A+1) /* reference to the color set */
+@d color_link(A)     link(A+1) /* pointer down the color stack */
+
+@d label_node hitex_ext+23 /* represents a link to a another location */
 @d label_node_size 2
 @d label_has_name(A)  type(A+1) /* 1 for a name , 0 for a number */
 @d label_where(A)  subtype(A+1) /* 1 for top, 2 for bot, 3 for mid */
-@d label_ptr(A) link(A+1) /* for a name the token list or the number */
-@d label_ref(A) link(A+1) /*alternatively the label number */
+@d label_ptr(A) link(A+1) /* hitex: a name (token list) or a number */
 
-@d start_link_node hitex_ext+18 /* represents a link to a another location */
-@d end_link_node hitex_ext+19 /* represents a link to a another location */
-@d link_node_size 2 /* second word like a |label_node| */
+@d start_link_node hitex_ext+24 /* represents a link to another location */
+@d end_link_node hitex_ext+25 /* represents a link to another location */
+@d link_node_size 3 /* second word like a |color_node| */
+@d as_label(A) ((A)+1) /* third word like a |label_node| */
 
-@d outline_node hitex_ext+20 /* represents an outline item */
-@d outline_node_size 4 /* second word like a |label_node| */
+@d outline_node hitex_ext+26 /* represents an outline item */
+@d outline_node_size 3 /* second word like a |label_node| */
 @d outline_ptr(A)   link(A+2) /* text to be displayed */
-@d outline_depth(A) mem[A+3].i /* depth of sub items */
+@d outline_depth(A) info(A+2) /* depth of sub items */
 
 
 @ The sixteen possible \.{\\write} streams are represented by the |write_file|
@@ -25725,46 +25765,8 @@ primitive("special", extension, special_node);@/
 @!@:special\_}{\.{\\special} primitive@>
 primitive("immediate", extension, immediate_code);@/
 @!@:immediate\_}{\.{\\immediate} primitive@>
-
 primitive("setlanguage", extension, set_language_code);@/
 @!@:set\_language\_}{\.{\\setlanguage} primitive@>
-
-primitive("HINTversion", last_item, HINT_version_code);
-@!@:HINT\_version\_}{\.{\\HINTversion} primitive@>
-
-primitive("HINTminorversion", last_item, HINT_minor_version_code);
-@!@:HINT\_minor\_version\_}{\.{\\HINTminorversion} primitive@>
-
-primitive("HINTdest", extension, label_node);@/
-@!@:HINTdest\_}{\.{\\HINTdest} primitive@>
-
-primitive("HINTstartlink", extension, start_link_node);@/
-@!@:startlink\_}{\.{\\HINTstartlink} primitive@>
-
-primitive("HINTendlink", extension, end_link_node);@/
-@!@:HINTendlink\_}{\.{\\HINTendlink} primitive@>
-
-primitive("HINToutline", extension, outline_node);@/
-@!@:HINToutline\_}{\.{\\HINToutline} primitive@>
-
-primitive("HINTimage", extension, image_node);@/
-@!@:image\_}{\.{\\image} primitive@>
-
-primitive("HINTsetpage", extension, setpage_node);@/
-@!@:setpage\_}{\.{\\setpage} primitive@>
-
-primitive("HINTstream", extension, stream_node);@/
-@!@:stream\_}{\.{\\stream} primitive@>
-
-primitive("HINTsetstream", extension, setstream_node);@/
-@!@:setstream\_}{\.{\\setstream} primitive@>
-
-primitive("HINTbefore", extension, stream_before_node);@/
-@!@:before\_}{\.{\\before} primitive@>
-
-primitive("HINTafter", extension, stream_after_node);@/
-@!@:after\_}{\.{\\after} primitive@>
-
 
 @ The variable |write_loc| just introduced is used to provide an
 appropriate error message in case of ``runaway'' write texts.
@@ -25779,6 +25781,12 @@ case extension: switch (chr_code) {
   case close_node: print_esc("closeout");@+break;
   case special_node: print_esc("special");@+break;
   case image_node: print_esc("HINTimage");@+break;
+  case color_node: print_esc("HINTcolor");@+break;
+  case end_color_node: print_esc("HINTendcolor");@+break;
+  case no_color_node: print_esc("HINTendcolor ignored");@+break;
+  case default_color_node: print_esc("HINTdefaultcolor");@+break;
+  case link_color_node: print_esc("HINTlinkcolor");@+break;
+  case default_link_color_node: print_esc("HINTdefaultlinkcolor");@+break;
   case start_link_node: print_esc("HINTstartlink");@+break;
   case end_link_node: print_esc("HINTendlink");@+break;
   case label_node: print_esc("HINTdest");@+break;
@@ -25832,21 +25840,27 @@ case vset_node:
 case align_node: @+break;@#
 case image_node:@/
 {@+ pointer p;
+  scaled iw=0,ih=0;
+  double ia=0.0;
   scan_optional_equals();
   scan_file_name();
   p=new_image_node(cur_name,cur_area,cur_ext);
   loop {
     if (scan_keyword("width"))
-    {@+scan_normal_dimen; image_xwidth(p)=new_xdimen(cur_val,cur_hfactor,cur_vfactor); }
+    {@+scan_normal_dimen; image_xwidth(p)=new_xdimen(cur_val,cur_hfactor,cur_vfactor);
+     if (cur_hfactor==0 && cur_vfactor==0) iw=cur_val;
+    }
     else if (scan_keyword("height"))
-    {@+scan_normal_dimen; image_xheight(p)=new_xdimen(cur_val,cur_hfactor,cur_vfactor); }
+    {@+scan_normal_dimen; image_xheight(p)=new_xdimen(cur_val,cur_hfactor,cur_vfactor);
+      if (cur_hfactor==0 && cur_vfactor==0) ih=cur_val;
+    }
     else
       break;
   }
-  { scaled iw,ih;
-    double ia;
+  {
     pointer r,q;
-    hextract_image_dimens(image_no(p),&ia,&iw,&ih);
+    if (ih!=0 && iw!=0 ) ia=(double)iw/ih;
+    else hextract_image_dimens(image_no(p),&ia,&iw,&ih);
     image_aspect(p)=round(ia*ONE);
     r=image_xwidth(p);
     q=image_xheight(p);
@@ -25858,8 +25872,8 @@ case image_node:@/
       else if (iw<0)
       { MESSAGE("Unable to determine size of image %s; using 72dpi.\n",
 		dir[image_no(p)].file_name);
-	image_xwidth(p)=r=new_xdimen(-iw*ONE,0,0);
-        image_xheight(p)=q=new_xdimen(-ih*ONE,0,0);
+	image_xwidth(p)=r=new_xdimen(-iw,0,0);
+        image_xheight(p)=q=new_xdimen(-ih,0,0);
       }
       else
       { MESSAGE("Unable to determine size of image %s; using 100pt x 100pt\n",
@@ -25884,19 +25898,66 @@ case image_node:@/
     tail_append(p);
   break;
 }
+case color_node:
+    { ColorSet c;
+      new_whatsit(color_node,color_node_size);
+      scan_color_spec(c,0);
+      color_ref(tail)=next_colorset(c);
+      color_link(tail)=null;
+      default_color_frozen=true;
+    }
+    break;
+case no_color_node: break;
+case end_color_node:
+    { new_whatsit(end_color_node,color_node_size);
+      color_ref(tail)=0xFF;
+      color_link(tail)=null;
+    }
+    break;
+case default_color_node:
+    if (default_color_frozen)
+    { print_err("You can not use \\HINTdefaultcolor after \\HINTcolor");
+      error();
+    }
+    else
+    { ColorSet c;
+      scan_color_spec(c,0);
+      colorset_copy(colors[0],c);
+    }
+    break;
+case link_color_node:
+    { ColorSet c;
+      scan_color_spec(c,1);
+      cur_link_color=next_colorset(c);
+      default_link_color_frozen=true;
+    }
+    break;
+case default_link_color_node:
+    if (default_link_color_frozen)
+    {@+print_err("You can not use \\HINTdefaultlinkcolor after \\HINTlinkcolor");      error();
+    }
+    else
+    { ColorSet c;
+      scan_color_spec(c,1);
+      colorset_copy(colors[1],c);
+    }
+    break;
 case start_link_node:
   if (abs(mode) == vmode)
     fatal_error("HINTstartlink cannot be used in vertical mode");
   else
   { new_whatsit(start_link_node,link_node_size);
-    scan_label(tail);
+    scan_label(as_label(tail));
+    color_ref(tail)=cur_link_color;
   }
   break;
 case end_link_node:
   if (abs(mode) == vmode)
     fatal_error("HINTendlink cannot be used in vertical mode");
   else
-    new_whatsit(end_link_node,link_node_size);
+  { new_whatsit(end_link_node,link_node_size);
+    color_ref(tail)=0xFF;
+  }
   break;
 case label_node:
   new_whatsit(label_node,label_node_size);
@@ -26181,6 +26242,15 @@ case image_node:
   print("), section ");print_int(image_no(p));
   if (image_name(p)!=0) {print(", "); printn(image_name(p));}
   break;
+case color_node:
+  print_esc("HINTcolor ");print_int(color_ref(p));
+  break;
+case no_color_node:
+  print_esc("HINTendcolor ignored");
+  break;
+case end_color_node:
+  print_esc("HINTendcolor ");
+  break;
 case align_node:
   print_esc("align(");
   print(align_m(p)==exactly?"exactly ":"additional ");
@@ -26224,10 +26294,12 @@ case ignore_node:
   break;
 case start_link_node:
   print_esc("HINTstartlink ");
-  print_label(p);
+  print_label(as_label(p));
+  if (color_ref(p)!=1) { print("color "); print_int(color_ref(p)); }
   break;
 case end_link_node:
   print_esc("HINTendlink ");
+  if (color_ref(p)!=0xFF) { print("color "); print_int(color_ref(p)); }
   break;
 case label_node:
   print_esc("HINTdest ");
@@ -26310,6 +26382,12 @@ case image_node:
     image_alt(r)=copy_node_list(image_alt(p));
     words=image_node_size-1;
     break;
+case color_node:
+case no_color_node:
+case end_color_node:
+    r=get_node(color_node_size);
+    words=color_node_size;
+    break;
 case align_node:
   {@+r=get_node(align_node_size);
      align_preamble(r)=copy_node_list(align_preamble(p));
@@ -26344,7 +26422,7 @@ case ignore_node:
   break;
 case start_link_node:
     r=get_node(link_node_size);
-    if (label_has_name(p)) add_token_ref(label_ptr(p));
+    if (label_has_name(as_label(p))) add_token_ref(label_ptr(as_label(p)));
     words=link_node_size;
     break;
 case end_link_node:
@@ -26360,6 +26438,7 @@ case outline_node:
     r=get_node(outline_node_size);
     if (label_has_name(p)) add_token_ref(label_ptr(p));
     outline_ptr(r)=copy_node_list(outline_ptr(p));
+    outline_depth(r)=outline_depth(p);
     words=outline_node_size-1;
     break;
 case stream_node:
@@ -26408,6 +26487,10 @@ case image_node:
   delete_xdimen_ref(image_xwidth(p)); delete_xdimen_ref(image_xheight(p));
   flush_node_list(image_alt(p));
   free_node(p,image_node_size);@+break;
+case color_node:
+case no_color_node:
+case end_color_node:
+  free_node(p,color_node_size);@+break;
 case align_node:
   delete_xdimen_ref(align_extent(p));
   flush_node_list(align_preamble(p));
@@ -26432,7 +26515,7 @@ case ignore_node:
   flush_node_list(ignore_list(p));
   free_node(p,ignore_node_size); @+break;
 case start_link_node:
-  if (label_has_name(p)) delete_token_ref(label_ptr(p));
+  if (label_has_name(as_label(p))) delete_token_ref(label_ptr(as_label(p)));
   free_node(p,link_node_size);@+break;
 case end_link_node:
   free_node(p,link_node_size);@+break;
@@ -30470,6 +30553,13 @@ format that this program will generate.
 @d HINT_version_code (eTeX_last_last_item_cmd_mod+7) /* \.{\\HINTversion} */
 @d HINT_minor_version_code (eTeX_last_last_item_cmd_mod+8) /* \.{\\HINTminorversion} */
 
+@<Put each...@>=
+primitive("HINTversion", last_item, HINT_version_code);
+@!@:HINT\_version\_}{\.{\\HINTversion} primitive@>
+primitive("HINTminorversion", last_item, HINT_minor_version_code);
+@!@:HINT\_minor\_version\_}{\.{\\HINTminorversion} primitive@>
+
+
 @ Now this new primitive needs its implementation.
 
 @<Cases of |last_item| for |print_cmd_chr|@>=
@@ -30685,12 +30775,15 @@ static void hline_break(int final_widow_penalty)
   pointer pp;
   scaled par_max_depth=0;
   bool par_shape_fix=false;
+  @<initialize the color stack@>@,
+#if DEBUG
   if (DBGTEX&debugflags)
   { print_ln();print("Before hline_break:\n");
     breadth_max=200;
     depth_threshold=200;
     show_node_list(link(head));print_ln();
   }
+#endif
   if (dimen_par_hfactor(hsize_code)==0 && dimen_par_vfactor(hsize_code)==0)
   { line_break(final_widow_penalty); /* the easy case */
     return;
@@ -30759,8 +30852,13 @@ static void hline_break(int final_widow_penalty)
     }
     switch (type(cur_p))
 	{ case whatsit_node:
-	    adv_past(cur_p);
-		break;
+          { pointer p=cur_p; /* reusing code written for |p| */
+	    switch (subtype(cur_p))
+	    { @<cases that flatten the color stack@>
+             default: adv_past(cur_p); break;
+            }
+            break;
+	  }
 	  case glue_node:
      	if (auto_breaking) /* Try to hyphenate the following word*/
 		  hyphenate_word();
@@ -30859,9 +30957,535 @@ of the normal {\tt \BS hsize} and the given length.
   par_shape_fix=true;
 }
 
+@*1 Colors.
+Hi\TeX\ adds these primitives to handle colors:
+
+@<Put each...@>=
+primitive("HINTcolor", extension, color_node);@/
+@!@:HINTcolor\_}{\.{\\HINTcolor} primitive@>
+primitive("HINTendcolor", extension, end_color_node);@/
+@!@:HINTendcolor\_}{\.{\\HINTendcolor} primitive@>
+primitive("HINTdefaultcolor", extension, default_color_node);@/
+@!@:HINTdefaultcolor\_}{\.{\\HINTdefaultcolor} primitive@>
+primitive("HINTlinkcolor", extension, link_color_node);@/
+@!@:HINTlinkcolor\_}{\.{\\HINTlinkcolor} primitive@>
+primitive("HINTdefaultlinkcolor", extension, default_link_color_node);@/
+@!@:HINTdefaultlinkcolor\_}{\.{\\HINTdefaultlinkcolor} primitive@>
+
+@ To begin with the implementation,
+we need the function |scan_scaled| which is a simpler version of |scan_dimen|.
+It will just scan a pure number without any units.
+We need this function to scan colors.
+
+@<Declare procedures needed in |do_extension|@>=
+static void scan_scaled(void)
+{@+
+  bool negative=false; /*should the answer be negated?*/
+  int @!f; /*numerator of a fraction whose denominator is $2^{16}$*/
+  int @!k, @!kk; /*number of digits in a decimal fraction*/
+  pointer @!p, @!q; /*top of decimal digit stack*/
+  f=0;arith_error=false;cur_order=normal;negative=false;
+  @<Get the next non-blank non-call token@>;
+  if (cur_tok==other_token+'-') negative=true;
+  else if (cur_tok==other_token+'+') negative=false;
+  else back_input();
+  if (cur_tok==continental_point_token) cur_tok=point_token;
+  if (cur_tok!=point_token) scan_int();
+  else {@+radix=10;cur_val=0; }
+  if (cur_tok==continental_point_token) cur_tok=point_token;
+  if ((radix==10)&&(cur_tok==point_token)) @<Scan decimal fraction@>;
+  if (cur_val < 0)  /*in this case |f==0|*/
+    {@+negative=!negative;negate(cur_val);}
+  if (cur_val >= 040000) arith_error=true;
+  else cur_val=cur_val*unity+f;
+  @<Scan an optional space@>;
+  if (arith_error||(abs(cur_val) >= 010000000000))
+    @<Report that this dimension is out of range@>;
+  if (negative)  negate(cur_val);
+}
+
+@ A color specification starting with ``FG'' or ``BG'' expects
+integers in the range 0 to |0xFF|;
+a color specification starting with ``fg'' or ``bg'' expects
+real numbers in the range 0 to 1.
+ The last component for the alpha value is optional and its default value is |0xFF| respectively 1.0.
+The color components are enclosed in braces.
+After the initial brace the keyword \.{rgb} specifies color values encoded with red/green/blue/alpha values;
+the keyword \.{cmyk} specifies color values encoded with cyan/magenta/yellow/black/alpha values.
+Giving no keyword is equivalent to giving the keyword \.{rgb}.
+
+@<Declare procedures needed in |do_extension|@>=
+static uint8_t scan_rgb_component(bool expect_reals)
+{ if (expect_reals)
+  { scan_scaled(); cur_val=(cur_val*0xFF+0x1000)>>16; }
+  else
+    scan_int();
+  if (cur_val>0xFF) return 0xFF;
+  else if (cur_val<0) return 0x00;
+  else return cur_val;
+}
+
+static uint32_t scan_rgb_color(bool expect_reals)
+{ uint8_t r,g,b,a;
+  r=scan_rgb_component(expect_reals);
+  g=scan_rgb_component(expect_reals);
+  b=scan_rgb_component(expect_reals);
+  a=0xFF;
+  @<Get the next non-blank non-relax...@>;
+  if (cur_cmd!=right_brace)
+  { back_input();
+    a=scan_rgb_component(expect_reals);
+    @<Get the next non-blank non-call token@>;
+    if (cur_cmd!=right_brace)
+    { back_input();
+      print_err("Missing right brace after color definition");
+    }
+  }
+  return (r<<24)|(g<<16)|(b<<8)|a;
+}
+
+static double scan_cmyk_component(bool expect_reals)
+{ double c;
+  if (expect_reals)
+  { scan_scaled(); c=cur_val/(double)ONE;
+  }
+  else
+  { scan_int(); c=cur_val/255.0;
+  }
+  if (c>1.0) return 1.0;
+  else if (c<0.0) return 0.0;
+  else return c;
+}
+
+
+static uint32_t scan_cmyk_color(bool expect_reals)
+{ uint8_t r,g,b,a;
+  double c,m,y,k;
+  c=scan_cmyk_component(expect_reals);
+  m=scan_cmyk_component(expect_reals);
+  y=scan_cmyk_component(expect_reals);
+  k=scan_cmyk_component(expect_reals);
+  a=0xFF;
+  @<Get the next non-blank non-relax...@>;
+    if (cur_cmd!=right_brace)
+  { back_input();
+    a=scan_cmyk_component(expect_reals)*0xFF+0.5;
+    @<Get the next non-blank non-call token@>;
+    if (cur_cmd!=right_brace)
+    { back_input();
+      print_err("Missing right brace after color definition");
+    }
+  }
+  r=(1-c)*(1-k)*255+0.5;
+  g=(1-m)*(1-k)*255+0.5;
+  b=(1-y)*(1-k)*255+0.5;
+  return (r<<24)|(g<<16)|(b<<8)|a;
+}
+
+static uint32_t scan_color(bool expect_reals)
+{ uint8_t r,g,b,a;
+  scan_left_brace();
+  if (scan_keyword("cmyk"))
+     return scan_cmyk_color(expect_reals);
+  else if (scan_keyword("rgb"))
+     return scan_rgb_color(expect_reals);
+  else
+    return scan_rgb_color(expect_reals);
+}
+
+@ Colors are specified in pairs of a foreground color, prefixed
+by ``FG'' or ``fg'', followed by an optional background color
+prefixed by ``BG'' or ``bg''.
+Up to three color pairs, for normal text, highlighted text, and focus text
+make up a color set. A color specification can contain two
+color sets the first one for ``day mode'' the second, prefixed
+by the keyword ``dark'' for ``night mode''.
+
+@<Declare procedures needed in |do_extension|@>=
+static void colorset_copy(ColorSet to, ColorSet from)
+{ int i;
+  for (i=0;i<sizeof(ColorSet)/sizeof(uint32_t);i++)
+    to[i]=from[i];
+}
+
+static bool scan_color_pair(ColorSet c, int m, int s)
+{ if (scan_keyword("FG")) c[m*6+s*2+0] =scan_color(false);
+  else if (scan_keyword("fg")) c[6*m+2*s+0]=scan_color(true);
+  else return false;
+  if (scan_keyword("BG")) c[m*6+s*2+1]=scan_color(false);
+  else if (scan_keyword("bg")) c[m*6+s*2+1]=scan_color(true);
+  return true;
+}
+
+static void scan_color_triple(ColorSet c, int m)
+{ if (!scan_color_pair(c,m,0))
+  { print_err("Missing color specification");
+    return;
+  }
+  if (scan_color_pair(c,m,1)) scan_color_pair(c,m,2);
+}
+
+static void scan_color_spec(ColorSet c, int i)
+{ colorset_copy(c,colors[i]); /* initialize with defaults */
+  scan_left_brace();
+  scan_color_triple(c,0);
+  if (scan_keyword("dark")) scan_color_triple(c,1);
+  @<Get the next non-blank non-relax non-call token@>;
+  if (cur_cmd!=right_brace)
+  {@+print_err("A color specification must end with }");
+    back_error();
+  }
+}
+
+@ We store color sets in a dynamic array
+
+@<Forward declarations@>=
+static ColorSet *colors=NULL;
+static int max_color=-1, colors_allocated=0;
+static bool default_color_frozen=false, default_link_color_frozen=false;
+static int cur_link_color=1;
+static int next_colorset(ColorSet c);
+
+@ @<Hi\TeX\ auxiliary routines@>=
+static bool colorset_equal(ColorSet old, ColorSet new)
+{ int i;
+  for (i=0;i<sizeof(ColorSet)/sizeof(uint32_t);i++)
+    if (old[i]!=new[i]) return false;
+  return true;
+}
+
+
+static int next_colorset(ColorSet c)
+{ int i;
+  for (i=0; i<=max_color; i++)
+    if (colorset_equal(colors[i],c)) return i;
+  if (max_color<0xFF) max_ref[color_kind]=++max_color;
+  else overflow("colors",0xFF);
+  if (max_color>=colors_allocated)
+    RESIZE(colors,colors_allocated,ColorSet);
+  colorset_copy(colors[max_color],c);
+#if DEBUG
+  if (debugflags&DBGDEF)
+  { print_nl("HINT Defining new color "); print_int(max_color);print(": ");
+    print_color_spec(max_color); }
+#endif
+  return max_color;
+}
+
+@ @<Initialize definitions for colors@>=
+colors_allocated=8;
+ALLOCATE(colors,colors_allocated,ColorSet);
+max_ref[color_kind]=max_color=MAX_COLOR_DEFAULT;
+memcpy(colors,color_defaults,sizeof(ColorSet)*(max_color+1));
+
+
+@ Next we implement a procedure to print a color specification.
+
+@ @<Hi\TeX\ auxiliary routines@>=
+
+static bool is_default_color_pair(ColorSet c, int m, int s)
+{ return c[6*m+2*s] == colors[0][6*m+2*s]
+      && c[6*m+2*s+1] == colors[0][6*m+2*s+1];
+}
+
+static void print_color(uint32_t c)
+{ print_char('{');
+  print_hex((c>>24)&0xFF);print_char(' ');
+  print_hex((c>>16)&0xFF);print_char(' ');
+  print_hex((c>>8)&0xFF);print_char(' ');
+  if ((c&0xFF)!=0xFF) print_hex(c&0xFF);
+  print_char('}');
+}
+
+static void print_color_pair(ColorSet c, int m, int s)
+{ print("FG"); print_color(c[6*m+2*s+0]);
+  print(" BG"); print_color(c[6*m+2*s+1]);
+}
+
+static void print_color_triple(ColorSet c, int m)
+{ bool diff_high, diff_focus;
+  print_color_pair(c,m,0);
+  diff_high= is_default_color_pair(c,m,1);
+  diff_focus= is_default_color_pair(c,m,2);
+  if (diff_high || diff_focus)
+  { print_char(' '); print_color_pair(c,m,1); }
+  if (diff_focus)
+  { print_char(' '); print_color_pair(c,m,2); }
+}
+
+static void print_color_spec(int i)
+{ if (i>max_color) {print("undefined color "); print_int(i);}
+  else if (i<0 || i>0xFF) { print("illegal color "); print_int(i);}
+  else
+  { print_color_triple(colors[i],0);
+    if (is_default_color_pair(colors[i],1,0) &&
+        is_default_color_pair(colors[i],1,1) &&
+	is_default_color_pair(colors[i],1,2))
+	return;
+    print(" dark "); print_color_triple(colors[i],1);
+  }
+}
+
+@ @<Forward declarations@>=
+static void print_color_spec(int i);
+
+@ To create a color node you can use the following function:
+@<Hi\TeX\ auxiliary routines@>=
+static pointer new_color_node(uint8_t c)
+{ pointer r = get_node(color_node_size);
+  type(r)=whatsit_node;subtype(r)=color_node;
+  color_ref(r)=c; color_link(r)=null;
+  return r;
+}
+
+@ @<Forward declarations@>=
+static void print_color_spec(int i);
+static pointer new_color_node(uint8_t c);
+
+@ Writing a color node to the output is simple.
+When we come to the output routine, every |end_color_node|
+should have been replaced by a |color_node|.
+To switch back to the color of the enclosing box,
+a |color_node| uses the color reference |0xFF|.
+An |end_color_node| is converted to a |color_node|
+when flattening the color stack.
+If an |end_color_node| does not have
+a matching |color_node| it is converted
+into a |no_color_node| which is silently ignored.
+If an |end_color_node| remains, it is ignored as well.
+
+@<cases to output whatsit content nodes@>=
+case color_node:
+  HPUT8(color_ref(p));
+  tag=TAG(color_kind,b000);
+  break;
+case no_color_node:
+case end_color_node:
+  hpos--;
+  return;
+
+@ For the top level color nodes we provide a function to output colors
+without the need to construct (and destroy) a color node.
+
+@<Hi\TeX\ auxiliary routines@>=
+static void hout_color_ref(uint8_t c)
+{ uint8_t tag=TAG(color_kind,b000);
+  HPUTNODE;
+  HPUT8(tag);
+  HPUT8(c);
+  HPUT8(tag);
+}
+
+@ The output of color definitions is more complex:
+
+@<Output color definitions@>=
+  DBG(DBGDEF,"DEfining %d color references\n",max_ref[color_kind]);
+  HPUTX((1+1+1+sizeof(ColorSet)+1)*(max_ref[color_kind]+1));
+  for (i=max_fixed[color_kind]+1;i<=max_default[color_kind]; i++)
+    { if (!colorset_equal(colors[i],color_defaults[i]))
+        HPUTDEF(hout_color_def(colors[i]),i);
+    }
+  for (;i<=max_ref[color_kind]; i++)
+           HPUTDEF(hout_color_def(colors[i]),i);
+
+@ @<Hi\TeX\ auxiliary routines@>=
+static Tag hout_color_def(ColorSet c)
+{ int i;
+//  HPUTX(3+12*4);
+  HPUT8(6);
+  for (i=0;i<sizeof(ColorSet)/sizeof(uint32_t);i++)
+    HPUT32(c[i]);
+  return TAG(color_kind,b000);
+}
+
+@ Hi\TeX\ treats colors different than \HINT\ files:
+Hi\TeX\ maintains a color stack inside a box while \HINT\
+files implement only a flat sequence of colors inside a box.
+As a consequence an |end_color_node| must be converted to a
+plain |color_node|. An |end_color_node| without a matching
+|color_node| is converted to a |no_color_node|, so that after
+flattening a node list no |end_color_node| remains.
+It will make flattening a list idempotent.
+Since link nodes are part of the color change
+mechanism they are part of the color stack.
+The color stack is a linked stack using the |color_link| field
+of color and link nodes. A pointer to the top node on this stack
+is in the variable |color_tos|. A pointer to the top link node
+on this stack (if any) is in the variable |link_tos|.
+Note that links are not nested, hence the |link_tos| variable
+is not strictly necessary but it avoids searching the color
+stack for a link node.
+
+@<Global variables@>=
+static  pointer color_tos=null;
+static  pointer link_tos=null;
+
+@ @<initialize the color stack@>=
+color_tos=null;
+link_tos=null;
+
+@ @<Incorporate a |color_node| into the box@>=
+color_link(p)=color_tos;
+color_tos=p;
+
+@ @<Incorporate an |end_color_node| into the box@>=
+if (color_tos==link_tos)
+  subtype(p)=no_color_node;
+else if (color_tos!=null)
+{ color_tos=color_link(color_tos);
+  subtype(p)=color_node;
+  if (color_tos!=null)
+    color_ref(p)=color_ref(color_tos);
+  else
+    color_ref(p)=0xFF;
+}
+else
+  subtype(p)=no_color_node;
+
+@ In contrast, link nodes must not be nested, and an |end_link_node|
+  is mandatory. So a link stack is not necessary. Hi\TeX\ just maintains
+  a pointer to current |start_link_node| to be able to restore the color stack.
+
+@<Incorporate a |start_link_node| into the box@>=
+if (link_tos!=null)
+{@+begin_diagnostic();
+  print_err("This link is preceeded by a \\HINTlink without \\HINTendlink:");
+  end_diagnostic(true);
+}
+@<Incorporate a |color_node| into the box@>@;
+link_tos= color_tos;
+
+@ @<Incorporate an |end_link_node| into the box@>=
+if (link_tos==null)
+{@+begin_diagnostic();
+  print_err("\\HINTendlink without matching \\HINTlink:");
+  end_diagnostic(true);
+}
+else
+{ color_tos=color_link(link_tos);
+  link_tos=null;
+  if (color_tos!=null)
+    color_ref(p)=color_ref(color_tos);
+  else
+    color_ref(p)=0xFF;
+}
+
+@ Together these routines flatten the color stack.
+ @<cases that flatten the color stack@>=
+case color_node:
+  @<Incorporate a |color_node| into the box@>@; break;
+case end_color_node:
+  @<Incorporate an |end_color_node| into the box@>@; break;
+case start_link_node:
+  @<Incorporate a |start_link_node| into the box@>@; break;
+case end_link_node:
+  @<Incorporate an |end_link_node| into the box@>@; break;
+case no_color_node: break;
+
+@ Special care is needed for color changes in the top level vertical
+list. Because this list can grow quite large, nodes are deallocated
+right after being written to the output file. Therefore maintaining
+the color stack in the color nodes contained in the vertical list
+is not quite possible. Further page breaks can occur at many different
+places and to switch to the correct color, we might need to insert color
+nodes at all points where a new page might start.
+
+Page breaks are possible
+at glue nodes if the preceeding node was descardable
+(a node is descardable if its type is less than |math_node|),
+at kern nodes if they precede a glue node
+and at penalty nodes. It is inconvenient to test whether a kern node is
+followed by glue node; but because the kern node will disapear
+in the page break, it is sufficient to postpone the color information
+and insert it after the following glue node. If there are several
+glue or kern nodes in a row, it is sufficient to insert the color
+information only once at the beginning.
+
+We keep track of the possible breaks
+and the color stack using four static variables.
+
+@<Define the top level color stack@>=
+#define MAX_COLOR_STACK 256  /* a power of two */
+#define COLOR_STACK_MASK (MAX_COLOR_STACK-1)
+static uint8_t color_stack[MAX_COLOR_STACK];
+static int color_sp=0, color_stack_depth=0;
+static bool possible_break=true;
+
+
+@ Penalties and glue nodes but also baseline skips are possible page breaks.
+
+@<|p| might be a page break@>=
+( type(p)==penalty_node ||
+  type(p)==glue_node ||
+  (type(p)==whatsit_node && subtype(p)==baseline_node))
+
+@ After a possible page break, we need to output the current color
+if a non discardable node shows up. Of course no such output is needed
+if that node is a color change itself.
+
+@<Output the current color if needed@>=
+if (non_discardable(p))
+{ if (color_stack_depth>0 && possible_break)
+  { if (!(type(p)==whatsit_node &&
+            (subtype(p)==color_node || subtype(p)==end_color_node)))
+       hout_color_ref(color_stack[color_sp]);
+  }
+  possible_break=false;
+}
+
+
+@ It remains to organize the color stack.
+There are two possible cases to consider: A \TeX\ file might use
+nested colors on the top level with color nodes and matching end
+color nodes; or alternatively, a \TeX\ file might use color nodes without
+matching |end_color| nodes. Of course a \TeX\ file might also mix both approaches.
+In the first case, a limited nesting level can be assumed and a small
+color stack should suffice. In the second case, even a very large
+color stack will overflow sooner or later. To be as flexible as
+possible, we implement the color stack as a circular buffer.
+It is able to restore colors up to a limited nesting depth, but
+an overflow will not cause big problems.
+
+@<Record the current top level color@>=
+if (type(p)==whatsit_node)
+{ if (subtype(p)==color_node)
+  {  color_stack_depth++;
+     color_sp = (color_sp+1)&COLOR_STACK_MASK;
+     if (color_stack_depth>=MAX_COLOR_STACK)
+     { static bool stackoverflow_printed=false;
+       if (!stackoverflow_printed)
+       { print_err("Overflow of top level color stack");
+	 stackoverflow_printed=true;
+       }
+     }
+     color_stack[color_sp]=color_ref(p);
+  }
+  else if (subtype(p)==end_color_node)
+  { if (color_stack_depth>0)
+    { color_stack_depth--;
+      color_sp = (color_sp-1)&COLOR_STACK_MASK;
+      subtype(p)=color_node;
+      color_ref(p)=color_stack[color_sp];
+    }
+  }
+}
+if (@<|p| might be a page break@>) possible_break=true;
+
+
 @*1 Links, Labels, and Outlines.
 The \HINT\ format knows about labels, links, and outlines.
-When generating a short format \HINT\ file, links are part of
+
+@<Put each...@>=
+primitive("HINTdest", extension, label_node);@/
+@!@:HINTdest\_}{\.{\\HINTdest} primitive@>
+primitive("HINTstartlink", extension, start_link_node);@/
+@!@:HINTstartlink\_}{\.{\\HINTstartlink} primitive@>
+primitive("HINTendlink", extension, end_link_node);@/
+@!@:HINTendlink\_}{\.{\\HINTendlink} primitive@>
+primitive("HINToutline", extension, outline_node);@/
+@!@:HINToutline\_}{\.{\\HINToutline} primitive@>
+
+@ When generating a short format \HINT\ file, links are part of
 the content section, where as labels and outlines are found in
 the definition section. Because labels are defined while
 writing the content section, the writing of labels and outlines
@@ -31027,7 +31651,7 @@ that start links and end links properly match.
 @<Hi\TeX\ auxiliary routines@>=
 static int last_link=-1;
 static int new_start_link(pointer p)
-{ int n=find_label(p);
+{ int n=find_label(as_label(p));
   if (last_link>=0)
     fatal_error("Missing end link before start link");
   labels[n].used=true;
@@ -31078,6 +31702,7 @@ Here is the new |build_page| routine of Hi\TeX:
 @<Hi\TeX\ routines@>=
 static void build_page(void)
 { static bool initial=true;
+  @<Define the top level color stack@>@;
   if(link(contrib_head)==null||output_active)return;
   do
   { pointer p= link(contrib_head);
@@ -31087,6 +31712,7 @@ static void build_page(void)
     int page_penalty=0;
     if (eject) page_penalty=penalty(p);
     @<Record the bottom mark@>@;
+    @<Record the current top level color@>@;
     @<Suppress empty pages if requested@>@;
     link(contrib_head)= link(p);link(p)= null;
     if (link(contrib_head)==null)
@@ -31097,7 +31723,9 @@ static void build_page(void)
     page_goal=0x3fffffff; /* maximum dimension */
     t=collect_output(&p,&q);
     if (p!=null)
-    { hpos0=hpos; hout_node(p); }
+    { hpos0=hpos; hout_node(p);
+      @<Output the current color if needed@>@;
+    }
 recycle_p:
     flush_node_list(p);
     if (q!=null||(eject&&page_contents>=box_there))
@@ -31459,11 +32087,12 @@ if (type(p)==mark_node)
 The following routines extend \TeX's original routines. They check for
 any dependency of the box size on {\tt hsize} or {\tt vsize} and
 create an hset node or hpack node if such a dependency was found.
-
+The |keep_cs| variable will prevent the initialization of the color
+stack; this is needed in the |line_break| routine, where the color
+stack is maintained for the whole paragraph not for the individual lines.
 
 @<Hi\TeX\ routines@>=
-
-static pointer hpack(pointer p,scaled w, scaled hf, scaled vf, small_number m)
+static pointer hpack(pointer p,scaled w, scaled hf, scaled vf, small_number m, bool keep_cs)
 {
   pointer r; /*the box node that will be returned*/
   pointer q; /*trails behind |p|*/
@@ -31475,6 +32104,7 @@ static pointer hpack(pointer p,scaled w, scaled hf, scaled vf, small_number m)
   four_quarters i;  /*font information about a |char_node|*/
   eight_bits hd; /*height and depth indices for a character*/
   bool repack=false; /* whether repacking is necessary */
+  if (!keep_cs) { @<initialize the color stack@>@;}
   last_badness= 0;r= get_node(box_node_size);type(r)= hlist_node;
   subtype(r)= min_quarterword;shift_amount(r)= 0;
   q= r+list_offset;link(q)= p;
@@ -31493,8 +32123,18 @@ then move to the next node@>;
       case glue_node: @<Incorporate glue into the horizontal totals@>@;@+break;
       case kern_node: case math_node: x=x+width(p);@+break;
       case ligature_node: @<Make node |p| look like a |char_node| and |goto reswitch|@>@;
-      case whatsit_node: @<Incorporate the various extended boxes into an hbox@>@;@+break;
+      case whatsit_node: @<Incorporate the various whatsit nodes into an hbox@>@;@+break;
       default:do_nothing;
+      }
+      if (link(p)==null && keep_cs && link_tos!=null)
+      { pointer r;
+        r=get_node(link_node_size);
+	type(r)=whatsit_node; subtype(r)=end_link_node;
+        if (color_link(color_tos)!=null)
+	  color_ref(r)=color_ref(color_link(color_tos));
+        else
+          color_ref(r)=0xFF;
+        link(r)=null; link(p)=r; p=r;
       }
       p= link(p);
     }
@@ -31574,7 +32214,7 @@ reasonable since the boxes that occur in math formulas are often not very
 complicated. | graph_node|s should not be in a horizontal list, and |disp_node|s
 should be only inside |graph_node|s.
 
-@<Incorporate the various extended boxes into an hbox@>=
+@<Incorporate the various whatsit nodes into an hbox@>=
 switch (subtype(p))
 { case par_node: if (depth(p)> d) d=depth(p); break;
   case disp_node:  break;
@@ -31599,16 +32239,18 @@ switch (subtype(p))
       else { repack=true; break;}
     }
     break;
+    @<cases that flatten the color stack@>@;
   default: break;
 }
 
 @ @<Hi\TeX\ routines@>=
-static pointer vpackage(pointer p, scaled h, scaled hf, scaled vf, small_number m, scaled l)
+static pointer vpackage(pointer p, scaled h, scaled hf, scaled vf, small_number m, bool keep_cs, scaled l)
 { pointer r; /*the box node that will be returned*/
   scaled w,d,x; /*width, depth, and natural height*/
   scaled s=0; /*shift amount*/
   pointer g; /*points to a glue specification*/
   glue_ord sho, sto; /*order of infinity*/
+  if (!keep_cs) {@<initialize the color stack@>@;}
   last_badness= 0; r= get_node(box_node_size); type(r)= vlist_node;
   subtype(r)= min_quarterword; shift_amount(r)= 0;
   list_ptr(r)= p;
@@ -31632,36 +32274,34 @@ static pointer vpackage(pointer p, scaled h, scaled hf, scaled vf, small_number 
           case unset_set_node: case unset_pack_node:
               goto repack;
           case whatsit_node:
-            if (subtype(p)==par_node)
-                          { if (depth(p) > d) d=depth(p);
-			    goto repack; }
-			else if (subtype(p)==disp_node )
-			  goto repack;
-			else if (subtype(p)==vpack_node )
-			  goto repack;
-			else if (subtype(p)==hpack_node )
-			  goto repack;
-			else if (subtype(p)==hset_node )
-			  goto repack;
-			else if (subtype(p)==vset_node )
-			  goto repack;
-			else if (subtype(p)==stream_node )
-			  goto repack;
-			else if (subtype(p)==image_node)
-			{ if (image_xwidth(p)!=null)
-                          { pointer r=image_xwidth(p);
-                            if (xdimen_hfactor(r)==0 && xdimen_vfactor(r)==0)
-                            { if (xdimen_width(r)> w) w= xdimen_width(r); }
-                            else goto repack;
-                          }
-                          if (image_xheight(p)!=null)
-                          { pointer r=image_xheight(p);
-                            if (xdimen_hfactor(r)==0 && xdimen_vfactor(r)==0)
-			    {  x= x+d+xdimen_width(r);d=0;}
-                            else goto repack;
-                          }
-			}
-             break;
+	    switch(subtype(p))
+	    { case par_node:
+                if (depth(p) > d) d=depth(p);
+	        goto repack;
+	      case disp_node:
+	      case vpack_node:
+	      case hpack_node:
+	      case hset_node:
+      	      case vset_node:
+      	      case stream_node:
+		goto repack;
+              case image_node:
+	        if (image_xwidth(p)!=null)
+                { pointer r=image_xwidth(p);
+                  if (xdimen_hfactor(r)==0 && xdimen_vfactor(r)==0)
+                  { if (xdimen_width(r)> w) w= xdimen_width(r); }
+                  else goto repack;
+                }
+                if (image_xheight(p)!=null)
+                { pointer r=image_xheight(p);
+                  if (xdimen_hfactor(r)==0 && xdimen_vfactor(r)==0)
+		  {  x= x+d+xdimen_width(r);d=0;}
+                  else goto repack;
+                }
+                break;
+	        @<cases that flatten the color stack@>
+	    }
+            break;
           case glue_node:
             { glue_ord o;
 			  x= x+d;d= 0;
@@ -31976,8 +32616,25 @@ static void hfinish_stream_after_group(void)
   pop_nest();
 }
 @*1 Page Template Definitions.
+These are the primitives needed to implement page templates:
 
-The data describing a page template is stored in a whatsit node with subtype
+@<Put each...@>=
+primitive("HINTsetpage", extension, setpage_node);@/
+@!@:setpage\_}{\.{\\setpage} primitive@>
+
+primitive("HINTstream", extension, stream_node);@/
+@!@:stream\_}{\.{\\stream} primitive@>
+
+primitive("HINTsetstream", extension, setstream_node);@/
+@!@:setstream\_}{\.{\\setstream} primitive@>
+
+primitive("HINTbefore", extension, stream_before_node);@/
+@!@:before\_}{\.{\\before} primitive@>
+
+primitive("HINTafter", extension, stream_after_node);@/
+@!@:after\_}{\.{\\after} primitive@>
+
+@ The data describing a page template is stored in a whatsit node with subtype
 |setpage_node|.
 Given a pointer |p| to such a node, here are the macros used to access the data stored there:
 
@@ -32272,6 +32929,7 @@ static void hdef_init(void)
   @<Initialize definitions for baseline skips@>@;
   @<Initialize definitions for fonts@>@;
   @<Initialize definitions for labels@>@;
+  @<Initialize definitions for colors@>@;
 #if 0
   overfull_rule=0;    /* no overfull rules please */
 #endif
@@ -32301,6 +32959,7 @@ static void  hput_definitions()
    @<Output baseline skip definitions@>@;
    @<Output parameter list definitions@>@;
    @<Output discretionary break definitions@>@;
+   @<Output color definitions@>@;
    @<Output page template definitions@>@;
    hput_definitions_end();
    hput_range_defs(); /* expects the definitions section to be ended */
@@ -34013,6 +34672,7 @@ case start_link_node:
   int n=new_start_link(p);
   i=b010;
   if (n>0xFF) { i|=b001; HPUT16(n);@+} @+else HPUT8(n);
+  if (color_ref(p)!=1) {i|=b100; HPUT8(color_ref(p)); }
   tag= TAG(link_kind,i);
 }
 break;
@@ -34021,14 +34681,19 @@ case end_link_node:
   int n=new_end_link();
   i=b000;
   if (n>0xFF) { i|=b001; HPUT16(n);@+} @+else HPUT8(n);
+  if (color_ref(p)!=0xFF) {i|=b100; HPUT8(color_ref(p)); }
   tag= TAG(link_kind,i);
 }
 break;
 case outline_node: hpos--; new_outline(p);  return;
 
 @*1 Images.
-\indent
-@<cases to output whatsit content nodes@>=
+There is a single primitive to handle images:
+@<Put each...@>=
+primitive("HINTimage", extension, image_node);@/
+@!@:HINTimage\_}{\.{\\HINTimage} primitive@>
+
+@ @<cases to output whatsit content nodes@>=
      case image_node:
         { Xdimen w={0},h={0}; List d; uint32_t pos;
           if (image_xwidth(p)!=null)

@@ -56,6 +56,8 @@
 #define CHARACTER_INDEX(i)  ((i))
 #endif
 
+#define IS_WIDE_CHAR(i)     (((i)>=0x2E80 && !(0xFB00<=(i) && (i)<=0xFB06)))
+
 /*
  * TFM Record structure:
  * Multiple TFM's may be read in at once.
@@ -77,7 +79,7 @@ struct tfm_font
   uint32_t nitcor, nlig, nkern, nextens;
   uint32_t nfonparm;
 #ifndef WITHOUT_OMEGA
-  uint32_t fontdir;
+  uint32_t fontdir, iswide;
   uint32_t nco, ncw, npc;
 #endif /* !WITHOUT_OMEGA */
   fixword       *header;
@@ -105,6 +107,7 @@ tfm_font_init (struct tfm_font *tfm)
 #ifndef WITHOUT_OMEGA
   tfm->level   = 0;
   tfm->fontdir = 0;
+  tfm->iswide  = 0;
   tfm->nco = tfm->ncw = tfm->npc = 0;
 #endif
   tfm->char_info    = NULL;
@@ -263,7 +266,7 @@ struct font_metric
   fixword  designsize;
   char    *codingscheme;
 
-  int  level, fontdir;
+  int  level, fontdir, iswide;
   int firstchar, lastchar;
   
   fixword *widths;
@@ -742,6 +745,9 @@ ofm_do_char_info_one (FILE *tfm_file, struct tfm_font *tfm)
 	tfm->height_index[i+j+1] = tfm->height_index[i];
 	tfm->depth_index [i+j+1] = tfm->depth_index [i];
       }
+      if (IS_WIDE_CHAR(i) || IS_WIDE_CHAR(i+repeats)) {
+        tfm->iswide = 1;
+      }
       /* Skip ahead because we have already handled repeats */
       i += repeats;
     }
@@ -804,6 +810,7 @@ read_ofm (struct font_metric *fm, FILE *ofm_file, off_t ofm_file_size)
   fm->lastchar  = tfm.ec;
   fm->level     = tfm.level;
   fm->source    = SOURCE_TYPE_OFM;
+  fm->iswide    = tfm.iswide;
 
   tfm_font_clear(&tfm);
 
@@ -1266,7 +1273,7 @@ tfm_is_jfm (int font_id)
   if (fms[font_id].source == SOURCE_TYPE_JFM) is_jfm = 1;
 #ifndef WITHOUT_OMEGA
   if (fms[font_id].source == SOURCE_TYPE_OFM
-      && fms[font_id].level == 1 && fms[font_id].lastchar >= 0x2E00) is_jfm = 2;
+      && fms[font_id].level == 1 && fms[font_id].iswide == 1) is_jfm = 2;
 #endif
 
   return is_jfm;

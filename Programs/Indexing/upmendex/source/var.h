@@ -18,9 +18,21 @@ char setpage_prefix[STYBUFSIZE]={"\n  \\setcounter{page}{"},setpage_suffix[STYBU
 char group_skip[STYBUFSIZE]={"\n\n  \\indexspace\n"};
 char lethead_prefix[STYBUFSIZE]={""},lethead_suffix[STYBUFSIZE]={""};
 int lethead_flag=0;
-char item_0[STYBUFSIZE]={"\n  \\item "},item_1[STYBUFSIZE]={"\n    \\subitem "},item_2[STYBUFSIZE]={"\n      \\subsubitem "};
-char item_01[STYBUFSIZE]={"\n    \\subitem "},item_x1[STYBUFSIZE]={"\n    \\subitem "},item_12[STYBUFSIZE]={"\n      \\subsubitem "},item_x2[STYBUFSIZE]={"\n      \\subsubitem "};
-char delim_0[STYBUFSIZE]={", "},delim_1[STYBUFSIZE]={", "},delim_2[STYBUFSIZE]={", "},delim_n[STYBUFSIZE]={", "},delim_r[STYBUFSIZE]={"--"},delim_t[STYBUFSIZE]={""};
+char item_0[][STYBUFSIZE] ={{"\n  \\item "},
+                            {"\n    \\subitem "},
+                            {"\n      \\subsubitem "},
+                            {"\n        \\subsubsubitem "},
+                            {"\n          \\subsubsubsubitem "}};
+char item_01[][STYBUFSIZE]={{"\n    \\subitem "},
+                            {"\n      \\subsubitem "},
+                            {"\n        \\subsubsubitem "},
+                            {"\n          \\subsubsubsubitem "}};
+char item_x[][STYBUFSIZE] ={{"\n    \\subitem "},
+                            {"\n      \\subsubitem "},
+                            {"\n        \\subsubsubitem "},
+                            {"\n          \\subsubsubsubitem "}};
+char delim_0[][STYBUFSIZE]={{", "},{", "},{", "},{", "},{", "}};
+char delim_n[STYBUFSIZE]={", "},delim_r[STYBUFSIZE]={"--"},delim_t[STYBUFSIZE]={""};
 char suffix_2p[STYBUFSIZE]={""},suffix_3p[STYBUFSIZE]={""},suffix_mp[STYBUFSIZE]={""};
 char encap_prefix[STYBUFSIZE]={"\\"},encap_infix[STYBUFSIZE]={"{"},encap_suffix[STYBUFSIZE]={"}"};
 int line_max=72;

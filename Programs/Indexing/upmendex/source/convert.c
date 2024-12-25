@@ -193,7 +193,7 @@ static int dcomp(const void *bf1, const void *bf2)
 	return 0;
 }
 
-/*   convert to capital-hiragana character   */
+/*   convert to YOMI (reading) or strings of phonograms   */
 int convert(UChar *buff1, UChar *buff2)
 {
 	int i=0,j=0,k;

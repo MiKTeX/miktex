@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX WebApp base implementation
  *
- * @copyright Copyright © 1996-2022 Christian Schenk
+ * @copyright Copyright © 1996-2024 Christian Schenk
  *
  * This file is part of the MiKTeX TeXMF Framework.
  *
@@ -56,6 +56,11 @@ class IInitFinalize
 public:
     virtual C4P::C4P_signed8& history() = 0;
 };
+
+template<class FileType> inline bool miktexopenofmfile(FileType& f, const char* fileName)
+{
+    return OpenOFMFile(&f, MiKTeX::Util::PathName(fileName));
+}
 
 template<class FileType> inline bool miktexopentfmfile(FileType& f, const char* fileName)
 {

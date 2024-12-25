@@ -71,10 +71,10 @@ list(APPEND web_files ${CMAKE_CURRENT_BINARY_DIR}/euptex-1.web)
 
 add_custom_command(
     OUTPUT
-        ${CMAKE_CURRENT_BINARY_DIR}/euptex-final.web
+        ${CMAKE_CURRENT_BINARY_DIR}/euptex-2.web
     COMMAND
         ${MIKTEX_PREFIX}tie
-        -m ${CMAKE_CURRENT_BINARY_DIR}/euptex-final.web
+        -m ${CMAKE_CURRENT_BINARY_DIR}/euptex-2.web
             ${CMAKE_CURRENT_BINARY_DIR}/euptex-1.web
             ${CMAKE_CURRENT_SOURCE_DIR}/source/etex.ch0
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex-adapter.ch
@@ -89,9 +89,6 @@ add_custom_command(
             ${CMAKE_CURRENT_SOURCE_DIR}/source/suppresserrors.ch
             ${CMAKE_CURRENT_SOURCE_DIR}/source/unbalanced-braces-eptex.ch
             ${CMAKE_CURRENT_SOURCE_DIR}/source/char-warning-eptex.ch
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex.ch
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/uptex/miktex-uptex.ch
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/miktex-etex.ch
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
@@ -104,11 +101,34 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/source/etex.ch1
         ${CMAKE_CURRENT_SOURCE_DIR}/source/fam256.ch
         ${CMAKE_CURRENT_SOURCE_DIR}/source/pdfutils.ch
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/miktex-etex.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex-adapter.ch
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/source/ptex-base.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/source/uptex-m.ch
+        ${MIKTEX_PREFIX}tie
+        ${euptex_ch_synctex}
+    VERBATIM
+)
+
+list(APPEND web_files ${CMAKE_CURRENT_BINARY_DIR}/euptex-2.web)
+
+add_custom_command(
+    OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/euptex-final.web
+    COMMAND
+        ${MIKTEX_PREFIX}tie
+        -m ${CMAKE_CURRENT_BINARY_DIR}/euptex-final.web
+            ${CMAKE_CURRENT_BINARY_DIR}/euptex-2.web
+            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex.ch
+            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/uptex/miktex-uptex.ch
+            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/miktex-etex.ch
+    WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}
+    MAIN_DEPENDENCY
+        ${CMAKE_CURRENT_BINARY_DIR}/euptex-2.web
+    DEPENDS
+        ${CMAKE_CURRENT_BINARY_DIR}/euptex-2.web
+        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/miktex-etex.ch
+        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/uptex/miktex-uptex.ch
         ${MIKTEX_PREFIX}tie
         ${euptex_ch_synctex}

@@ -1,5 +1,15 @@
 # MiKTeX Change Log
 
+## next
+
+### Upgraded programs
+
+* chktex 1.7.9
+* dvipdfmx 20240922
+* dvips 2024.1
+* hitex 2.1
+* upmendex 1.10
+
 ## 24.12 - 2024-12-23
 
 ### Upgraded programs

@@ -124,22 +124,23 @@ extern int yydebug;
     MID = 325,                     /* "mid"  */
     LINK = 326,                    /* "link"  */
     OUTLINE = 327,                 /* "outline"  */
-    UNKNOWN = 328,                 /* "unknown"  */
-    STREAM = 329,                  /* "stream"  */
-    STREAMDEF = 330,               /* "stream (definition)"  */
-    FIRST = 331,                   /* "first"  */
-    LAST = 332,                    /* "last"  */
-    TOP = 333,                     /* "top"  */
-    NOREFERENCE = 334,             /* "*"  */
-    PAGE = 335,                    /* "page"  */
-    RANGE = 336,                   /* "range"  */
-    DIRECTORY = 337,               /* "directory"  */
-    SECTION = 338,                 /* "entry"  */
-    DEFINITIONS = 339,             /* "definitions"  */
-    MAX = 340,                     /* "max"  */
-    PARAM = 341,                   /* "param"  */
-    FONT = 342,                    /* "font"  */
-    CONTENT = 343                  /* "content"  */
+    COLOR = 328,                   /* "color"  */
+    UNKNOWN = 329,                 /* "unknown"  */
+    STREAM = 330,                  /* "stream"  */
+    STREAMDEF = 331,               /* "stream (definition)"  */
+    FIRST = 332,                   /* "first"  */
+    LAST = 333,                    /* "last"  */
+    TOP = 334,                     /* "top"  */
+    NOREFERENCE = 335,             /* "*"  */
+    PAGE = 336,                    /* "page"  */
+    RANGE = 337,                   /* "range"  */
+    DIRECTORY = 338,               /* "directory"  */
+    SECTION = 339,                 /* "entry"  */
+    DEFINITIONS = 340,             /* "definitions"  */
+    MAX = 341,                     /* "max"  */
+    PARAM = 342,                   /* "param"  */
+    FONT = 343,                    /* "font"  */
+    CONTENT = 344                  /* "content"  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -150,7 +151,7 @@ union YYSTYPE
 {
 #line 79 "parser.y"
 
-	#line 11164 "format.w"
+	#line 11653 "format.w"
 	uint32_t u;  int32_t i;  char *s;  float64_t f;  Glyph c;
 	Dimen d;Stretch st;Xdimen xd;Kern kt;
 	Rule r;Glue g;Image x;
@@ -158,7 +159,7 @@ union YYSTYPE
 	Ref rf;Info info;Order o;bool b;
 	
 
-#line 162 "hiparser.h"
+#line 163 "hiparser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

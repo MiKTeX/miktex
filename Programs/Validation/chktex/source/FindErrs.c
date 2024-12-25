@@ -351,6 +351,7 @@ static char *PreProcess(void)
 
                 EscapePtr = TmpPtr; /* Save it for later */
                 while ((TmpPtr = strstr(TmpPtr, FileSuppDelim))) {
+                    uint64_t errbit;
                     TmpPtr += STRLEN(FileSuppDelim);
                     error = atoi(TmpPtr);
 
@@ -358,7 +359,7 @@ static char *PreProcess(void)
                     {
                         PrintPrgErr(pmSuppTooHigh, error, MaxSuppressionBits);
                     }
-                    uint64_t errbit = ((uint64_t)1 << abs(error));
+                    errbit = ((uint64_t)1 << abs(error));
                     if (error > 0)
                     {
                         *(uint64_t *)StkTop(&FileSuppStack) |= errbit;
@@ -662,7 +663,7 @@ static void PerformBigCmd(char *CmdPtr)
             PSERR(CmdPtr - Buf, CmdLen, emNoArgFound);
     }
 
-    if (HasWord(CmdBuffer, &NotPreSpaced) && isspace((unsigned char)CmdPtr[-1]))
+    if (HasWord(CmdBuffer, &NotPreSpaced) && SeenSpace)
         PSERRA(CmdPtr - Buf - 1, 1, emRemPSSpace, CmdBuffer);
 
     if ((TmpPtr = HasWord(CmdBuffer, &NoCharNext)))
@@ -1133,19 +1134,21 @@ static void CheckDash(void)
                  * this on the first dash */
                 if (*TmpPtr != '-')
                 {
+                    struct WordList *el;
                     /* PrePtr now points to the beginning of the hyphenated phrase */
                     PrePtr = ++TmpPtr;
 
-                    struct WordList *el = &DashExcpt;
+                    el = &DashExcpt;
 
                     FORWL(i, *el)
                     {
+                        int FoundHyphenDiff;
                         char *e = el->Stack.Data[i];
                         TmpPtr = PrePtr;
 
                         /* Walk through the strings until we find a
                          * mismatch.  */
-                        int FoundHyphenDiff = FALSE;
+                        FoundHyphenDiff = FALSE;
                         while (*e && *TmpPtr && *e == *TmpPtr)
                         {
                             /* Skip past characters that are the same */
@@ -1586,11 +1589,22 @@ int FindErr(const char *_RealBuf, const unsigned long _Line)
                                     strchr(LTX_BosPunc, TmpC)));
                         if (islower((unsigned char)*TmpPtr))
                         {
+                            /* If it's a silent macro, count it as space. */
+                            int IsSilent = FALSE;
+                            if (*(TmpPtr - 1) == '\\')
+                            {
+                                GetLTXToken(TmpPtr - 1, CmdBuffer);
+                                IsSilent = CheckSilentRegex();
+                            }
+
                             /* Ignore spacing problems after commands if desired */
                             TmpPtr = PrePtr;
                             SKIP_BACK(TmpPtr, TmpC, istex(TmpC));
-                            if (*TmpPtr != '\\' || (CmdSpace & csInterWord))
+                            if (!IsSilent &&
+                                (*TmpPtr != '\\' || (CmdSpace & csInterWord)))
+                            {
                                 PSERR(BufPtr - Buf, 1, emInterWord);
+                            }
                         }
                         else
                             CheckAbbrevs(&BufPtr[-1]);

@@ -24,6 +24,7 @@
 #endif
 
 #define PAGE_COMPOSIT_DEPTH 10
+#define MAXDEPTH 5
 
 struct page {
 	char *page;
@@ -34,9 +35,9 @@ struct page {
 struct index {
 	int num;
 	unsigned char words;
-	UChar *dic[3];
-	UChar *org[3];
-	UChar *idx[3];
+	UChar *dic[MAXDEPTH];
+	UChar *org[MAXDEPTH];
+	UChar *idx[MAXDEPTH];
 	struct page *p;
 	int lnum;
 };

@@ -1155,7 +1155,7 @@ pdf_file_dump_code:
 uniform_deviate_code:     scan_int;
 normal_deviate_code:      do_nothing;
 Uchar_convert_code: begin scan_char_num;
-    if not is_char_ascii(cur_val) then
+    if not check_echar_range(cur_val) then
       if kcat_code(kcatcodekey(cur_val))=not_cjk then cat:=other_kchar;
     end;
 Ucharcat_convert_code:
@@ -1171,12 +1171,12 @@ Ucharcat_convert_code:
         help1("I'm going to use 12 instead of that illegal code value.");@/
         error; cat:=12;
       end else cat:=cur_val;
-    end else if i<=@"FF then
+    end else if check_echar_range(i) then
       begin if (illegal_Ucharcat_ascii_catcode(cur_val))
         and (illegal_Ucharcat_wchar_catcode(cur_val)) then
         begin print_err("Invalid code ("); print_int(cur_val);
 @.Invalid code@>
-        print("), should be in the ranges 1..4, 6..8, 10..13, 16..19");
+        print("), should be in the ranges 1..4, 6..8, 10..13, 16..20");
         help1("I'm going to use 12 instead of that illegal code value.");@/
         error; cat:=12;
       end else cat:=cur_val;
@@ -1184,7 +1184,7 @@ Ucharcat_convert_code:
       begin if illegal_Ucharcat_wchar_catcode(cur_val) then
         begin print_err("Invalid code ("); print_int(cur_val);
 @.Invalid code@>
-        print("), should be in the ranges 16..19");
+        print("), should be in the ranges 16..20");
         help1("I'm going to use 18 instead of that illegal code value.");@/
         error; cat:=other_kchar;
       end else cat:=cur_val;
@@ -1201,9 +1201,9 @@ pdf_strcmp_code: print_int(cur_val);
 uniform_deviate_code:     print_int(unif_rand(cur_val));
 normal_deviate_code:      print_int(norm_rand);
 Uchar_convert_code:
-if is_char_ascii(cur_val) then print_char(cur_val) else print_kanji(cur_val);
+if check_echar_range(cur_val)>1 then print_char(cur_val) else print_kanji(cur_val);
 Ucharcat_convert_code:
-if cat<kanji then print_char(cur_val) else print_kanji(cur_val);
+if (cat<kanji)and(check_echar_range(cur_val)>1) then print_char(cur_val) else print_kanji(cur_val);
 @z
 
 @x e-pTeX: if primitives - leave room for \ifincsname

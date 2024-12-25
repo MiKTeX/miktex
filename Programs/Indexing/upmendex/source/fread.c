@@ -111,7 +111,7 @@ LOOP:
 				if (nest==0) {
 					if (buff[j]==level) {
 						esc=0;
-						if (indent>=2) {
+						if (indent>=MAXDEPTH-1) {
 							fprintf(efp,"\nError: Extra `%c\' in %s, line %d.",level,filename,ind[i].lnum);
 							if (efp!=stderr) fprintf(stderr,"\nError: Extra `%c\' in %s, line %d.",level,filename,ind[i].lnum);
 							eflg++;
@@ -150,9 +150,9 @@ LOOP:
 						if (buff[j]==encap) {
 							j++;
 							cc=getestr(&buff[j],estr);
-							if (cc<0) {
-								fprintf(efp,"\nBad encap string in %s, line %d.",filename,ind[i].lnum);
-								if (efp!=stderr) fprintf(stderr,"\nBad encap string in %s, line %d.",filename,ind[i].lnum);
+							if (cc<0 || strchr(estr,encap)) {
+								fprintf(efp,"\nError: Bad encap string in %s, line %d.",filename,ind[i].lnum);
+								if (efp!=stderr) fprintf(stderr,"\nError: Bad encap string in %s, line %d.",filename,ind[i].lnum);
 								eflg++;
 								reject++;
 								n++;
@@ -207,6 +207,17 @@ LOOP:
 
 			if (buff[j]!=escape) esc=0;
 			copy_multibyte_char(buff, wbuff, &j, &k);
+		}
+		for (k=0; k<=indent; k++) {
+			if ((u_strlen(ind[i].idx[k])==0 && ind[i].org[k]==NULL) ||
+				 (ind[i].org[k] && u_strlen(ind[i].org[k])==0)) {
+				fprintf(efp,"\nError: Illegal null field in %s, line %d.",filename,ind[i].lnum);
+				if (efp!=stderr) fprintf(stderr,"\nError: Illegal null field in %s, line %d.",filename,ind[i].lnum);
+				eflg++;
+				reject++;
+				n++;
+				goto LOOP;
+			}
 		}
 		ind[i].words=indent+1;
 

@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Prototypes
  *
- * @copyright Copyright © 1996-2022 Christian Schenk
+ * @copyright Copyright © 1996-2024 Christian Schenk
  *
  * This file is part of the MiKTeX TeXMF Framework.
  *
@@ -26,6 +26,7 @@
 /// utilities (e.g., BibTeX).
 MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
+MIKTEXMFCEEAPI(bool) OpenOFMFile(void* ptr, const MiKTeX::Util::PathName& fileName);
 MIKTEXMFCEEAPI(bool) OpenTFMFile(void* ptr, const MiKTeX::Util::PathName& fileName);
 MIKTEXMFCEEAPI(bool) OpenVFFile(void* ptr, const MiKTeX::Util::PathName& fileName);
 MIKTEXMFCEEAPI(int) OpenXFMFile(void* ptr, const MiKTeX::Util::PathName& fileName);

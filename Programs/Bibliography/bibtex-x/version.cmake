@@ -1,6 +1,6 @@
 ## version.cmake
 ##
-## Copyright (C) 2022-2023 Christian Schenk
+## Copyright (C) 2022-2024 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -8,7 +8,7 @@
 
 set(MIKTEX_COMP_MAJOR_VERSION 4)
 set(MIKTEX_COMP_MINOR_VERSION 5)
-set(MIKTEX_COMP_PATCH_VERSION 0)
+set(MIKTEX_COMP_PATCH_VERSION 1)
 
 set(MIKTEX_COMP_ORIG_VERSION_STR "4.02")
 

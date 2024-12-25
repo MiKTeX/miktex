@@ -51,7 +51,7 @@ static struct option long_options[] = {
   {0, 0, 0, 0}
 };
 
-#define MY_VERSION   "20240201"
+#define MY_VERSION   "20240211"
 #define BUG_ADDRESS  "issue@texjp.org"
 
 static void show_version(void)
@@ -97,7 +97,7 @@ static char *mfgets(char *buff, int size, FILE *fp)
   if ((len = input_line2(fp, (unsigned char *)buff, NULL, 0, size, &c)) == 0
       && c != '\r' && c != '\n') return NULL;
   if (c == '\n' || c == '\r') {
-    if (len+1 < size) strcat(buff+len, "\n");
+    if (len+1 < size) { buff[len]=(unsigned char)c; buff[len+1]='\0'; }
     else ungetc(c, fp);
   }
   if (c == EOF) return NULL;

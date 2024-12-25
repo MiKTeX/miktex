@@ -552,7 +552,16 @@ print_char("."); show_context;
 @y
 print_char("."); show_context;
 if (miktex_halt_on_error_p) then begin
-  history:=fatal_error_stop; jump_out;
+  {This module is executed at the end of the |error| procedure in
+   \.{tex.web}, but we'll never get there when |halt_on_error_p|, so the
+   error help shouldn't get duplicated. It's potentially useful to see,
+   especially if \.{\\errhelp} is being used. See thread at:
+   \.{https://tug.org/pipermail/tex-live/2024-July/050741.html}.}
+  @<Put help message on the transcript file@>;
+
+  {Proceed with normal exit.}
+  history:=fatal_error_stop;
+  jump_out;
 end;
 @z
 
@@ -1085,6 +1094,24 @@ begin input_ptr:=0; max_in_stack:=0;
 @y
 begin input_ptr:=0; max_in_stack:=0;
 source_filename_stack[0]:=0;full_source_filename_stack[0]:=0;
+@z
+
+@x
+first:=buf_size; repeat buffer[first]:=0; decr(first); until first=0;
+@y
+first:=buf_size; repeat buffer[first]:=0; decr(first); until first=0;
+buffer[0]:=0;
+@z
+
+% _____________________________________________________________________________
+%
+% [24.336]
+% _____________________________________________________________________________
+
+@x
+begin if scanner_status<>normal then
+@y
+begin if OK_to_interrupt and(scanner_status<>normal) then
 @z
 
 % _____________________________________________________________________________

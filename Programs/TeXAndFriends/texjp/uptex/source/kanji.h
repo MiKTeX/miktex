@@ -86,6 +86,8 @@ inline long inputline2(FILE* f, unsigned char* buffer, long pos, const long buff
 #define UVScombinecode(ucv,uvs) UVS_combine_code(ucv,uvs)
 #define UVSgetcodepointlength(ucv) UVS_get_codepoint_length(ucv)
 #define UVSgetcodepointinsequence(ucv,n) UVS_get_codepoint_in_sequence(ucv,n)
+#define ptencucsto8bitcode(enc,uch) ptenc_ucs_to_8bit_code(enc,uch)
+#define ptenc8bitcodetoucs(enc,ech) ptenc_8bit_code_to_ucs(enc,ech)
 
 extern void init_kanji (const_string file_str, const_string internal_str);
 #if defined(MIKTEX)

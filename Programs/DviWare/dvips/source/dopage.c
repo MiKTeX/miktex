@@ -138,7 +138,7 @@ dochar:
          int kind0;
          cd0 = curfnt->localfonts->desc->chardesc;
          kind0 = curfnt->localfonts->desc->kind;
-         if (mychar<curfnt->localfonts->desc->maxchars && (cd0[mychar].flags & EXISTS)) {
+         if (mychar<curfnt->localfonts->desc->maxchars && (cd0[mychar].flags2 & EXISTS)) {
 #ifdef DEBUG
             if (dd(D_FONTS))
                fprintf_str(stderr,

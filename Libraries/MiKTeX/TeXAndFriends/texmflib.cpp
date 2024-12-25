@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief TeX'n'Friends helpers
  *
- * @copyright Copyright © 1996-2022 Christian Schenk
+ * @copyright Copyright © 1996-2024 Christian Schenk
  *
  * This file is part of the MiKTeX TeXMF Framework.
  *
@@ -39,6 +39,14 @@ using namespace MiKTeX::Util;
 
 typedef C4P_FILE_STRUCT(unsigned char) bytefile;
 typedef C4P::C4P_text alphafile;
+
+bool MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenOFMFile(void* p, const PathName& fileName)
+{
+    MIKTEX_API_BEGIN("OpenOFMFile");
+    MIKTEX_ASSERT_BUFFER(p, sizeof(bytefile));
+    return TeXMFApp::GetTeXMFApp()->OpenFontFile(reinterpret_cast<bytefile*>(p), fileName.GetData(), FileType::OFM, MIKTEX_MAKETFM_EXE);
+    MIKTEX_API_END("OpenOFMFile");
+}
 
 bool MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenTFMFile(void* p, const PathName& fileName)
 {

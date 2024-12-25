@@ -2618,13 +2618,13 @@ BEGIN
 #ifdef SUPPORT_8BIT
     char_width[0074] = 472; /* <, refer 0x3C in T1 ecrm1000.tfm  */
 #else
-    char_width[0074] = 278; /* �, refer 0x3C in OT1 cmr10.tfm  */
+    char_width[0074] = 278; /* ¡, refer 0x3C in OT1 cmr10.tfm  */
 #endif
     char_width[0075] = 778; /* =, refer 0x3D in T1 ecrm1000.tfm  */
 #ifdef SUPPORT_8BIT
     char_width[0076] = 472; /* >, refer 0x3E in T1 ecrm1000.tfm  */
 #else
-    char_width[0076] = 472; /* �, refer 0x3E in OT1 cmr10.tfm  */
+    char_width[0076] = 472; /* ¿, refer 0x3E in OT1 cmr10.tfm  */
 #endif
     char_width[0077] = 472; /* ?, refer 0x3F in T1 ecrm1000.tfm  */
     char_width[0100] = 778;
@@ -2704,12 +2704,12 @@ BEGIN
     char_width[0176] = 500; /* ??? */
 #endif
 #ifdef SUPPORT_8BIT
-    char_width[0xA1] =  278; /* �, refer 0xBD in T1 ecrm1000.tfm  */
-    char_width[0xA3] =  639; /* �, refer 0xBF in T1 ecrm1000.tfm  */
-    char_width[0xA7] =  444; /* �, refer 0x9F in T1 ecrm1000.tfm  */
-    char_width[0xAB] =  556; /* �, refer 0x13 in T1 ecrm1000.tfm  */
-    char_width[0xBB] =  556; /* �, refer 0x14 in T1 ecrm1000.tfm  */
-    char_width[0xBF] =  472; /* �, refer 0xBE in T1 ecrm1000.tfm  */
+    char_width[0xA1] =  278; /* ¡, refer 0xBD in T1 ecrm1000.tfm  */
+    char_width[0xA3] =  639; /* £, refer 0xBF in T1 ecrm1000.tfm  */
+    char_width[0xA7] =  444; /* §, refer 0x9F in T1 ecrm1000.tfm  */
+    char_width[0xAB] =  556; /* «, refer 0x13 in T1 ecrm1000.tfm  */
+    char_width[0xBB] =  556; /* », refer 0x14 in T1 ecrm1000.tfm  */
+    char_width[0xBF] =  472; /* ¿, refer 0xBE in T1 ecrm1000.tfm  */
     char_width[0xC0] =  750;
     char_width[0xC1] =  750;
     char_width[0xC2] =  750;
@@ -2733,7 +2733,7 @@ BEGIN
     char_width[0xD4] =  778;
     char_width[0xD5] =  778;
     char_width[0xD6] =  778;
-    char_width[0xD7] =  778; /* expect "�" */
+    char_width[0xD7] =  778; /* expect "×" */
     char_width[0xD8] =  778;
     char_width[0xD9] =  750;
     char_width[0xDA] =  750;
@@ -2741,7 +2741,7 @@ BEGIN
     char_width[0xDC] =  750;
     char_width[0xDD] =  750;
     char_width[0xDE] =  625;
-    char_width[0xDF] =  500; /* �, refer 0xFF in T1 ecrm1000.tfm  */
+    char_width[0xDF] =  500; /* ß, refer 0xFF in T1 ecrm1000.tfm  */
     char_width[0xE0] =  500;
     char_width[0xE1] =  500;
     char_width[0xE2] =  500;
@@ -2765,7 +2765,7 @@ BEGIN
     char_width[0xF4] =  500;
     char_width[0xF5] =  500;
     char_width[0xF6] =  500;
-    char_width[0xF7] =  778; /* expect "�" */
+    char_width[0xF7] =  778; /* expect "÷" */
     char_width[0xF8] =  500;
     char_width[0xF9] =  556;
     char_width[0xFA] =  556;
@@ -2773,7 +2773,7 @@ BEGIN
     char_width[0xFC] =  556;
     char_width[0xFD] =  528;
     char_width[0xFE] =  556;
-    char_width[0xFF] =  528; /* �, refer 0xB8 in T1 ecrm1000.tfm  */
+    char_width[0xFF] =  528; /* ÿ, refer 0xB8 in T1 ecrm1000.tfm  */
 #endif
 #ifdef UTF_8
     char_width[0x100] =  750;
@@ -2826,13 +2826,13 @@ BEGIN
     char_width[0x12F] =  278;
     char_width[0x130] =  361;
     char_width[0x131] =  278;
-    char_width[0x132] =  861; /* ?, refer 0x9C in T1 ecrm1000.tfm  */
-    char_width[0x133] =  583; /* ?, refer 0xBC in T1 ecrm1000.tfm  */
+    char_width[0x132] =  861; /* Ĳ, refer 0x9C in T1 ecrm1000.tfm  */
+    char_width[0x133] =  583; /* ĳ, refer 0xBC in T1 ecrm1000.tfm  */
     char_width[0x134] =  541;
     char_width[0x135] =  306;
     char_width[0x136] =  778;
     char_width[0x137] =  528;
-    char_width[0x138] =  556; /* ?, not found in T1 ecrm1000.tfm  */
+    char_width[0x138] =  556; /* ĸ, not found in T1 ecrm1000.tfm  */
     char_width[0x139] =  625;
     char_width[0x13A] =  278;
     char_width[0x13B] =  625;
@@ -2850,16 +2850,16 @@ BEGIN
     char_width[0x147] =  750;
     char_width[0x148] =  556;
     char_width[0x149] =  556;
-    char_width[0x14A] =  792; /* ?, refer 0x8D in T1 ecrm1000.tfm  */
-    char_width[0x14B] =  556; /* ?, refer 0xAD in T1 ecrm1000.tfm  */
+    char_width[0x14A] =  792; /* Ŋ, refer 0x8D in T1 ecrm1000.tfm  */
+    char_width[0x14B] =  556; /* ŋ, refer 0xAD in T1 ecrm1000.tfm  */
     char_width[0x14C] =  778;
     char_width[0x14D] =  500;
     char_width[0x14E] =  778;
     char_width[0x14F] =  500;
     char_width[0x150] =  778;
     char_width[0x151] =  500;
-    char_width[0x152] =  1014; /* �, refer 0xD7 in T1 ecrm1000.tfm  */
-    char_width[0x153] =  778; /* �, refer 0xF7 in T1 ecrm1000.tfm  */
+    char_width[0x152] =  1014; /* Œ, refer 0xD7 in T1 ecrm1000.tfm  */
+    char_width[0x153] =  778; /* œ, refer 0xF7 in T1 ecrm1000.tfm  */
     char_width[0x154] =  736;
     char_width[0x155] =  392;
     char_width[0x156] =  736;
@@ -2903,7 +2903,7 @@ BEGIN
     char_width[0x17C] =  444;
     char_width[0x17D] =  611;
     char_width[0x17E] =  444;
-    char_width[0x17F] =  392; /* ?, not found in T1 ecrm1000.tfm  */
+    char_width[0x17F] =  392; /* ſ, not found in T1 ecrm1000.tfm  */
 #endif
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^ END OF SECTION 35 ^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
 
@@ -3673,13 +3673,13 @@ BEGIN
         preceding_white = FALSE;
         break;
 #ifdef UTF_8
-      case 0x3001:                /* "?" Ideographic Comma */
-      case 0xFF0C:                /* "," Fullwidth Comma   */
+      case 0x3001:                /* "、" Ideographic Comma */
+      case 0xFF0C:                /* "，" Fullwidth Comma   */
         ex_buf_ptr = ex_buf_ptr + 3;
         preceding_white = FALSE;
         and_found = TRUE;
         break;
-      case 0x3000:                /* " " Ideographic Space */
+      case 0x3000:                /* "　" Ideographic Space */
         ex_buf[ex_buf_ptr  ] = SPACE;
         ex_buf[ex_buf_ptr+1] = SPACE;
         ex_buf[ex_buf_ptr+2] = SPACE;

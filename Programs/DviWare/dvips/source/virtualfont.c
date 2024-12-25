@@ -235,7 +235,7 @@ virtualfont(register fontdesctype *curfnt)
                font_level = tfm16();
                tfm32(); tfm32(); tfm32(); /* li, hd, bc */
                ec = tfm32();
-               if (font_level==1 && ec>=0x2E00)  /* We interpret the ofm is for pTeX */
+               if (font_level==1 && ec>=0x2E80)  /* We interpret the ofm is for pTeX */
                   curfnt->kind = VF_PTEX;
             }
             fclose(tfmfile);
@@ -253,7 +253,7 @@ virtualfont(register fontdesctype *curfnt)
          if (length<2) badvf("negative length packet");
          if (length>65535) badvf("packet too long");
          cc = vfquad();
-         if (cc>=no_of_chars && cc<MAX_CODE) {
+         if (cc>=no_of_chars && cc<MAX_VF_CODE) {
             j = VF_MEM_UNIT * ((integer)(cc/VF_MEM_UNIT) + 1);
             curfnt->chardesc = (chardesctype *)xrealloc(curfnt->chardesc,
                          sizeof(chardesctype)*j);

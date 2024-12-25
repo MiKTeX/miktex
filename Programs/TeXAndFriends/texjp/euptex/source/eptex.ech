@@ -33,8 +33,8 @@
 @y
 @d eTeX_version_string=='-2.6' {current \eTeX\ version}
 @#
-@d epTeX_version_string=='-230214'
-@d epTeX_version_number==230214
+@d epTeX_version_string=='-241020'
+@d epTeX_version_number==241020
 @z
 
 @x e-upTeX: banner
@@ -307,6 +307,14 @@ end
 @d if_tdir_code=if_case_code+1 { `\.{\\iftdir}' }
 @y
 @d if_tdir_code=if_case_code+4 { `\.{\\iftdir}' }
+@z
+
+@x procedure conditional
+@!m,@!n:integer; {to be tested against the second operand}
+@!p,@!q:pointer; {for traversing token lists in \.{\\ifx} tests}
+@y
+@!m,@!n,@!s,@!v,@!nn,@!jj:integer; {to be tested against the second operand}
+@!p,@!q:pointer; {for traversing token lists in \.{\\ifx} tests}
 @z
 
 @x [30.???] |scan_font_ident|: recognize \lastnodefont
@@ -619,7 +627,7 @@ font_char_ic_code: begin scan_font_ident; q:=cur_val;
       end
     else cur_val:=0;
     end
-  else begin scan_ascii_num;
+  else begin scan_latin_num;
     if (font_bc[q]<=cur_val)and(font_ec[q]>=cur_val) then
       begin i:=orig_char_info(q)(qi(cur_val));
       case m of
@@ -721,7 +729,7 @@ if j=1 then
     if (multistrlen(ustringcast(buffer), limit+1,loc)>1)and
          check_kcat_code(cur_tok,cur_chr) then
       begin if (cur_tok=not_cjk) then cur_tok:=other_kchar;
-        if (cur_tok=latin_ucs) then cur_tok:=other_token;
+        if (cur_tok=latin_ucs) then cur_tok:=letter;
         cur_tok:=cur_chr+cur_tok*max_cjk_val;
         loc:=loc+multistrlen(ustringcast(buffer), limit+1,loc);
       end
@@ -736,13 +744,35 @@ if j=1 then
 @y
   if check_kanji(info(p)) then {|wchar_token|}
     begin
-    if BYTE1(toBUFF(info(p) mod max_cjk_val))<>0 then
-      begin buffer[m]:=BYTE1(toBUFF(info(p) mod max_cjk_val)); buffer2[m]:=1; incr(m); end;
-    if BYTE2(toBUFF(info(p) mod max_cjk_val))<>0 then
-      begin buffer[m]:=BYTE2(toBUFF(info(p) mod max_cjk_val)); buffer2[m]:=1; incr(m); end;
-    if BYTE3(toBUFF(info(p) mod max_cjk_val))<>0 then
-      begin buffer[m]:=BYTE3(toBUFF(info(p) mod max_cjk_val)); buffer2[m]:=1; incr(m); end;
-    buffer[m]:=BYTE4(toBUFF(info(p) mod max_cjk_val)); buffer2[m]:=1; incr(m);
+    if (isinternalUPTEX) then begin
+      s:=toUCS(ktokentochr(info(p)));
+      nn:=UVSgetcodepointlength(s);
+      jj:=1;
+      while jj<=nn do begin
+      v:=UVSgetcodepointinsequence(s,jj);
+      if (v>0) then begin
+        v:=UCStoUTF8(v);
+        if BYTE1(v)<>0 then
+          begin buffer[m]:=BYTE1(v); buffer2[m]:=1; incr(m); end;
+        if BYTE2(v)<>0 then
+          begin buffer[m]:=BYTE2(v); buffer2[m]:=1; incr(m); end;
+        if BYTE3(v)<>0 then
+          begin buffer[m]:=BYTE3(v); buffer2[m]:=1; incr(m); end;
+                buffer[m]:=BYTE4(v); buffer2[m]:=1; incr(m);
+        end;
+        incr(jj);
+      end
+    end
+    else begin
+      v:=toBUFF(info(p) mod max_cjk_val);
+      if BYTE1(v)<>0 then
+        begin buffer[m]:=BYTE1(v); buffer2[m]:=1; incr(m); end;
+      if BYTE2(v)<>0 then
+        begin buffer[m]:=BYTE2(v); buffer2[m]:=1; incr(m); end;
+      if BYTE3(v)<>0 then
+        begin buffer[m]:=BYTE3(v); buffer2[m]:=1; incr(m); end;
+              buffer[m]:=BYTE4(v); buffer2[m]:=1; incr(m);
+    end;
     p:=link(p);
     end
   else
@@ -767,7 +797,8 @@ if_font_char_code:begin scan_font_ident; n:=cur_val;
       b:=(font_bc[n]<=cur_val)and(font_ec[n]>=cur_val)
       end
     end
-  else begin scan_ascii_num;
+  else begin scan_latin_num;
+    cur_val:=ptencucsto8bitcode(font_enc[n],cur_val);
     if (font_bc[n]<=cur_val)and(font_ec[n]>=cur_val) then @/
       b:=char_exists(orig_char_info(n)(qi(cur_val)))
     else b:=false;

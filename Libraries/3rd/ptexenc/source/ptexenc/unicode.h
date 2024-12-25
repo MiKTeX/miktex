@@ -29,11 +29,16 @@ extern PTENCDLL int  UVS_get_codepoint_length(long ucv);
 extern PTENCDLL long UVS_get_codepoint_in_sequence(long ucv, int n);
 extern PTENCDLL long UVS_combine_code(long ucv, long uvs);
 extern PTENCDLL long UVS_divide_code(long code, long* uvs);
+extern PTENCDLL long ptenc_ucs_to_8bit_code(short enc, long uch);
+extern PTENCDLL long ptenc_8bit_code_to_ucs(short enc, long ech);
 #else
 extern int  UVS_get_codepoint_length(long ucv);
 extern long UVS_get_codepoint_in_sequence(long ucv, int n);
 extern long UVS_combine_code(long ucv, long uvs);
 extern long UVS_divide_code(long code, long* uvs);
+
+extern long ptenc_ucs_to_8bit_code(short enc, long uch);
+extern long ptenc_8bit_code_to_ucs(short enc, long ech);
 #endif
 
 #define LONG(a,b,c,d) ( ((long)(a)<<24) | ((long)(b)<<16) | ((c)<<8) | (d) )

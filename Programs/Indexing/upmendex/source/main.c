@@ -155,7 +155,7 @@ int main(int argc, char **argv)
 
 			default:
 				fprintf(stderr,"upmendex - index processor, %s (%s).\n",VERSION, TL_VERSION);
-				fprintf(stderr," Copyright 2009 ASCII MEDIA WORKS, 2015-2023 TANAKA Takuji\n");
+				fprintf(stderr," Copyright 2009 ASCII MEDIA WORKS, 2015-2024 TANAKA Takuji\n");
 				fprintf(stderr," using ICU version %s\n",icu_version);
 				fprintf(stderr,"usage:\n");
 				fprintf(stderr,"%% upmendex [-ilqrcgf] [-s sty] [-d dic] [-o ind] [-t log] [-p no] [--] [idx0 idx1 ...]\n");

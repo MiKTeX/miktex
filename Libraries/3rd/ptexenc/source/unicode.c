@@ -10,6 +10,7 @@
 #include <ptexenc/c-auto.h>
 #include <ptexenc/unicode.h>
 #include <ptexenc/kanjicnv.h>
+#include <tex8benc.h>
 
 #include <stdio.h>  /* for fprintf() */
 
@@ -338,4 +339,86 @@ UVS_divide_code(long code, long* uvs)
     /* Undefined */
     if (uvs) *uvs = 0;
     return 0;
+}
+
+long
+ptenc_ucs_to_8bit_code(short enc, long uch)
+{
+    unsigned short *UCSto_enc, uch0;
+    int mid, left, right, size;
+
+    if (enc<0x80 || uch<0x80) return uch; /* no conversion */
+
+    switch (enc) {
+    case 0x80: UCSto_enc = UCStoT1enc;  size = sizeof(UCStoT1enc);
+      break;
+    case 0x81: UCSto_enc = UCStoTS1enc; size = sizeof(UCStoTS1enc);
+      break;
+    case 0x82: UCSto_enc = UCStoLY1enc; size = sizeof(UCStoLY1enc);
+      break;
+    case 0x83: UCSto_enc = UCStoT5enc;  size = sizeof(UCStoT5enc);
+      break;
+    case 0x84: UCSto_enc = UCStoL7Xenc; size = sizeof(UCStoL7Xenc);
+      break;
+    case 0x90: UCSto_enc = UCStoT2Aenc; size = sizeof(UCStoT2Aenc);
+      break;
+    case 0x91: UCSto_enc = UCStoT2Benc; size = sizeof(UCStoT2Benc);
+      break;
+    case 0x92: UCSto_enc = UCStoT2Cenc; size = sizeof(UCStoT2Cenc);
+      break;
+    case 0xA0: UCSto_enc = UCStoLGRenc; size = sizeof(UCStoLGRenc);
+      break;
+    default:
+      return 256; /* not supported yet */
+    }
+
+    left  = 0;
+    right = size/(sizeof(unsigned short)*2);
+    while (left < right) {
+        mid = (left + right) / 2;
+        uch0 = UCSto_enc[mid*2];
+        if ( uch0 == uch ) return (long)UCSto_enc[mid*2+1];
+        if ( uch0  < uch ) left = mid + 1;
+        else              right = mid;
+    }
+    return 256;
+}
+
+long
+ptenc_8bit_code_to_ucs(short enc, long ech)
+{
+    unsigned short *UCSto_enc;
+    int ii, size;
+
+    if (enc<0x80) return ech;    /* no conversion */
+    if (ech>0xFF) return 0xFFFD; /* illegal */
+
+    switch (enc) {
+    case 0x80: UCSto_enc = UCStoT1enc;  size = sizeof(UCStoT1enc);
+      break;
+    case 0x81: UCSto_enc = UCStoTS1enc; size = sizeof(UCStoTS1enc);
+      break;
+    case 0x82: UCSto_enc = UCStoLY1enc; size = sizeof(UCStoLY1enc);
+      break;
+    case 0x83: UCSto_enc = UCStoT5enc;  size = sizeof(UCStoT5enc);
+      break;
+    case 0x84: UCSto_enc = UCStoL7Xenc; size = sizeof(UCStoL7Xenc);
+      break;
+    case 0x90: UCSto_enc = UCStoT2Aenc; size = sizeof(UCStoT2Aenc);
+      break;
+    case 0x91: UCSto_enc = UCStoT2Benc; size = sizeof(UCStoT2Benc);
+      break;
+    case 0x92: UCSto_enc = UCStoT2Cenc; size = sizeof(UCStoT2Cenc);
+      break;
+    case 0xA0: UCSto_enc = UCStoLGRenc; size = sizeof(UCStoLGRenc);
+      break;
+    default:
+      return 0xFFFD; /* not supported yet */
+    }
+
+    size = size/(sizeof(unsigned short)*2);
+    for (ii=0; ii<size; ii++) {
+        if ( UCSto_enc[ii*2+1] == ech ) return (long)UCSto_enc[ii*2];
+    }
+    return ech; /* no conversion */
 }

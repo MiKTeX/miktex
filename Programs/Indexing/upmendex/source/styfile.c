@@ -37,7 +37,7 @@ bfgets (char *buf, int size, FILE *fp)
 /*   read style file   */
 void styread(const char *filename)
 {
-	int i,cc;
+	int i,j,q,cc;
 	char buff[4096],tmp[4096];
 
 	filename = KP_find_file(&kp_ist,filename);
@@ -87,16 +87,31 @@ void styread(const char *filename)
 			priority=atoi(&buff[cc]);
 			continue;
 		}
-		if (getparam(buff,"item_0",item_0)) continue;
-		if (getparam(buff,"item_1",item_1)) continue;
-		if (getparam(buff,"item_2",item_2)) continue;
-		if (getparam(buff,"item_01",item_01)) continue;
-		if (getparam(buff,"item_x1",item_x1)) continue;
-		if (getparam(buff,"item_12",item_12)) continue;
-		if (getparam(buff,"item_x2",item_x2)) continue;
-		if (getparam(buff,"delim_0",delim_0)) continue;
-		if (getparam(buff,"delim_1",delim_1)) continue;
-		if (getparam(buff,"delim_2",delim_2)) continue;
+		q=0;
+		for (j=0;;j++) {
+			sprintf(tmp,"item_%d",j);
+			if (getparam(buff,tmp,item_0[j])) {
+				q=1;
+				break;
+			}
+			sprintf(tmp,"delim_%d",j);
+			if (getparam(buff,tmp,delim_0[j])) {
+				q=1;
+				break;
+			}
+			if (j==MAXDEPTH-1) break;
+			sprintf(tmp,"item_%d%d",j,j+1);
+			if (getparam(buff,tmp,item_01[j])) {
+				q=1;
+				break;
+			}
+			sprintf(tmp,"item_x%d",j+1);
+			if (getparam(buff,tmp,item_x[j])) {
+				q=1;
+				break;
+			}
+		}
+		if (q==1) continue;
 		if (getparam(buff,"delim_n",delim_n)) continue;
 		if (getparam(buff,"delim_r",delim_r)) continue;
 		if (getparam(buff,"delim_t",delim_t)) continue;

@@ -17,3 +17,16 @@ procedure scan_file_name;
 @y
 @p procedure scan_file_name;
 @z
+
+% _____________________________________________________________________________
+%
+% [30.563]
+% _____________________________________________________________________________
+
+@x
+pack_file_name(nom,aire,"");
+if not miktex_open_tfm_file(tfm_file,name_of_file) then abort;
+@y
+pack_file_name(nom,aire,"");
+if not b_open_in(tfm_file) then abort;
+@z

@@ -26,18 +26,6 @@
 @d suppress_mathpar_error==int_par(suppress_mathpar_error_code)
 @z
 
-@x {Perhaps this change hunk is not needed}
-@p procedure check_outer_validity;
-var p:pointer; {points to inserted token list}
-@!q:pointer; {auxiliary pointer}
-begin if scanner_status<>normal then
-@y
-@p procedure check_outer_validity;
-var p:pointer; {points to inserted token list}
-@!q:pointer; {auxiliary pointer}
-begin if suppress_outer_error=0 then if scanner_status<>normal then
-@z
-
 @x @<Finish line, emit a \.{\\par}@>
 if cur_cmd>=outer_call then check_outer_validity;
 @y

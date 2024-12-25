@@ -2,7 +2,7 @@
 % WEB change file containing code for various features extending TeX;
 % to be applied to tex.web in order to define the
 % e-TeX program.
- 
+
 % e-TeX is copyright (C) 1999-2012 by P. Breitenlohner (1994,98 by the NTS
 % team); all rights are reserved. Copying of this file is authorized only if
 % (1) you are P. Breitenlohner, or if (2) you make absolutely no changes to
@@ -16,9 +16,9 @@
 % TeX is a trademark of the American Mathematical Society.
 % e-TeX and NTS are trademarks of the NTS group.
 
-% All line numbers refer to tex.web 3.14159265 as of January 20, 2014.
+% All line numbers refer to tex.web 3.141592653 as of January 29, 2021.
 
-@x limbo l.1 - this is e-TeX
+@x [0.0] l.1 - this is e-TeX
 % This program is copyright (C) 1982 by D. E. Knuth; all rights are reserved.
 % Unlimited copying and redistribution of this file are permitted as long
 % as this file is not modified. Modifications are permitted, but only if
@@ -52,7 +52,7 @@
 % and sole responsibility of Professor Knuth.
 @z
 %---------------------------------------
-@x limbo l.51 - e-TeX history
+@x [0.0] l.54 - e-TeX history
 % Although considerable effort has been expended to make the TeX program
 % correct and reliable, no warranty is implied; the author disclaims any
 % obligation or liability for damages, including but not limited to
@@ -117,7 +117,7 @@
 % been a ``labor of love'' and the author hopes that users enjoy it.
 @z
 %---------------------------------------
-@x limbo l.63 - e-TeX logo, TeXXeT
+@x [0.0] l.66 - e-TeX logo, TeXXeT
 \let\mc=\ninerm % medium caps for names like SAIL
 @y
 \let\mc=\ninerm % medium caps for names like SAIL
@@ -147,14 +147,14 @@
 \fi
 @z
 %---------------------------------------
-@x limbo l.66 - bug fix (print only changed modules)
+@x [0.0] l.69 - bug fix (print only changed modules)
 \def\pct!{{\char`\%}} % percent sign in ordinary text
 @y
 \def\pct!{{\char`\%}} % percent sign in ordinary text
 \def\grp{\.{\char'173...\char'175}}
 @z
 %---------------------------------------
-@x limbo l.82 - e-TeX basic
+@x [0.0] l.85 - e-TeX basic
 \def\title{\TeX82}
 @y
 \def\title{\eTeX}
@@ -165,21 +165,21 @@
 \let\maybe=\iffalse % print only changed modules
 @z
 %---------------------------------------
-@x [1] m.1 l.93 - this is e-TeX
+@x [1.1] l.96 - this is e-TeX
 This is \TeX, a document compiler intended to produce typesetting of high
 @y
 This is \eTeX, a program derived from and extending the capabilities of
 \TeX, a document compiler intended to produce typesetting of high
 @z
 %---------------------------------------
-@x [1] m.2 l.182 - e-TeX basic
+@x [1.2] l.185 - e-TeX basic
 If this program is changed, the resulting system should not be called
 @y
 This program contains code for various features extending \TeX,
 therefore this program is called `\eTeX' and not
 @z
 %---------------------------------------
-@x [1] m.2 l.188 - e-TeX basic
+@x [1.2] l.191 - e-TeX basic
 November 1984].
 @y
 November 1984].
@@ -189,7 +189,7 @@ helping to determine whether a particular implementation deserves to be
 known as `\eTeX'.
 @z
 %---------------------------------------
-@x [1] m.2 l.190 - e-TeX basic
+@x [1.2] l.193 - e-TeX basic
 @d banner=='This is TeX, Version 3.141592653' {printed when \TeX\ starts}
 @y
 @d eTeX_version=2 { \.{\\eTeXversion} }
@@ -210,14 +210,14 @@ known as `\eTeX'.
 @d eTeX_states=1 {number of \eTeX\ state variables in |eqtb|}
 @z
 %---------------------------------------
-@x [1] m.3 l.209 - e-TeX basic
+@x [1.3] l.212 - e-TeX basic
 scalar types; there are no `\&{var}' parameters, except in the case of files;
 @y
 scalar types; there are no `\&{var}' parameters, except in the case of files
 --- \eTeX, however, does use `\&{var}' parameters for the |reverse| function;
 @z
 %---------------------------------------
-@x [1] m.15 l.504 - e-TeX basic
+@x [1.15] l.507 - e-TeX basic
 @d not_found=45 {go here when you've found nothing}
 @y
 @d not_found=45 {go here when you've found nothing}
@@ -227,14 +227,14 @@ scalar types; there are no `\&{var}' parameters, except in the case of files
 @d not_found4=49 {like |not_found|, when there's more than four}
 @z
 %---------------------------------------
-@x [10] m.135 l.2895 - e-TeX TeXXeT
+@x [10.135] l.2901 - e-TeX TeXXeT
 |fil|, |fill|, or |filll|). The |subtype| field is not used.
 @y
 |fil|, |fill|, or |filll|). The |subtype| field is not used in \TeX.
 In \eTeX\ the |subtype| field records the box direction mode |box_lr|.
 @z
 %---------------------------------------
-@x [10] m.141 l.2980 - e-TeX marks
+@x [10.141] l.2986 - e-TeX marks
 This field occupies a full word instead of a halfword, because
 there's nothing to put in the other halfword; it is easier in \PASCAL\ to
 use the full word than to risk leaving garbage in the unused half.
@@ -242,21 +242,21 @@ use the full word than to risk leaving garbage in the unused half.
 In addition there is a |mark_class| field that contains the mark class.
 @z
 %---------------------------------------
-@x [10] m.141 l.2986 - e-TeX marks
+@x [10.141] l.2992 - e-TeX marks
 @d mark_ptr(#)==mem[#+1].int {head of the token list for a mark}
 @y
 @d mark_ptr(#)==link(#+1) {head of the token list for a mark}
 @d mark_class(#)==info(#+1) {the mark class}
 @z
 %---------------------------------------
-@x [10] m.142 l.2995 - e-TeX marks
+@x [10.142] l.3001 - e-TeX marks
 @d adjust_ptr==mark_ptr {vertical list to be moved out of horizontal list}
 @y
 @d adjust_ptr(#)==mem[#+1].int
   {vertical list to be moved out of horizontal list}
 @z
 %---------------------------------------
-@x [10] m.147 l.3084 - e-TeX TeXXeT
+@x [10.147] l.3090 - e-TeX TeXXeT
 the amount of surrounding space inserted by \.{\\mathsurround}.
 @y
 the amount of surrounding space inserted by \.{\\mathsurround}.
@@ -267,7 +267,7 @@ discarded at a line break or one of the text direction primitives (
 \.{\\beginL}, \.{\\endL}, \.{\\beginR}, and \.{\\endR} ).
 @z
 %---------------------------------------
-@x [10] m.147 l.3088 - e-TeX TeXXeT
+@x [10.147] l.3094 - e-TeX TeXXeT
 @d after=1 {|subtype| for math node that winds up a formula}
 @y
 @d after=1 {|subtype| for math node that winds up a formula}
@@ -287,14 +287,14 @@ discarded at a line break or one of the text direction primitives (
 @d begin_LR_type(#)==(#-after+before)
 @z
 %---------------------------------------
-@x [12] m.175 l.3561 - e-TeX TeXXeT
+@x [12.175] l.3567 - e-TeX TeXXeT
 math_node: print_char("$");
 @y
 math_node: if subtype(p)>=L_code then print("[]")
   else print_char("$");
 @z
 %---------------------------------------
-@x [12] m.184 l.3728 - e-TeX TeXXeT
+@x [12.184] l.3734 - e-TeX TeXXeT
     begin print(", shifted "); print_scaled(shift_amount(p));
     end;
 @y
@@ -303,7 +303,7 @@ math_node: if subtype(p)>=L_code then print("[]")
   if eTeX_ex then @<Display if this box is never to be reversed@>;
 @z
 %---------------------------------------
-@x [12] m.192 l.3826 - e-TeX TeXXeT
+@x [12.192] l.3832 - e-TeX TeXXeT
 begin print_esc("math");
 @y
 if subtype(p)>after then
@@ -316,7 +316,7 @@ if subtype(p)>after then
 begin print_esc("math");
 @z
 %---------------------------------------
-@x [12] m.196 l.3859 - e-TeX marks
+@x [12.196] l.3865 - e-TeX marks
 begin print_esc("mark"); print_mark(mark_ptr(p));
 @y
 begin print_esc("mark");
@@ -326,70 +326,70 @@ if mark_class(p)<>0 then
 print_mark(mark_ptr(p));
 @z
 %---------------------------------------
-@x [15] m.208 l.4096 - e-TeX saved_items
+@x [15.208] l.4102 - e-TeX saved_items
 @d un_vbox=24 {unglue a box ( \.{\\unvbox}, \.{\\unvcopy} )}
 @y
 @d un_vbox=24 {unglue a box ( \.{\\unvbox}, \.{\\unvcopy} )}
   {( or \.{\\pagediscards}, \.{\\splitdiscards} )}
 @z
 %---------------------------------------
-@x [15] m.208 l.4106 - e-TeX TeXXeT
+@x [15.208] l.4112 - e-TeX TeXXeT
 @d valign=33 {vertical table alignment ( \.{\\valign} )}
 @y
 @d valign=33 {vertical table alignment ( \.{\\valign} )}
   {or text direction directives ( \.{\\beginL}, etc.~)}
 @z
 %---------------------------------------
-@x [15] m.208 l.4122 - e-TeX middle
+@x [15.208] l.4128 - e-TeX middle
 @d left_right=49 {variable delimiter ( \.{\\left}, \.{\\right} )}
 @y
 @d left_right=49 {variable delimiter ( \.{\\left}, \.{\\right} )}
   {( or \.{\\middle} )}
 @z
 %---------------------------------------
-@x [15] m.209 l.4166 - e-TeX basic
+@x [15.209] l.4172 - e-TeX basic
   \.{\\insertpenalties} )}
 @y
   \.{\\insertpenalties} )}
   {( or \.{\\interactionmode} )}
 @z
 %---------------------------------------
-@x [15] m.209 l.4168 - e-TeX penalties
+@x [15.209] l.4174 - e-TeX penalties
 @d set_shape=84 {specify fancy paragraph shape ( \.{\\parshape} )}
 @y
 @d set_shape=84 {specify fancy paragraph shape ( \.{\\parshape} )}
   {(or \.{\\interlinepenalties}, etc.~)}
 @z
 %---------------------------------------
-@x [15] m.209 l.4178 - e-TeX protected
+@x [15.209] l.4184 - e-TeX protected
 @d prefix=93 {qualify a definition ( \.{\\global}, \.{\\long}, \.{\\outer} )}
 @y
 @d prefix=93 {qualify a definition ( \.{\\global}, \.{\\long}, \.{\\outer} )}
   {( or \.{\\protected} )}
 @z
 %---------------------------------------
-@x [15] m.209 l.4181 - e-TeX read_line
+@x [15.209] l.4187 - e-TeX read_line
 @d read_to_cs=96 {read into a control sequence ( \.{\\read} )}
 @y
 @d read_to_cs=96 {read into a control sequence ( \.{\\read} )}
   {( or \.{\\readline} )}
 @z
 %---------------------------------------
-@x [15] m.210 l.4196 - e-TeX scan_tokens
+@x [15.210] l.4202 - e-TeX scan_tokens
 @d input=max_command+4 {input a source file ( \.{\\input}, \.{\\endinput} )}
 @y
 @d input=max_command+4 {input a source file ( \.{\\input}, \.{\\endinput} )}
   {( or \.{\\scantokens} )}
 @z
 %---------------------------------------
-@x [15] m.210 l.4201 - e-TeX unexpanded
+@x [15.210] l.4207 - e-TeX unexpanded
 @d the=max_command+9 {expand an internal quantity ( \.{\\the} )}
 @y
 @d the=max_command+9 {expand an internal quantity ( \.{\\the} )}
   {( or \.{\\unexpanded}, \.{\\detokenize} )}
 @z
 %---------------------------------------
-@x [16] m.212 l.4304 - e-TeX basic
+@x [16.212] l.4310 - e-TeX basic
 user's output routine.
 @y
 user's output routine.
@@ -402,14 +402,14 @@ display.  In math mode it is known as |delim_ptr| and points to the most
 recent |left_noad| or |middle_noad| of a |math_left_group|.
 @z
 %---------------------------------------
-@x [16] m.212 l.4319 - e-TeX basic
+@x [16.212] l.4325 - e-TeX basic
   @!head_field,@!tail_field: pointer;
 @y
   @!head_field,@!tail_field: pointer;
   @!eTeX_aux_field: pointer;
 @z
 %---------------------------------------
-@x [16] m.213 l.4326 - e-TeX basic
+@x [16.213] l.4332 - e-TeX basic
 @d tail==cur_list.tail_field {final node on current list}
 @y
 @d tail==cur_list.tail_field {final node on current list}
@@ -419,21 +419,21 @@ recent |left_noad| or |middle_noad| of a |math_left_group|.
 @d delim_ptr==eTeX_aux {most recent left or right noad of a math left group}
 @z
 %---------------------------------------
-@x [16] m.215 l.4357 - e-TeX basic
+@x [16.215] l.4363 - e-TeX basic
 mode:=vmode; head:=contrib_head; tail:=contrib_head;
 @y
 mode:=vmode; head:=contrib_head; tail:=contrib_head;
 eTeX_aux:=null;
 @z
 %---------------------------------------
-@x [16] m.216 l.4373 push_nest - e-TeX basic
+@x [16.216] l.4379 - push_nest - e-TeX basic
 incr(nest_ptr); head:=get_avail; tail:=head; prev_graf:=0; mode_line:=line;
 @y
 incr(nest_ptr); head:=get_avail; tail:=head; prev_graf:=0; mode_line:=line;
 eTeX_aux:=null;
 @z
 %---------------------------------------
-@x [17] m.230 l.4736 - e-TeX basic, every_eof
+@x [17.230] l.4742 - e-TeX basic, every_eof
 @d toks_base=local_base+10 {table of 256 token list registers}
 @y
 @d tex_toks=local_base+10 {end of \TeX's token list parameters}
@@ -445,7 +445,7 @@ eTeX_aux:=null;
 @d toks_base=etex_toks {table of 256 token list registers}
 @z
 %---------------------------------------
-@x [17] m.230 l.4737 - e-TeX basic, penalties
+@x [17.230] l.4743 - e-TeX basic, penalties
 @d box_base=toks_base+256 {table of 256 box registers}
 @y
 @#
@@ -459,14 +459,14 @@ eTeX_aux:=null;
 @d box_base=etex_pens {table of 256 box registers}
 @z
 %---------------------------------------
-@x [17] m.231 l.4802 - e-TeX basic
+@x [17.231] l.4808 - e-TeX basic
   othercases print_esc("errhelp")
 @y
   @/@<Cases of |assign_toks| for |print_cmd_chr|@>@/
   othercases print_esc("errhelp")
 @z
 %---------------------------------------
-@x [17] m.232 l.4820 - e-TeX penalties
+@x [17.232] l.4826 - e-TeX penalties
 eq_level(par_shape_loc):=level_one;@/
 @y
 eq_level(par_shape_loc):=level_one;@/
@@ -474,7 +474,7 @@ for k:=etex_pen_base to etex_pens-1 do
   eqtb[k]:=eqtb[par_shape_loc];
 @z
 %---------------------------------------
-@x [17] m.233 l.4848 - e-TeX penalties
+@x [17.233] l.4854 - e-TeX penalties
 if n=par_shape_loc then
   begin print_esc("parshape"); print_char("=");
   if par_shape_ptr=null then print_char("0")
@@ -489,7 +489,7 @@ if (n=par_shape_loc) or ((n>=etex_pen_base) and (n<etex_pens)) then
     end
 @z
 %---------------------------------------
-@x [17] m.236 l.4969 - e-TeX basic
+@x [17.236] l.4975 - e-TeX basic
 @d int_pars=55 {total number of integer parameters}
 @y
 @d tex_int_pars=55 {total number of \TeX's integer parameters}
@@ -510,7 +510,7 @@ if (n=par_shape_loc) or ((n>=etex_pen_base) and (n<etex_pens)) then
 @d int_pars=etex_int_pars {total number of integer parameters}
 @z
 %---------------------------------------
-@x [17] m.236 l.5031 - e-TeX basic
+@x [17.236] l.5037 - e-TeX basic
 @d error_context_lines==int_par(error_context_lines_code)
 @y
 @d error_context_lines==int_par(error_context_lines_code)
@@ -526,20 +526,20 @@ if (n=par_shape_loc) or ((n>=etex_pen_base) and (n<etex_pens)) then
 @d saving_hyph_codes==int_par(saving_hyph_codes_code)
 @z
 %---------------------------------------
-@x [17] m.237 l.5096 print_param - e-TeX basic
+@x [17.237] l.5102 - print_param - e-TeX basic
 othercases print("[unknown integer parameter!]")
 @y
 @/@<Cases for |print_param|@>@/
 othercases print("[unknown integer parameter!]")
 @z
 %---------------------------------------
-@x [18] m.264 l.5627 primitive - e-TeX basic
+@x [18.264] l.5639 - primitive - e-TeX basic
 @!j:small_number; {index into |buffer|}
 @y
 @!j:0..buf_size; {index into |buffer|}
 @z
 %---------------------------------------
-@x [18] m.264 l.5631 primitive - e-TeX basic
+@x [18.264] l.5643 - primitive - e-TeX basic
     {we will move |s| into the (empty) |buffer|}
   for j:=0 to l-1 do buffer[j]:=so(str_pool[k+j]);
   cur_val:=id_lookup(0,l); {|no_new_control_sequence| is |false|}
@@ -552,26 +552,26 @@ othercases print("[unknown integer parameter!]")
   cur_val:=id_lookup(first,l); {|no_new_control_sequence| is |false|}
 @z
 %---------------------------------------
-@x [18] m.265 l.5706 - e-TeX penalties
+@x [18.265] l.5718 - e-TeX penalties
 primitive("parshape",set_shape,0);@/
 @y
 primitive("parshape",set_shape,par_shape_loc);@/
 @z
 %---------------------------------------
-@x [18] m.265 l.5723 - e-TeX sparse arrays
+@x [18.265] l.5735 - e-TeX sparse arrays
 primitive("toks",toks_register,0);@/
 @y
 primitive("toks",toks_register,mem_bot);@/
 @z
 %---------------------------------------
-@x [18] m.266 l.5756 - e-TeX cond
+@x [18.266] l.5768 - e-TeX cond
 expand_after: print_esc("expandafter");
 @y
 expand_after: if chr_code=0 then print_esc("expandafter")
   @<Cases of |expandafter| for |print_cmd_chr|@>;
 @z
 %---------------------------------------
-@x [18] m.266 l.5762 - e-TeX marks
+@x [18.266] l.5774 - e-TeX marks
 mark: print_esc("mark");
 @y
 mark: begin print_esc("mark");
@@ -579,14 +579,14 @@ mark: begin print_esc("mark");
   end;
 @z
 %---------------------------------------
-@x [18] m.266 l.5773 - e-TeX read_line
+@x [18.266] l.5785 - e-TeX read_line
 read_to_cs: print_esc("read");
 @y
 read_to_cs: if chr_code=0 then print_esc("read")
   @<Cases of |read| for |print_cmd_chr|@>;
 @z
 %---------------------------------------
-@x [18] m.266 l.5777 - e-TeX penalties
+@x [18.266] l.5789 - e-TeX penalties
 set_shape: print_esc("parshape");
 @y
 set_shape: case chr_code of
@@ -595,33 +595,33 @@ set_shape: case chr_code of
   end; {there are no other cases}
 @z
 %---------------------------------------
-@x [18] m.266 l.5778 - e-TeX unexpanded
+@x [18.266] l.5790 - e-TeX unexpanded
 the: print_esc("the");
 @y
 the: if chr_code=0 then print_esc("the")
   @<Cases of |the| for |print_cmd_chr|@>;
 @z
 %---------------------------------------
-@x [18] m.266 l.5779 - e-TeX sparse arrays
+@x [18.266] l.5791 - e-TeX sparse arrays
 toks_register: print_esc("toks");
 @y
 toks_register: @<Cases of |toks_register| for |print_cmd_chr|@>;
 @z
 %---------------------------------------
-@x [18] m.266 l.5781 - e-TeX TeXXeT
+@x [18.266] l.5793 - e-TeX TeXXeT
 valign: print_esc("valign");
 @y
 valign: if chr_code=0 then print_esc("valign")@/
   @<Cases of |valign| for |print_cmd_chr|@>;
 @z
 %---------------------------------------
-@x [19] m.268 l.5815 - e-TeX sparse arrays
+@x [19.268] l.5827 - e-TeX sparse arrays
 interpreted in one of four ways:
 @y
 interpreted in one of five ways:
 @z
 %---------------------------------------
-@x [19] m.268 l.5835 - e-TeX tracing
+@x [19.268] l.5847 - e-TeX tracing
 the entries for that group.
 @y
 the entries for that group.
@@ -634,7 +634,7 @@ group. Furthermore |save_index(p)| and |save_level(p)| should replace
 the values of |sa_chain| and |sa_level| respectively.
 @z
 %---------------------------------------
-@x [19] m.268 l.5845 - e-TeX basic
+@x [19.268] l.5857 - e-TeX basic
 @d level_boundary=3 {|save_type| corresponding to beginning of group}
 @y
 @d level_boundary=3 {|save_type| corresponding to beginning of group}
@@ -643,19 +643,19 @@ the values of |sa_chain| and |sa_level| respectively.
 @p@t\4@>@<Declare \eTeX\ procedures for tracing and input@>
 @z
 %---------------------------------------
-@x [19] m.273 l.5903 - e-TeX tracing
+@x [19.273] l.5915 - e-TeX tracing
 @ The following macro is used to test if there is room for up to six more
 @y
 @ The following macro is used to test if there is room for up to seven more
 @z
 %---------------------------------------
-@x [19] m.273 l.5909 check_full_save_stack - e-TeX tracing
+@x [19.273] l.5921 - check_full_save_stack - e-TeX tracing
   if max_save_stack>save_size-6 then overflow("save size",save_size);
 @y
   if max_save_stack>save_size-7 then overflow("save size",save_size);
 @z
 %---------------------------------------
-@x [19] m.274 l.5931 new_save_level - e-TeX tracing
+@x [19.274] l.5943 - new_save_level - e-TeX tracing
 begin check_full_save_stack;
 @y
 begin check_full_save_stack;
@@ -664,7 +664,7 @@ if eTeX_ex then
   end;
 @z
 %---------------------------------------
-@x [19] m.274 l.5938 new_save_level - e-TeX tracing
+@x [19.274] l.5950 - new_save_level - e-TeX tracing
 cur_boundary:=save_ptr; incr(cur_level); incr(save_ptr); cur_group:=c;
 @y
 cur_boundary:=save_ptr; cur_group:=c;
@@ -672,14 +672,14 @@ cur_boundary:=save_ptr; cur_group:=c;
 incr(cur_level); incr(save_ptr);
 @z
 %---------------------------------------
-@x [19] m.275 l.5956 eq_destroy - e-TeX sparse arrays
+@x [19.275] l.5968 - eq_destroy - e-TeX sparse arrays
 othercases do_nothing
 @y
 @/@<Cases for |eq_destroy|@>@/
 othercases do_nothing
 @z
 %---------------------------------------
-@x [19] m.277 l.5978 - e-TeX tracing
+@x [19.277] l.5990 - e-TeX tracing
 the call, since |eq_save| makes the necessary test.
 @y
 the call, since |eq_save| makes the necessary test.
@@ -688,7 +688,7 @@ the call, since |eq_save| makes the necessary test.
   tats
 @z
 %---------------------------------------
-@x [19] m.277 l.5982 eq_define - e-TeX tracing
+@x [19.277] l.5994 - eq_define - e-TeX tracing
 begin if eq_level(p)=cur_level then eq_destroy(eqtb[p])
 @y
 label exit;
@@ -700,14 +700,14 @@ assign_trace(p,"changing")@;@/
 if eq_level(p)=cur_level then eq_destroy(eqtb[p])
 @z
 %---------------------------------------
-@x [19] m.277 l.5985 eq_define - e-TeX tracing
+@x [19.277] l.5997 - eq_define - e-TeX tracing
 end;
 @y
 assign_trace(p,"into")@;@/
 exit:end;
 @z
 %---------------------------------------
-@x [19] m.278 l.5992 eq_word_define - e-TeX tracing
+@x [19.278] l.6004 - eq_word_define - e-TeX tracing
 begin if xeq_level[p]<>cur_level then
 @y
 label exit;
@@ -719,14 +719,14 @@ assign_trace(p,"changing")@;@/
 if xeq_level[p]<>cur_level then
 @z
 %---------------------------------------
-@x [19] m.278 l.5996 eq_word_define - e-TeX tracing
+@x [19.278] l.6008 - eq_word_define - e-TeX tracing
 end;
 @y
 assign_trace(p,"into")@;@/
 exit:end;
 @z
 %---------------------------------------
-@x [19] m.279 l.6005 geq_define - e-TeX tracing
+@x [19.279] l.6017 - geq_define - e-TeX tracing
 begin eq_destroy(eqtb[p]);
 eq_level(p):=level_one; eq_type(p):=t; equiv(p):=e;
 @y
@@ -737,7 +737,7 @@ end;
 assign_trace(p,"into")@;@/
 @z
 %---------------------------------------
-@x [19] m.279 l.6010 geq_word_define - e-TeX tracing
+@x [19.279] l.6022 - geq_word_define - e-TeX tracing
 begin eqtb[p].int:=w; xeq_level[p]:=level_one;
 @y
 begin assign_trace(p,"globally changing")@;@/
@@ -746,13 +746,13 @@ end;
 assign_trace(p,"into")@;@/
 @z
 %---------------------------------------
-@x [19] m.281 l.6027 - e-TeX tracing
+@x [19.281] l.6039 - e-TeX tracing
 @p@t\4@>@<Declare the procedure called |restore_trace|@>@;@/
 @y
 @p
 @z
 %---------------------------------------
-@x [19] m.281 l.6034 unsave - e-TeX optimized \aftergroup
+@x [19.281] l.6046 - unsave - e-TeX optimized \aftergroup
 begin if cur_level>level_one then
 @y
 @!a:boolean; {have we already processed an \.{\\aftergroup} ?}
@@ -760,7 +760,7 @@ begin a:=false;
 if cur_level>level_one then
 @z
 %---------------------------------------
-@x [19] m.282 l.6048 - e-TeX sparse arrays
+@x [19.282] l.6060 - e-TeX sparse arrays
   else  begin if save_type(save_ptr)=restore_old_value then
 @y
   else if save_type(save_ptr)=restore_sa then
@@ -769,7 +769,7 @@ if cur_level>level_one then
   else  begin if save_type(save_ptr)=restore_old_value then
 @z
 %---------------------------------------
-@x [19] m.282 l.6056 - e-TeX tracing
+@x [19.282] l.6068 - e-TeX tracing
 done: cur_group:=save_level(save_ptr); cur_boundary:=save_index(save_ptr)
 @y
 done: @!stat if tracing_groups>0 then group_trace(true);@+tats@;@/
@@ -779,39 +779,39 @@ cur_group:=save_level(save_ptr); cur_boundary:=save_index(save_ptr);
 if eTeX_ex then decr(save_ptr)
 @z
 %---------------------------------------
-@x [19] m.284 l.6082 - e-TeX tracing
+@x [19.284] l.6094 - e-TeX tracing
 @ @<Declare the procedure called |restore_trace|@>=
 @y
 @ @<Declare \eTeX\ procedures for tr...@>=
 @z
 %---------------------------------------
-@x [20] m.289 l.6170 - e-TeX protected
+@x [20.289] l.6182 - e-TeX protected
 @d end_match_token=@'7000 {$2^8\cdot|end_match|$}
 @y
 @d end_match_token=@'7000 {$2^8\cdot|end_match|$}
 @d protected_token=@'7001 {$2^8\cdot|end_match|+1$}
 @z
 %---------------------------------------
-@x [20] m.294 l.6295 - e-TeX protected
+@x [20.294] l.6307 - e-TeX protected
 end_match: print("->");
 @y
 end_match: if c=0 then print("->");
 @z
 %---------------------------------------
-@x [20] m.296 l.6316 print_meaning - e-TeX marks
+@x [20.296] l.6328 - print_meaning - e-TeX marks
 else if cur_cmd=top_bot_mark then
 @y
 else if (cur_cmd=top_bot_mark)and(cur_chr<marks_code) then
 @z
 %---------------------------------------
-@x [21] m.298 l.6390 print_cmd_chr - e-TeX protected
+@x [21.298] l.6402 - print_cmd_chr - e-TeX protected
 procedure print_cmd_chr(@!cmd:quarterword;@!chr_code:halfword);
 @y
 procedure print_cmd_chr(@!cmd:quarterword;@!chr_code:halfword);
 var n:integer; {temp variable}
 @z
 %---------------------------------------
-@x [21] m.299 l.6409 show_cur_cmd_chr - e-TeX tracing
+@x [21.299] l.6421 - show_cur_cmd_chr - e-TeX tracing
 @p procedure show_cur_cmd_chr;
 @y
 @p procedure show_cur_cmd_chr;
@@ -820,7 +820,7 @@ var n:integer; {level of \.{\\if...\\fi} nesting}
 @!p:pointer;
 @z
 %---------------------------------------
-@x [21] m.299 l.6414 show_cur_cmd_chr - e-TeX tracing
+@x [21.299] l.6426 - show_cur_cmd_chr - e-TeX tracing
 print_cmd_chr(cur_cmd,cur_chr); print_char("}");
 @y
 print_cmd_chr(cur_cmd,cur_chr);
@@ -842,7 +842,7 @@ if tracing_ifs>0 then
 print_char("}");
 @z
 %---------------------------------------
-@x [22] m.303 l.6490 show_context - e-TeX scan_tokens
+@x [22.303] l.6502 - show_context - e-TeX scan_tokens
 the terminal, under control of the procedure |read_toks|.)
 @y
 the terminal, under control of the procedure |read_toks|.)
@@ -850,7 +850,7 @@ Finally |18<=name<=19| indicates that we are reading a pseudo file
 created by the \.{\\scantokens} command.
 @z
 %---------------------------------------
-@x [22] m.307 l.6687 - e-TeX basic, every_eof
+@x [22.307] l.6699 - e-TeX basic, every_eof
 only if |token_type>=macro|.
 @^reference counts@>
 @y
@@ -861,7 +861,7 @@ Since \eTeX's additional token list parameters precede |toks_base|, the
 corresponding token types must precede |write_text|.
 @z
 %---------------------------------------
-@x [22] m.307 l.6708 - e-TeX basic
+@x [22.307] l.6720 - e-TeX basic
 @d write_text=15 {|token_type| code for \.{\\write}}
 @y
 @#
@@ -872,13 +872,13 @@ corresponding token types must precede |write_text|.
 @d write_text=toks_base-eTeX_text_offset {|token_type| code for \.{\\write}}
 @z
 %---------------------------------------
-@x [22] m.311 l.6764 show_context - e-TeX scan_tokens
+@x [22.311] l.6776 - show_context - e-TeX scan_tokens
     if (name>17) or (base_ptr=0) then bottom_line:=true;
 @y
     if (name>19) or (base_ptr=0) then bottom_line:=true;
 @z
 %---------------------------------------
-@x [22] m.313 l.6809 - e-TeX scan_tokens
+@x [22.313] l.6821 - e-TeX scan_tokens
 else  begin print_nl("l."); print_int(line);
 @y
 else  begin print_nl("l.");
@@ -886,14 +886,14 @@ else  begin print_nl("l.");
   else print_int(line_stack[index+1]); {input from a pseudo file}
 @z
 %---------------------------------------
-@x [22] m.314 l.6831 - e-TeX basic
+@x [22.314] l.6843 - e-TeX basic
 write_text: print_nl("<write> ");
 @y
 every_eof_text: print_nl("<everyeof> ");
 write_text: print_nl("<write> ");
 @z
 %---------------------------------------
-@x [23] m.326 l.7024 - e-TeX optimized \aftergroup
+@x [23.326] l.7036 - e-TeX optimized \aftergroup
 begin t:=cur_tok; cur_tok:=p; back_input; cur_tok:=t;
 @y
 begin t:=cur_tok; cur_tok:=p;
@@ -908,7 +908,7 @@ else  begin back_input; a:=eTeX_ex;
 cur_tok:=t;
 @z
 %---------------------------------------
-@x [23] m.328 l.7052 begin_file_reading - e-TeX every_eof, tracing_nesting
+@x [23.328] l.7064 - begin_file_reading - e-TeX every_eof, tracing_nesting
 incr(in_open); push_input; index:=in_open;
 @y
 incr(in_open); push_input; index:=in_open;
@@ -916,21 +916,21 @@ eof_seen[index]:=false;
 grp_stack[index]:=cur_boundary; if_stack[index]:=cond_ptr;
 @z
 %---------------------------------------
-@x [23] m.329 l.7062 end_file_reading - e-TeX scan_tokens
+@x [23.329] l.7074 - end_file_reading - e-TeX scan_tokens
 if name>17 then a_close(cur_file); {forget it}
 @y
 if (name=18)or(name=19) then pseudo_close else
 if name>17 then a_close(cur_file); {forget it}
 @z
 %---------------------------------------
-@x [23] m.331 l.7081 - e-TeX tracing_nesting
+@x [23.331] l.7093 - e-TeX tracing_nesting
 in_open:=0; open_parens:=0; max_buf_stack:=0;
 @y
 in_open:=0; open_parens:=0; max_buf_stack:=0;
 grp_stack[0]:=0; if_stack[0]:=null;
 @z
 %---------------------------------------
-@x [24] m.362 l.7553 - e-TeX scan_tokens, every_eof
+@x [24.362] l.7566 - e-TeX scan_tokens, every_eof
 if not force_eof then
 @y
 if not force_eof then
@@ -946,7 +946,7 @@ if not force_eof then
   else
 @z
 %---------------------------------------
-@x [24] m.362 l.7556 - e-TeX every_eof
+@x [24.362] l.7569 - e-TeX every_eof
   else force_eof:=true;
 @y
   else if (every_eof<>null)and not eof_seen[index] then
@@ -956,7 +956,7 @@ if not force_eof then
   else force_eof:=true;
 @z
 %---------------------------------------
-@x [24] m.362 l.7559 - e-TeX scan_tokens
+@x [24.362] l.7572 - e-TeX scan_tokens
   begin print_char(")"); decr(open_parens);
   update_terminal; {show user that file has been read}
 @y
@@ -970,35 +970,35 @@ if not force_eof then
   end;
 @z
 %---------------------------------------
-@x [25] m.366 l.7643 - e-TeX basic
+@x [25.366] l.7656 - e-TeX basic
 @t\4@>@<Declare the procedure called |insert_relax|@>@;@/
 @y
 @t\4@>@<Declare the procedure called |insert_relax|@>@;@/
 @t\4@>@<Declare \eTeX\ procedures for expanding@>@;@/
 @z
 %---------------------------------------
-@x [25] m.366 l.7650 expand - e-TeX cond
+@x [25.366] l.7663 - expand - e-TeX cond
 procedure expand;
 @y
 procedure expand;
 label reswitch;
 @z
 %---------------------------------------
-@x [25] m.366 l.7661 expand - e-TeX cond
+@x [25.366] l.7674 - expand - e-TeX cond
 if cur_cmd<call then @<Expand a nonmacro@>
 @y
 reswitch:
 if cur_cmd<call then @<Expand a nonmacro@>
 @z
 %---------------------------------------
-@x [25] m.367 l.7672 - e-TeX cond
+@x [25.367] l.7685 - e-TeX cond
 expand_after:@<Expand the token after the next token@>;
 @y
 expand_after:if cur_chr=0 then @<Expand the token after the next token@>
   else @<Negate a boolean conditional and |goto reswitch|@>;
 @z
 %---------------------------------------
-@x [25] m.377 l.7792 - e-TeX scan_tokens
+@x [25.377] l.7805 - e-TeX scan_tokens
 input: if chr_code=0 then print_esc("input")@+else print_esc("endinput");
 @y
 input: if chr_code=0 then print_esc("input")
@@ -1006,14 +1006,14 @@ input: if chr_code=0 then print_esc("input")
   else print_esc("endinput");
 @z
 %---------------------------------------
-@x [25] m.378 l.7795 - e-TeX scan_tokens
+@x [25.378] l.7808 - e-TeX scan_tokens
 if cur_chr>0 then force_eof:=true
 @y
 if cur_chr=1 then force_eof:=true
 @/@<Cases for |input|@>@/
 @z
 %---------------------------------------
-@x [25] m.382 l.7851 - e-TeX marks
+@x [25.382] l.7864 - e-TeX marks
 @d top_mark_code=0 {the mark in effect at the previous page break}
 @y
 @d marks_code==5 {add this for \.{\\topmarks} etc.}
@@ -1021,13 +1021,13 @@ if cur_chr=1 then force_eof:=true
 @d top_mark_code=0 {the mark in effect at the previous page break}
 @z
 %---------------------------------------
-@x [25] m.385 l.7883 - e-TeX marks
+@x [25.385] l.7896 - e-TeX marks
 top_bot_mark: case chr_code of
 @y
 top_bot_mark: begin case (chr_code mod marks_code) of
 @z
 %---------------------------------------
-@x [25] m.385 l.7889 - e-TeX marks
+@x [25.385] l.7902 - e-TeX marks
   endcases;
 @y
   endcases;
@@ -1035,7 +1035,7 @@ top_bot_mark: begin case (chr_code mod marks_code) of
   end;
 @z
 %---------------------------------------
-@x [25] m.386 l.7895 - e-TeX marks
+@x [25.386] l.7908 - e-TeX marks
 begin if cur_mark[cur_chr]<>null then
   begin_token_list(cur_mark[cur_chr],mark_text);
 @y
@@ -1046,28 +1046,28 @@ else @<Compute the mark pointer for mark type |t| and class |cur_val|@>;
 if cur_ptr<>null then begin_token_list(cur_ptr,mark_text);
 @z
 %---------------------------------------
-@x [25] m.389 l.7958 macro_call - e-TeX protected
+@x [25.389] l.7971 - macro_call - e-TeX protected
 if info(r)<>end_match_token then
 @y
 if info(r)=protected_token then r:=link(r);
 if info(r)<>end_match_token then
 @z
 %---------------------------------------
-@x [26] m.409 l.8270 - e-TeX basic
+@x [26.409] l.8283 - e-TeX basic
 @t\4\4@>@<Declare procedures that scan font-related stuff@>
 @y
 @t\4\4@>@<Declare \eTeX\ procedures for scanning@>@;
 @t\4\4@>@<Declare procedures that scan font-related stuff@>
 @z
 %---------------------------------------
-@x [26] m.411 l.8314 - e-TeX sparse arrays
+@x [26.411] l.8327 - e-TeX sparse arrays
 |glue_val|, or |mu_val|.
 @y
 |glue_val|, or |mu_val| more than |mem_bot| (dynamic variable-size nodes
 cannot have these values)
 @z
 %---------------------------------------
-@x [26] m.411 l.8317 - e-TeX sparse arrays
+@x [26.411] l.8330 - e-TeX sparse arrays
 primitive("count",register,int_val);
 @!@:count_}{\.{\\count} primitive@>
 primitive("dimen",register,dimen_val);
@@ -1085,7 +1085,7 @@ primitive("skip",register,mem_bot+glue_val);
 primitive("muskip",register,mem_bot+mu_val);
 @z
 %---------------------------------------
-@x [26] m.412 l.8327 - e-TeX sparse arrays
+@x [26.412] l.8340 - e-TeX sparse arrays
 register: if chr_code=int_val then print_esc("count")
   else if chr_code=dimen_val then print_esc("dimen")
   else if chr_code=glue_val then print_esc("skip")
@@ -1094,7 +1094,7 @@ register: if chr_code=int_val then print_esc("count")
 register: @<Cases of |register| for |print_cmd_chr|@>;
 @z
 %---------------------------------------
-@x [26] m.413 l.8343 scan_something_internal - e-TeX basic
+@x [26.413] l.8356 - scan_something_internal - e-TeX basic
 var m:halfword; {|chr_code| part of the operand token}
 @y
 label exit;
@@ -1104,13 +1104,13 @@ var m:halfword; {|chr_code| part of the operand token}
 @!i:four_quarters; {character info}
 @z
 %---------------------------------------
-@x [26] m.413 l.8369 scan_something_internal - e-TeX basic
+@x [26.413] l.8382 - scan_something_internal - e-TeX basic
 end;
 @y
 exit:end;
 @z
 %---------------------------------------
-@x [26] m.415 l.8390 - e-TeX sparse arrays
+@x [26.415] l.8403 - e-TeX sparse arrays
     begin scan_eight_bit_int; m:=toks_base+cur_val;
     end;
   scanned_result(equiv(m))(tok_val);
@@ -1128,7 +1128,7 @@ exit:end;
   cur_val_level:=tok_val;
 @z
 %---------------------------------------
-@x [26] m.416 l.8405 - e-TeX basic
+@x [26.416] l.8418 - e-TeX basic
 |glue_val|, |input_line_no_code|, or |badness_code|.
 @y
 |glue_val|, |input_line_no_code|, or |badness_code|.
@@ -1136,7 +1136,7 @@ exit:end;
 the codes for its extensions: |eTeX_version_code|, \dots\ .
 @z
 %---------------------------------------
-@x [26] m.416 l.8407 - e-TeX basic
+@x [26.416] l.8420 - e-TeX basic
 @d input_line_no_code=glue_val+1 {code for \.{\\inputlineno}}
 @d badness_code=glue_val+2 {code for \.{\\badness}}
 @y
@@ -1151,21 +1151,21 @@ the codes for its extensions: |eTeX_version_code|, \dots\ .
 @d eTeX_expr=eTeX_mu+1 {first of \eTeX\ codes for expressions}
 @z
 %---------------------------------------
-@x [26] m.417 l.8440 - e-TeX interaction_mode
+@x [26.417] l.8453 - e-TeX interaction_mode
 @+else print_esc("insertpenalties");
 @y
 @/@<Cases of |set_page_int| for |print_cmd_chr|@>@/
 @+else print_esc("insertpenalties");
 @z
 %---------------------------------------
-@x [26] m.417 l.8449 - e-TeX basic
+@x [26.417] l.8462 - e-TeX basic
   othercases print_esc("badness")
 @y
   @/@<Cases of |last_item| for |print_cmd_chr|@>@/
   othercases print_esc("badness")
 @z
 %---------------------------------------
-@x [26] m.419 l.8469 - e-TeX interaction_mode
+@x [26.419] l.8482 - e-TeX interaction_mode
 begin if m=0 then cur_val:=dead_cycles@+else cur_val:=insert_penalties;
 @y
 begin if m=0 then cur_val:=dead_cycles
@@ -1173,7 +1173,7 @@ begin if m=0 then cur_val:=dead_cycles
 else cur_val:=insert_penalties;
 @z
 %---------------------------------------
-@x [26] m.420 l.8474 - e-TeX sparse arrays
+@x [26.420] l.8487 - e-TeX sparse arrays
 begin scan_eight_bit_int;
 if box(cur_val)=null then cur_val:=0 @+else cur_val:=mem[box(cur_val)+m].sc;
 @y
@@ -1181,21 +1181,21 @@ begin scan_register_num; fetch_box(q);
 if q=null then cur_val:=0 @+else cur_val:=mem[q+m].sc;
 @z
 %---------------------------------------
-@x [26] m.423 l.8499 - e-TeX penalties
+@x [26.423] l.8512 - e-TeX penalties
 begin if par_shape_ptr=null then cur_val:=0
 @y
 begin if m>par_shape_loc then @<Fetch a penalties array element@>
 else if par_shape_ptr=null then cur_val:=0
 @z
 %---------------------------------------
-@x [26] m.424 l.8504 - e-TeX \lastnodetype
+@x [26.424] l.8517 - e-TeX \lastnodetype
 @ Here is where \.{\\lastpenalty}, \.{\\lastkern}, and \.{\\lastskip} are
 @y
 @ Here is where \.{\\lastpenalty}, \.{\\lastkern}, \.{\\lastskip}, and
 \.{\\lastnodetype} are
 @z
 %---------------------------------------
-@x [26] m.424 l.8508 - e-TeX TeXXeT
+@x [26.424] l.8521 - e-TeX TeXXeT
 legal in similar contexts.
 @y
 legal in similar contexts.
@@ -1204,7 +1204,7 @@ The macro |find_effective_tail_eTeX| sets |tx| to the last non-\.{\\endM}
 node of the current list.
 @z
 %---------------------------------------
-@x [26] m.424 l.8510 - e-TeX TeXXeT
+@x [26.424] l.8523 - e-TeX TeXXeT
 @<Fetch an item in the current node...@>=
 @y
 @d find_effective_tail_eTeX==
@@ -1222,13 +1222,13 @@ if not is_char_node(tx) then
 @<Fetch an item in the current node...@>=
 @z
 %---------------------------------------
-@x [26] m.424 l.8511 - e-TeX basic
+@x [26.424] l.8524 - e-TeX basic
 if cur_chr>glue_val then
 @y
 if m>=input_line_no_code then
 @z
 %---------------------------------------
-@x [26] m.424 l.8512 - e-TeX basic
+@x [26.424] l.8525 - e-TeX basic
   begin if cur_chr=input_line_no_code then cur_val:=line
   else cur_val:=last_badness; {|cur_chr=badness_code|}
 @y
@@ -1246,7 +1246,7 @@ if m>=input_line_no_code then
   end; {there are no other cases}
 @z
 %---------------------------------------
-@x [26] m.424 l.8517 - e-TeX last_node_type
+@x [26.424] l.8530 - e-TeX last_node_type
   cur_val_level:=cur_chr;
   if not is_char_node(tail)and(mode<>0) then
     case cur_chr of
@@ -1279,14 +1279,14 @@ if m>=input_line_no_code then
   else if (mode=vmode)and(tx=head) then
 @z
 %---------------------------------------
-@x [26] m.424 l.8531 - e-TeX last_node_type
+@x [26.424] l.8544 - e-TeX last_node_type
     glue_val: if last_glue<>max_halfword then cur_val:=last_glue;
 @y
     glue_val: if last_glue<>max_halfword then cur_val:=last_glue;
     last_node_type_code: cur_val:=last_node_type;
 @z
 %---------------------------------------
-@x [26] m.427 l.8547 - e-TeX sparse arrays
+@x [26.427] l.8560 - e-TeX sparse arrays
 begin scan_eight_bit_int;
 case m of
 @y
@@ -1308,13 +1308,13 @@ else  begin scan_register_num; cur_val_level:=m-mem_bot;
   case cur_val_level of
 @z
 %---------------------------------------
-@x [26] m.427 l.8554 - e-TeX sparse arrays
+@x [26.427] l.8567 - e-TeX sparse arrays
 cur_val_level:=m;
 @y
   end;
 @z
 %---------------------------------------
-@x [26] m.461 l.9082 - e-TeX expr
+@x [26.461] l.9095 - e-TeX expr
 exit:end;
 @y
 exit:end;
@@ -1322,21 +1322,21 @@ exit:end;
 @<Declare procedures needed for expressions@>@;
 @z
 %---------------------------------------
-@x [27] m.464 l.9141 - e-TeX basic
+@x [27.464] l.9154 - e-TeX basic
 @p function str_toks(@!b:pool_pointer):pointer;
 @y
 @p @t\4@>@<Declare \eTeX\ procedures for token lists@>@;@/
 function str_toks(@!b:pool_pointer):pointer;
 @z
 %---------------------------------------
-@x [27] m.465 l.9166 the_toks - e-TeX unexpanded
+@x [27.465] l.9179 - the_toks - e-TeX unexpanded
 @p function the_toks:pointer;
 @y
 @p function the_toks:pointer;
 label exit;
 @z
 %---------------------------------------
-@x [27] m.465 l.9170 the_toks - e-TeX unexpanded
+@x [27.465] l.9183 - the_toks - e-TeX unexpanded
 begin get_x_token; scan_something_internal(tok_val,false);
 @y
 @!c:small_number; {value of |cur_chr|}
@@ -1344,13 +1344,13 @@ begin @<Handle \.{\\unexpanded} or \.{\\detokenize} and |return|@>;@/
 get_x_token; scan_something_internal(tok_val,false);
 @z
 %---------------------------------------
-@x [27] m.465 l.9184 the_toks - e-TeX unexpanded
+@x [27.465] l.9197 - the_toks - e-TeX unexpanded
 end;
 @y
 exit:end;
 @z
 %---------------------------------------
-@x [27] m.468 l.9207 - e-TeX basic
+@x [27.468] l.9220 - e-TeX basic
 @d number_code=0 {command code for \.{\\number}}
 @y
 \eTeX\ adds \.{\\eTeXrevision} such that |job_name_code| remains last.
@@ -1358,7 +1358,7 @@ exit:end;
 @d number_code=0 {command code for \.{\\number}}
 @z
 %---------------------------------------
-@x [27] m.468 l.9212 - e-TeX basic
+@x [27.468] l.9225 - e-TeX basic
 @d job_name_code=5 {command code for \.{\\jobname}}
 @y
 @d etex_convert_base=5 {base for \eTeX's command codes}
@@ -1367,28 +1367,28 @@ exit:end;
 @d job_name_code=etex_convert_codes {command code for \.{\\jobname}}
 @z
 %---------------------------------------
-@x [27] m.469 l.9235 - e-TeX basic
+@x [27.469] l.9248 - e-TeX basic
   othercases print_esc("jobname")
 @y
   eTeX_revision_code: print_esc("eTeXrevision");
   othercases print_esc("jobname")
 @z
 %---------------------------------------
-@x [27] m.471 l.9260 - e-TeX basic
+@x [27.471] l.9273 - e-TeX basic
 job_name_code: if job_name=0 then open_log_file;
 @y
 eTeX_revision_code: do_nothing;
 job_name_code: if job_name=0 then open_log_file;
 @z
 %---------------------------------------
-@x [27] m.472 l.9276 - e-TeX basic
+@x [27.472] l.9289 - e-TeX basic
 job_name_code: print(job_name);
 @y
 eTeX_revision_code: print(eTeX_revision);
 job_name_code: print(job_name);
 @z
 %---------------------------------------
-@x [27] m.478 l.9386 - e-TeX protected
+@x [27.478] l.9400 - e-TeX protected
   if cur_cmd<=max_command then goto done2;
 @y
   if cur_cmd>=call then
@@ -1398,20 +1398,20 @@ job_name_code: print(job_name);
   if cur_cmd<=max_command then goto done2;
 @z
 %---------------------------------------
-@x [27] m.482 l.9434 read_toks - e-TeX read_line
+@x [27.482] l.9448 - read_toks - e-TeX read_line
 @p procedure read_toks(@!n:integer;@!r:pointer);
 @y
 @p procedure read_toks(@!n:integer;@!r:pointer;@!j:halfword);
 @z
 %---------------------------------------
-@x [27] m.483 l.9460 - e-TeX read_line
+@x [27.483] l.9474 - e-TeX read_line
 loop@+  begin get_token;
 @y
 @<Handle \.{\\readline} and |goto done|@>;@/
 loop@+  begin get_token;
 @z
 %---------------------------------------
-@x [28] m.487 l.9512 - e-TeX cond
+@x [28.487] l.9526 - e-TeX cond
 @d if_char_code=0 { `\.{\\if}' }
 @y
 @d unless_code=32 {amount added for `\.{\\unless}' prefix}
@@ -1419,14 +1419,14 @@ loop@+  begin get_token;
 @d if_char_code=0 { `\.{\\if}' }
 @z
 %---------------------------------------
-@x [28] m.488 l.9567 - e-TeX cond
+@x [28.488] l.9581 - e-TeX cond
 if_test: case chr_code of
 @y
 if_test: begin if chr_code>=unless_code then print_esc("unless");
 case chr_code mod unless_code of
 @z
 %---------------------------------------
-@x [28] m.488 l.9584 - e-TeX cond
+@x [28.488] l.9598 - e-TeX cond
   othercases print_esc("if")
   endcases;
 @y
@@ -1436,14 +1436,14 @@ case chr_code mod unless_code of
 end;
 @z
 %---------------------------------------
-@x [28] m.494 l.9658 pass_text - e-TeX tracing
+@x [28.494] l.9672 - pass_text - e-TeX tracing
 done: scanner_status:=save_scanner_status;
 @y
 done: scanner_status:=save_scanner_status;
 if tracing_ifs>0 then show_cur_cmd_chr;
 @z
 %---------------------------------------
-@x [28] m.496 l.9674 - e-TeX tracing_nesting
+@x [28.496] l.9688 - e-TeX tracing_nesting
 begin p:=cond_ptr; if_line:=if_line_field(p);
 @y
 begin if if_stack[in_open]=cond_ptr then if_warning;
@@ -1451,7 +1451,7 @@ begin if if_stack[in_open]=cond_ptr then if_warning;
 p:=cond_ptr; if_line:=if_line_field(p);
 @z
 %---------------------------------------
-@x [28] m.498 l.9711 conditional - e-TeX cond
+@x [28.498] l.9725 - conditional - e-TeX cond
 begin @<Push the condition stack@>;@+save_cond_ptr:=cond_ptr;this_if:=cur_chr;@/
 @<Either process \.{\\ifcase} or set |b| to the value of a boolean condition@>;
 @y
@@ -1463,34 +1463,34 @@ is_unless:=(cur_chr>=unless_code); this_if:=cur_chr mod unless_code;@/
 if is_unless then b:=not b;
 @z
 %---------------------------------------
-@x [28] m.501 l.9754 - e-TeX cond
+@x [28.501] l.9768 - e-TeX cond
 if_false_code: b:=false;
 @y
 if_false_code: b:=false;
 @/@<Cases for |conditional|@>@/
 @z
 %---------------------------------------
-@x [28] m.505 l.9793 - e-TeX sparse arrays
+@x [28.505] l.9807 - e-TeX sparse arrays
 begin scan_eight_bit_int; p:=box(cur_val);
 @y
 begin scan_register_num; fetch_box(p);
 @z
 %---------------------------------------
-@x [28] m.510 l.9883 - e-TeX cond
+@x [28.510] l.9897 - e-TeX cond
 if cur_chr>if_limit then
 @y
 begin if tracing_ifs>0 then if tracing_commands<=1 then show_cur_cmd_chr;
 if cur_chr>if_limit then
 @z
 %---------------------------------------
-@x [28] m.510 l.9894 - e-TeX cond
+@x [28.510] l.9908 - e-TeX cond
   end
 @y
   end;
 end
 @z
 %---------------------------------------
-@x [29] m.536 l.10348 - e-TeX basic
+@x [29.536] l.10362 - e-TeX basic
 print_two(sys_time div 60); print_char(":"); print_two(sys_time mod 60);
 @y
 print_two(sys_time div 60); print_char(":"); print_two(sys_time mod 60);
@@ -1499,7 +1499,7 @@ if eTeX_ex then
   end;
 @z
 %---------------------------------------
-@x [30] m.581 l.11282 char_warning - e-TeX tracing
+@x [30.581] l.11299 - char_warning - e-TeX tracing
 begin if tracing_lost_chars>0 then
 @y
 var old_setting: integer; {saved value of |tracing_online|}
@@ -1508,7 +1508,7 @@ begin if tracing_lost_chars>0 then
  if eTeX_ex and(tracing_lost_chars>1) then tracing_online:=1;
 @z
 %---------------------------------------
-@x [30] m.581 l.11289 char_warning - e-TeX tracing
+@x [30.581] l.11306 - char_warning - e-TeX tracing
 end;
 @y
  tracing_online:=old_setting;
@@ -1516,7 +1516,7 @@ end;
 end;
 @z
 %---------------------------------------
-@x [32] m.616 l.12257 - e-TeX TeXXeT
+@x [32.616] l.12274 - e-TeX TeXXeT
 this is essentially the depth of |push| commands in the \.{DVI} output.
 @y
 this is essentially the depth of |push| commands in the \.{DVI} output.
@@ -1539,7 +1539,7 @@ changes; the subtype of an an |hlist_node| inside R-text is changed to
 @!@^data structure assumptions@>
 @z
 %---------------------------------------
-@x [32] m.616 l.12259 - e-TeX TeXXeT
+@x [32.616] l.12276 - e-TeX TeXXeT
 @d synch_h==if cur_h<>dvi_h then
 @y
 @d reversed=1 {subtype for an |hlist_node| whose hlist has been reversed}
@@ -1555,14 +1555,14 @@ changes; the subtype of an an |hlist_node| inside R-text is changed to
 @d synch_h==if cur_h<>dvi_h then
 @z
 %---------------------------------------
-@x [32] m.619 l.12327 hlist_out - e-TeX TeXXeT
+@x [32.619] l.12344 - hlist_out - e-TeX TeXXeT
 @!edge:scaled; {left edge of sub-box, or right edge of leader space}
 @y
 @!edge:scaled; {right edge of sub-box or leader space}
 @!prev_p:pointer; {one step behind |p|}
 @z
 %---------------------------------------
-@x [32] m.619 l.12337 hlist_out - e-TeX TeXXeT
+@x [32.619] l.12354 - hlist_out - e-TeX TeXXeT
 save_loc:=dvi_offset+dvi_ptr; base_line:=cur_v; left_edge:=cur_h;
 @y
 save_loc:=dvi_offset+dvi_ptr; base_line:=cur_v;
@@ -1571,54 +1571,54 @@ prev_p:=this_box+list_offset;
 left_edge:=cur_h;
 @z
 %---------------------------------------
-@x [32] m.619 l.12340 hlist_out - e-TeX TeXXeT
+@x [32.619] l.12357 - hlist_out - e-TeX TeXXeT
 prune_movements(save_loc);
 @y
 @<Finish |hlist_out| for mixed direction typesetting@>;
 prune_movements(save_loc);
 @z
 %---------------------------------------
-@x [32] m.620 l.12359 - e-TeX TeXXeT
+@x [32.620] l.12376 - e-TeX TeXXeT
   p:=link(p);
 @y
   prev_p:=link(prev_p); {N.B.: not |prev_p:=p|, |p| might be |lig_trick|}
   p:=link(p);
 @z
 %---------------------------------------
-@x [32] m.622 l.12384 - e-TeX TeXXeT
+@x [32.622] l.12401 - e-TeX TeXXeT
 kern_node,math_node:cur_h:=cur_h+width(p);
 @y
 kern_node:cur_h:=cur_h+width(p);
 math_node: @<Handle a math node in |hlist_out|@>;
 @z
 %---------------------------------------
-@x [32] m.622 l.12386 - e-TeX TeXXeT
+@x [32.622] l.12403 - e-TeX TeXXeT
 othercases do_nothing
 @y
 @/@<Cases of |hlist_out| that arise in mixed direction text only@>@;
 othercases do_nothing
 @z
 %---------------------------------------
-@x [32] m.622 l.12391 - e-TeX TeXXeT
+@x [32.622] l.12408 - e-TeX TeXXeT
 next_p:p:=link(p);
 @y
 next_p:prev_p:=p; p:=link(p);
 @z
 %---------------------------------------
-@x [32] m.623 l.12398 - e-TeX TeXXeT
+@x [32.623] l.12415 - e-TeX TeXXeT
   temp_ptr:=p; edge:=cur_h;
 @y
   temp_ptr:=p; edge:=cur_h+width(p);
   if cur_dir=right_to_left then cur_h:=edge;
 @z
 %---------------------------------------
-@x [32] m.623 l.12401 - e-TeX TeXXeT
+@x [32.623] l.12418 - e-TeX TeXXeT
   cur_h:=edge+width(p); cur_v:=base_line;
 @y
   cur_h:=edge; cur_v:=base_line;
 @z
 %---------------------------------------
-@x [32] m.625 l.12419 - e-TeX TeXXeT
+@x [32.625] l.12436 - e-TeX TeXXeT
            glue_temp:=-billion
 
 @<Move right or output leaders@>=
@@ -1629,7 +1629,7 @@ begin g:=glue_ptr(p); rule_wd:=width(g)-cur_g;
 @d round_glue==g:=glue_ptr(p); rule_wd:=width(g)-cur_g;
 @z
 %---------------------------------------
-@x [32] m.625 l.12438 - e-TeX TeXXeT
+@x [32.625] l.12455 - e-TeX TeXXeT
 rule_wd:=rule_wd+cur_g;
 @y
 rule_wd:=rule_wd+cur_g
@@ -1639,14 +1639,14 @@ begin round_glue;
 if eTeX_ex then @<Handle a glue node for mixed direction typesetting@>;
 @z
 %---------------------------------------
-@x [32] m.626 l.12454 - e-TeX TeXXeT
+@x [32.626] l.12471 - e-TeX TeXXeT
   edge:=cur_h+rule_wd; lx:=0;
 @y
   if cur_dir=right_to_left then cur_h:=cur_h-10;
   edge:=cur_h+rule_wd; lx:=0;
 @z
 %---------------------------------------
-@x [32] m.626 l.12460 - e-TeX TeXXeT
+@x [32.626] l.12477 - e-TeX TeXXeT
   cur_h:=edge-10; goto next_p;
 @y
   if cur_dir=right_to_left then cur_h:=edge
@@ -1654,21 +1654,21 @@ if eTeX_ex then @<Handle a glue node for mixed direction typesetting@>;
   goto next_p;
 @z
 %---------------------------------------
-@x [32] m.628 l.12499 - e-TeX TeXXeT
+@x [32.628] l.12516 - e-TeX TeXXeT
 synch_h; save_h:=dvi_h; temp_ptr:=leader_box;
 @y
 synch_h; save_h:=dvi_h; temp_ptr:=leader_box;
 if cur_dir=right_to_left then cur_h:=cur_h+leader_wd;
 @z
 %---------------------------------------
-@x [32] m.632 l.12573 - e-TeX TeXXeT
+@x [32.632] l.12590 - e-TeX TeXXeT
   cur_h:=left_edge+shift_amount(p); {shift the box right}
 @y
   if cur_dir=right_to_left then cur_h:=left_edge-shift_amount(p)
   else cur_h:=left_edge+shift_amount(p); {shift the box right}
 @z
 %---------------------------------------
-@x [32] m.633 l.12585 - e-TeX TeXXeT
+@x [32.633] l.12602 - e-TeX TeXXeT
   begin synch_h; synch_v;
   dvi_out(put_rule); dvi_four(rule_ht); dvi_four(rule_wd);
 @y
@@ -1678,7 +1678,7 @@ if cur_dir=right_to_left then cur_h:=cur_h+leader_wd;
   cur_h:=left_edge;
 @z
 %---------------------------------------
-@x [32] m.637 l.12651 - e-TeX TeXXeT
+@x [32.637] l.12668 - e-TeX TeXXeT
 begin cur_h:=left_edge+shift_amount(leader_box); synch_h; save_h:=dvi_h;@/
 @y
 begin if cur_dir=right_to_left then
@@ -1687,28 +1687,28 @@ begin if cur_dir=right_to_left then
 synch_h; save_h:=dvi_h;@/
 @z
 %---------------------------------------
-@x [32] m.638 l.12688 ship_out - e-TeX TeXXeT
+@x [32.638] l.12705 - ship_out - e-TeX TeXXeT
 @<Ship box |p| out@>;
 @y
 @<Ship box |p| out@>;
 if eTeX_ex then @<Check for LR anomalies at the end of |ship_out|@>;
 @z
 %---------------------------------------
-@x [33] m.649 l.12909 hpack - e-TeX TeXXeT
+@x [33.649] l.12926 - hpack - e-TeX TeXXeT
 h:=0; @<Clear dimensions to zero@>;
 @y
 h:=0; @<Clear dimensions to zero@>;
 if TeXXeT_en then @<Initialize the LR stack@>;
 @z
 %---------------------------------------
-@x [33] m.649 l.12919 hpack - e-TeX TeXXeT
+@x [33.649] l.12936 - hpack - e-TeX TeXXeT
 exit: hpack:=r;
 @y
 exit: if TeXXeT_en then @<Check for LR anomalies at the end of |hpack|@>;
 hpack:=r;
 @z
 %---------------------------------------
-@x [33] m.651 l.12943 - e-TeX TeXXeT
+@x [33.651] l.12960 - e-TeX TeXXeT
   kern_node,math_node: x:=x+width(p);
 @y
   kern_node: x:=x+width(p);
@@ -1717,21 +1717,21 @@ hpack:=r;
     end;
 @z
 %---------------------------------------
-@x [34] m.687 l.13514 - e-TeX middle
+@x [34.687] l.13531 - e-TeX middle
 \TeX's \.{\\left} and \.{\\right}. The |nucleus| of such noads is
 @y
 \TeX's \.{\\left} and \.{\\right} as well as \eTeX's \.{\\middle}.
 The |nucleus| of such noads is
 @z
 %---------------------------------------
-@x [34] m.687 l.13531 - e-TeX middle
+@x [34.687] l.13548 - e-TeX middle
 @d delimiter==nucleus {|delimiter| field in left and right noads}
 @y
 @d delimiter==nucleus {|delimiter| field in left and right noads}
 @d middle_noad==1 {|subtype| of right noad representing \.{\\middle}}
 @z
 %---------------------------------------
-@x [34] m.696 l.13704 - e-TeX middle
+@x [34.696] l.13721 - e-TeX middle
 right_noad: begin print_esc("right"); print_delimiter(delimiter(p));
   end;
 end;
@@ -1753,7 +1753,7 @@ if type(p)<left_noad then
   end;
 @z
 %---------------------------------------
-@x [36] m.727 l.14302 - e-TeX middle
+@x [36.727] l.14319 - e-TeX middle
 done_with_noad: r:=q; r_type:=type(r);
 @y
 done_with_noad: r:=q; r_type:=type(r);
@@ -1762,21 +1762,21 @@ if r_type=right_noad then
   end;
 @z
 %---------------------------------------
-@x [36] m.760 l.14963 - e-TeX middle
+@x [36.760] l.14980 - e-TeX middle
   r_type:=t;
 @y
   if type(q)=right_noad then t:=open_noad;
   r_type:=t;
 @z
 %---------------------------------------
-@x [36] m.762 l.15004 make_left_right - e-TeX middle
+@x [36.762] l.15020 - make_left_right - e-TeX middle
 begin if style<script_style then cur_size:=text_size
 else cur_size:=16*((style-text_style) div 2);
 @y
 begin cur_style:=style; @<Set up the values...@>;
 @z
 %---------------------------------------
-@x [37] m.785 l.15495 align_peek - e-TeX protected
+@x [37.785] l.15512 - align_peek - e-TeX protected
 begin restart: align_state:=1000000; @<Get the next non-blank non-call token@>;
 @y
 begin restart: align_state:=1000000;
@@ -1784,7 +1784,7 @@ repeat get_x_or_protected;
 until cur_cmd<>spacer;
 @z
 %---------------------------------------
-@x [37] m.791 l.15606 fin_col - e-TeX protected
+@x [37.791] l.15623 - fin_col - e-TeX protected
 align_state:=1000000; @<Get the next non-blank non-call token@>;
 @y
 align_state:=1000000;
@@ -1792,21 +1792,21 @@ repeat get_x_or_protected;
 until cur_cmd<>spacer;
 @z
 %---------------------------------------
-@x [37] m.807 l.15868 - e-TeX TeXXeT
+@x [37.807] l.15886 - e-TeX TeXXeT
   begin type(q):=hlist_node; width(q):=width(p);
 @y
   begin type(q):=hlist_node; width(q):=width(p);
   if nest[nest_ptr-1].mode_field=mmode then set_box_lr(q)(dlist); {for |ship_out|}
 @z
 %---------------------------------------
-@x [37] m.808 l.15886 - e-TeX TeXXeT
+@x [37.808] l.15904 - e-TeX TeXXeT
 n:=span_count(r); t:=width(s); w:=t; u:=hold_head;
 @y
 n:=span_count(r); t:=width(s); w:=t; u:=hold_head;
 set_box_lr(r)(0); {for |ship_out|}
 @z
 %---------------------------------------
-@x [38] m.814 l.16009 - e-TeX penalties
+@x [38.814] l.16027 - e-TeX penalties
 There is one explicit parameter:  |final_widow_penalty| is the amount of
 additional penalty to be inserted before the final line of the paragraph.
 @y
@@ -1816,13 +1816,13 @@ penalty inserted before the final line is |display_widow_penalty|
 instead of |widow_penalty|.
 @z
 %---------------------------------------
-@x [38] m.815 l.16036 line_break - e-TeX penalties
+@x [38.815] l.16054 - line_break - e-TeX penalties
 procedure line_break(@!final_widow_penalty:integer);
 @y
 procedure line_break(@!d:boolean);
 @z
 %---------------------------------------
-@x [38] m.815 l.16046 - e-TeX basic
+@x [38.815] l.16064 - e-TeX basic
 end;
 @y
 end;
@@ -1830,33 +1830,33 @@ end;
 @t\4@>@<Declare \eTeX\ procedures for use by |main_control|@>
 @z
 %---------------------------------------
-@x [38] m.816 l.16066 - e-TeX last_line_fit
+@x [38.816] l.16084 - e-TeX last_line_fit
 link(tail):=new_param_glue(par_fill_skip_code);
 @y
 link(tail):=new_param_glue(par_fill_skip_code);
 last_line_fill:=link(tail);
 @z
 %---------------------------------------
-@x [38] m.819 l.16131 - e-TeX last_line_fit
+@x [38.819] l.16149 - e-TeX last_line_fit
 @d active_node_size=3 {number of words in active nodes}
 @y
 @d active_node_size_normal=3 {number of words in normal active nodes}
 @z
 %---------------------------------------
-@x [38] m.827 l.16294 - e-TeX last_line_fit
+@x [38.827] l.16314 - e-TeX last_line_fit
 background[6]:=shrink(q)+shrink(r);
 @y
 background[6]:=shrink(q)+shrink(r);
 @<Check for special treatment of last line of paragraph@>;
 @z
 %---------------------------------------
-@x [38] m.829 l.16345 try_break - e-TeX last_line_fit
+@x [38.829] l.16365 - try_break - e-TeX last_line_fit
 label exit,done,done1,continue,deactivate;
 @y
 label exit,done,done1,continue,deactivate,found,not_found;
 @z
 %---------------------------------------
-@x [38] m.845 l.16637 - e-TeX last_line_fit
+@x [38.845] l.16657 - e-TeX last_line_fit
 total_demerits(q):=minimal_demerits[fit_class];
 @y
 total_demerits(q):=minimal_demerits[fit_class];
@@ -1864,14 +1864,14 @@ if do_last_line_fit then
   @<Store \(a)additional data in the new active node@>;
 @z
 %---------------------------------------
-@x [38] m.846 l.16650 - e-TeX last_line_fit
+@x [38.846] l.16670 - e-TeX last_line_fit
 print(" t="); print_int(total_demerits(q));
 @y
 print(" t="); print_int(total_demerits(q));
 if do_last_line_fit then @<Print additional data in the new active node@>;
 @z
 %---------------------------------------
-@x [38] m.851 l.16749 - e-TeX last_line_fit
+@x [38.851] l.16769 - e-TeX last_line_fit
 if (b>inf_bad)or(pi=eject_penalty) then
 @y
 if do_last_line_fit then @<Adjust \(t)the additional data for last line@>;
@@ -1879,7 +1879,7 @@ found:
 if (b>inf_bad)or(pi=eject_penalty) then
 @z
 %---------------------------------------
-@x [38] m.852 l.16773 - e-TeX last_line_fit
+@x [38.852] l.16793 - e-TeX last_line_fit
   begin b:=0; fit_class:=decent_fit; {infinite stretch}
 @y
   begin if do_last_line_fit then
@@ -1890,7 +1890,7 @@ if (b>inf_bad)or(pi=eject_penalty) then
   b:=0; fit_class:=decent_fit; {infinite stretch}
 @z
 %---------------------------------------
-@x [38] m.855 l.16830 - e-TeX last_line_fit
+@x [38.855] l.16850 - e-TeX last_line_fit
   best_place[fit_class]:=break_node(r); best_pl_line[fit_class]:=l;
 @y
   best_place[fit_class]:=break_node(r); best_pl_line[fit_class]:=l;
@@ -1898,14 +1898,14 @@ if (b>inf_bad)or(pi=eject_penalty) then
     @<Store \(a)additional data for this feasible break@>;
 @z
 %---------------------------------------
-@x [39] m.863 l.17003 - e-TeX last_line_fit
+@x [39.863] l.17023 - e-TeX last_line_fit
   end;@+tats@/
 @y
   end;@+tats@/
 if do_last_line_fit then @<Adjust \(t)the final line of the paragraph@>;
 @z
 %---------------------------------------
-@x [39] m.864 l.17014 - e-TeX last_line_fit
+@x [39.864] l.17034 - e-TeX last_line_fit
 line_number(q):=prev_graf+1; total_demerits(q):=0; link(active):=q;
 @y
 line_number(q):=prev_graf+1; total_demerits(q):=0; link(active):=q;
@@ -1913,26 +1913,26 @@ if do_last_line_fit then
   @<Initialize additional fields of the first active node@>;
 @z
 %---------------------------------------
-@x [39] m.866 l.17064 - e-TeX TeXXeT
+@x [39.866] l.17084 - e-TeX TeXXeT
 math_node: begin auto_breaking:=(subtype(cur_p)=after); kern_break;
 @y
 math_node: begin if subtype(cur_p)<L_code then auto_breaking:=odd(subtype(cur_p));
   kern_break;
 @z
 %---------------------------------------
-@x [39] m.876 l.17226 - e-TeX penalties
+@x [39.876] l.17246 - e-TeX penalties
 post_line_break(final_widow_penalty)
 @y
 post_line_break(d)
 @z
 %---------------------------------------
-@x [39] m.877 l.17240 post_line_break - e-TeX penalties
+@x [39.877] l.17260 - post_line_break - e-TeX penalties
 procedure post_line_break(@!final_widow_penalty:integer);
 @y
 procedure post_line_break(@!d:boolean);
 @z
 %---------------------------------------
-@x [39] m.877 l.17250 post_line_break - e-TeX TeXXeT
+@x [39.877] l.17270 - post_line_break - e-TeX TeXXeT
 begin @<Reverse the links of the relevant passive nodes, setting |cur_p| to the
 @y
 @!LR_ptr:pointer; {stack of LR codes}
@@ -1940,14 +1940,14 @@ begin LR_ptr:=LR_save;
 @<Reverse the links of the relevant passive nodes, setting |cur_p| to the
 @z
 %---------------------------------------
-@x [39] m.877 l.17263 post_line_break - e-TeX TeXXeT
+@x [39.877] l.17283 - post_line_break - e-TeX TeXXeT
 prev_graf:=best_line-1;
 @y
 prev_graf:=best_line-1;
 LR_save:=LR_ptr;
 @z
 %---------------------------------------
-@x [39] m.879 l.17293 - e-TeX TeXXeT
+@x [39.879] l.17313 - e-TeX TeXXeT
   r:=q; {now |type(q)=glue_node|, |kern_node|, |math_node|, or |penalty_node|}
 @y
   r:=q; {now |type(q)=glue_node|, |kern_node|, |math_node|, or |penalty_node|}
@@ -1955,7 +1955,7 @@ LR_save:=LR_ptr;
     @<Adjust \(t)the LR stack for the |post_line_break| routine@>;
 @z
 %---------------------------------------
-@x [39] m.880 l.17310 - e-TeX TeXXeT
+@x [39.880] l.17330 - e-TeX TeXXeT
 @<Modify the end of the line to reflect the nature of the break and to include
   \.{\\rightskip}; also set the proper value of |disc_break|@>;
 @y
@@ -1967,7 +1967,7 @@ if TeXXeT_en then
 if TeXXeT_en then @<Insert LR nodes at the end of the current line@>;
 @z
 %---------------------------------------
-@x [39] m.881 l.17333 - e-TeX TeXXeT
+@x [39.881] l.17353 - e-TeX TeXXeT
     else if (type(q)=math_node)or(type(q)=kern_node) then width(q):=0;
 @y
     else if type(q)=kern_node then width(q):=0
@@ -1977,7 +1977,7 @@ if TeXXeT_en then @<Insert LR nodes at the end of the current line@>;
       end;
 @z
 %---------------------------------------
-@x [39] m.890 l.17427 - e-TeX penalties
+@x [39.890] l.17447 - e-TeX penalties
   begin pen:=inter_line_penalty;
   if cur_line=prev_graf+1 then pen:=pen+club_penalty;
   if cur_line+2=best_line then pen:=pen+final_widow_penalty;
@@ -2008,28 +2008,28 @@ if TeXXeT_en then @<Insert LR nodes at the end of the current line@>;
     else pen:=pen+widow_penalty;
 @z
 %---------------------------------------
-@x [40] m.891 l.17455 - e-TeX TeXXeT
+@x [40.891] l.17475 - e-TeX TeXXeT
 implicit kern nodes, and $p_m$ is a glue or penalty or insertion or adjust
 @y
 implicit kern or text direction nodes, and $p_m$ is a glue or penalty or
 insertion or adjust
 @z
 %---------------------------------------
-@x [40] m.891 l.17494 - e-TeX hyph_codes
+@x [40.891] l.17514 - e-TeX hyph_codes
 cur_lang:=init_cur_lang; l_hyf:=init_l_hyf; r_hyf:=init_r_hyf;
 @y
 cur_lang:=init_cur_lang; l_hyf:=init_l_hyf; r_hyf:=init_r_hyf;
 set_hyph_index;
 @z
 %---------------------------------------
-@x [40] m.896 l.17557 - e-TeX TeXXeT
+@x [40.896] l.17578 - e-TeX TeXXeT
   else if (type(s)=kern_node)and(subtype(s)=normal) then goto continue
 @y
   else if (type(s)=kern_node)and(subtype(s)=normal) then goto continue
   else if (type(s)=math_node)and(subtype(s)>=L_code) then goto continue
 @z
 %---------------------------------------
-@x [40] m.896 l.17563 - e-TeX hyph_codes
+@x [40.896] l.17584 - e-TeX hyph_codes
   if lc_code(c)<>0 then
     if (lc_code(c)=c)or(uc_hyph>0) then goto done2
 @y
@@ -2038,7 +2038,7 @@ set_hyph_index;
     if (hc[0]=c)or(uc_hyph>0) then goto done2
 @z
 %---------------------------------------
-@x [40] m.897 l.17580 - e-TeX hyph_codes
+@x [40.897] l.17601 - e-TeX hyph_codes
     if lc_code(c)=0 then goto done3;
     if hn=63 then goto done3;
     hb:=s; incr(hn); hu[hn]:=c; hc[hn]:=lc_code(c); hyf_bchar:=non_char;
@@ -2049,7 +2049,7 @@ set_hyph_index;
     hb:=s; incr(hn); hu[hn]:=c; hc[hn]:=hc[0]; hyf_bchar:=non_char;
 @z
 %---------------------------------------
-@x [40] m.898 l.17606 - e-TeX hyph_codes
+@x [40.898] l.17627 - e-TeX hyph_codes
   if lc_code(c)=0 then goto done3;
   if j=63 then goto done3;
   incr(j); hu[j]:=c; hc[j]:=lc_code(c);@/
@@ -2060,20 +2060,20 @@ set_hyph_index;
   incr(j); hu[j]:=c; hc[j]:=hc[0];@/
 @z
 %---------------------------------------
-@x [40] m.899 l.17623 - e-TeX TeXXeT
+@x [40.899] l.17644 - e-TeX TeXXeT
     othercases goto done1
 @y
     math_node: if subtype(s)>=L_code then goto done4@+else goto done1;
     othercases goto done1
 @z
 %---------------------------------------
-@x [42] m.934 l.18245 new_hyph_exceptions - e-TeX hyph_codes
+@x [42.934] l.18266 - new_hyph_exceptions - e-TeX hyph_codes
 label reswitch, exit, found, not_found;
 @y
 label reswitch, exit, found, not_found, not_found1;
 @z
 %---------------------------------------
-@x [42] m.934 l.18255 new_hyph_exceptions - e-TeX hyph_codes
+@x [42.934] l.18276 - new_hyph_exceptions - e-TeX hyph_codes
 set_cur_lang;
 @y
 set_cur_lang;
@@ -2085,40 +2085,40 @@ set_hyph_index;
 not_found1:
 @z
 %---------------------------------------
-@x [42] m.937 l.18287 - e-TeX hyph_codes
+@x [42.937] l.18308 - e-TeX hyph_codes
 else  begin if lc_code(cur_chr)=0 then
 @y
 else  begin set_lc_code(cur_chr);
   if hc[0]=0 then
 @z
 %---------------------------------------
-@x [42] m.937 l.18295 - e-TeX hyph_codes
+@x [42.937] l.18316 - e-TeX hyph_codes
     begin incr(n); hc[n]:=lc_code(cur_chr);
 @y
     begin incr(n); hc[n]:=hc[0];
 @z
 %---------------------------------------
-@x [43] m.952 l.18583 - e-TeX hyph_codes
+@x [43.952] l.18604 - e-TeX hyph_codes
 trie_root:=compress_trie(trie_root); {identify equivalent subtries}
 @y
 hyph_root:=compress_trie(hyph_root);
 trie_root:=compress_trie(trie_root); {identify equivalent subtries}
 @z
 %---------------------------------------
-@x [43] m.958 l.18671 - e-TeX hyph_codes
+@x [43.958] l.18692 - e-TeX hyph_codes
 if trie_root=0 then {no patterns were given}
 @y
 if trie_max=0 then {no patterns were given}
 @z
 %---------------------------------------
-@x [43] m.958 l.18675 - e-TeX hyph_codes
+@x [43.958] l.18696 - e-TeX hyph_codes
 else begin trie_fix(trie_root); {this fixes the non-holes in |trie|}
 @y
 else begin if hyph_root>0 then trie_fix(hyph_root);
   if trie_root>0 then trie_fix(trie_root); {this fixes the non-holes in |trie|}
 @z
 %---------------------------------------
-@x [43] m.960 l.18718 new_patterns - e-TeX hyph_codes
+@x [43.960] l.18739 - new_patterns - e-TeX hyph_codes
   brace@>;
 @y
   brace@>;
@@ -2126,14 +2126,14 @@ else begin if hyph_root>0 then trie_fix(hyph_root);
     @<Store hyphenation codes for current language@>;
 @z
 %---------------------------------------
-@x [43] m.966 l.18825 init_trie - e-TeX hyph_codes
+@x [43.966] l.18846 - init_trie - e-TeX hyph_codes
 @<Move the data into |trie|@>;
 @y
 if hyph_root<>0 then @<Pack all stored |hyph_codes|@>;
 @<Move the data into |trie|@>;
 @z
 %---------------------------------------
-@x [44] m.968 l.18841 - e-TeX saved_items
+@x [44.968] l.18862 - e-TeX saved_items
 whenever this is possible without backspacing.
 @y
 whenever this is possible without backspacing.
@@ -2142,7 +2142,7 @@ When the second argument |s| is |false| the deleted nodes are destroyed,
 otherwise they are collected in a list starting at |split_disc|.
 @z
 %---------------------------------------
-@x [44] m.968 l.18848 prune_page_top - e-TeX saved_items
+@x [44.968] l.18869 - prune_page_top - e-TeX saved_items
 @p function prune_page_top(@!p:pointer):pointer; {adjust top after page break}
 var prev_p:pointer; {lags one step behind |p|}
 @!q:pointer; {temporary variable for list manipulation}
@@ -2153,7 +2153,7 @@ var prev_p:pointer; {lags one step behind |p|}
 @!q,@!r:pointer; {temporary variables for list manipulation}
 @z
 %---------------------------------------
-@x [44] m.968 l.18859 prune_page_top - e-TeX saved_items
+@x [44.968] l.18880 - prune_page_top - e-TeX saved_items
     link(prev_p):=p; flush_node_list(q);
 @y
     link(prev_p):=p;
@@ -2164,20 +2164,20 @@ var prev_p:pointer; {lags one step behind |p|}
     else flush_node_list(q);
 @z
 %---------------------------------------
-@x [44] m.977 l.19026 vsplit - e-TeX marks, sparse arrays
+@x [44.977] l.19047 - vsplit - e-TeX marks, sparse arrays
 @p function vsplit(@!n:eight_bits; @!h:scaled):pointer;
 @y
 @p @t\4@>@<Declare the function called |do_marks|@>@;
 function vsplit(@!n:halfword; @!h:scaled):pointer;
 @z
 %---------------------------------------
-@x [44] m.977 l.19032 vsplit - e-TeX sparse arrays
+@x [44.977] l.19053 - vsplit - e-TeX sparse arrays
 begin v:=box(n);
 @y
 begin cur_val:=n; fetch_box(v);
 @z
 %---------------------------------------
-@x [44] m.977 l.19033 vsplit - e-TeX marks, saved_items
+@x [44.977] l.19054 - vsplit - e-TeX marks, saved_items
 if split_first_mark<>null then
 @y
 flush_node_list(split_disc); split_disc:=null;
@@ -2186,14 +2186,14 @@ if sa_mark<>null then
 if split_first_mark<>null then
 @z
 %---------------------------------------
-@x [44] m.977 l.19041 vsplit - e-TeX saved_items
+@x [44.977] l.19062 - vsplit - e-TeX saved_items
 q:=prune_page_top(q); p:=list_ptr(v); free_node(v,box_node_size);
 @y
 q:=prune_page_top(q,saving_vdiscards>0);
 p:=list_ptr(v); free_node(v,box_node_size);
 @z
 %---------------------------------------
-@x [44] m.977 l.19042 vsplit - e-TeX sparse arrays
+@x [44.977] l.19063 - vsplit - e-TeX sparse arrays
 if q=null then box(n):=null {the |eq_level| of the box stays the same}
 else box(n):=vpack(q,natural);
 @y
@@ -2201,42 +2201,42 @@ if q<>null then q:=vpack(q,natural);
 change_box(q); {the |eq_level| of the box stays the same}
 @z
 %---------------------------------------
-@x [44] m.979 l.19067 - e-TeX marks
+@x [44.979] l.19088 - e-TeX marks
     if split_first_mark=null then
 @y
     if mark_class(p)<>0 then @<Update the current marks for |vsplit|@>
     else if split_first_mark=null then
 @z
 %---------------------------------------
-@x [45] m.982 l.19201 - e-TeX last_node_type
+@x [45.982] l.19222 - e-TeX last_node_type
 The variables |last_penalty| and |last_kern| are similar.  And
 @y
 The variables |last_penalty|, |last_kern|, and |last_node_type|
 are similar.  And
 @z
 %---------------------------------------
-@x [45] m.982 l.19214 - e-TeX last_node_type
+@x [45.982] l.19235 - e-TeX last_node_type
 @!last_kern:scaled; {used to implement \.{\\lastkern}}
 @y
 @!last_kern:scaled; {used to implement \.{\\lastkern}}
 @!last_node_type:integer; {used to implement \.{\\lastnodetype}}
 @z
 %---------------------------------------
-@x [45] m.991 l.19353 - e-TeX last_node_type
+@x [45.991] l.19375 - e-TeX last_node_type
 last_glue:=max_halfword; last_penalty:=0; last_kern:=0;
 @y
 last_glue:=max_halfword; last_penalty:=0; last_kern:=0;
 last_node_type:=-1;
 @z
 %---------------------------------------
-@x [45] m.996 l.19420 - e-TeX last_node_type
+@x [45.996] l.19442 - e-TeX last_node_type
 last_penalty:=0; last_kern:=0;
 @y
 last_penalty:=0; last_kern:=0;
 last_node_type:=type(p)+1;
 @z
 %---------------------------------------
-@x [45] m.999 l.19454 - e-TeX saved_items
+@x [45.999] l.19479 - e-TeX saved_items
 link(contrib_head):=link(p); link(p):=null; flush_node_list(p)
 @y
 link(contrib_head):=link(p); link(p):=null;
@@ -2247,7 +2247,7 @@ if saving_vdiscards>0 then
 else flush_node_list(p)
 @z
 %---------------------------------------
-@x [45] m.1012 l.19697 fire_up - e-TeX marks
+@x [45.1012] l.19719 - fire_up - e-TeX marks
 if bot_mark<>null then
 @y
 if sa_mark<>null then
@@ -2255,7 +2255,7 @@ if sa_mark<>null then
 if bot_mark<>null then
 @z
 %---------------------------------------
-@x [45] m.1012 l.19705 fire_up - e-TeX marks
+@x [45.1012] l.19727 - fire_up - e-TeX marks
 if (top_mark<>null)and(first_mark=null) then
 @y
 if sa_mark<>null then
@@ -2263,7 +2263,7 @@ if sa_mark<>null then
 if (top_mark<>null)and(first_mark=null) then
 @z
 %---------------------------------------
-@x [45] m.1014 l.19742 - e-TeX marks
+@x [45.1014] l.19764 - e-TeX marks
   else if type(p)=mark_node then @<Update the values of
 @y
   else if type(p)=mark_node then
@@ -2271,27 +2271,27 @@ if (top_mark<>null)and(first_mark=null) then
     else @<Update the values of
 @z
 %---------------------------------------
-@x [45] m.1021 l.19854 - e-TeX saved_items
+@x [45.1021] l.19876 - e-TeX saved_items
     ins_ptr(p):=prune_page_top(broken_ptr(r));
 @y
     ins_ptr(p):=prune_page_top(broken_ptr(r),false);
 @z
 %---------------------------------------
-@x [45] m.1023 l.19890 - e-TeX saved_items
+@x [45.1023] l.19912 - e-TeX saved_items
 ship_out(box(255)); box(255):=null;
 @y
 flush_node_list(page_disc); page_disc:=null;
 ship_out(box(255)); box(255):=null;
 @z
 %---------------------------------------
-@x [45] m.1026 l.19932 - e-TeX saved_items
+@x [45.1026] l.19954 - e-TeX saved_items
 pop_nest; build_page;
 @y
 flush_node_list(page_disc); page_disc:=null;
 pop_nest; build_page;
 @z
 %---------------------------------------
-@x [47] m.1070 l.20735 normal_paragraph - e-TeX penalties
+@x [47.1070] l.20760 - normal_paragraph - e-TeX penalties
 if par_shape_ptr<>null then eq_define(par_shape_loc,shape_ref,null);
 @y
 if par_shape_ptr<>null then eq_define(par_shape_loc,shape_ref,null);
@@ -2299,7 +2299,7 @@ if inter_line_penalties_ptr<>null then
   eq_define(inter_line_penalties_loc,shape_ref,null);
 @z
 %---------------------------------------
-@x [47] m.1071 l.20756 - e-TeX sparse arrays
+@x [47.1071] l.20781 - e-TeX sparse arrays
 |box_flag+255| represent `\.{\\setbox0}' through `\.{\\setbox255}';
 codes |box_flag+256| through |box_flag+511| represent `\.{\\global\\setbox0}'
 through `\.{\\global\\setbox255}';
@@ -2313,7 +2313,7 @@ code |ship_out_flag| represents `\.{\\shipout}'; and codes |leader_flag|
 through |leader_flag+2| represent `\.{\\leaders}', `\.{\\cleaders}',
 @z
 %---------------------------------------
-@x [47] m.1071 l.20770 - e-TeX sparse arrays
+@x [47.1071] l.20795 - e-TeX sparse arrays
 @d ship_out_flag==box_flag+512 {context code for `\.{\\shipout}'}
 @d leader_flag==box_flag+513 {context code for `\.{\\leaders}'}
 @y
@@ -2322,14 +2322,14 @@ through |leader_flag+2| represent `\.{\\leaders}', `\.{\\cleaders}',
 @d leader_flag==@'10000200001  {context code for `\.{\\leaders}'}
 @z
 %---------------------------------------
-@x [47] m.1075 l.20853 box_end - e-TeX sparse arrays
+@x [47.1075] l.20878 - box_end - e-TeX sparse arrays
 var p:pointer; {|ord_noad| for new box in math mode}
 @y
 var p:pointer; {|ord_noad| for new box in math mode}
 @!a:small_number; {global prefix}
 @z
 %---------------------------------------
-@x [47] m.1077 l.20891 - e-TeX sparse arrays
+@x [47.1077] l.20916 - e-TeX sparse arrays
 if box_context<box_flag+256 then
   eq_define(box_base-box_flag+box_context,box_ref,cur_box)
 else geq_define(box_base-box_flag-256+box_context,box_ref,cur_box)
@@ -2344,7 +2344,7 @@ else sa_def_box;
 end
 @z
 %---------------------------------------
-@x [47] m.1079 l.20920 begin_box - e-TeX TeXXeT
+@x [47.1079] l.20945 - begin_box - e-TeX TeXXeT
 @!m:quarterword; {the length of a replacement list}
 @y
 @!r:pointer; {running behind |p|}
@@ -2353,7 +2353,7 @@ end
 @!m:quarterword; {the length of a replacement list}
 @z
 %---------------------------------------
-@x [47] m.1079 l.20922 begin_box - e-TeX sparse arrays
+@x [47.1079] l.20947 - begin_box - e-TeX sparse arrays
 @!n:eight_bits; {a box number}
 begin case cur_chr of
 box_code: begin scan_eight_bit_int; cur_box:=box(cur_val);
@@ -2369,7 +2369,7 @@ box_code: begin scan_register_num; fetch_box(cur_box);
 copy_code: begin scan_register_num; fetch_box(q); cur_box:=copy_node_list(q);
 @z
 %---------------------------------------
-@x [47] m.1080 l.20940 - e-TeX TeXXeT
+@x [47.1080] l.20965 - e-TeX TeXXeT
 @<If the current list ends with a box node, delete it...@>=
 @y
 @d fetch_effective_tail_eTeX(#)== {extract |tx|,
@@ -2397,7 +2397,7 @@ else if fm then {|r|$\to$|p=begin_M|$\to$|q=end_M|}
 @<If the current list ends with a box node, delete it...@>=
 @z
 %---------------------------------------
-@x [47] m.1080 l.20950 - e-TeX TeXXeT
+@x [47.1080] l.20975 - e-TeX TeXXeT
 else  begin if not is_char_node(tail) then
     if (type(tail)=hlist_node)or(type(tail)=vlist_node) then
       @<Remove the last box, unless it's part of a discretionary@>;
@@ -2410,7 +2410,7 @@ else  begin check_effective_tail(goto done);
   done:end;
 @z
 %---------------------------------------
-@x [47] m.1081 l.20957 - e-TeX TeXXeT
+@x [47.1081] l.20982 - e-TeX TeXXeT
 begin q:=head;
 repeat p:=q;
 if not is_char_node(q) then if type(q)=disc_node then
@@ -2428,13 +2428,13 @@ cur_box:=tx; shift_amount(cur_box):=0;
 end
 @z
 %---------------------------------------
-@x [47] m.1082 l.20972 - e-TeX sparse arrays
+@x [47.1082] l.20997 - e-TeX sparse arrays
 begin scan_eight_bit_int; n:=cur_val;
 @y
 begin scan_register_num; n:=cur_val;
 @z
 %---------------------------------------
-@x [47] m.1096 l.21156 - e-TeX penalties, TeXXeT
+@x [47.1096] l.21181 - e-TeX penalties, TeXXeT
   else line_break(widow_penalty);
 @y
   else line_break(false);
@@ -2443,7 +2443,7 @@ begin scan_register_num; n:=cur_val;
     end;
 @z
 %---------------------------------------
-@x [47] m.1101 l.21212 make_mark - e-TeX marks
+@x [47.1101] l.21237 - make_mark - e-TeX marks
 begin p:=scan_toks(false,true); p:=get_node(small_node_size);
 @y
 @!c:halfword; {the mark class}
@@ -2454,7 +2454,7 @@ p:=scan_toks(false,true); p:=get_node(small_node_size);
 mark_class(p):=c;
 @z
 %---------------------------------------
-@x [47] m.1105 l.21246 delete_last - e-TeX TeXXeT
+@x [47.1105] l.21271 - delete_last - e-TeX TeXXeT
 @!m:quarterword; {the length of a replacement list}
 @y
 @!r:pointer; {running behind |p|}
@@ -2463,7 +2463,7 @@ mark_class(p):=c;
 @!m:quarterword; {the length of a replacement list}
 @z
 %---------------------------------------
-@x [47] m.1105 l.21250 delete_last - e-TeX TeXXeT
+@x [47.1105] l.21275 - delete_last - e-TeX TeXXeT
 else  begin if not is_char_node(tail) then if type(tail)=cur_chr then
     begin q:=head;
     repeat p:=q;
@@ -2481,47 +2481,47 @@ else  begin check_effective_tail(return);
     flush_node_list(tx);
 @z
 %---------------------------------------
-@x [47] m.1108 l.21299 - e-TeX saved_items
+@x [47.1108] l.21324 - e-TeX saved_items
 un_vbox: if chr_code=copy_code then print_esc("unvcopy")
 @y
 un_vbox: if chr_code=copy_code then print_esc("unvcopy")
   @<Cases of |un_vbox| for |print_cmd_chr|@>@/
 @z
 %---------------------------------------
-@x [47] m.1110 l.21309 unpackage - e-TeX saved_items
+@x [47.1110] l.21334 - unpackage - e-TeX saved_items
 label exit;
 @y
 label done, exit;
 @z
 %---------------------------------------
-@x [47] m.1110 l.21312 unpackage - e-TeX saved_items, sparse arrays
+@x [47.1110] l.21337 - unpackage - e-TeX saved_items, sparse arrays
 begin c:=cur_chr; scan_eight_bit_int; p:=box(cur_val);
 @y
 begin if cur_chr>copy_code then @<Handle saved items and |goto done|@>;
 c:=cur_chr; scan_register_num; fetch_box(p);
 @z
 %---------------------------------------
-@x [47] m.1110 l.21324 unpackage - e-TeX sparse arrays
+@x [47.1110] l.21349 - unpackage - e-TeX sparse arrays
 else  begin link(tail):=list_ptr(p); box(cur_val):=null;
 @y
 else  begin link(tail):=list_ptr(p); change_box(null);
 @z
 %---------------------------------------
-@x [47] m.1110 l.21327 unpackage - e-TeX saved_items
+@x [47.1110] l.21352 - unpackage - e-TeX saved_items
 while link(tail)<>null do tail:=link(tail);
 @y
 done:
 while link(tail)<>null do tail:=link(tail);
 @z
 %---------------------------------------
-@x [47] m.1130 l.21599 - e-TeX TeXXeT
+@x [47.1130] l.21624 - e-TeX TeXXeT
 vmode+halign,hmode+valign:init_align;
 @y
 vmode+halign:init_align;
 hmode+valign:@<Cases of |main_control| for |hmode+valign|@>@; init_align;
 @z
 %---------------------------------------
-@x [48] m.1138 l.21678 init_math - e-TeX TeXXeT
+@x [48.1138] l.21703 - init_math - e-TeX TeXXeT
 procedure init_math;
 label reswitch,found,not_found,done;
 var w:scaled; {new or partial |pre_display_size|}
@@ -2534,7 +2534,7 @@ var w:scaled; {new or partial |pre_display_size|}
 @!x:integer; {new |pre_display_direction|}
 @z
 %---------------------------------------
-@x [48] m.1145 l.21736 - e-TeX TeXXeT, penalties
+@x [48.1145] l.21761 - e-TeX TeXXeT, penalties
 begin if head=tail then {`\.{\\noindent\$\$}' or `\.{\$\${ }\$\$}'}
   begin pop_nest; w:=-max_dimen;
   end
@@ -2546,7 +2546,7 @@ if head=tail then {`\.{\\noindent\$\$}' or `\.{\$\${ }\$\$}'}
 else  begin line_break(true);@/
 @z
 %---------------------------------------
-@x [48] m.1145 l.21749 - e-TeX TeXXeT
+@x [48.1145] l.21774 - e-TeX TeXXeT
 eq_word_define(dimen_base+pre_display_size_code,w);
 @y
 eq_word_define(dimen_base+pre_display_size_code,w);
@@ -2554,28 +2554,28 @@ LR_box:=j;
 if eTeX_ex then eq_word_define(int_base+pre_display_direction_code,x);
 @z
 %---------------------------------------
-@x [48] m.1146 l.21757 - e-TeX TeXXeT
+@x [48.1146] l.21782 - e-TeX TeXXeT
 v:=shift_amount(just_box)+2*quad(cur_font); w:=-max_dimen;
 p:=list_ptr(just_box);
 @y
 @<Prepare for display after a non-empty paragraph@>;
 @z
 %---------------------------------------
-@x [48] m.1146 l.21772 - e-TeX TeXXeT
+@x [48.1146] l.21797 - e-TeX TeXXeT
 done:
 @y
 done:
 @<Finish the natural width computation@>
 @z
 %---------------------------------------
-@x [48] m.1147 l.21783 - e-TeX TeXXeT
+@x [48.1147] l.21808 - e-TeX TeXXeT
 kern_node,math_node: d:=width(p);
 @y
 kern_node: d:=width(p);
 @t\4@>@<Cases of `Let |d| be the natural width' that need special treatment@>@;
 @z
 %---------------------------------------
-@x [48] m.1185 l.22292 - e-TeX middle
+@x [48.1185] l.22317 - e-TeX middle
   if type(q)<>left_noad then confusion("right");
 @:this can't happen right}{\quad right@>
   info(numerator(incompleat_noad)):=link(q);
@@ -2587,14 +2587,14 @@ kern_node: d:=width(p);
   link(delim_ptr):=incompleat_noad; link(incompleat_noad):=p;
 @z
 %---------------------------------------
-@x [48] m.1189 l.22337 - e-TeX middle
+@x [48.1189] l.22362 - e-TeX middle
 else print_esc("right");
 @y
 @/@<Cases of |left_right| for |print_cmd_chr|@>@/
 else print_esc("right");
 @z
 %---------------------------------------
-@x [48] m.1191 l.22346 math_left_right - e-TeX middle
+@x [48.1191] l.22371 - math_left_right - e-TeX middle
 begin t:=cur_chr;
 if (t=right_noad)and(cur_group<>math_left_group) then
 @y
@@ -2603,7 +2603,7 @@ begin t:=cur_chr;
 if (t<>left_noad)and(cur_group<>math_left_group) then
 @z
 %---------------------------------------
-@x [48] m.1191 l.22351 math_left_right - e-TeX middle
+@x [48.1191] l.22376 - math_left_right - e-TeX middle
   if t=left_noad then
     begin push_math(math_left_group); link(head):=p; tail:=p;
     end
@@ -2622,13 +2622,13 @@ if (t<>left_noad)and(cur_group<>math_left_group) then
   else  begin
 @z
 %---------------------------------------
-@x [48] m.1191 l.22357 math_left_right - e-TeX middle
+@x [48.1191] l.22382 - math_left_right - e-TeX middle
     info(nucleus(tail)):=p;
 @y
     info(nucleus(tail)):=q;
 @z
 %---------------------------------------
-@x [48] m.1192 l.22365 - e-TeX middle
+@x [48.1192] l.22390 - e-TeX middle
   print_err("Extra "); print_esc("right");
 @.Extra \\right.@>
   help1("I'm ignoring a \right that had no matching \left.");
@@ -2645,82 +2645,82 @@ if (t<>left_noad)and(cur_group<>math_left_group) then
     end;
 @z
 %---------------------------------------
-@x [48] m.1194 l.22380 after_math - e-TeX TeXXeT
+@x [48.1194] l.22405 - after_math - e-TeX TeXXeT
 procedure after_math;
 @y
 @t\4@>@<Declare subprocedures for |after_math|@>@;
 procedure after_math;
 @z
 %---------------------------------------
-@x [48] m.1194 l.22387 after_math - e-TeX TeXXeT
+@x [48.1194] l.22412 - after_math - e-TeX TeXXeT
 begin danger:=false;
 @y
 begin danger:=false;
 @<Retrieve the prototype box@>;
 @z
 %---------------------------------------
-@x [48] m.1194 l.22394 after_math - e-TeX TeXXeT
+@x [48.1194] l.22419 - after_math - e-TeX TeXXeT
   mlist_to_hlist; a:=hpack(link(temp_head),natural);
 @y
   mlist_to_hlist; a:=hpack(link(temp_head),natural);
   set_box_lr(a)(dlist);
 @z
 %---------------------------------------
-@x [48] m.1194 l.22397 after_math - e-TeX TeXXeT
+@x [48.1194] l.22422 - after_math - e-TeX TeXXeT
   danger:=false;
 @y
   danger:=false;
   @<Retrieve the prototype box@>;
 @z
 %---------------------------------------
-@x [48] m.1199 l.22484 - e-TeX TeXXeT
+@x [48.1199] l.22509 - e-TeX TeXXeT
 w:=width(b); z:=display_width; s:=display_indent;
 @y
 w:=width(b); z:=display_width; s:=display_indent;
 if pre_display_direction<0 then s:=-s-z;
 @z
 %---------------------------------------
-@x [48] m.1199 l.22499 - e-TeX TeXXeT
+@x [48.1199] l.22524 - e-TeX TeXXeT
 resume_after_display
 @y
 @<Flush the prototype box@>;
 resume_after_display
 @z
 %---------------------------------------
-@x [48] m.1202 l.22541 - e-TeX TeXXeT
+@x [48.1202] l.22566 - e-TeX TeXXeT
 d:=half(z-w);
 @y
 set_box_lr(b)(dlist);
 d:=half(z-w);
 @z
 %---------------------------------------
-@x [48] m.1203 l.22562 - e-TeX TeXXeT
+@x [48.1203] l.22587 - e-TeX TeXXeT
   begin shift_amount(a):=s; append_to_vlist(a);
 @y
   begin app_display(j,a,0);
 @z
 %---------------------------------------
-@x [48] m.1204 l.22572 - e-TeX TeXXeT
+@x [48.1204] l.22602 - e-TeX TeXXeT
 shift_amount(b):=s+d; append_to_vlist(b)
 @y
 app_display(j,b,d)
 @z
 %---------------------------------------
-@x [48] m.1205 l.22582 - e-TeX TeXXeT
+@x [48.1205] l.22607 - e-TeX TeXXeT
   shift_amount(a):=s+z-width(a);
   append_to_vlist(a);
 @y
   app_display(j,a,z-width(a));
 @z
 %---------------------------------------
-@x [48] m.1206 l.22601 - e-TeX TeXXeT
+@x [48.1206] l.22626 - e-TeX TeXXeT
 pop_nest;
 @y
 flush_node_list(LR_box);
 pop_nest;
 @z
 %---------------------------------------
-@x [49] m.1208 l.22626 - e-TeX protected
+@x [49.1208] l.22651 - e-TeX protected
 control sequence can be defined to be `\.{\\long}' or `\.{\\outer}', and
 it might or might not be expanded. The prefixes `\.{\\global}', `\.{\\long}',
 @y
@@ -2729,21 +2729,21 @@ or `\.{\\outer}', and it might or might not be expanded. The prefixes
 `\.{\\global}', `\.{\\long}', `\.{\\protected}',
 @z
 %---------------------------------------
-@x [49] m.1209 l.22652 - e-TeX protected
+@x [49.1209] l.22677 - e-TeX protected
   else print_esc("global");
 @y
   @/@<Cases of |prefix| for |print_cmd_chr|@>@/
   else print_esc("global");
 @z
 %---------------------------------------
-@x [49] m.1211 l.22714 prefixed_command - e-TeX tracing
+@x [49.1211] l.22739 - prefixed_command - e-TeX tracing
     @<Discard erroneous prefixes and |return|@>;
 @y
     @<Discard erroneous prefixes and |return|@>;
   if tracing_commands>2 then if eTeX_ex then show_cur_cmd_chr;
 @z
 %---------------------------------------
-@x [49] m.1212 l.22730 - e-TeX protected
+@x [49.1212] l.22755 - e-TeX protected
 help1("I'll pretend you didn't say \long or \outer or \global.");
 @y
 help1("I'll pretend you didn't say \long or \outer or \global.");
@@ -2751,7 +2751,7 @@ if eTeX_ex then help_line[0]:=@|
   "I'll pretend you didn't say \long or \outer or \global or \protected.";
 @z
 %---------------------------------------
-@x [49] m.1213 l.22735 - e-TeX protected
+@x [49.1213] l.22760 - e-TeX protected
 if (cur_cmd<>def)and(a mod 4<>0) then
   begin print_err("You can't use `"); print_esc("long"); print("' or `");
   print_esc("outer"); print("' with `");
@@ -2772,12 +2772,12 @@ if (cur_cmd<>def)and((a mod 4<>0)or(j<>0)) then
   print("' with `");
 @z
 %---------------------------------------
-@x [49] m.1213 l.22740 - e-TeX protected
+@x [49.1213] l.22765 - e-TeX protected
   help1("I'll pretend you didn't say \long or \outer here.");
 @y
 @z
 %---------------------------------------
-@x [49] m.1218 l.22798 - e-TeX protected
+@x [49.1218] l.22824 - e-TeX protected
   q:=scan_toks(true,e); define(p,call+(a mod 4),def_ref);
 @y
   q:=scan_toks(true,e);
@@ -2788,7 +2788,7 @@ if (cur_cmd<>def)and((a mod 4<>0)or(j<>0)) then
   define(p,call+(a mod 4),def_ref);
 @z
 %---------------------------------------
-@x [49] m.1221 l.22826 - e-TeX sparse arrays
+@x [49.1221] l.22852 - e-TeX sparse arrays
   if cur_cmd>=call then add_token_ref(cur_chr);
 @y
   if cur_cmd>=call then add_token_ref(cur_chr)
@@ -2797,7 +2797,7 @@ if (cur_cmd<>def)and((a mod 4<>0)or(j<>0)) then
       add_sa_ref(cur_chr);
 @z
 %---------------------------------------
-@x [49] m.1224 l.22889 - e-TeX sparse arrays
+@x [49.1224] l.22915 - e-TeX sparse arrays
   othercases begin scan_eight_bit_int;
 @y
   othercases begin scan_register_num;
@@ -2811,19 +2811,19 @@ if (cur_cmd<>def)and((a mod 4<>0)or(j<>0)) then
     else
 @z
 %---------------------------------------
-@x [49] m.1225 l.22902 - e-TeX read_line
+@x [49.1225] l.22928 - e-TeX read_line
 read_to_cs: begin scan_int; n:=cur_val;
 @y
 read_to_cs: begin j:=cur_chr; scan_int; n:=cur_val;
 @z
 %---------------------------------------
-@x [49] m.1225 l.22911 - e-TeX read_line
+@x [49.1225] l.22937 - e-TeX read_line
   p:=cur_cs; read_toks(n,p); define(p,call,cur_val);
 @y
   p:=cur_cs; read_toks(n,p,j); define(p,call,cur_val);
 @z
 %---------------------------------------
-@x [49] m.1226 l.22920 - e-TeX sparse arrays
+@x [49.1226] l.22946 - e-TeX sparse arrays
   if cur_cmd=toks_register then
     begin scan_eight_bit_int; p:=toks_base+cur_val;
     end
@@ -2843,7 +2843,7 @@ read_to_cs: begin j:=cur_chr; scan_int; n:=cur_val;
   p:=cur_chr; {|p=every_par_loc| or |output_routine_loc| or \dots}
 @z
 %---------------------------------------
-@x [49] m.1226 l.22930 - e-TeX sparse arrays
+@x [49.1226] l.22956 - e-TeX sparse arrays
     begin define(p,undefined_cs,null); free_avail(def_ref);
     end
   else  begin if p=output_routine_loc then {enclose in curlies}
@@ -2853,13 +2853,13 @@ read_to_cs: begin j:=cur_chr; scan_int; n:=cur_val;
   else  begin if (p=output_routine_loc)and not e then {enclose in curlies}
 @z
 %---------------------------------------
-@x [49] m.1226 l.22938 - e-TeX sparse arrays
+@x [49.1226] l.22964 - e-TeX sparse arrays
     define(p,call,def_ref);
 @y
     sa_define(p,def_ref)(p,call,def_ref);
 @z
 %---------------------------------------
-@x [49] m.1227 l.22943 - e-TeX sparse arrays
+@x [49.1227] l.22969 - e-TeX sparse arrays
 begin if cur_cmd=toks_register then
   begin scan_eight_bit_int; cur_cmd:=assign_toks; cur_chr:=toks_base+cur_val;
   end;
@@ -2891,7 +2891,7 @@ if (cur_cmd=toks_register)or(cur_cmd=assign_toks) then
   end
 @z
 %---------------------------------------
-@x [49] m.1236 l.23059 do_register_command - e-TeX sparse arrays
+@x [49.1236] l.23085 - do_register_command - e-TeX sparse arrays
 begin q:=cur_cmd;
 @y
 @!e:boolean; {does |l| refer to a sparse array element?}
@@ -2900,7 +2900,7 @@ begin q:=cur_cmd;
 e:=false; {just in case, will be set |true| for sparse array elements}
 @z
 %---------------------------------------
-@x [49] m.1236 l.23076 do_register_command - e-TeX sparse arrays
+@x [49.1236] l.23102 - do_register_command - e-TeX sparse arrays
 if p<glue_val then word_define(l,cur_val)
 else  begin trap_zero_glue; define(l,glue_ref,cur_val);
 @y
@@ -2908,7 +2908,7 @@ if p<glue_val then sa_word_define(l,cur_val)
 else  begin trap_zero_glue; sa_define(l,cur_val)(l,glue_ref,cur_val);
 @z
 %---------------------------------------
-@x [49] m.1237 l.23098 - e-TeX sparse arrays
+@x [49.1237] l.23124 - e-TeX sparse arrays
 p:=cur_chr; scan_eight_bit_int;
 @y
 if (cur_chr<mem_bot)or(cur_chr>lo_mem_stat_max) then
@@ -2921,7 +2921,7 @@ else  begin p:=cur_chr-mem_bot; scan_register_num;
   else
 @z
 %---------------------------------------
-@x [49] m.1237 l.23105 - e-TeX sparse arrays
+@x [49.1237] l.23131 - e-TeX sparse arrays
 end;
 found:
 @y
@@ -2931,19 +2931,19 @@ found: if p<glue_val then@+if e then w:=sa_int(l)@+else w:=eqtb[l].int
 else if e then s:=sa_ptr(l)@+else s:=equiv(l)
 @z
 %---------------------------------------
-@x [49] m.1238 l.23111 - e-TeX sparse arrays
+@x [49.1238] l.23137 - e-TeX sparse arrays
   if q=advance then cur_val:=cur_val+eqtb[l].int;
 @y
   if q=advance then cur_val:=cur_val+w;
 @z
 %---------------------------------------
-@x [49] m.1239 l.23118 - e-TeX sparse arrays
+@x [49.1239] l.23144 - e-TeX sparse arrays
 begin q:=new_spec(cur_val); r:=equiv(l);
 @y
 begin q:=new_spec(cur_val); r:=s;
 @z
 %---------------------------------------
-@x [49] m.1240 l.23138 - e-TeX sparse arrays
+@x [49.1240] l.23164 - e-TeX sparse arrays
     if p=int_val then cur_val:=mult_integers(eqtb[l].int,cur_val)
     else cur_val:=nx_plus_y(eqtb[l].int,cur_val,0)
   else cur_val:=x_over_n(eqtb[l].int,cur_val)
@@ -2955,7 +2955,7 @@ else  begin s:=equiv(l); r:=new_spec(s);
 else  begin r:=new_spec(s);
 @z
 %---------------------------------------
-@x [49] m.1241 l.23160 - e-TeX sparse arrays
+@x [49.1241] l.23186 - e-TeX sparse arrays
 set_box: begin scan_eight_bit_int;
   if global then n:=256+cur_val@+else n:=cur_val;
   scan_optional_equals;
@@ -2967,7 +2967,7 @@ set_box: begin scan_register_num;
   if set_box_allowed then scan_box(n)
 @z
 %---------------------------------------
-@x [49] m.1246 l.23231 alter_integer - e-TeX interaction_mode
+@x [49.1246] l.23257 - alter_integer - e-TeX interaction_mode
 var c:0..1; {0 for \.{\\deadcycles}, 1 for \.{\\insertpenalties}}
 begin c:=cur_chr; scan_optional_equals; scan_int;
 if c=0 then dead_cycles:=cur_val
@@ -2979,7 +2979,7 @@ if c=0 then dead_cycles:=cur_val
 @/@<Cases for |alter_integer|@>@/
 @z
 %---------------------------------------
-@x [49] m.1247 l.23240 alter_box_dimen - e-TeX sparse arrays
+@x [49.1247] l.23266 - alter_box_dimen - e-TeX sparse arrays
 @!b:eight_bits; {box number}
 begin c:=cur_chr; scan_eight_bit_int; b:=cur_val; scan_optional_equals;
 scan_normal_dimen;
@@ -2991,7 +2991,7 @@ scan_normal_dimen;
 if b<>null then mem[b+c].sc:=cur_val;
 @z
 %---------------------------------------
-@x [49] m.1248 l.23249 - e-TeX penalties
+@x [49.1248] l.23275 - e-TeX penalties
 set_shape: begin scan_optional_equals; scan_int; n:=cur_val;
   if n<=0 then p:=null
 @y
@@ -3007,26 +3007,26 @@ set_shape: begin q:=cur_chr; scan_optional_equals; scan_int; n:=cur_val;
     end
 @z
 %---------------------------------------
-@x [49] m.1248 l.23259 - e-TeX penalties
+@x [49.1248] l.23285 - e-TeX penalties
   define(par_shape_loc,shape_ref,p);
 @y
   define(q,shape_ref,p);
 @z
 %---------------------------------------
-@x [49] m.1260 l.23346 new_font - e-TeX tracing
+@x [49.1257] l.23372 - new_font - e-TeX tracing
 common_ending: equiv(u):=f; eqtb[font_id_base+f]:=eqtb[u]; font_id_text(f):=t;
 @y
 common_ending: define(u,set_font,f); eqtb[font_id_base+f]:=eqtb[u]; font_id_text(f):=t;
 @z
 %---------------------------------------
-@x [49] m.1292 l.23633 - e-TeX show_groups
+@x [49.1292] l.23659 - e-TeX show_groups
   show_lists_code:print_esc("showlists");
 @y
   show_lists_code:print_esc("showlists");
   @<Cases of |xray| for |print_cmd_chr|@>@;@/
 @z
 %---------------------------------------
-@x [49] m.1293 l.23640 show_whatever - e-TeX show_ifs
+@x [49.1293] l.23666 - show_whatever - e-TeX show_ifs
 var p:pointer; {tail of a token list to show}
 @y
 var p:pointer; {tail of a token list to show}
@@ -3036,14 +3036,14 @@ var p:pointer; {tail of a token list to show}
 @!n:integer; {level of \.{\\if...\\fi} nesting}
 @z
 %---------------------------------------
-@x [49] m.1293 l.23646 show_whatever - e-TeX show_groups
+@x [49.1293] l.23672 - show_whatever - e-TeX show_groups
 othercases @<Show the current value of some parameter or register,
 @y
 @<Cases for |show_whatever|@>@;@/
 othercases @<Show the current value of some parameter or register,
 @z
 %---------------------------------------
-@x [49] m.1295 l.23681 - e-TeX protected
+@x [49.1295] l.23707 - e-TeX protected
 call: print("macro");
 long_call: print_esc("long macro");
 outer_call: print_esc("outer macro");
@@ -3058,7 +3058,7 @@ call,long_call,outer_call,long_outer_call: begin n:=cmd-call;
   print("macro");
 @z
 %---------------------------------------
-@x [49] m.1296 l.23689 - e-TeX sparse arrays
+@x [49.1296] l.23715 - e-TeX sparse arrays
 begin scan_eight_bit_int; begin_diagnostic;
 print_nl("> \box"); print_int(cur_val); print_char("=");
 if box(cur_val)=null then print("void")
@@ -3069,28 +3069,28 @@ print_nl("> \box"); print_int(cur_val); print_char("=");
 if p=null then print("void")@+else show_box(p);
 @z
 %---------------------------------------
-@x [50] m.1307 l.23831 - e-TeX basic
+@x [50.1307] l.23859 - e-TeX basic
 dump_int(@$);@/
 @y
 dump_int(@$);@/
 @<Dump the \eTeX\ state@>@/
 @z
 %---------------------------------------
-@x [50] m.1308 l.23846 - e-TeX basic
+@x [50.1308] l.23874 - e-TeX basic
 if x<>@$ then goto bad_fmt; {check that strings are the same}
 @y
 if x<>@$ then goto bad_fmt; {check that strings are the same}
 @/@<Undump the \eTeX\ state@>@/
 @z
 %---------------------------------------
-@x [50] m.1311 l.23900 - e-TeX sparse arrays
+@x [50.1311] l.23928 - e-TeX sparse arrays
 dump_int(lo_mem_max); dump_int(rover);
 @y
 dump_int(lo_mem_max); dump_int(rover);
 if eTeX_ex then for k:=int_val to tok_val do dump_int(sa_root[k]);
 @z
 %---------------------------------------
-@x [50] m.1312 l.23923 - e-TeX sparse arrays
+@x [50.1312] l.23951 - e-TeX sparse arrays
 undump(lo_mem_stat_max+1)(lo_mem_max)(rover);
 @y
 undump(lo_mem_stat_max+1)(lo_mem_max)(rover);
@@ -3098,28 +3098,28 @@ if eTeX_ex then for k:=int_val to tok_val do
   undump(null)(lo_mem_max)(sa_root[k]);
 @z
 %---------------------------------------
-@x [50] m.1324 l.24117 - e-TeX hyph_codes
+@x [50.1324] l.24145 - e-TeX hyph_codes
 dump_int(trie_max);
 @y
 dump_int(trie_max);
 dump_int(hyph_start);
 @z
 %---------------------------------------
-@x [50] m.1325 l.24145 - e-TeX hyph_codes
+@x [50.1325] l.24173 - e-TeX hyph_codes
 undump_size(0)(trie_size)('trie size')(j); @+init trie_max:=j;@+tini
 @y
 undump_size(0)(trie_size)('trie size')(j); @+init trie_max:=j;@+tini
 undump(0)(j)(hyph_start);
 @z
 %---------------------------------------
-@x [51] m.1335 l.24365 final_cleanup - tracing
+@x [51.1335] l.24393 - final_cleanup - tracing
   print_int(cur_level-level_one); print_char(")");
 @y
   print_int(cur_level-level_one); print_char(")");
   if eTeX_ex then show_save_groups;
 @z
 %---------------------------------------
-@x [51] m.1335 l.24388 final_cleanup - e-TeX marks, saved_items
+@x [51.1335] l.24416 - final_cleanup - e-TeX marks, saved_items
     if cur_mark[c]<>null then delete_token_ref(cur_mark[c]);
 @y
     if cur_mark[c]<>null then delete_token_ref(cur_mark[c]);
@@ -3128,28 +3128,28 @@ undump(0)(j)(hyph_start);
   for c:=last_box_code to vsplit_code do flush_node_list(disc_ptr[c]);
 @z
 %---------------------------------------
-@x [51] m.1336 l.24398 init_prim - e-TeX basic
+@x [51.1336] l.24426 - init_prim - e-TeX basic
 begin no_new_control_sequence:=false;
 @y
 begin no_new_control_sequence:=false;
 first:=0;
 @z
 %---------------------------------------
-@x [51] m.1337 l.24413 - e-TeX basic
+@x [51.1337] l.24441 - e-TeX basic
 if (format_ident=0)or(buffer[loc]="&") then
 @y
 @<Enable \eTeX, if requested@>@;@/
 if (format_ident=0)or(buffer[loc]="&") then
 @z
 %---------------------------------------
-@x [51] m.1337 l.24421 - e-TeX basic
+@x [51.1337] l.24449 - e-TeX basic
   end;
 @y
   end;
 if eTeX_ex then wterm_ln('entering extended mode');
 @z
 %---------------------------------------
-@x [53] m.1362 l.24762 adv_past - e-TeX hyph_codes
+@x [53.1362] l.24791 - adv_past - e-TeX hyph_codes
     begin cur_lang:=what_lang(#); l_hyf:=what_lhm(#); r_hyf:=what_rhm(#);@+end
 @y
     begin cur_lang:=what_lang(#); l_hyf:=what_lhm(#); r_hyf:=what_rhm(#);
@@ -3157,7 +3157,7 @@ if eTeX_ex then wterm_ln('entering extended mode');
     end
 @z
 %---------------------------------------
-@x [54] m.1379 l.24956 - e-TeX additions
+@x [54.1379] l.24985 - e-TeX additions
 @* \[54] System-dependent changes.
 @y
 @* \[53a] The extended features of \eTeX.
@@ -4152,7 +4152,7 @@ and\slash or after the |close_node| for that stream.
 All whatsit nodes as well as hlist and vlist nodes containing such nodes
 must not be permuted.  A sequence of hlist and vlist nodes not containing
 whatsit nodes as well as char, ligature, rule, kern, and glue nodes together
-with math nodes not changing the text direction can be explicitly reversed. 
+with math nodes not changing the text direction can be explicitly reversed.
 Embedded sections of left-to-right text are treated as a unit and all
 remaining nodes are irrelevant and can be ignored.
 

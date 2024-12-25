@@ -75,11 +75,11 @@ begin while (loc=null)and(token_type<>v_template)
 @x [24.357] l.7488 p.B150
       else if suppress_outer_error=0 then check_outer_validity;
 @y
-      else if suppress_outer_error=0 then
+      else
         begin
         if (cur_cs=end_write)and(mode=0) then
           fatal_error("Unbalanced write command");
-        check_outer_validity;
+        if suppress_outer_error=0 then check_outer_validity;
         end;
 @z
 

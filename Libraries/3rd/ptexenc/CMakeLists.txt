@@ -13,6 +13,7 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/ptexenc")
 include_directories(BEFORE
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/source
 )
 
 set(public_include_directories
@@ -24,6 +25,7 @@ set(ptexenc_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/jisx0208.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/kanjicnv.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/ptexenc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/tex8benc.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/unicode-jp.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/unicode.c
 )

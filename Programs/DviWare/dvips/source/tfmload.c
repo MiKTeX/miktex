@@ -109,7 +109,7 @@ tfmload(register fontdesctype *curfnt)
    integer scaledsize;
    integer id, nt = 0;
    integer nw, hd;
-   integer bc, ec;
+   integer bc, ec, direc = -1;
    integer nco=0, ncw=0, npc=0, no_repeats = 0;
    uinteger *index = NULL;
    halfword *chartype = NULL;
@@ -161,18 +161,7 @@ tfmload(register fontdesctype *curfnt)
       bc = tfm32(); ec = tfm32();
       nw = tfm32();
       for (i=0; i<8; i++) li=tfm32();
-      if (!noptex && font_level==1 && ec>=0x2E00) {
-         curfnt->iswide = 1;
-         if (li==5) {  /* interpret FONTDIR RT as pTeX vertical writing */
-            curfnt->dir = 9;
-#ifdef DEBUG
-            if (dd(D_FONTS))
-               fprintf_str(stderr,
-                  "We will interpret font (%s.ofm) direction as pTeX vertical writing.\n",
-                  curfnt->name);
-#endif /* DEBUG */
-         }
-      }
+      direc = li;
       if ((font_level>1 || hd<2 || bc<0 || ec<0 || nw<0
                        || bc>ec+1 || ec>0x10FFFF || nw>0x110000) ||
          (font_level==0 && (ec>65535 || nw>65536)))
@@ -294,8 +283,22 @@ tfmload(register fontdesctype *curfnt)
                curfnt->chardesc[i].pixelwidth = -((integer)(conv*-li+0.5));
             curfnt->chardesc[i].flags = (curfnt->resfont ? EXISTS : 0);
             curfnt->chardesc[i].flags2 = EXISTS;
+            if (!noptex && font_level==1 && (i>=0x2E80 && !(0xFB00<=i && i<=0xFB06))) {
+               curfnt->iswide = 1;
+            }
          }
       if (ec>=256) curfnt->codewidth = 2; /* XXX: 2byte-code can have ec<256 */
+      if (!noptex && font_level==1 && curfnt->iswide == 1) {
+         if (direc==5) {  /* interpret FONTDIR RT as pTeX vertical writing */
+            curfnt->dir = 9;
+#ifdef DEBUG
+            if (dd(D_FONTS))
+               fprintf_str(stderr,
+                  "We will interpret font (%s.ofm) direction as pTeX vertical writing.\n",
+                  curfnt->name);
+#endif /* DEBUG */
+         }
+      }
    }
    free(chardat);
    free(scaled);

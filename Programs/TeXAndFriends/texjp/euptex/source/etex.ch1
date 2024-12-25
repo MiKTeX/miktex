@@ -73,10 +73,10 @@ last_node_type:=-1; last_node_subtype:=-1;
 @z
 
 @x [30.581]
-@p procedure char_warning(@!f:internal_font_number;@!c:eight_bits);
+@p procedure char_warning(@!f:internal_font_number;@!c:sixteen_bits);
 var @!l:0..255; {small indices or counters}
 @y
-@p procedure char_warning(@!f:internal_font_number;@!c:eight_bits);
+@p procedure char_warning(@!f:internal_font_number;@!c:sixteen_bits);
 var @!l:0..255; {small indices or counters}
 old_setting: integer; {saved value of |tracing_online|}
 @z
@@ -126,6 +126,50 @@ hpack:=r;
   disp_node:disp:=disp_dimen(p);
 @y
   disp_node:begin disp:=disp_dimen(p); revdisp:=disp; end;
+@z
+
+@x
+hn:=0;
+loop@+  begin if is_char_node(s) then
+    begin if font(s)<>hf then goto done3;
+    hyf_bchar:=character(s); c:=qo(hyf_bchar);
+    if lc_code(c)=0 then goto done3;
+    if lc_code(c)>max_hyph_char then goto done3;
+    if hn=63 then goto done3;
+    hb:=s; incr(hn); hu[hn]:=c; hc[hn]:=lc_code(c); hyf_bchar:=non_char;
+    end
+@y
+hn:=0;
+loop@+  begin if is_char_node(s) then
+    begin if font(s)<>hf then goto done3;
+    hyf_bchar:=character(s); c:=qo(hyf_bchar);
+    set_lc_code(c);
+    if hc[0]=0 then goto done3;
+    if hc[0]>max_hyph_char then goto done3;
+    if hn=63 then goto done3;
+    hb:=s; incr(hn); hu[hn]:=c; hc[hn]:=hc[0]; hyf_bchar:=non_char;
+    end
+@z
+
+@x
+while q>null do
+  begin c:=qo(character(q));
+  if lc_code(c)=0 then goto done3;
+  if lc_code(c)>max_hyph_char then goto done3;
+  if j=63 then goto done3;
+  incr(j); hu[j]:=c; hc[j]:=lc_code(c);@/
+  q:=link(q);
+  end;
+@y
+while q>null do
+  begin c:=qo(character(q));
+  set_lc_code(c);
+  if hc[0]=0 then goto done3;
+  if hc[0]>max_hyph_char then goto done3;
+  if j=63 then goto done3;
+  incr(j); hu[j]:=c; hc[j]:=hc[0];@/
+  q:=link(q);
+  end;
 @z
 
 @x [44.977]

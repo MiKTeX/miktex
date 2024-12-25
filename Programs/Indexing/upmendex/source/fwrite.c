@@ -167,7 +167,7 @@ static int pnumconv2(struct page *p)
 /*   write ind file   */
 void indwrite(char *filename, struct index *ind, int pagenum)
 {
-	int i,j,k,hpoint=0,tpoint=0,ipoint=0,jpoint=0,block_open=0;
+	int i,j,k,q,hpoint=0,tpoint=0,ipoint=0,jpoint=0,block_open=0;
 	char lbuff[BUFFERLEN],obuff[BUFFERLEN];
 	UChar initial[INITIALLENGTH],initial_prev[INITIALLENGTH];
 	int chset,chset_prev;
@@ -222,8 +222,6 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 					fprint_uchar(fp,initial,lethead_flag,-1);
 					fputs(lethead_suffix,fp);
 				}
-				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[0]);
-				SPRINTF(lbuff,"%s%s",item_0,obuff);
 			}
 			else if (chset==CH_KANA) {
 				if (lethead_flag!=0) {
@@ -243,8 +241,6 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 					}
 					fputs(lethead_suffix,fp);
 				}
-				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[0]);
-				SPRINTF(lbuff,"%s%s",item_0,obuff);
 				for (hpoint=0;hpoint<(u_strlen(kana_head));) {
 					if (initial_cmp_char(initial,&kana_head[hpoint])) {
 						break;
@@ -267,8 +263,6 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 					}
 					fputs(lethead_suffix,fp);
 				}
-				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[0]);
-				SPRINTF(lbuff,"%s%s",item_0,obuff);
 				for (tpoint=0;tpoint<(u_strlen(hangul_head));tpoint++) {
 					if (initial_cmp_char(initial,&hangul_head[tpoint])) {
 						break;
@@ -293,8 +287,6 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 					}
 					fputs(lethead_suffix,fp);
 				}
-				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[0]);
-				SPRINTF(lbuff,"%s%s",item_0,obuff);
 				for (jpoint=0;jpoint<(u_strlen(devanagari_head));) {
 					if (initial_cmp_char(initial,&devanagari_head[jpoint])) {
 						break;
@@ -317,8 +309,6 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 					}
 					fputs(lethead_suffix,fp);
 				}
-				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[0]);
-				SPRINTF(lbuff,"%s%s",item_0,obuff);
 				for (ipoint=0;ipoint<(u_strlen(thai_head));ipoint++) {
 					if (initial_cmp_char(initial,&thai_head[ipoint])) {
 						break;
@@ -332,35 +322,9 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 				if (lethead_flag!=0 && (symbol_flag==1 || (symbol_flag==2 && chset!=CH_NUMERIC))) {
 					fprintf(fp,"%s%s%s",lethead_prefix,symhead,lethead_suffix);
 				}
-				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[0]);
-				SPRINTF(lbuff,"%s%s",item_0,obuff);
 			}
-			switch (ind[i].words) {
-			case 1:
-				SAPPENDF(lbuff,"%s",delim_0);
-				break;
-
-			case 2:
-				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[1]);
-				SAPPENDF(lbuff,"%s",item_x1);
-				SAPPENDF(lbuff,"%s",obuff);
-				SAPPENDF(lbuff,"%s",delim_1);
-				break;
-
-			case 3:
-				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[1]);
-				SAPPENDF(lbuff,"%s",item_x1);
-				SAPPENDF(lbuff,"%s",obuff);
-				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[2]);
-				SAPPENDF(lbuff,"%s",item_x2);
-				SAPPENDF(lbuff,"%s",obuff);
-				SAPPENDF(lbuff,"%s",delim_2);
-				break;
-
-			default:
-				break;
-			}
-			printpage(ind,fp,i,lbuff);
+			SPRINTF(lbuff,"%s",item_0[0]);
+			k=0;
 		}
 		else {
 			index_normalize(ind[i-1].dic[0], initial_prev, &chset_prev);
@@ -468,70 +432,30 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 				}
 			}
 
-			switch (ind[i].words) {
-			case 1:
-				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[0]);
-				SAPPENDF(lbuff,"%s",item_0);
-				SAPPENDF(lbuff,"%s",obuff);
-				SAPPENDF(lbuff,"%s",delim_0);
-				break;
-
-			case 2:
-				if (u_strcmp(ind[i-1].idx[0],ind[i].idx[0])!=0 || u_strcmp(ind[i-1].dic[0],ind[i].dic[0])!=0) {
-					widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[0]);
-					SAPPENDF(lbuff,"%s",item_0);
-					SAPPENDF(lbuff,"%s",obuff);
-					SAPPENDF(lbuff,"%s",item_x1);
+			q=0;
+			for (j=0;j<ind[i-1].words && j<ind[i].words;j++) {
+				if (u_strcmp(ind[i-1].idx[j],ind[i].idx[j])!=0 ||
+				    u_strcmp(ind[i-1].dic[j],ind[i].dic[j])!=0) {
+					k=j;
+					SAPPENDF(lbuff,"%s",item_0[k]);
+					q=1;
+					break;
 				}
-				else {
-					if (ind[i-1].words==1) {
-						SAPPENDF(lbuff,"%s",item_01);
-					}
-					else {
-						SAPPENDF(lbuff,"%s",item_1);
-					}
-				}
-				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[1]);
-				SAPPENDF(lbuff,"%s",obuff);
-				SAPPENDF(lbuff,"%s",delim_1);
-				break;
-
-			case 3:
-				if (u_strcmp(ind[i-1].idx[0],ind[i].idx[0])!=0 || u_strcmp(ind[i-1].dic[0],ind[i].dic[0])!=0) {
-					widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[0]);
-					SAPPENDF(lbuff,"%s",item_0);
-					SAPPENDF(lbuff,"%s",obuff);
-					widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[1]);
-					SAPPENDF(lbuff,"%s",item_x1);
-					SAPPENDF(lbuff,"%s",obuff);
-					SAPPENDF(lbuff,"%s",item_x2);
-				}
-				else if (ind[i-1].words==1) {
-					widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[1]);
-					SAPPENDF(lbuff,"%s",item_01);
-					SAPPENDF(lbuff,"%s",obuff);
-					SAPPENDF(lbuff,"%s",item_x2);
-				}
-				else if (u_strcmp(ind[i-1].idx[1],ind[i].idx[1])!=0 || u_strcmp(ind[i-1].dic[1],ind[i].dic[1])!=0) {
-					widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[1]);
-					SAPPENDF(lbuff,"%s",item_1);
-					SAPPENDF(lbuff,"%s",obuff);
-					if (ind[i-1].words==2) SAPPENDF(lbuff,"%s",item_12);
-					else                   SAPPENDF(lbuff,"%s",item_x2);
-				}
-				else {
-					SAPPENDF(lbuff,"%s",item_2);
-				}
-				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[2]);
-				SAPPENDF(lbuff,"%s",obuff);
-				SAPPENDF(lbuff,"%s",delim_2);
-				break;
-
-			default:
-				break;
 			}
-			printpage(ind,fp,i,lbuff);
+			if (q==0) {
+				k=ind[i-1].words;
+				SAPPENDF(lbuff,"%s",item_01[k-1]);
+			}
+
 		}
+		for (j=k;;j++) {
+			widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[j]);
+			SAPPENDF(lbuff,"%s",obuff);
+			if (j==ind[i].words-1) break;
+			SAPPENDF(lbuff,"%s",item_x[j]);
+		}
+		SAPPENDF(lbuff,"%s",delim_0[j]);
+		printpage(ind,fp,i,lbuff);
 	}
 	if (is_any_script(chset) && strlen(script_postamble[chset]) && block_open) {
 		fputs(script_postamble[chset],fp);
@@ -789,9 +713,9 @@ static void index_normalize(UChar *istr, UChar *ini, int *chset)
 	UChar ch,src[2],dest[8],strX[4],strY[4],strZ[4];
 	UChar32 c32;
 	UErrorCode perr;
-	UCollationResult order;
+	UCollationResult order,order1;
 	UCollationStrength strgth;
-	static int i_y_mode=0;
+	static int i_y_mode=0,o_o_mode=0,u_u_mode=0;
 
 	ch=istr[0];
 	*chset=charset(istr);
@@ -1011,6 +935,42 @@ static void index_normalize(UChar *istr, UChar *ini, int *chset)
 		}
 		if (i_y_mode==2) {
 			ini[0] = 0x049; /* I */
+			return;
+		}
+	}
+	if (ch==0x0D6||ch==0x0F6||ch==0x150||ch==0x151) {
+		/* check Ö,ö versus Ő,ő for Hungarian */
+		if (o_o_mode==0) {
+			strgth = ucol_getStrength(icu_collator);
+			ucol_setStrength(icu_collator, UCOL_PRIMARY);
+			strX[0] = 0x0D6;  strX[1] = 0x00; /* Ö */
+			strY[0] = 0x150;  strY[1] = 0x00; /* Ő */
+			strZ[0] = 0x04F;  strZ[1] = 0x00; /* O */
+			order  = ucol_strcoll(icu_collator, strY, -1, strX, -1);
+			order1 = ucol_strcoll(icu_collator, strZ, -1, strX, -1);
+			o_o_mode = (order==UCOL_EQUAL && order1!=UCOL_EQUAL) ? 2 : 1;
+			ucol_setStrength(icu_collator, strgth);
+		}
+		if (o_o_mode==2) {
+			ini[0] = 0x0D6; /* Ö */
+			return;
+		}
+	}
+	if (ch==0x0DC||ch==0x0FC||ch==0x170||ch==0x171) {
+		/* check Ü,ü versus Ű,ű for Hungarian */
+		if (u_u_mode==0) {
+			strgth = ucol_getStrength(icu_collator);
+			ucol_setStrength(icu_collator, UCOL_PRIMARY);
+			strX[0] = 0x0DC;  strX[1] = 0x00; /* Ü */
+			strY[0] = 0x170;  strY[1] = 0x00; /* Ű */
+			strZ[0] = 0x055;  strZ[1] = 0x00; /* U */
+			order = ucol_strcoll(icu_collator, strY, -1, strX, -1);
+			order1 = ucol_strcoll(icu_collator, strZ, -1, strX, -1);
+			u_u_mode = (order==UCOL_EQUAL && order1!=UCOL_EQUAL) ? 2 : 1;
+			ucol_setStrength(icu_collator, strgth);
+		}
+		if (u_u_mode==2) {
+			ini[0] = 0x0DC; /* Ü */
 			return;
 		}
 	}

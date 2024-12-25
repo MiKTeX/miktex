@@ -18,11 +18,11 @@
    USA.  */
 
 #define MIKTEX_COMP_MAJOR_VERSION 4
-#define MIKTEX_COMP_MINOR_VERSION 6
+#define MIKTEX_COMP_MINOR_VERSION 7
 #define MIKTEX_COMP_PATCH_VERSION 0
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "2023.1"
+#define MIKTEX_COMP_ORIG_VERSION_STR "2024.1"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 2023 Radical Eye Software"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 2024 Radical Eye Software"
 
 #include <miktex/Version>

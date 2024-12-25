@@ -156,7 +156,7 @@ ISBN-13: 979-854992684-4\par
 First printing: August 2019\par
 Second edition: August 2021\par
 \medskip
-Last commit: Mon Dec 4 15:00:09 2023
+Last commit: Wed Oct 30 14:00:17 2024
 \par
 }
 }
@@ -190,7 +190,7 @@ routines proved to be insufficient when I implemented a ``page up''
 button because it did not support reading the page content
 ``backwards''. As a consequence, I developed a compact binary file
 format that could be parsed easily in both directions. The \HINT\ 
-short file format war born. I stopped an initial attempt at
+short file format was born. I stopped an initial attempt at
 eliminating the old textual format because it was so much nicer when
 debugging. Instead, I converted the long textual format into the short
 binary format as a preliminary step in the viewer. This was not a long
@@ -587,9 +587,9 @@ DEF_KIND(v@&pack,v@&pack,24),@/
 DEF_KIND(s@&tream,s@&tream,25),@/
 DEF_KIND(p@&age,p@&age,26),@/
 DEF_KIND(l@&ink,l@&abel,27),@/
-DEF_KIND(u@&ndefined1,u@&ndefined1,28),@/
-DEF_KIND(u@&ndefined2,u@&ndefined2,29),@/
-DEF_KIND(u@&ndefined3,u@&ndefined3,30),@/
+DEF_KIND(c@&olor,c@&olor,28),@/
+DEF_KIND(u@&ndefined1,u@&ndefined1,29),@/
+DEF_KIND(u@&ndefined2,u@&ndefined2,30),@/
 DEF_KIND(p@&enalty, i@&nt,31)
 @t@>
 @
@@ -598,10 +598,12 @@ For a few kind-values we have
 alternative names; we will use them
 to express different intentions when using them.
 @<alternative kind names@>=
-font_kind=glyph_kind,int_kind=penalty_kind, unknown_kind=penalty_kind, dimen_kind=kern_kind, label_kind=link_kind, outline_kind=link_kind@/@t{}@>
+font_kind=glyph_kind,int_kind=penalty_kind, unknown_kind=penalty_kind,
+dimen_kind=kern_kind, label_kind=link_kind, outline_kind=link_kind@/@t{}@>
 @
 
-The info\index{info value} values can be used to represent numbers in the range 0 to 7; for an example
+The info\index{info value} values can be used to represent numbers
+in the range 0 to 7; for an example
 see the |hput_glyph| function later in this section.
 Mostly, however, the individual bits are used as flags indicating the presence
 or absence of immediate parameter values. If the info bit is set, it
@@ -4643,9 +4645,9 @@ like glue\index{glue}. They could stretch (or shrink) together with
 the surrounding glue to fill a horizontal or vertical box.  While I
 thought this would be in line with \TeX's concepts, it proved to be a
 bad decission because images, as opposed to glue, would stretch or
-shrink horizontaly {\it and} vertically at the same time.
+shrink horizontally {\it and} vertically at the same time.
 This would require a two pass algorithm to pack boxes: first to
-determine the glue setting and a secondf pass to determine the proper
+determine the glue setting and a second pass to determine the proper
 image dimensions. Otherwise incorrect width or height values would
 propagate all the way through a sequence of nested boxes. Even worse
 so, this two pass algorithm would be needed in the viewer if images
@@ -4757,7 +4759,7 @@ This is not allways a desirable effect. It would be possible to
 eliminate information about the image size when writing the long format
 if that information can be derived from the image file. The latter
 solution might have the disadvantage, that infomation about a
-desired image size might get lost when editing a image file.
+desired image size might get lost when editing an image file.
 
 \writecode
 @<write functions@>=
@@ -4874,18 +4876,22 @@ with the data supplied in the long format.
 static Info hput_image_dimens(int n,float32_t a, Dimen w, Dimen h)
 { Dimen iw,ih;
   double ia;
+  if (w>0 && h>0)
+  {  HPUT32(w); HPUT32(h); return b011; }
+  else if (a>0 && w>0)
+  { hput_float32((float32_t)a); HPUT32(w); return b010; }
+  else if (a>0 && h>0)
+  { hput_float32((float32_t)a); HPUT32(h); return b001; }
   hextract_image_dimens(n,&ia,&iw,&ih);
   @<merge stored image dimensions with dimensions given@>@;
-  if (w!=0 && h!=0)
-  { HPUT32(iw); HPUT32(ih); return b011; }
-  else if (a!=0.0)
-  { if (h!=0)
-    { hput_float32((float32_t)ia); HPUT32(ih); return b001; }
-    else
-    { hput_float32((float32_t)ia); HPUT32(iw); return b010; }
-  }
+  if (iw>0)
+  { hput_float32((float32_t)ia); HPUT32(iw); return b010; }
+  else if (ih>0)
+  { hput_float32((float32_t)ia); HPUT32(ih); return b001; }
   else 
-  { HPUT32(iw); HPUT32(ih); return b011; }
+  { iw=-iw; ih=-h; /*we accept the default resolution*/
+    HPUT32(iw); HPUT32(ih); return b011;
+  }
 }
 @
 
@@ -4896,26 +4902,29 @@ the long format.
 It is considered an error, if the function |hextract_image_dimens|
 can not extract the aspect ratio. Absolute width and height values,
 however, might be missing. If the aspect ratio is computed from the
-number of horizontal and vertical pixels, these values are negated and
-returned instead of absolute width and height values.
-Hi\TeX\ for example, will use these values to guess the image size
-assuming square pixels and a fixed resolution of 72.27 dpi.
+number of horizontal and vertical pixels, |hextract_image_dimens|
+makes the reasonable assumption that the intended resolution
+is 72dpi and converts the image dimensions to scaled points.
+It negates these values to indicate
+that the resolution is just a guess. This allows other programs
+to used different default resolutions if desired.
 
 @<merge stored image dimensions with dimensions given@>=
 { if (ia==0.0)
   { if (a!=0.0) ia=a;
     else if(w!=0 && h!=0) ia=(double)w/(double)h;
-    else QUIT("Unable to determine dimensions of image %s",dir[n].file_name);
+    else QUIT("Unable to determine aspect ratio of image %s",dir[n].file_name);
   }
-  if (w==0 && h==0)
+  /* here the aspect ratio |ia| is known */ 
+  if (w==0 && h==0) /*neither width nor height specified*/
   { if (ih>0) iw=round(ih * ia);
     else if (iw>0) ih=round(iw/ia);
   }
-  else if (h==0) 
+  else if (h==0) /*width specified*/
   { iw=w;@+ ih=round(w/ia);@+ }
-  else if (w==0) 
+  else if (w==0) /*height specified*/
   { ih=h;@+ iw=round(h*ia);@+}
-  else 
+  else /* both specified */
   { ih = h;@+
     iw = w;@+
   }
@@ -5033,7 +5042,7 @@ static bool get_PNG_info(FILE *f, char *fn, double *a, Dimen *w, Dimen *h)
     img_buf_size=0;
     GET_IMG_BUF(17);
     size=BigEndian32(0);
-    if (Match4(4,'p', 'H', 'Y', 's'))
+    if (Match4(4,'p', 'H', 'Y', 's')) /*must occur before IDAT chunk*/
     { xppu =(double)BigEndian32(8);  
       yppu =(double)BigEndian32(12);
       unit=img_buf[16];
@@ -5058,8 +5067,9 @@ static bool get_PNG_info(FILE *f, char *fn, double *a, Dimen *w, Dimen *h)
     else
       pos=pos+12+size;
   }
-  *w=-wpx;
-  *h=-hpx;
+  /*we assume 72dpi and negate the results*/
+  *w=-floor(0.5+ONE*72.27*wpx/72.0);
+  *h=-floor(0.5+ONE*72.27*hpx/72.0);
   *a =wpx/hpx;
   return true;
 }
@@ -5110,8 +5120,8 @@ static bool get_JPG_info(FILE *f, char *fn,  double *a, Dimen *w, Dimen *h)
       wpx =(double)BigEndian16(7);
       if (unit==0)
       { *a = (wpx/xppu)/(hpx/yppu);
-        *w=-wpx;
-	*h=-hpx;
+        *w=-floor(0.5+ONE*72.27*wpx/xppu);
+	*h=-floor(0.5+ONE*72.27*hpx/yppu);
         return true;
       }
       else if (unit==1)
@@ -5294,8 +5304,8 @@ could be the following:
 
 We call content nodes that reference some position inside the content section 
 ``link'' nodes. The position that is referenced is called the destination of the link.
-Link nodes occur always in pairs of an ``on'' link 
-followed by a corresponding ``off'' link that both reference the same position
+Link nodes occur always in pairs of an ``start'' link 
+followed by a corresponding ``end'' link that both reference the same position
 %, the same nesting level, % not sure!
 and no other link nodes between them. 
 The content between the two will constitute the visible part of the link.
@@ -5386,10 +5396,11 @@ indexed by the  labels reference number.
 @<hint basic types@>=
 typedef struct 
 {@+ uint32_t pos; /* position */
+    uint32_t pos0; /* secondary position */
     uint8_t where; /* where on the rendered page */
     bool used; /* label used in a link or an outline */
     int next; /* reference in a linked list */
-    uint32_t pos0;@+ uint8_t f; /* secondary position */
+    uint8_t f; /* font, currently not used */
 } Label;
 @
 
@@ -5464,7 +5475,7 @@ A label node specifies the reference number and a placement.
 @<parsing rules@>=
 placement: TOP {$$=LABEL_TOP;} |  BOT {$$=LABEL_BOT;} |  MID {$$=LABEL_MID;} | {$$=LABEL_MID;};
 content_node: START LABEL REFERENCE placement END @|
-              {  hset_label($3,$4); @+}
+              {  hset_label($3,$4); @+};
 @
 
 
@@ -5485,8 +5496,7 @@ void hset_label(int n,int w )
 @
 
 
-All that can be done by the above function
-is storing the data obtained in the |labels| array.
+The above function will simply store the data obtained in the |labels| array.
 The generation of the short format output is
 postponed until the entire content section has been parsed and
 the positions of all labels are known.
@@ -5606,7 +5616,7 @@ The |b010| bit indicates the presence of a secondary position for the label.
   if (i&b010) /* secondary position */
   { HGET32(t->pos0); t->f=HGET8;@+}
   else t->pos0=t->pos;
-  DBG(DBGLABEL,"Defining label %d at 0x%x\n",n,t->pos);
+  DBG(DBGLABEL,"Defining label %d at 0x%x/0x%x\n",n,t->pos0,t->pos);
 }
 @
 
@@ -5623,6 +5633,7 @@ Tag hput_label(int n, Label *l)
   HPUT8(l->where);
   if (l->pos!=l->pos0)
   { i|=b010; HPUT32(l->pos0); HPUT8(l->f); @+} 
+  DBG(DBGLABEL,"Defining label %d at 0x%x/0x%x\n",n,l->pos0,l->pos);
   return TAG(label_kind,i);
 }
 @
@@ -5680,12 +5691,38 @@ content section and resemble pretty much what we have seen for other
 content nodes. Let's look at them next.
 When reading a short format link node,
 we use again the |b001| info bit to indicate a 16 bit reference
-number to a label. The |b010| info bit indicates an ``on'' link.
+number to a label.
+
+To help a reader tell a link from ordinary text, links should be
+visualy different. This is supported in the \HINT\ file format
+by associating  a different color scheme to a link.
+In the short format, the |b100| bit indicates that a color set reference
+(see section~\secref{colors}) follows after the label reference.
+A color reference to 1 in the start node and to |0xFF| in the end node
+is the default and is omitted.
+
+Because color changes are local to the enclosing box or paragraph,
+a link is local as well. Without further mentioning, here and
+in the following, when we say ``box'' it also mean ``paragraph''. 
+A link starts with a ``start'' link and ends with either an ``end''
+link or the end of the enclosing box. Links must not be nested.
+It is an error to have two start links in the same box without
+an end link between them.
+An application can choose to continue a link in the next box
+by inserting a copy of the start link node at the begining of
+the new box.
+In short: ``end'' links are mandatory when separating two links
+but optional if they just preceede the end of the box.
+The |b010| info bit indicates a ``start'' link;
+otherwise it is an ``end'' link. 
+
 \gdef\subcodetitle{Links}
 \getcode
 @<get macros@>=
 #define @[HGET_LINK(I)@] @/\
-{ int n; if (I&b001) HGET16(n);@+ else n=HGET8; @+ hwrite_link(n,I&b010); @+}
+{ int n,c; if (I&b001) HGET16(n);@+ else n=HGET8;\
+  if (I&b100) c=HGET8; else c=(I&b010)?1:0xFF;\
+  hwrite_link(n,c,I&b010); @+}
 @
 
 @<cases to get content@>=
@@ -5694,6 +5731,10 @@ case TAG(link_kind,b000): @+ HGET_LINK(b000);@+ break;
 case TAG(link_kind,b001): @+ HGET_LINK(b001);@+ break;
 case TAG(link_kind,b010): @+ HGET_LINK(b010);@+ break;
 case TAG(link_kind,b011): @+ HGET_LINK(b011);@+ break;
+case TAG(link_kind,b100): @+ HGET_LINK(b100);@+ break;
+case TAG(link_kind,b101): @+ HGET_LINK(b101);@+ break;
+case TAG(link_kind,b110): @+ HGET_LINK(b110);@+ break;
+case TAG(link_kind,b111): @+ HGET_LINK(b111);@+ break;
 @
 
 The function |hput_link| will insert the link in the output stream and return
@@ -5701,12 +5742,13 @@ the appropriate tag.
 
 \putcode
 @<put functions@>=
-Tag hput_link(int n, int on)
+Tag hput_link(int n, int c, int on)
 { Info i;
   REF_RNG(label_kind,n);
   labels[n].used=true;
   if (on) i=b010;@+ else i=b000;
   if (n>0xFF) { i|=b001; HPUT16(n);@+} @+else HPUT8(n);
+  if ((on && c!=1) ||(!on && c!=0xFF)) { i|=b100; HPUT8(c); }
   return TAG(link_kind,i);
 }
 @
@@ -5722,18 +5764,22 @@ Tag hput_link(int n, int on)
 
 @<parsing rules@>=
 content_node:start LINK REFERENCE on_off END
-    {@+ hput_tags($1,hput_link($3,$4));@+ };
+    {@+ hput_tags($1,hput_link($3,$4?1:0xFF,$4));@+ };
+content_node:start LINK REFERENCE on_off REFERENCE END
+    {@+ hput_tags($1,hput_link($3,$5,$4));@+ };
 @
 
 \writecode
 @<write functions@>=
-void hwrite_link(int n, uint8_t on)
+void hwrite_link(int n, int c, uint8_t on)
 { REF_RNG(label_kind,n);
   if (labels[n].where==LABEL_UNDEF)
     MESSAGE("WARNING: Link to an undefined label %d\n",n);
   hwrite_ref(n);
   if (on) hwritef(" on");
   else hwritef(" off");
+  if ((on && c!=1)||(!on && c!=0xFF))
+  { REF_RNG(color_kind,c);  hwrite_ref(c); }
 }
 @
 
@@ -5918,41 +5964,408 @@ for (n=0;n<=max_outline;n++)
 }
 @
 
-\subsection{Colors}
-Colors\index{color} are certainly one of the features you will find in the final \HINT\ file format.
-Here some remarks must suffice.
+\subsection{Colors}\label{colors}
+This is the third draft of implementing color\index{color} specifications in
+a \HINT\ file.
 
-A \HINT\ viewer must be capable of rendering a page given just any valid
-position inside the content section. Therefore \HINT\ files are stateless;
-there is no need to search for preceding commands that might change a state
-variable.
-As a consequence, we can not just define a ``color change node''.
-Colors could be specified as an optional parameter of a glyph node, but the
-amount of data necessary would be considerable. In texts, on the other hand,
-a color change control code would be possible because we parse texts only in forward
-direction. The current font  would then become a current color and font.
+According to the initial philosophy of a \HINT\ file, a viewer must be
+capable of rendering a page given just any valid position in the
+content section without reading the entire file.  This makes it
+impossible to use global information; only the information that is
+localy available can be used.  Given a file position, the viewer will
+compute a representation of the page, insert it into a page template,
+and pass it to the renderer.  Color will not effect the position of
+glyphs or rules and so it is sufficient to process the color
+information when rendering the page.  The renderer will, however,
+render the page always from the top down and from left to right.  As a
+consequence of the rendering order, it is very well possible to work
+with a color state within the top level boxes.
 
-An attractive alternative would be colored fonts. 
-This would require an optional color argument for a font. 
-For example one could have a cmr10 font in black as
-font number 3, and the same cmr10 font in blue as font number 4. Having 256 different fonts,
-this is definitely a possibility because rarely you would need that many fonts 
-or that many colors. If necessary and desired, one could allow 16 bit font numbers
-of overcome the problem.
+A separate issue is the specification of color changes on the top
+level.  While a vertical list contains no character nodes, a color
+specification might still affect the background color and the
+foreground color of rules.  Because we still want to avoid the search
+for color nodes on the top level, we restrict the scope of a color
+node on the top level.  It will extend only to the next possible page
+break and applications like Hi\TeX\ must repeat a top level color node
+after every node that could be used as a page break.
 
-Background colors could be associated with boxes as an optional parameter.
-In addition to the background color, a frame color and frame thickness
-for a box could be desirable. Because pages are using a page template there
-would be no need to an extra page color. The page color could simply be
-given as the color of the outer box in the template.
-Even for extended boxes such aditional parameters can be implemented.
+% Some statisticts
+% format.hnt 4065407 1103094 byte (compressed), 31802 top level content nodes
+% Nodes that could be page breaks:
+% glue nodes 12346 if the preceeding node is a page break
+% kern nodes 0 if the next node is a glue.
+% penalty nodes 2193 (unless they are infinity or bigger)
+% so about 15000 extra color nodes using about 45000 bytes
+% could be needed. The extra space required is close to 1 percent
+% not counting compression.
+% Link nodes 10154 (5077 on and 5077 off nodes)
+% Having extra color nodes for links is at most 30462 byte.
+% This is less than 1 percent --- again without accounting for compression.
+% This could be reduced to 10154 byte if we use the b100 bit
+% and include the color ref in the link node - which might be
+% a good idea.
 
-Colored boxes, however, are not the perfect solution for highlighting text
-because boxes interfer with line breaking. Enclosing a phrase in a box just
-to give it a special background will make it impossible for the line breaking
-routine to insert line breaks. Therefore, paragraph nodes might benefit from
-a color change command for the background (and foreground) color.
+The nesting of boxes on a page together with the transparency of colors
+leads to the problem of stacking several layers of color one on top
+of the other.
+Here is an example: An outer box might specify blue as a background color
+and white as a forground color while  an inside box specifies a transparent
+grey background and a transparent black foreground.
+Then we expect text in the outer box to have white letters on blue background.
+Further we want to see the inner box casting a grey shadown on the blue
+background, resulting in a mix of blue and gray, with black letters on
+top of it that are not completely black but let the background shine through.
 
+To limit the complexity, the \HINT\ file format will allow this stacking
+of colors only when nesting boxes. But inside a box, there is at any position
+only one foreground and one background color; a color change inside a box
+will simply replace the current colors.
+
+If an application like Hi\TeX\ wants
+to implement nesting colors inside a box, it has to implement its own color
+stack and compute the necessary color mixtures.
+There is only one exception to this concept: When a new box starts,
+the current colors will be those of the enclosing box. These colors
+can be restored after a color change by using the \<color off> command.
+
+The limited complexity is necessary to simplifies the spliting of
+boxes, for example by the line breaking routine. Repeating the last
+color node before the split just after the split is sufficient.
+
+Inside a horizontal list, a background color will extend from
+top to bottom; inside a vertical list a background color will extend
+from the left edge to the right edge.
+If the document does not want to change the background color,
+a completely transparent color should be used.
+
+While the current implementation of searching does not use the
+background color, a color set will still specify background and foreground
+for all colors. This is simpler, easier to extend at a later time,
+and the overhead is small.
+
+
+After these preliminaries let's turn our attention to the design of
+a suitable color concept.
+
+
+%Before the present implementation of colors,
+%we used a foreground color and a
+%background color; then we had a special foreground color for links;
+%and finaly the implementation of searching used special forground
+%colors to mark matches and highlight the current search focus.  As if
+%that was not sufficient, viewers could be switched to ``dark mode'' using
+%a different forground and background color, and of course it was
+%desirable to adjust the link, mark, and focus color as well.
+%
+%In the future, a document designer might want to indicate a link using a
+%different background color instead or in combination with a special
+%foreground color. Similar considerations apply to the colors used for
+%searching.  By the way: the interaction of link color with mark or
+%focus color was an open question; probably mixing the colors might be a
+%good solution.  But there is another feature that sets links appart
+%from the matching text in a search: The start and end of a link is
+%already recorded in a \HINT\ file. So an automatic color change might
+%be called for.
+
+%In the first redesign, a color set consisted of eight color pairs for
+%normal, link, mark, and focus colors in day mode
+%and four more color pairs for night mode;
+%each pair specifying a background and a foreground color.
+%
+%It turned out that color switching using three bits in a status
+%byte was inconvenient. Further this solution was mixing two different
+%causes for a color change: The doument author's requests for a color
+%change and the user interface's requests for a color change either
+%by switching between day and night mode or by searching.
+%While switching beween day and night mode requires the author to
+%supply two complete color schemas, searching just needs to change
+%the color of glyphs according the the given color schema.
+%While the color change for links is always known from the document,
+%the color changes due to searching depend on text input at run time.
+%So mixing all that together was possibly not the best solution.
+
+%The new and second redesign tries to seperate the different concerns.
+
+Colors come in sets.
+A color set supports two modes: day and night mode.
+In future extensions it might be possible for 
+an author to invent color sets for winter or summer, fall or
+spring, or any other resonable or unreasonable purpose.
+For each mode a color set specifies three color styles:
+one for normal text, one for marked text and one for in-focus text.
+The switching between different modes and different styles is
+left to the user interface.
+
+We store a color set as an array of 12 words. 
+The first 6 words are for day mode the next 6 byte are for night mode;
+For each mode we have three color pairs and each pair consists
+of a forgraound and a backgraund color each stored as an RGBA value.
+
+@<hint basic types@>=
+typedef uint32_t ColorSet[2*3*2];
+@
+To extract the various sub-arrays, we have the following macros:
+@<hint macros@>=
+#define CURCOLOR(M,S,C) ((C)+6*(M)+2*(S))
+#define DAY(C)   CURCOLOR(0,0,C)
+#define NIGHT(C) CURCOLOR(1,0,C)
+#define HIGH(C)  CURCOLOR(0,1,C)
+#define FOCUS(C) CURCOLOR(0,2,C)
+#define FG(C)    ((C)[0])
+#define BG(C)    ((C)[1])
+@
+
+We will allow up to 255 color sets that are stored in the definition
+section and are referenced in the content section by a single byte.
+The definition of different color sets and the switching between them
+is left to the document author.
+
+The color set with reference number zero specifies the default colors.
+At the root of a page template, the default color set is selected
+and the whole page is filled with the background color for normal text.
+For links, by default the color set with number one is used.
+Section ~\secref{colordefault} specifies default values for both
+color sets; the default colors can be overwritten.
+The color sets with reference numbers zero and one are not stored in the
+definition section of a short format file if they are the same as the default values.
+This makes files not using colors compatible with older versions of the \HINT\ file
+format.
+
+Now we are ready for the implementation.
+
+\vbox{\readcode\vskip -\baselineskip\putcode}
+
+@s COLOR  symbol
+@s color symbol
+@s color_pair symbol
+@s color_tripple symbol
+@s color_set symbol
+@s color_null symbol
+
+@<symbols@>=
+%token COLOR "color"
+@
+
+@<scanning rules@>=
+::@=color@>              :<     return COLOR;    >:
+@
+
+Colors can be specified as a single number, preferably in hexa\-decimal
+notation, giving the red, green, blue, and alpha value in a single
+number. For example \.{0xFF0000FF} would be pure red,
+and \.{0x00FF0080} would be transparent green.
+Of course even decimal values can be used. A good example is the
+value \.{0} which is equivalent to but a bit shorter than \.{0x0} or
+\.{0x00000000} which describes a completely transparent black.
+It is invisible because the alpha value is zero.
+
+Alternatively, colors can be given as a list of three or four numbers
+enclosed in pointed brackets \.{<} \dots \.{>}.
+If only three numbers are given, the color is opaque with an alpha
+value equivalent to \.{0xFF}. Using this format
+the same colors as before can be written \.{<0xFF 0 0>} (pure red),
+\.{<0 0xFF 0 0x80>} (transparent green) and \.{<0 0 0 0>} (transparent black).
+
+The parser will put the color definition into |colors_n|
+using the index |colors_i|. As we will see later, the |colors_n|
+array is initialized with the colors in |colors_0| which in turn
+is initialized from |color_defaults[0]|.
+|colors_0| can be changed but only if that change occurs before
+any other color definition.
+
+@<common variables@>=
+ColorSet colors_0, colors_n; /* default and current color set */
+int colors_i; /* current color */
+@
+
+@<initialize definitions@>=
+{ int i;
+  for (i=0;i<sizeof(ColorSet)/4;i++)
+    colors_0[i]=color_defaults[0][i];
+}
+@
+
+@<parsing rules@>=@/
+color: START UNSIGNED UNSIGNED UNSIGNED UNSIGNED END@|
+     { RNG("red",$2,0,0xFF); RNG("green",$3,0,0xFF);
+       RNG("blue",$4,0,0xFF); RNG("alpha",$5,0,0xFF);
+       colors_n[colors_i++]=($2<<24)|($3<<16)|($4<<8)|$5;
+     }
+     | START UNSIGNED UNSIGNED UNSIGNED END@|
+     { RNG("red",$2,0,0xFF); RNG("green",$3,0,0xFF);
+       RNG("blue",$4,0,0xFF);
+       colors_n[colors_i++]=($2<<24)|($3<<16)|($4<<8)|0xFF;
+     };
+color: UNSIGNED { colors_n[colors_i++]=$1;};
+@
+
+Colors are always specified in pairs: a foreground color folowed by
+background color enclosed in pointed brackets \.{<} \dots \.{>} as
+usual. For convenience, the background color can be omited;
+in this case a completely transparent background is assumed.
+
+@<parsing rules@>=@/
+color_pair: START color color END
+	  | START color END { colors_n[colors_i++]=0; };
+color_unset: { colors_i+=2;};	  
+@
+
+A complete color set consists of six color pairs
+organized in two |color_tripple|s:
+the first three pairs for normal, mark, and focus text
+in day mode are followed by the three pairs in night mode.
+The |color_tripple| for night mode is optional; and within
+a |color_tripple| all color pairs except the first one are
+optional. An omited color is replaced by the
+corresponding color from the color set zero. To make the replacement
+process more predictable, the specification of color set zero---if
+present---must come first.
+If the default color set itself is redefined, an unspecified
+color will not change the default color.
+
+To be open to future changes, color set definitions in the short format
+will contain after the reference number the number of color pairs that follow.
+Currently this value is always six.
+
+
+@<parsing rules@>=@/
+color_tripple: START color_pair color_unset color_unset END 
+          | START color_pair color_pair color_unset END
+          | START color_pair color_pair color_pair END
+          ;
+	  
+color_set: color_tripple color_tripple;
+color_set: color_tripple color_unset color_unset color_unset;
+
+def_node: start COLOR ref { HPUT8(6); color_init(); } color_set END
+        { DEF($$,color_kind,$3); hput_color_def($1,$3); };
+@
+
+@<put functions@>=
+void color_init(void)
+{ int i;
+  for (i=0;i<sizeof(ColorSet)/4;i++) colors_n[i]=colors_0[i];
+  colors_i=0;
+}
+
+static Tag hput_color_set(int n)
+{ static bool first_color=true;
+  int i;
+  if (n==0)
+  { if (first_color)
+      for (i=0;i<sizeof(ColorSet)/4;i++) colors_0[i]=colors_n[i];
+    else
+      QUIT("Redefinition of color set 0 must be the first color definition");
+  }
+  first_color=false;
+  HPUTX(sizeof(ColorSet)+1);
+  for (i=0;i<sizeof(ColorSet)/4;i++) HPUT32(colors_n[i]);
+  return TAG(color_kind,b000);
+}
+@
+
+The |hput_color_def| checks if color sets zero or one need to be written.
+If not, the function will reset |hpos| to undo the writing of the tag
+and the number of colors in the set.
+
+@<put functions@>=
+static bool colors_equal(ColorSet a, ColorSet b)
+{ int i;
+  for (i=0;i<sizeof(ColorSet)/4;i++)
+    if (a[i]!=b[i]) return false;
+  return true;
+}
+
+void hput_color_def(uint32_t pos, int n)
+{ if ((n==0 && colors_equal(color_defaults[0], colors_n)) || 
+      (n==1 && colors_equal(color_defaults[1], colors_n)))
+  { hpos=hstart+pos;
+    return;
+  }
+  hput_tags(pos,hput_color_set(n));
+}
+@
+
+Compared to the definitions, the content nodes are pretty simple.
+The special color number |0xFF| is reserved to indicate an 
+\<color off> node in the short format.
+
+@<parsing rules@>=
+content_node: start COLOR ref END
+    {REF_RNG(color_kind,$3); hput_tags($1,TAG(color_kind,b000));};
+content_node: start COLOR OFF END
+    { HPUT8(0xFF); hput_tags($1,TAG(color_kind,b000));};
+@
+
+\vbox{\writecode\vskip -\baselineskip\getcode}
+
+We contine with the color content nodes:
+@<cases to get content@>=
+@t\1\kern1em@>
+case TAG(color_kind,b000):
+  { uint8_t n=HGET8;@+
+    if (n==0xFF) hwritef(" off");
+    else { REF(color_kind,n); @+hwrite_ref(n);@+}
+  }
+  break;
+@
+
+And now we turn to the color definitions:
+
+@<get functions@>=
+void hwrite_color_pair(uint32_t f, uint32_t b)
+{ hwritec('<');
+  if (f==0) hwritec('0'); else hwritef("0x%08X",f);
+  if (b!=0) hwritef(" 0x%08X",b);
+  hwritec('>');
+}
+
+void hget_color_set(uint32_t node_pos, ColorSet cs)
+{ int i,m;
+  for (i=0;i<sizeof(ColorSet)/4;i++)
+    HGET32(cs[i]);
+  for(m=0;m<2;m++)  
+  { uint32_t *c, *d;
+    bool diff_high, diff_focus;
+    if (m==0)
+    { c=cs; d=color_defaults[0]; }
+    else
+    { c=NIGHT(cs); d=NIGHT(color_defaults[0]);
+      if (memcmp(c,d,sizeof(ColorSet)/2)==0)
+        return;
+    }
+    hwrite_start();
+    diff_high=FG(HIGH(c))!=FG(HIGH(d))|| BG(HIGH(c))!=BG(HIGH(d));
+    diff_focus=FG(FOCUS(c))!=FG(FOCUS(d))||BG(FOCUS(c))!=BG(FOCUS(d));
+    hwrite_color_pair(FG(c),BG(c));
+    if (diff_high || diff_focus)  
+    { hwritec(' '); hwrite_color_pair(FG(HIGH(c)),BG(HIGH(c)));}
+    if (diff_focus) 
+    { hwritec(' '); hwrite_color_pair(FG(FOCUS(c)),BG(FOCUS(c)));}
+    hwrite_end();
+  }
+}
+@
+
+@<cases to get definitions for |color_kind|@>=
+ case b000:
+   { int k;
+     ColorSet c;
+     static bool first_color=true;
+     k=HGET8;
+     if (k<6) 
+       QUIT("Definition %d of color set needs 6 color pairs only %d given\n",n,k);
+     hget_color_set(node_pos,c);
+     if (n==0)
+     { if (!first_color)
+         QUIT("Definition of color set zero must be first");
+       memcpy(&color_defaults[0],&c,sizeof(ColorSet));
+     }
+     first_color=false;
+   }
+   break;
+@
 
 \subsection{Rotation}
 When it comes to rotation, there is a big difference between printed books and
@@ -7581,30 +7994,31 @@ the original filenames can be reconstructed.
 @<compute a local |aux_name|@>=
 { char *path=dir[i].file_name;
   int path_length=(int)strlen(path);
-  int aux_length;
   @<determine whether |path| is absolute or relative@>@;
-  aux_length=stem_length+ext_length+path_length;
-  ALLOCATE(aux_name,aux_length+1,char);
-  strcpy(aux_name,stem_name);
-  strcpy(aux_name+stem_length,aux_ext[name_type]);
-  strcpy(aux_name+stem_length+ext_length,path);
   @<replace links to the parent directory@>@; 
   DBG(DBGDIR,"Replacing auxiliary file name:\n\t%s\n->\t%s\n",path,aux_name);
 }
 @
 
 @<determine whether |path| is absolute or relative@>=
+  int aux_length;
   enum {absolute=0, relative=1} name_type;
   char *aux_ext[2]={".abs/",".rel/"};
   int ext_length=5;
+  aux_length=stem_length+ext_length+path_length;
+  ALLOCATE(aux_name,aux_length+1,char);
+  strcpy(aux_name,stem_name);
   if (path[0]=='/')
   { name_type=absolute;
-    path++; path_length--;
+    strcpy(aux_name+stem_length,aux_ext[name_type]);
+    strcpy(aux_name+stem_length+ext_length,path+1);  
   }
   else if (path_length>3 && isalpha(path[0]) &&
            path[1]==':' && path[2]=='/')
   { name_type=absolute;
-    path[1]='_';
+    strcpy(aux_name+stem_length,aux_ext[name_type]);
+    strcpy(aux_name+stem_length+ext_length,path);
+    aux_name[stem_length+ext_length+1]='_';
   }      
   else
     name_type=relative;
@@ -7617,7 +8031,7 @@ file system, we replace links to the parent direcory ``{\tt ../}'' by
 
 @<replace links to the parent directory@>=
 { int k;
-  for (k=0; k<aux_length-3;k++) 
+  for (k=stem_length+ext_length; k<aux_length-3;k++) 
     if (aux_name[k]=='.'&& aux_name[k+1]=='.'&& aux_name[k+2]=='/')
     { aux_name[k]=aux_name[k+1]='_';k=k+2;}
 }
@@ -7925,7 +8339,7 @@ size, we need to determine the file.
         aux_names[i]=aux_name;
       else 
       { if (option_aux) QUIT("Unable to find file '%s'",aux_name); 
-        free(aux_name);
+        free(aux_name); aux_name=NULL;
       } 
     }
     if ((aux_names[i]==NULL && !option_aux) || option_global)
@@ -8162,7 +8576,7 @@ max_value: FONT UNSIGNED      { hset_max(font_kind,$2); }
          | INTEGER UNSIGNED   { hset_max(int_kind,$2); }
          | DIMEN UNSIGNED     { hset_max(dimen_kind,$2); }
          | LIGATURE UNSIGNED  { hset_max(ligature_kind,$2); }
-         | DISC UNSIGNED    { hset_max(disc_kind,$2); }
+         | DISC UNSIGNED      { hset_max(disc_kind,$2); }
          | GLUE UNSIGNED      { hset_max(glue_kind,$2); }
          | LANGUAGE UNSIGNED  { hset_max(language_kind,$2); }
          | RULE UNSIGNED      { hset_max(rule_kind,$2); }
@@ -8174,7 +8588,8 @@ max_value: FONT UNSIGNED      { hset_max(font_kind,$2); }
          | STREAMDEF UNSIGNED { hset_max(stream_kind,$2); }
          | PAGE UNSIGNED      { hset_max(page_kind,$2); }
          | RANGE UNSIGNED     { hset_max(range_kind,$2); }
-         | LABEL UNSIGNED     { hset_max(label_kind,$2); };
+         | LABEL UNSIGNED     { hset_max(label_kind,$2); }
+         | COLOR UNSIGNED     { hset_max(color_kind,$2); };
 
 @
 
@@ -8227,10 +8642,11 @@ void hget_max_definitions(void)
     { @<cases of getting special maximum values@>@;
       default:
         if (max_fixed[k]>max_default[k]) 
-          QUIT("Maximum value for kind %s not supported",definition_name[k]);   
-        RNG("Maximum number",n,max_default[k],MAX_REF(k));
-        max_ref[k]=n;
-        DBG(DBGDEF,"max(%s) = %d\n",definition_name[k],max_ref[k]);
+          MESSAGE("Maximum value for kind %s not supported\n",definition_name[k]);        else
+        { RNG("Maximum number",n,max_default[k],MAX_REF(k));
+          max_ref[k]=n;
+          DBG(DBGDEF,"max(%s) = %d\n",definition_name[k],max_ref[k]);
+	}
         break;
     }
     @<read and check the end byte |z|@>@;
@@ -8360,6 +8776,7 @@ definition_bits[0][baseline_kind]=(1<<(MAX_BASELINE_DEFAULT+1))-1;
 definition_bits[0][page_kind]=(1<<(MAX_PAGE_DEFAULT+1))-1;
 definition_bits[0][stream_kind]=(1<<(MAX_STREAM_DEFAULT+1))-1;
 definition_bits[0][range_kind]=(1<<(MAX_RANGE_DEFAULT+1))-1;
+definition_bits[0][color_kind]=(1<<(MAX_COLOR_DEFAULT+1))-1;
 @
 
 \goodbreak
@@ -8432,6 +8849,13 @@ void hget_definition(int n, Tag a, uint32_t node_pos)
           QUIT("Info value of language definition must be zero");
         else
         { char *n; HGET_STRING(n);@+ hwrite_string(n); }
+        break;
+      case color_kind:
+        switch (INFO(a))
+        { @<cases to get definitions for |color_kind|@>@;
+	  default:
+	    QUIT("Undefined tag %d for color_kind definition at 0x%x",INFO(a),node_pos);
+        }
         break;
       default:
         hget_content(a); @+break;
@@ -9152,7 +9576,7 @@ zero_label_no=0@+
 @
 @<define |label_defaults|@>=
 max_default[label_kind]=MAX_LABEL_DEFAULT;
-printf("Label label_defaults[MAX_LABEL_DEFAULT+1]="@|"{{0,LABEL_TOP,true,0,0,0}};\n\n");
+printf("Label label_defaults[MAX_LABEL_DEFAULT+1]="@|"{{0,0,LABEL_TOP,true,0,0}};\n\n");
 @
 
 
@@ -9218,6 +9642,45 @@ max_default[param_kind]=MAX_LIST_DEFAULT;
 max_fixed[param_kind]=empty_list_no;
 @
 
+\subsection{Colors}\label{colordefault}
+@<default names@>=
+typedef enum {@+
+zero_color_no=0, link_color_no=1@+
+} Color_no;
+#define MAX_COLOR_DEFAULT link_color_no
+@
+
+The default colors for day mode are
+black on white, red on white, and green on white;
+the links in day mode are blue.
+In night mode the background becomes black, the normal text white
+and the other colors become slightly lighter.
+
+We store the default color set using an byte array in RGBA format for colors;
+we combine a pair of colors for foreground and background in an array;
+we combine three pairs for normal, mark, and focus text in an array;
+and we define a color set as two such pairs, one for day and one for night mode
+to define the default colors.
+
+
+@<define |color_defaults|@>=
+max_default[color_kind]=MAX_COLOR_DEFAULT;
+max_fixed[color_kind]=-1;
+printf("ColorSet  color_defaults[MAX_COLOR_DEFAULT+1]=\n"@|
+       "{{0x000000FF, 0xFFFFFF00,\n" /* black on white */@|
+       "  0xEE0000FF, 0xFFFFFF00,\n" /* dark red */
+       "  0x00EE00FF, 0xFFFFFF00,\n" /* dark green */@|
+       "  0xFFFFFFFF, 0x00000000," /* white on black */
+       "  0xFF1111FF, 0x00000000,\n" /* light red */
+       "  0x11FF11FF, 0x00000000},\n" /* light green*/@| 
+       " {0x0000EEFF, 0xFFFFFF00,\n" /* dark blue on white */
+       "  0xEE0000FF, 0xFFFFFF00,\n" /* dark red on white */
+       "  0x00EE00FF, 0xFFFFFF00,\n" /* dark green on white */@| 
+       "  0x1111FFFF, 0x00000000,\n" /* light blue on black */
+       "  0xFF1111FF, 0x00000000,\n" /* light red on black */
+       "  0x11FF11FF, 0x00000000\n" /* light green on black */
+       "}};\n\n");
+@
 
 
 \section{Content Section}
@@ -10065,15 +10528,19 @@ hnode_size[TAG(image_kind,b111)] = NODE_SIZE(2+4,3);
 @
 
 \subsection{Links}\index{link}
-Links contain either a 2 byte or a 1 byte reference.
+Links contain either a 2 byte or a 1 byte reference and possibly a color reference.
 @<initialize the  |hnode_size| array@>=
 hnode_size[TAG(link_kind,b000)] = NODE_SIZE(1,0);
 hnode_size[TAG(link_kind,b001)] = NODE_SIZE(2,0);
 hnode_size[TAG(link_kind,b010)] = NODE_SIZE(1,0);
 hnode_size[TAG(link_kind,b011)] = NODE_SIZE(2,0);
+hnode_size[TAG(link_kind,b100)] = NODE_SIZE(2,0);
+hnode_size[TAG(link_kind,b101)] = NODE_SIZE(3,0);
+hnode_size[TAG(link_kind,b110)] = NODE_SIZE(2,0);
+hnode_size[TAG(link_kind,b111)] = NODE_SIZE(3,0);
 @
 
-\subsection{Stream Nodes}\index{stream}
+\subsection{Streams}\index{stream}
 After the stream reference follows a parameter list, either as reference
 or as a list, and then a content list.
 @<initialize the  |hnode_size| array@>=
@@ -10082,6 +10549,10 @@ hnode_size[TAG(stream_kind,b010)] = NODE_SIZE(1,2);
 hnode_size[TAG(stream_kind,b100)] = NODE_SIZE(1,0);
 @
 
+\subsection{Colors}\index{color}
+@<initialize the  |hnode_size| array@>=
+hnode_size[TAG(color_kind,b000)] = NODE_SIZE(1,0);
+@
 
 \section{Reading Short Format Files Backwards}
 This section is not really part of the file format definition, but it
@@ -10592,7 +11063,7 @@ case TAG(image_kind,b111): @+ HTEG_IMAGE(b111);@+break;
 \noindent
 @<skip macros@>=
 #define @[HTEG_LINK(I)@] @/\
-{ uint16_t n; if (I&b001) HTEG16(n);@+ else n=HTEG8; @+}
+{ uint16_t n;  if (I&b100) n=HTEG8; if (I&b001) HTEG16(n);@+ else n=HTEG8; @+}
 @
 
 @<cases to skip content@>=
@@ -10600,8 +11071,18 @@ case TAG(image_kind,b111): @+ HTEG_IMAGE(b111);@+break;
 case TAG(link_kind,b001): @+ HTEG_LINK(b001); @+break;
 case TAG(link_kind,b010): @+ HTEG_LINK(b010); @+break;
 case TAG(link_kind,b011): @+ HTEG_LINK(b011); @+break;
+case TAG(link_kind,b100): @+ HTEG_LINK(b100); @+break;
+case TAG(link_kind,b101): @+ HTEG_LINK(b101); @+break;
+case TAG(link_kind,b110): @+ HTEG_LINK(b110); @+break;
+case TAG(link_kind,b111): @+ HTEG_LINK(b111); @+break;
 @
 
+\subsection{Colors}
+\noindent
+@<cases to skip content@>=
+@t\1\kern1em@>
+case TAG(color_kind,b000): @+ (void)HTEG8; @+break;
+@
 
 \subsection{Plain Lists, Texts, and Parameter Lists}\index{list}
 
@@ -10802,7 +11283,7 @@ typedef double float64_t;
 #error  @=float64 type must have size 8@>
 #endif
 #define HINT_VERSION 2
-#define HINT_MINOR_VERSION 0
+#define HINT_MINOR_VERSION 1
 #define AS_STR(X) #X
 #define VERSION_AS_STR(X,Y) AS_STR(X) "." AS_STR(Y)
 #define HINT_VERSION_STRING VERSION_AS_STR(HINT_VERSION, HINT_MINOR_VERSION)
@@ -10833,6 +11314,7 @@ extern Xdimen xdimen_defaults[MAX_XDIMEN_DEFAULT+1];
 extern Glue glue_defaults[MAX_GLUE_DEFAULT+1];
 extern Baseline baseline_defaults[MAX_BASELINE_DEFAULT+1];
 extern Label label_defaults[MAX_LABEL_DEFAULT+1];
+extern ColorSet color_defaults[MAX_COLOR_DEFAULT+1];
 extern signed char hnode_size[0x100];
 extern uint8_t content_known[32];
 
@@ -10885,6 +11367,7 @@ int main(void)
   @<define stream defaults@>@;
   @<define range defaults@>@;
   @<define |label_defaults|@>@;
+  @<define |color_defaults|@>@;  
   @<print defaults@>@;
  
   @<initialize the  |hnode_size| array@>@;
@@ -10947,6 +11430,7 @@ extern void hget_entry(Entry *e);
 extern void hget_directory(void);
 extern void hclear_dir(void);
 extern bool hcheck_banner(char *magic);
+extern int max_range;
 
 extern void hget_max_definitions(void);
 extern uint32_t hget_utf8(void);
@@ -11016,6 +11500,7 @@ extern uint16_t section_no,  max_section_no;
 extern uint8_t *hpos, *hstart, *hend, *hpos0;
 extern int next_range;
 extern RangePos *range_pos;
+extern int next_range, max_range;
 extern int *page_on; 
 extern Label *labels;
 extern int first_label;
@@ -11034,7 +11519,7 @@ extern void hput_content_start(void);
 extern void hput_content_end(void);
 
 extern void hset_label(int n,int w);
-extern Tag hput_link(int n, int on);
+extern Tag hput_link(int n, int c, int on);
 extern void hset_outline(int m, int r, int d, uint32_t p);
 extern void hput_label_defs(void);
 
@@ -11062,6 +11547,10 @@ extern Tag hput_disc(Disc *h);
 extern Info hput_span_count(uint32_t n);
 extern void hextract_image_dimens(int n, double *a, Dimen *w, Dimen *h);
 extern Info hput_image_spec(uint32_t n, float32_t a, uint32_t wr, Xdimen *w, uint32_t hr, Xdimen *h);
+extern int colors_i;
+extern ColorSet colors_0, colors_n;
+extern void color_init(void);
+extern void hput_color_def(uint32_t pos, int n);
 extern void hput_string(char *str);
 extern void hput_range(uint8_t pg, bool on);
 extern void hput_max_definitions(void);

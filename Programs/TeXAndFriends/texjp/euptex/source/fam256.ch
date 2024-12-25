@@ -556,11 +556,11 @@ function var_delimiter(@!d:pointer;@!s:integer;@!v:scaled):pointer;
 @z
 %-----------------------------------------------
 @x
-@!hd: eight_bits; {height-depth byte}
+@!hd: sixteen_bits; {height-depth byte}
 @!r: four_quarters; {extensible pieces}
 @!z: small_number; {runs through font family members}
 @y
-@!hd: eight_bits; {height-depth byte}
+@!hd: sixteen_bits; {height-depth byte}
 @!r: four_quarters; {extensible pieces}
 @!z: integer; {runs through font family members}
 @z
@@ -1205,7 +1205,10 @@ def_code: begin
   @<Let |n| be the largest legal code value, based on |cur_chr|@>;
   p:=cur_chr;
   if p=kcat_code_base then
-    begin scan_char_num; p:=p+kcatcodekey(cur_val) end
+    begin scan_char_num; p:=p+kcatcodekey(cur_val);
+      if cur_val>=max_latin_val then m:=not_cjk; end
+  else if p<math_code_base then
+    begin scan_latin_num; p:=p+cur_val; end
   else begin scan_ascii_num; p:=p+cur_val; end;
   scan_optional_equals; scan_int;
   if ((cur_val<m)and(p<del_code_base))or(cur_val>n) then
@@ -1250,7 +1253,9 @@ def_code: begin
     @<Let |m| be the minimal legal code value, based on |cur_chr|@>;
     @<Let |n| be the largest legal code value, based on |cur_chr|@>;
     p:=cur_chr; cur_val1:=p;
-    if p=kcat_code_base then begin scan_char_num; p:=p+kcatcodekey(cur_val) end
+    if p=kcat_code_base then begin scan_char_num; p:=p+kcatcodekey(cur_val);
+      if cur_val>=max_latin_val then m:=not_cjk; end
+    else if p<math_code_base then begin scan_latin_num; p:=p+cur_val; end
     else begin scan_ascii_num; p:=p+cur_val; end;
     scan_optional_equals; scan_int;
     if ((cur_val<m)and(p<del_code_base))or(cur_val>n) then
@@ -1296,9 +1301,11 @@ def_code: begin
 %-----------------------------------------------
 @x
 else if cur_chr=kcat_code_base then n:=max_char_code
+else if cur_chr<math_code_base then n:=max_latin_val
 else if cur_chr=math_code_base then n:=@'100000
 @y
 else if cur_chr=kcat_code_base then n:=max_char_code
+else if cur_chr<math_code_base then n:=max_latin_val
 else if cur_chr=math_code_base then n:=@"8000
 else if cur_chr=(math_code_base+128) then n:=@"8000000
 @z

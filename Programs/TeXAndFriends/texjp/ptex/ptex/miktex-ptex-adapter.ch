@@ -162,6 +162,8 @@ begin {Allocate the font arrays}
 @y
 begin {Allocate the font arrays}
 char_base:=xmalloc_array(integer, font_max);
+font_bc:=xmalloc_array(eight_bits, font_max);
+font_ec:=xmalloc_array(eight_bits, font_max);
 @z
 
 % _____________________________________________________________________________
@@ -195,6 +197,8 @@ fix_date_and_time;@/
 
   {Allocate and initialize font arrays}
   font_check:=xmalloc_array(four_quarters, font_max);
+  font_bc:=xmalloc_array(eight_bits, font_max);
+  font_ec:=xmalloc_array(eight_bits, font_max);
   char_base:=xmalloc_array(integer, font_max);
 @z
 
