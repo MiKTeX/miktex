@@ -1098,7 +1098,7 @@ void mp_svg_stroke_out (MP mp,  mp_graphic_object *h,
          }
          append_char(';');
       }
-
+    }  
     if (gr_ljoin_val((mp_stroked_object *)h)!=0) {
       append_string ("stroke-linejoin: ");
       switch (gr_ljoin_val((mp_stroked_object *)h)) {
@@ -1114,7 +1114,7 @@ void mp_svg_stroke_out (MP mp,  mp_graphic_object *h,
       mp_svg_store_double(mp, gr_miterlim_val((mp_stroked_object *)h)); 
       append_char(';');
     }
-    }
+
 
     append_string("fill: ");
     if (fill_also) {

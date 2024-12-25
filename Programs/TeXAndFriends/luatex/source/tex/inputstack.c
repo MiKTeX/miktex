@@ -749,6 +749,7 @@ void initialize_inputstack(void)
         buffer[first] = 0;
         decr(first);
     } while (first != 0);
+    buffer[0] = 0;
     scanner_status = normal;
     warning_index = null;
     first = 1;

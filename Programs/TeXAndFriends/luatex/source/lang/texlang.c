@@ -943,7 +943,7 @@ void hnj_hyphenation(halfword head, halfword tail)
     int lchar, i;
     struct tex_language *lang;
     lang_variables langdata;
-    char utf8word[(4 * MAX_WORD_LEN) + 1] = { 0 };
+    char utf8word[(4 * MAX_WORD_LEN) + 1];
     int wordlen = 0;
     char *hy = utf8word;
     char *replacement = NULL;

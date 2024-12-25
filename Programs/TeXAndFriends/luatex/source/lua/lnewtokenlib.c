@@ -330,7 +330,7 @@ inline static int run_put_next(lua_State * L)
     if (h == null) {
         /* can't happen */
     } else {
-        begin_token_list(h,0);
+        begin_token_list(h,4);
     }
     lua_settop(L,n);
     return 0;
@@ -1265,9 +1265,9 @@ static int set_macro(lua_State * L)
         const char *se = str + lstr;
         p = temp_token_head;
         set_token_link(p, null);
-        /* this left brace is used to store the number of arguments */
-        fast_store_new_token(left_brace_token);
-        /* and this ends the not present arguments, and no: we will not support arguments here*/
+	/* reference count */
+        fast_store_new_token(0);
+	/* this ends the not present arguments, and no: we will not support arguments here*/
         fast_store_new_token(end_match_token);
         while (str < se) {
             /* hh: str2uni could return len too (also elsewhere) */
@@ -1334,7 +1334,7 @@ static int set_macro(lua_State * L)
         halfword q; /* new node being added to the token list via |store_new_token| */
         p = temp_token_head;
         set_token_info(p,null);
-        fast_store_new_token(left_brace_token);
+        fast_store_new_token(0);
         fast_store_new_token(end_match_token);
         define(cs, call_cmd + (a % 4), token_link(temp_token_head));
     }

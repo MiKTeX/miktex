@@ -2685,6 +2685,17 @@ halfword swap_parshape_indent(halfword indentation, halfword width, halfword sha
 
 */
 
+/*
+
+\def\foo{0} {\tracingcommands2 \tracingonline2 \globaldefs 1 \global\def \foo{1}} \foo 1 \par 
+\def\foo{0} {\tracingcommands2 \tracingonline2 \globaldefs 1        \def \foo{2}} \foo 2 \par % {\global enforced} 
+\def\foo{0} {\tracingcommands2 \tracingonline2 \globaldefs 0        \def \foo{4}} \foo 0 \par 
+\def\foo{0} {\tracingcommands2 \tracingonline2 \globaldefs 0        \gdef\foo{4}} \foo 4 \par 
+\def\foo{0} {\tracingcommands2 \tracingonline2 \globaldefs-1 \global\def \foo{3}} \foo 0 \par % {\global canceled} 
+\def\foo{0} {\tracingcommands2 \tracingonline2 \globaldefs-1        \gdef\foo{4}} \foo 0 \par % {\global canceled}
+
+*/
+
 void prefixed_command(void)
 {
     int a;                      /* accumulated prefix codes so far */
@@ -2743,13 +2754,35 @@ void prefixed_command(void)
     /*tex
         Adjust for the setting of \.{\\globaldefs}
     */
-    if (global_defs_par != 0) {
-        if (global_defs_par < 0) {
-            if (is_global(a))
-                a = a - 4;
-        } else {
-            if (!is_global(a))
-                a = a + 4;
+    /* if (global_defs_par != 0) { */
+    /*     if (global_defs_par < 0) { */
+    /*         if (is_global(a)) */
+    /*             a = a - 4; */
+    /*     } else { */
+    /*         if (!is_global(a)) */
+    /*             a = a + 4; */
+    /*     } */
+    /* } */
+    if (cur_cmd == def_cmd && odd(cur_chr) && ! is_global(a)) {
+        a += 4;
+    }
+    if (global_defs_par < 0) {
+        if (is_global(a)) {
+            a -= 4;
+            if (tracing_commands_par > 1) {
+                begin_diagnostic();
+                tprint_nl("{\\global canceled}");
+                end_diagnostic(false);
+            }
+        }
+    } else if (global_defs_par > 0) {
+        if (! is_global(a)) {
+            a += 4;
+            if (tracing_commands_par > 1) {
+                begin_diagnostic();
+                tprint_nl("{\\global enforced}");
+                end_diagnostic(false);
+            }
         }
     }
     switch (cur_cmd) {
@@ -2766,8 +2799,9 @@ void prefixed_command(void)
                 definition is supposed to be global, and |cur_chr>=2| if the
                 definition is supposed to be expanded.
             */
-            if (odd(cur_chr) && !is_global(a) && (global_defs_par >= 0))
-                a = a + 4;
+	  /* if (odd(cur_chr) && !is_global(a) && (global_defs_par >= 0)) { */
+	  /*    a = a + 4; */
+	  /* } */
             e = (cur_chr >= 2);
             get_r_token();
             p = cur_cs;
