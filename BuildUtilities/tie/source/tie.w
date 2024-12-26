@@ -25,7 +25,7 @@
 %		also repaired loop control for end of changes test (92-09-24)
 % Version 2.4 included <stdlib.h> instead of <malloc.h> when
 %		used with ANSI-C				   (92-12-17)
-% See ChangeLog for further changes.
+%
 
 % Here is TeX material that gets inserted after \input cwebmac
 
@@ -458,14 +458,14 @@ for terminating an output line and writing strings to the user.
 
 @^system dependencies@>
 @d term_out  stdout
-@d print(a)  fprintf(term_out,"%s",a) /* `|print|' means write on the terminal */
+@d print(a)  fprintf(term_out,a) /* `|print|' means write on the terminal */
 @d print2(a,b)  fprintf(term_out,a,b) /* same with two arguments */
 @d print3(a,b,c)  fprintf(term_out,a,b,c) /* same with three arguments */
 @d print_c(v)  fputc(v,term_out); /* print a single character */
 @d new_line(v)  fputc('\n',v) /* start new line */
 @d term_new_line  new_line(term_out)
 	/* start new line of the terminal */
-@d print_ln(v)  {fprintf(term_out,"%s",v);term_new_line;}
+@d print_ln(v)  {fprintf(term_out,v);term_new_line;}
 	/* `|print|' and then start new line */
 @d print2_ln(a,b)  {print2(a,b);term_new_line;} /* same with two arguments */
 @d print3_ln(a,b,c)  {print3(a,b,c);term_new_line;}

@@ -75,3 +75,26 @@ main(argc,argv)
 @y
 int main(argc,argv)
 @z
+
+% _____________________________________________________________________________
+%
+% [9.60]
+% _____________________________________________________________________________
+
+@x
+   switch (history) {
+      case spotless: msg="No errors were found"; break;
+      case troublesome: msg="Pardon me, but I think I spotted something wrong.";
+	        break;
+      case fatal: msg="That was a fatal error, my friend";  break;
+@y
+   fclose(out_file);
+   switch (history) {
+      case spotless: msg="No errors were found"; break;
+      case troublesome: msg="Pardon me, but I think I spotted something wrong.";
+            unlink(out_name);
+	        break;
+      case fatal: msg="That was a fatal error, my friend";
+            unlink(out_name);
+            break;
+@z
