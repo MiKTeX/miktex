@@ -2,7 +2,7 @@
  * @file miktex/KPSE/Emulation
  * @defgroup KPSE Kpathsea emulation
  * @author Christian Schenk
- * @brief  Utilities for emulating the Kpathsea library
+ * @brief Utilities for emulating the Kpathsea library
  *
  * @copyright Copyright © 2000-2024 Christian Schenk
  *

@@ -2,7 +2,7 @@
  * @file miktex/KPSE/Emulation.h
  * @defgroup KPSE Kpathsea emulation
  * @author Christian Schenk
- * @brief  Utilities for emulating the Kpathsea library
+ * @brief Utilities for emulating the Kpathsea library
  *
  * @copyright Copyright © 2000-2024 Christian Schenk
  *
@@ -148,29 +148,6 @@ MIKTEX_END_EXTERN_C_BLOCK;
 #define SET_BINARY(f) _setmode(f, _O_BINARY)
 #else
 #define SET_BINARY(f)
-#endif
-
-/// @}
-
-/* _________________________________________________________________________
- *
- * c-memstr.h
- *
- */
-
-/// @name c-memstr.h
-/// Stuff from `c-memstr.h`.
-/// @{
-
-#if !defined(HAVE_INDEX) && !defined(index)
-inline const char* index(const char* s, int c)
-{
-    return strchr(s, c);
-}
-#endif
-
-#if !defined(HAVE_RINDEX) && !defined(rindex)
-#define rindex(s, c) strrchr(s, c)
 #endif
 
 /// @}

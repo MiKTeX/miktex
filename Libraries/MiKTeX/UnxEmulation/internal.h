@@ -1,23 +1,16 @@
-/* internal.h: internal definitions			-*- C++ -*-
-
-   Copyright (C) 2007-2021 Christian Schenk
-
-   This file is part of the MiKTeX UNXEMU Library.
-
-   The MiKTeX UNXEMU Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-   
-   The MiKTeX UNXEMU Library is distributed in the hope that it will
-   be useful, but WITHOUT ANY WARRANTY; without even the implied
-   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-   See the GNU General Public License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX UNXEMU Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file internal.h
+ * @defgroup Unx emulation
+ * @author Christian Schenk
+ * @brief Internal definitions
+ *
+ * @copyright Copyright © 2007-2024 Christian Schenk
+ *
+ * This file is part of the MiKTeX UNXEMU Library.
+ *
+ * MiKTeX UNXEMU Library is licensed under GNU General Public License version 2
+ * or any later version.
+ */
 
 #define MIKTEXUNXEXPORT MIKTEXDLLEXPORT
 
@@ -33,27 +26,27 @@
 #define MIKTEXINTERNALFUNC(type) type
 #define MIKTEXINTERNALVAR(type) type
 
-#define C_FUNC_BEGIN()				\
-  {						\
-    try						\
-      {
+#define C_FUNC_BEGIN()  \
+    {                   \
+        try             \
+        {
 
-#define C_FUNC_END()					\
-      }							\
-    catch (const MiKTeX::Core::MiKTeXException & e)	\
-      {							\
-        if (stderr != 0)				\
-	  {						\
-	    Utils::PrintException (e);			\
-	  }						\
-        exit (1);					\
-      }							\
-    catch (const std::exception & e)			\
-      {							\
-        if (stderr != 0)				\
-	  {						\
-	    Utils::PrintException (e);			\
-	  }						\
-        exit (1);					\
-      }							\
-  }
+#define C_FUNC_END()                                    \
+        }                                               \
+        catch (const MiKTeX::Core::MiKTeXException& e)  \
+        {                                               \
+            if (stderr != nullptr)                      \
+            {                                           \
+                Utils::PrintException(e);               \
+            }                                           \
+            exit(1);                                    \
+        }                                               \
+        catch (const std::exception& e)                 \
+        {                                               \
+            if (stderr != nullptr)                      \
+            {                                           \
+                Utils::PrintException(e);               \
+            }                                           \
+            exit(1);                                    \
+        }                                               \
+    }

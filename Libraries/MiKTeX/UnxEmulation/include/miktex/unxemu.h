@@ -1,35 +1,25 @@
-/* miktex/unxemu.h: Unx emulation                       -*- C++ -*-
-
-   Copyright (C) 2007-2024 Christian Schenk
-
-   This file is part of the MiKTeX UNXEMU Library.
-
-   The MiKTeX UNXEMU Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-   
-   The MiKTeX UNXEMU Library is distributed in the hope that it will
-   be useful, but WITHOUT ANY WARRANTY; without even the implied
-   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-   See the GNU General Public License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX UNXEMU Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file miktex/unxemu.h
+ * @defgroup Unx emulation
+ * @author Christian Schenk
+ * @brief Utilities for emulating Unx functions
+ *
+ * @copyright Copyright © 2007-2024 Christian Schenk
+ *
+ * This file is part of the MiKTeX UNXEMU Library.
+ *
+ * MiKTeX UNXEMU Library is licensed under GNU General Public License version 2
+ * or any later version.
+ */
 
 #pragma once
-
-#if !defined(CD70C7B43023454AA6033DFEA94551FE)
-#define CD70C7B43023454AA6033DFEA94551FE
 
 #include <miktex/unxemu-config.h>
 
 #if defined(__cplusplus)
-#  include <miktex/Util/inliners.h>
+#include <miktex/Util/inliners.h>
 #else
-#  include <miktex/Core/c/api.h>
+#include <miktex/Core/c/api.h>
 #endif
 
 #include <direct.h>
@@ -53,7 +43,7 @@
 
 // DLL import/export switch
 #if !defined(D2A2BA842ACE40C6A8A17A9358F2147E)
-#  define MIKTEXUNXEXPORT MIKTEXDLLIMPORT
+#define MIKTEXUNXEXPORT MIKTEXDLLIMPORT
 #endif
 
 // API decoration for exported functions
@@ -64,7 +54,7 @@
 #if !HAVE_ALLOCA && !defined(alloca)
 static inline void* alloca(size_t size)
 {
-  return _malloca(size);
+    return _malloca(size);
 }
 #endif
 
@@ -80,34 +70,25 @@ typedef struct WDIR_ WDIR;
 
 struct dirent
 {
-  int d_ino;
-  char d_name[260];
+    int d_ino;
+    char d_name[260];
 };
 
 struct wdirent
 {
-  int d_ino;
-  wchar_t d_name[260];
+    int d_ino;
+    wchar_t d_name[260];
 };
 
 MIKTEXUNXCEEAPI(int) closedir(DIR* pDir);
-
 MIKTEXUNXCEEAPI(DIR*) opendir(const char* path);
-
 MIKTEXUNXCEEAPI(struct dirent*) readdir(DIR* dir);
-
 MIKTEXUNXCEEAPI(void) rewinddir(DIR* dir);
-
 MIKTEXUNXCEEAPI(void) seekdir(DIR* dir, long int loc);
-
 MIKTEXUNXCEEAPI(long int) telldir(DIR* dir);
-
 MIKTEXUNXCEEAPI(int) wclosedir(WDIR* dir);
-
 MIKTEXUNXCEEAPI(WDIR*) wopendir(const wchar_t* path);
-
 MIKTEXUNXCEEAPI(struct wdirent*) wreaddir(WDIR* dir);
-
 MIKTEXUNXCEEAPI(void) wrewinddir(WDIR* dir);
 
 MIKTEX_END_EXTERN_C_BLOCK;
@@ -119,7 +100,7 @@ MIKTEX_END_EXTERN_C_BLOCK;
 #define HAVE_FINITE 1
 static inline int finite(double x)
 {
-  return _finite(x);
+    return _finite(x);
 }
 #endif
 
@@ -132,7 +113,7 @@ MIKTEX_EXTERN_C MIKTEXUNXCEEAPI(int) miktex_mkstemp(char* tmpl);
 #define HAVE_MKSTEMP 1
 static inline int mkstemp(char* tmpl)
 {
-  return miktex_mkstemp(tmpl);
+    return miktex_mkstemp(tmpl);
 }
 #endif
 
@@ -145,7 +126,7 @@ MIKTEX_EXTERN_C MIKTEXUNXCEEAPI(int) miktex_strncasecmp(const char* lpsz1, const
 #define HAVE_BZERO 1
 static inline void bzero(void* s, size_t n)
 {
-  memset(s, 0, n);
+    memset(s, 0, n);
 }
 #endif
 
@@ -155,9 +136,9 @@ static inline void bzero(void* s, size_t n)
 static inline int strcasecmp(const char* s1, const char* s2)
 {
 #if defined(__cplusplus)
-  return MiKTeX::Util::StringCompare(s1, s2, true);
+    return MiKTeX::Util::StringCompare(s1, s2, true);
 #else
-  return _strcmpi(s1, s2);
+    return _strcmpi(s1, s2);
 #endif
 }
 #endif
@@ -168,10 +149,28 @@ static inline int strcasecmp(const char* s1, const char* s2)
 static inline int strncasecmp(const char* s1, const char* s2, size_t n)
 {
 #if defined(__cplusplus)
-  return MiKTeX::Util::CeeStringCompare(s1, s2, n, true);
+    return MiKTeX::Util::CeeStringCompare(s1, s2, n, true);
 #else
-  return miktex_strncasecmp(s1, s2, n);
+    return miktex_strncasecmp(s1, s2, n);
 #endif
+}
+#endif
+
+#if !defined(HAVE_INDEX) && !defined(index)
+#undef HAVE_INDEX
+#define HAVE_INDEX 1
+static inline const char* index(const char* s, int c)
+{
+    return strchr(s, c);
+}
+#endif
+
+#if !defined(HAVE_RINDEX) && !defined(rindex)
+#undef HAVE_RINDEX
+#define HAVE_RINDEX 1
+static inline const char* rindex(const char* s, int c)
+{
+    return strrchr(s, c);
 }
 #endif
 
@@ -188,15 +187,15 @@ static inline int strncasecmp(const char* s1, const char* s2, size_t n)
 #define HAVE_OPEN 1
 static inline int open(const char* path, int oflag, ...)
 {
-  int pmode = 0;
-  if ((oflag & _O_CREAT) != 0)
-  {
-    va_list ap;
-    va_start(ap, oflag);
-    pmode = va_arg(ap, int);
-    va_end(ap);
-  }
-  return _open(path, oflag, pmode);
+    int pmode = 0;
+    if ((oflag & _O_CREAT) != 0)
+    {
+        va_list ap;
+        va_start(ap, oflag);
+        pmode = va_arg(ap, int);
+        va_end(ap);
+    }
+    return _open(path, oflag, pmode);
 }
 #endif
 
@@ -205,7 +204,7 @@ static inline int open(const char* path, int oflag, ...)
 #define HAVE_STAT 1
 static inline int stat(const char* path, struct _stat* buf)
 {
-  return _stat(path, buf);
+    return _stat(path, buf);
 }
 #endif
 
@@ -216,7 +215,7 @@ MIKTEX_EXTERN_C MIKTEXUNXCEEAPI(int) miktex_gettimeofday(struct timeval* ptv, vo
 #if !HAVE_GETTIMEOFDAY && !defined(gettimeofday)
 static inline int gettimeofday(struct timeval* tp, void* tzp)
 {
-  return miktex_gettimeofday(tp, tzp);
+    return miktex_gettimeofday(tp, tzp);
 }
 #endif
 
@@ -229,14 +228,14 @@ typedef short uid_t;
 #if !HAVE_CHMOD && !defined(chmod)
 static inline int chmod(const char* path, int mode)
 {
-  return _chmod(path, mode);
+    return _chmod(path, mode);
 }
 #endif
 
 #if !HAVE_MKDIR && !defined(mkdir)
 static inline int mkdir(const char* path, int mode)
 {
-  return _mkdir(path);
+    return _mkdir(path);
 }
 #endif
 
@@ -254,64 +253,64 @@ static inline int mkdir(const char* path, int mode)
 #if !HAVE_ACCESS && !defined(access)
 static inline int access(const char* path, int amode)
 {
-  return _access(path, amode);
+    return _access(path, amode);
 }
 #endif
 
 #if !HAVE_CHDIR && !defined(chdir)
 static inline int chdir(const char* path)
 {
-  return _chdir(path);
+    return _chdir(path);
 }
 #endif
 
 #if !HAVE_GETCWD && !defined(getcwd)
 static inline char* getcwd(char* buf, size_t size)
 {
-  return _getcwd(buf, size);
+    return _getcwd(buf, size);
 }
 #endif
 
 #if !HAVE_GETEUID && !defined(geteuid)
 static inline uid_t geteuid()
 {
-  return 0;
+    return 0;
 }
 #endif
 
 #if !HAVE_GETPID && !defined(getpid)
 static inline int getpid()
 {
-  return _getpid();
+    return _getpid();
 }
 #endif
 
 #if !HAVE_GETUID && !defined(getuid)
 static inline uid_t getuid()
 {
-  return 0;
+    return 0;
 }
 #endif
 
 #if !HAVE_RMDIR && !defined(rmdir)
 static inline int rmdir(const char* path)
 {
-  return _rmdir(path);
+    return _rmdir(path);
 }
 #endif
 
 #if !HAVE_UNLINK && !defined(unlink)
 static inline int unlink(const char* path)
 {
-  return _unlink(path);
+    return _unlink(path);
 }
 #endif
 
 #if !HAVE_USLEEP && !defined(usleep) && defined(__cplusplus)
 static inline int usleep(unsigned long useconds)
 {
-  std::this_thread::sleep_for(std::chrono::microseconds(useconds));
-  return 0;
+    std::this_thread::sleep_for(std::chrono::microseconds(useconds));
+    return 0;
 }
 #endif
 
@@ -320,9 +319,7 @@ static inline int usleep(unsigned long useconds)
 #if !HAVE_UTIME && !defined(utime)
 static inline int utime(const char* path, const struct _utimbuf* times)
 {
-  struct _utimbuf copyTimes = *times;
-  return _utime(path, &copyTimes);
+    struct _utimbuf copyTimes = *times;
+    return _utime(path, &copyTimes);
 }
-#endif
-
 #endif
