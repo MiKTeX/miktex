@@ -50,6 +50,31 @@ function isinternalUPTEX : boolean; forward;
 
 % _____________________________________________________________________________
 %
+% [4.23]
+% _____________________________________________________________________________
+
+@x
+  full_name := kpse_find_ofm (cur_name);
+  if full_name then begin
+    tfm_file := fopen (full_name, FOPEN_RBIN_MODE);
+  end else begin
+    full_name := kpse_find_tfm (cur_name);
+    if full_name then begin
+      tfm_file := fopen (full_name, FOPEN_RBIN_MODE);
+    end else begin
+      tfm_file := nil;
+    end
+  end;
+@y
+begin
+  if not miktex_open_ofm_file(tfm_file, cur_name) then begin
+    miktex_open_tfm_file(tfm_file, cur_name)
+  end;
+end;
+@z
+
+% _____________________________________________________________________________
+%
 % [8.78]
 % _____________________________________________________________________________
 
@@ -79,6 +104,15 @@ endif('HEX_CHAR_CODE')
 %
 % [9.89]
 % _____________________________________________________________________________
+
+@x
+ifdef('HEX_CHAR_CODE')
+          print('(');
+          print_hex_number(p);
+          print(')');
+endif('HEX_CHAR_CODE')
+@y
+@z
 
 @x
 ifdef('HEX_CHAR_CODE')

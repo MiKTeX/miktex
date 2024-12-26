@@ -1,14 +1,6 @@
 %% miktex-updvitype-adapter.ch
 %%
-%% Copyright (C) 2021-2022 Christian Schenk
-%% 
-%% This file is free software; the copyright holder gives
-%% unlimited permission to copy and/or distribute it, with or
-%% without modifications, as long as this notice is preserved.
-
-%% miktex-pdvitype-adapter.ch
-%%
-%% Copyright (C) 2021-2022 Christian Schenk
+%% Copyright (C) 2021-2024 Christian Schenk
 %% 
 %% This file is free software; the copyright holder gives
 %% unlimited permission to copy and/or distribute it, with or
@@ -38,6 +30,25 @@
   parse_arguments;
   print (banner);
   print_ln (version_string);
+@z
+
+% _____________________________________________________________________________
+%
+% [4.23]
+% _____________________________________________________________________________
+
+@x
+begin miktex_open_tfm_file(tfm_file, cur_name);
+end;
+@y
+begin
+  full_name := kpse_find_tfm (cur_name);
+  if full_name then begin
+    tfm_file := fopen (full_name, FOPEN_RBIN_MODE);
+  end else begin
+    tfm_file := nil;
+  end;
+end;
 @z
 
 % _____________________________________________________________________________
