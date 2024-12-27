@@ -198,8 +198,8 @@ static void write_smask_streamobj(PDF pdf, image_dict * idict, int smask_objnum,
     pdf_dict_add_name(pdf, "Type", "XObject");
     pdf_dict_add_name(pdf, "Subtype", "Image");
     pdf_dict_add_img_filename(pdf, idict);
-    if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
-        pdf_printf(pdf, "\n%s\n", img_attr(idict));
+    /* if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0) */
+    /*     pdf_printf(pdf, "\n%s\n", img_attr(idict)); */
     pdf_dict_add_int(pdf, "Width", (int) png_get_image_width(png_p, info_p));
     pdf_dict_add_int(pdf, "Height", (int) png_get_image_height(png_p, info_p));
     pdf_dict_add_int(pdf, "BitsPerComponent", (bitdepth == 16 ? 8 : bitdepth));

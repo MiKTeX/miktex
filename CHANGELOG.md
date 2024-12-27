@@ -8,7 +8,7 @@
 * dvipdfmx 20240922
 * dvips 2024.1
 * hitex 2.1
-* luatex 1.19.1
+* luatex 1.19.2
 * upmendex 1.10
 
 ## 24.12 - 2024-12-23
