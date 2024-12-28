@@ -45,13 +45,15 @@ class DVIToSVGActions : public DVIActions, public SpecialActions {
 		void setChar (double x, double y, unsigned c, bool vertical, const Font &f) override;
 		void setRule (double x, double y, double height, double width) override;
 		void setBgColor (const Color &color) override;
-		void setColor (const Color &color) override             {_svg.setColor(color);}
+		void setFillColor (const Color &color) override         {_svg.setFillColor(color);}
+		void setStrokeColor (const Color &color) override       {_svg.setStrokeColor(color);}
 		void setMatrix (const Matrix &m) override               {_svg.setMatrix(m);}
 		void setOpacity (const Opacity &opacity) override       {_svg.setOpacity(opacity);}
 		const Opacity& getOpacity () const override             {return _svg.getOpacity();}
 		const Matrix& getMatrix () const override               {return _svg.getMatrix();}
 		Matrix getPageTransformation () const override          {return _dvireader->getPageTransformation();}
-		Color getColor () const override                        {return _svg.getColor();}
+		Color getFillColor () const override                    {return _svg.getFillColor();}
+		Color getStrokeColor () const override                  {return _svg.getStrokeColor();}
 		int getDVIStackDepth () const override                  {return _dvireader->stackDepth();}
 		unsigned getCurrentPageNumber () const override         {return _dvireader->currentPageNumber();}
 		void setTextOrientation (bool vertical) override        {_svg.setVertical(vertical);}
@@ -85,8 +87,7 @@ class DVIToSVGActions : public DVIActions, public SpecialActions {
 		BasicDVIReader *_dvireader;
 		BoundingBox _bbox;
 		int _pageCount=0;
-		int _currentFontNum=-1;
-		Color _bgcolor=Color::TRANSPARENT;
+		Color _bgcolor=Color(0, Color::ColorSpace::TRANSPARENT);
 		BoxMap _boxes;
 		bool _outputLocked=false;
 };

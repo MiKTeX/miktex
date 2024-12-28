@@ -229,7 +229,7 @@ void TpicSpecialHandler::drawArc (double cx, double cy, double rx, double ry, do
 		}
 		if (_penwidth > 0) {
 			elem->setStrokeWidth(_penwidth);
-			elem->setStrokeColor(actions.getColor());
+			elem->setStrokeColor(actions.getStrokeColor());
 			if (!closed)
 				elem->setStrokeLineCap(SVGElement::LC_ROUND);
 		}
@@ -274,7 +274,7 @@ constexpr int cmd_id (const char *cmd) {
 bool TpicSpecialHandler::process (const string &prefix, istream &is, SpecialActions &actions) {
 	if (prefix.length() != 2)
 		return false;
-	_dviColor = actions.getColor();
+	_dviColor = actions.getFillColor();
 	const double mi2bp=0.072; // factor for milli-inch to PS points
 	StreamInputBuffer ib(is);
 	BufferInputReader ir(ib);

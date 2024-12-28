@@ -59,7 +59,7 @@ const FontMap::Entry* Font::fontMapEntry () const {
 	string fontname = name();
 	auto pos = fontname.rfind('.');
 	if (pos != string::npos)
-		fontname = fontname.substr(0, pos); // strip extension
+		fontname.resize(pos); // strip extension
 	return FontMap::instance().lookup(fontname);
 }
 

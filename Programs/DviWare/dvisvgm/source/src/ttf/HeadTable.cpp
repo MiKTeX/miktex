@@ -40,20 +40,6 @@ void HeadTable::updateGlobalBbox (int16_t xmin, int16_t ymin, int16_t xmax, int1
 }
 
 
-/** Returns the number of seconds elapsed since 1.1.1904 00:00:00 until now.
- *  @return number of seconds separated in upper and lower dword of a 64-bit value */
-static pair<uint32_t,uint32_t> seconds_since_1904 () {
-	auto now = chrono::system_clock::now();
-	time_t now_time = chrono::system_clock::to_time_t(now);
-	struct tm *comp = gmtime(&now_time);
-	util::Date date1(1904, 1, 1);
-	util::Date date2(comp->tm_year+1900, comp->tm_mon+1, comp->tm_mday);
-	uint64_t days = date2 - date1 - 1;
-	uint64_t seconds = ((days*24 + comp->tm_hour)*60 + comp->tm_min)*60 + comp->tm_sec;
-	return {uint32_t(seconds >> 32), uint32_t(seconds & 0xffffffff)};
-}
-
-
 /** Writes the head table to a given output stream.
  *  https://docs.microsoft.com/en-us/typography/opentype/spec/head */
 void HeadTable::write (ostream &os) const {
@@ -64,11 +50,10 @@ void HeadTable::write (ostream &os) const {
 	writeUInt32(os, 0x5F0F3CF5);  // magic number
 	writeUInt16(os, 1+2);         // flags (baseline at y=0, left sidebearing point at x=0)
 	writeUInt16(os, uint16_t(std::round(ttfWriter()->targetUnitsPerEm())));
-	auto seconds = seconds_since_1904();
-	writeUInt32(os, seconds.first);  // creation time, upper dword
-	writeUInt32(os, seconds.second); // creation time, lower dword
-	writeUInt32(os, seconds.first);  // modification time, upper dword
-	writeUInt32(os, seconds.second); // modification time, lower dword
+	writeUInt32(os, 0);  // creation time, upper dword
+	writeUInt32(os, 0);  // creation time, lower dword
+	writeUInt32(os, 0);  // modification time, upper dword
+	writeUInt32(os, 0);  // modification time, lower dword
 	writeInt16(os, _xMin);
 	writeInt16(os, _yMin);
 	writeInt16(os, _xMax);

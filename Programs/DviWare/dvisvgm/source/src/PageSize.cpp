@@ -103,7 +103,7 @@ void PageSize::resize (string name) {
 	bool landscape = false;
 	if (pos != string::npos) {
 		string suffix = name.substr(pos);
-		name = name.substr(0, pos);
+		name.resize(pos);
 		if (suffix == "-l" || suffix == "-landscape")
 			landscape = true;
 		else if (suffix != "-p" && suffix != "-portrait")

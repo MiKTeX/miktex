@@ -21,6 +21,7 @@
 #ifndef HASHFUNCTION_HPP
 #define HASHFUNCTION_HPP
 
+#include <cstdint>
 #include <istream>
 #include <memory>
 #include <string>

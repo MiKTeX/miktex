@@ -57,7 +57,10 @@ void ImageToSVG::convert (int pageno) {
 	if (bbox.valid() && (bbox.width() == 0 || bbox.height() == 0))
 		Message::wstream(true) << "bounding box of " << imageFormat() << " file is empty\n";
 	Message::mstream().indent(0);
-	Message::mstream(false, Message::MC_PAGE_NUMBER) << "processing " << imageFormat() << " file\n";
+	if (isSinglePageFormat())
+		Message::mstream(false, Message::MC_PAGE_NUMBER) << "processing " << imageFormat() << " file\n";
+	else
+		Message::mstream(false, Message::MC_PAGE_NUMBER) << "processing page " << pageno << "\n";
 	Message::mstream().indent(1);
 	_svg.newPage(pageno);
 	// create a psfile special and forward it to the PsSpecialHandler
@@ -98,13 +101,12 @@ void ImageToSVG::writeSVG (int pageno) {
 	if (!success)
 		Message::wstream() << "failed to write output to " << svgfname << '\n';
 	else {
-		const double bp2pt = 72.27/72;
-		const double bp2mm = 25.4/72;
+		const double bp2pt = (1_bp).pt();
 		Message::mstream(false,Message::MC_PAGE_SIZE)
 			<< "graphic size: " << XMLString(_bbox.width()*bp2pt) << "pt"
 			<< " x " << XMLString(_bbox.height()*bp2pt) << "pt"
-			<< " (" << XMLString(_bbox.width()*bp2mm) << "mm"
-			<< " x " << XMLString(_bbox.height()*bp2mm) << "mm)\n";
+			<< " (" << XMLString(_bbox.width()) << "bp"
+			<< " x " << XMLString(_bbox.height()) << "bp)\n";
 		Message::mstream(false, Message::MC_PAGE_WRITTEN) << "output written to " << svgfname << '\n';
 		if (!_userMessage.empty()) {
 			string msg = expandText(_userMessage);

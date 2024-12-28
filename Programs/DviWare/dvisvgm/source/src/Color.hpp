@@ -36,24 +36,26 @@ class Color {
 		static bool SUPPRESS_COLOR_NAMES;
 		static const Color BLACK;
 		static const Color WHITE;
-		static const Color TRANSPARENT;
 
-		enum class ColorSpace {GRAY, RGB, CMYK, LAB};
+		enum class ColorSpace {GRAY, RGB, CMYK, LAB, TRANSPARENT};
 
 	public:
 		Color () noexcept =default;
-		explicit Color (uint32_t rgb) noexcept : _rgb(rgb)         {}
+		explicit Color (uint32_t rgb) noexcept : _value(rgb) {}
+		Color (uint32_t value, ColorSpace cs) : _value(value), _cspace(cs) {}
 		Color (uint8_t r, uint8_t g, uint8_t b) noexcept  {setRGB(r,g,b);}
 		Color (double r, double g, double b) noexcept     {setRGB(r,g,b);}
 		explicit Color (const std::valarray<double> &rgb) noexcept {setRGB(rgb);}
-		explicit Color (const std::string &name);
-		explicit operator uint32_t () const            {return _rgb;}
-		bool operator == (const Color &c) const        {return _rgb == c._rgb;}
-		bool operator != (const Color &c) const        {return _rgb != c._rgb;}
-		bool operator < (const Color &c) const         {return _rgb < c._rgb;}
+		explicit Color (const std::valarray<double> &rgb, ColorSpace cs) noexcept;
+		explicit Color (const std::string &colorstr);
+		explicit operator uint32_t () const            {return _value;}
+		bool operator == (const Color &c) const        {return _value == c._value;}
+		bool operator != (const Color &c) const        {return _value != c._value;}
+		bool operator < (const Color &c) const         {return _value < c._value;}
 		Color operator *= (double c);
 		Color operator * (double c) const              {return Color(*this) *= c;}
-		void setRGB (uint8_t r, uint8_t g, uint8_t b)  {_rgb = (r << 16) | (g << 8) | b;}
+		bool isTransparent () const                    {return _cspace == ColorSpace::TRANSPARENT;}
+		void setRGB (uint8_t r, uint8_t g, uint8_t b);
 		void setRGB (double r, double g, double b);
 		void setRGB (const std::valarray<double> &rgb) {setRGB(rgb[0], rgb[1], rgb[2]);}
 		bool setRGBHexString (std::string hexString);
@@ -62,6 +64,7 @@ class Color {
 		void setGray (double g) {setRGB(g,g,g);}
 		void setGray (const std::valarray<double> &gray) {setRGB(gray[0], gray[0], gray[0]);}
 		void setHSB (double h, double s, double b);
+		void setCMYK (uint8_t c, uint8_t m, uint8_t y, uint8_t k);
 		void setCMYK (double c, double m, double y, double k);
 		void setCMYK (const std::valarray<double> &cmyk);
 		void setXYZ (double x, double y, double z);
@@ -69,12 +72,11 @@ class Color {
 		void setLab (double l, double a, double b);
 		void setLab (const std::valarray<double> &lab);
 		void set (ColorSpace colorSpace, VectorIterator<double> &it);
+		std::valarray<double> getDoubleValues () const;
 		double getGray () const;
 		void getGray (std::valarray<double> &gray) const;
 		void getRGB (double &r, double &g, double &b) const;
 		void getRGB (std::valarray<double> &rgb) const;
-		void getCMYK (double &c, double &m, double &y, double &k) const;
-		void getCMYK (std::valarray<double> &cmyk) const;
 		void getXYZ (double &x, double &y, double &z) const;
 		void getLab (double &l, double &a, double &b) const;
 		void getLab (std::valarray<double> &lab) const;
@@ -83,7 +85,6 @@ class Color {
 		std::string svgColorString (bool rgbonly) const;
 		std::string svgColorString () const {return svgColorString(SUPPRESS_COLOR_NAMES);}
 		static void CMYK2RGB (const std::valarray<double> &cmyk, std::valarray<double> &rgb);
-		static void RGB2CMYK (const std::valarray<double> &rgb, std::valarray<double> &cmyk);
 		static void HSB2RGB (const std::valarray<double> &hsb, std::valarray<double> &rgb);
 		static void RGB2XYZ (std::valarray<double> rgb, std::valarray<double> &xyz);
 		static void XYZ2RGB (const std::valarray<double> &xyz, std::valarray<double> &rgb);
@@ -91,8 +92,13 @@ class Color {
 		static void Lab2XYZ (const std::valarray<double> &lab, std::valarray<double> &xyz);
 		static int numComponents (ColorSpace colorSpace);
 
+	protected:
+		uint32_t getRGBUInt32 () const;
+		std::valarray<double> getRGBDouble () const;
+
 	private:
-		uint32_t _rgb=0;
+		uint32_t _value=0;
+		ColorSpace _cspace=ColorSpace::RGB;
 };
 
 #endif

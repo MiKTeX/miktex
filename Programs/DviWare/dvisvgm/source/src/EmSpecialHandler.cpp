@@ -89,7 +89,7 @@ static void create_line (const DPair &p1, const DPair &p2, char c1, char c2, dou
 		node->addAttribute("x2", p2.x());
 		node->addAttribute("y2", p2.y());
 		node->setStrokeWidth(lw);
-		node->setStrokeColor(actions.getColor());
+		node->setStrokeColor(actions.getStrokeColor());
 		node->setStrokeOpacity(actions.getOpacity());
 
 		// update bounding box
@@ -111,7 +111,7 @@ static void create_line (const DPair &p1, const DPair &p2, char c1, char c2, dou
 
 		node = util::make_unique<SVGElement>("polygon");
 		node->setPoints(points);
-		node->setFillColor(actions.getColor());
+		node->setFillColor(actions.getFillColor());
 		node->setFillOpacity(actions.getOpacity());
 
 		// update bounding box

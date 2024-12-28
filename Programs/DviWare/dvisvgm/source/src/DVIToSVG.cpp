@@ -102,7 +102,7 @@ void DVIToSVG::convert (unsigned first, unsigned last, HashFunction *hashFunc) {
 			hashFunc->update(PAGE_HASH_SETTINGS.optionsHash());
 			combinedHash = hashFunc->digestString();
 		}
-		const SVGOutput::HashTriple hashTriple(dviHash, shortenedOptHash, combinedHash);
+		const SVGOutput::HashTriple hashTriple(dviHash, shortenedOptHash, std::move(combinedHash));
 		FilePath path = _out.filepath(i, numberOfPages(), hashTriple);
 		if (!dviHash.empty() && !PAGE_HASH_SETTINGS.isSet(HashSettings::P_REPLACE) && path.exists()) {
 			Message::mstream(false, Message::MC_PAGE_NUMBER) << "skipping page " << i;
@@ -150,7 +150,7 @@ static unique_ptr<HashFunction> create_hash_function (const string &algo) {
 		msg += name + ", ";
 	msg.pop_back();
 	msg.back() = ')';
-	throw MessageException(msg);
+	throw MessageException(std::move(msg));
 }
 
 
@@ -300,13 +300,12 @@ void DVIToSVG::leaveEndPage (unsigned) {
 		Message::wstream(false) << "\npage is empty\n";
 	if (_bboxFormatString != "none") {
 		_svg.setBBox(bbox);
-		const double bp2pt = 72.27/72;
-		const double bp2mm = 25.4/72;
+		const double bp2pt = (1_bp).pt();
 		Message::mstream(false) << '\n';
 		Message::mstream(false, Message::MC_PAGE_SIZE) << "graphic size: " << XMLString(bbox.width()*bp2pt) << "pt"
 			" x " << XMLString(bbox.height()*bp2pt) << "pt"
-			" (" << XMLString(bbox.width()*bp2mm) << "mm"
-			" x " << XMLString(bbox.height()*bp2mm) << "mm)";
+			" (" << XMLString(bbox.width()) << "bp"
+			" x " << XMLString(bbox.height()) << "bp)";
 		Message::mstream(false) << '\n';
 	}
 }
@@ -580,7 +579,7 @@ void DVIToSVG::HashSettings::setParameters (const string &paramstr) {
 				msg.pop_back();
 				msg.pop_back();
 				msg += ')';
-				throw MessageException(msg);
+				throw MessageException(std::move(msg));
 			}
 		}
 	}

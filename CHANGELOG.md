@@ -7,6 +7,7 @@
 * chktex 1.7.9
 * dvipdfmx 20240922
 * dvips 2024.1
+* dvisvgm 3.4.2
 * hitex 2.1
 * luatex 1.19.2
 * upmendex 1.10

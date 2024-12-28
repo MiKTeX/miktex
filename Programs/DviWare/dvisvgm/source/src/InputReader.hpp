@@ -31,6 +31,7 @@ class InputReader {
 	public:
 		virtual ~InputReader() =default;
 		virtual int get () =0;
+		virtual std::streamsize read (char *buf, std::streamsize size) =0;
 		virtual int peek () const =0;
 		virtual int peek (size_t n) const =0;
 		virtual bool eof () const =0;
@@ -63,6 +64,7 @@ class StreamInputReader : public InputReader {
 	public:
 		explicit StreamInputReader (std::istream &is) : _is(is) {}
 		int get () override        {return _is.get();}
+		std::streamsize read (char *buf, std::streamsize size) override;
 		int peek () const override {return _is.peek();}
 		int peek (size_t n) const override;
 		bool eof () const override {return !_is || _is.eof();}
@@ -78,6 +80,7 @@ class BufferInputReader : public InputReader {
 		explicit BufferInputReader (InputBuffer &ib) : _ib(&ib) {}
 		void assign (InputBuffer &ib) {_ib = &ib;}
 		int get () override                {return _ib->get();}
+		std::streamsize read (char *buf, std::streamsize size) override;
 		int peek () const override         {return _ib->peek();}
 		int peek (size_t n) const override {return _ib->peek(n);}
 		bool eof () const override         {return _ib->eof();}

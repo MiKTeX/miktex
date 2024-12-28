@@ -45,7 +45,7 @@ class GlyphTracerMessages : public GFGlyphTracer::Callback {
 					if ((pos = fontname.rfind('/')) != std::string::npos)
 						fontname = fontname.substr(pos+1);
 					if ((pos = fontname.rfind('.')) != std::string::npos)
-						fontname = fontname.substr(0, pos);
+						fontname.resize(pos);
 					Message::mstream(false, Message::MC_STATE)
 						<< "tracing glyphs of " << fontname << '\n';
 				}

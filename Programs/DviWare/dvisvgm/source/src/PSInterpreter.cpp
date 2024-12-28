@@ -101,6 +101,9 @@ void PSInterpreter::checkStatus (int status) {
 			throw PSException("fatal error");
 		if (_errorMessage.empty())
 			throw PSException(_gs.error_name(status));
+		size_t pos = _errorMessage.rfind("Operand stack:");
+		if (pos != string::npos && pos > 0 && !isspace(_errorMessage[pos-1]))
+			_errorMessage.insert(pos, "\n");
 		throw PSException(_errorMessage);
 	}
 }
@@ -415,7 +418,9 @@ void PSInterpreter::listImageDeviceInfos (ostream &os) {
 bool PSInterpreter::imageDeviceKnown (string deviceStr) {
 	if (deviceStr.empty() || !isalpha(deviceStr[0]))
 		return false;
-	deviceStr = deviceStr.substr(0, deviceStr.find(':'));  // strip optional argument
+	size_t colonpos = deviceStr.find(':');
+	if (colonpos != string::npos)
+		deviceStr.resize(colonpos);  // strip optional argument
 	auto infos = getImageDeviceInfos();
 	auto it = find_if(infos.begin(), infos.end(), [&](const PSDeviceInfo &info) {
 		return info.name == deviceStr;

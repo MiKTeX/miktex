@@ -46,8 +46,10 @@ class SpecialActions {
 		virtual void setX (double x) =0;
 		virtual void setY (double y) =0;
 		virtual void finishLine () =0;
-		virtual void setColor (const Color &color) =0;
-		virtual Color getColor () const =0;
+		virtual void setFillColor (const Color &color) =0;
+		virtual void setStrokeColor (const Color &color) =0;
+		virtual Color getFillColor () const =0;
+		virtual Color getStrokeColor () const =0;
 		virtual void setMatrix (const Matrix &m) =0;
 		virtual const Matrix& getMatrix () const =0;
 		virtual Matrix getPageTransformation () const {return Matrix(1);}
@@ -82,11 +84,13 @@ class EmptySpecialActions : public SpecialActions {
 		void setX (double x) override {}
 		void setY (double y) override {}
 		void finishLine ()  override {}
-		void setColor (const Color &color) override {}
+		void setFillColor (const Color &color) override {}
+		void setStrokeColor (const Color &color) override {}
 		void setBgColor (const Color &color) override {}
 		void setOpacity (const Opacity &opacity) override {}
 		const Opacity& getOpacity () const override {return _svg.getOpacity();}
-		Color getColor () const override {return Color::BLACK;}
+		Color getFillColor () const override {return Color::BLACK;}
+		Color getStrokeColor () const override {return Color::BLACK;}
 		void setMatrix (const Matrix &m) override {}
 		const Matrix& getMatrix () const override {return _matrix;}
 		const SVGTree& svgTree () const override {return _svg;}

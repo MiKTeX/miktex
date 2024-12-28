@@ -21,6 +21,7 @@
 #ifndef CHARACTER_HPP
 #define CHARACTER_HPP
 
+#include <cstdint>
 
 class Character {
 	public:

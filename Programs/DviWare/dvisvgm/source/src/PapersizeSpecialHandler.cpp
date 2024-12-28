@@ -59,7 +59,7 @@ void PapersizeSpecialHandler::storePaperSize (unsigned pageno, Length width, Len
 	DoublePair whpair(width.bp(), height.bp());
 	if (_pageSizes.empty() || _pageSizes.back().second != whpair) {
 		if (!_pageSizes.empty() && _pageSizes.back().first == pageno)
-			_pageSizes.back().second = whpair;
+			_pageSizes.back().second = std::move(whpair);
 		else
 			_pageSizes.emplace_back(pageno, whpair);
 	}

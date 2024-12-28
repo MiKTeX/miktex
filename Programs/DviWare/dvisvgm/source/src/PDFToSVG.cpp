@@ -97,7 +97,7 @@ void PDFToSVG::convert (int pageno) {
 		ImageToSVG::convert(pageno);
 	else {
 		Message::mstream().indent(0);
-		Message::mstream(false, Message::MC_PAGE_NUMBER) << "processing PDF file\n";
+		Message::mstream(false, Message::MC_PAGE_NUMBER) << "processing page " << pageno << "\n";
 		Message::mstream().indent(1);
 		_pdfHandler.convert(filename(), pageno);
 		embed(_pdfHandler.bbox());

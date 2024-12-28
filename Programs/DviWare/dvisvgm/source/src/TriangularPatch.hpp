@@ -33,7 +33,6 @@ class TriangularPatch : public ShadingPatch {
 		int psShadingType() const override {return 4;}
 		DPair valueAt (double u, double v) const;
 		Color colorAt (double u, double v) const;
-		Color averageColor() const override;
 		void setPoints (const PointVec &points, int edgeflag, ShadingPatch *patch) override;
 		void setPoints (const DPair &p1, const DPair &p2, const DPair &p3);
 		void setColors (const ColorVec &colors, int edgeflag, ShadingPatch *patch) override;
@@ -43,9 +42,6 @@ class TriangularPatch : public ShadingPatch {
 		GraphicsPath<double> getBoundaryPath () const override;
 		int numPoints (int edgeflag) const override {return edgeflag == 0 ? 3 : 1;}
 		int numColors (int edgeflag) const override {return edgeflag == 0 ? 3 : 1;}
-
-	protected:
-		Color averageColor (const Color &c1, const Color &c2, const Color &c3) const;
 
 	private:
 		DPair _points[3];

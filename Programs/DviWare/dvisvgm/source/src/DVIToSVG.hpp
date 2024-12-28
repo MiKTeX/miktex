@@ -39,8 +39,8 @@ class DVIToSVG : public DVIReader {
 				enum Parameter {P_LIST, P_REPLACE};
 				void setParameters (const std::string &paramstr);
 				void setOptionHash (const std::string &optHash) {_optHash = optHash;}
-				std::string algorithm () const {return _algo;}
-				std::string optionsHash () const {return _optHash;}
+				const std::string& algorithm () const {return _algo;}
+				const std::string& optionsHash () const {return _optHash;}
 				bool isSet (Parameter param) {return _params.find(param) != _params.end();}
 
 			private:
@@ -65,7 +65,7 @@ class DVIToSVG : public DVIReader {
 		void listHashes (const std::string &rangestr, std::ostream &os);
 
 		FilePath getSVGFilePath (unsigned pageno) const;
-		std::string getUserBBoxString () const  {return _bboxFormatString;}
+		const std::string& getUserBBoxString () const  {return _bboxFormatString;}
 		static void setProcessSpecials (const char *ignorelist=nullptr, bool pswarning=false);
 
 	public:

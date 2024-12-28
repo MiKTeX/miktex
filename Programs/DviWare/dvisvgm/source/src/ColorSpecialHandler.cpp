@@ -55,8 +55,8 @@ static void read_doubles (istream &is, vector<double> &vec) {
  *  _color model_ _component values_
  *  Currently, the following color models are supported: rgb, cmyk, hsb and gray.
  *  Examples: rgb 1 0.5 0, gray 0.5
- *  @param[in]  model the color model
- *  @param[in]  is stream to be read from
+ *  @param[in] model the color model
+ *  @param[in] is stream to be read from
  *  @return resulting Color object */
 Color ColorSpecialHandler::readColor (const string &model, istream &is) {
 	Color color;
@@ -83,7 +83,7 @@ Color ColorSpecialHandler::readColor (const string &model, istream &is) {
 }
 
 
-/** Reads the color model (rgb, cmyk, hsb, or gray) and the corresponding color compontents
+/** Reads the color model (rgb, cmyk, hsb, or gray) and the corresponding color components
  *  from a given input stream.
  *  @param[in] is stream to be read from
  *  @return resulting Color object */
@@ -95,24 +95,84 @@ Color ColorSpecialHandler::readColor (istream &is) {
 
 
 bool ColorSpecialHandler::process (const string&, istream &is, SpecialActions &actions) {
+	char colortype=0;
+	auto pos = is.tellg();
 	string cmd;
 	is >> cmd;
-	if (cmd == "push")               // color push <model> <params>
-		_colorStack.push(readColor(is));
+	if (cmd == "push")               // color push [fill|stroke] <model> <params>
+		colortype = processPush(is);
 	else if (cmd == "pop") {
 		if (!_colorStack.empty())     // color pop
-			_colorStack.pop();
+			_colorStack.pop_back();
 	}
-	else {                           // color <model> <params>
+	else if (cmd == "set")           // color set [fill|stroke] <model> <params>
+		colortype = processSet(is);
+	else {                           // color [fill|stroke] <model> <params>
 		while (!_colorStack.empty())
-			_colorStack.pop();
-		_colorStack.push(readColor(cmd, is));
+			_colorStack.pop_back();
+		is.seekg(pos);
+		colortype = processPush(is);
 	}
-	if (_colorStack.empty())
-		actions.setColor(Color::BLACK);
-	else
-		actions.setColor(_colorStack.top());
+	if (_colorStack.empty()) {
+		if (colortype == 0 || colortype == 'f')
+			actions.setFillColor(_defaultFillColor);
+		if (colortype == 0 || colortype == 's')
+			actions.setStrokeColor(_defaultStrokeColor);
+	}
+	else {
+		if (colortype == 0 || colortype == 'f')
+			actions.setFillColor(_colorStack.back().fillColor);
+		if (colortype == 0 || colortype == 's')
+			actions.setStrokeColor(_colorStack.back().strokeColor);
+	}
 	return true;
+}
+
+
+/** Parses [fill|stroke] <model> <params>.
+ *  @param[in] is stream to read from
+ *  @param[out] type specified type color type ('f'=fill, 's'=stroke, 0=none specified)
+ *  @return color object representing the specified color */
+static Color read_color_and_type (istream &is, char &type) {
+	string token;
+	string model;
+	is >> token;
+	if (token == "fill" || token == "stroke") {
+		is >> model;
+		type = token[0];
+	}
+	else {
+		model = std::move(token);
+		type = '\0';
+	}
+	return ColorSpecialHandler::readColor(model, is);
+}
+
+
+/** Handles push [fill|stroke] <model> <params> which pushes a new color pair
+ *  onto the stack. If 'fill' or 'stroke' is specified, only that color value is set.
+ *  The other one is copied from the current corresponding value.
+ *  @return color type specified in the special command ('f'=fill, 's'=stroke, 0=none specified) */
+char ColorSpecialHandler::processPush (istream &is) {
+	_colorStack.emplace_back(ColorPair{});
+	return processSet(is);
+}
+
+
+/** Handles set [fill|stroke] <model> <params> which changes the current
+ *  color pair without pushing new ones. If the stack is empty, the default
+ *  color values (usually black) are changed.
+ *  @return color type specified in the special command ('f'=fill, 's'=stroke, 0=none specified) */
+char ColorSpecialHandler::processSet (istream &is) {
+	char type;
+	Color color = read_color_and_type(is, type);
+	Color &fillColor = _colorStack.empty() ? _defaultFillColor : _colorStack.back().fillColor;
+	Color &strokeColor = _colorStack.empty() ? _defaultStrokeColor : _colorStack.back().strokeColor;
+	if (type == 0 || type == 'f')
+		fillColor = color;
+	if (type == 0 || type == 's')
+		strokeColor = color;
+	return type;
 }
 
 

@@ -97,7 +97,7 @@ void EncFile::read (istream &is) {
 			if (entry == ".notdef")
 				entry.clear();
 			if (n < 256)
-				_table[n++] = entry;
+				_table[n++] = std::move(entry);
 		}
 	}
 	// remove trailing .notdef names

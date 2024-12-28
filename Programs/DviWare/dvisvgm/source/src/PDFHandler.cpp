@@ -173,7 +173,7 @@ unique_ptr<SVGElement> PDFHandler::convert (const string &fname, int pageno, uni
 	auto closefunc = std::bind(&PDFHandler::elementClosed, this, std::placeholders::_1);
 	xmlParser.setNotifyFuncs(openfunc, closefunc);
 	xmlParser.setRootElement(nullptr);
-	string xmlfname = FileSystem::tmpdir()+FilePath(fname, true).filename()+"-"+ to_string(_pageno)+".xml";
+	string xmlfname = FileSystem::tmpdir()+FilePath(fname, FilePath::PT_FILE).filename()+"-"+ to_string(_pageno)+".xml";
 	mutool("draw -Ftrace -o"+xmlfname+" "+_fname+" "+to_string(_pageno));
 #if defined(MIKTEX_WINDOWS)
 	ifstream ifs(EXPATH_(xmlfname));
@@ -191,7 +191,7 @@ unique_ptr<SVGElement> PDFHandler::convert (const string &fname, int pageno, uni
 
 void PDFHandler::initFile (const string &fname) {
 	finishFile();
-	_fname = FilePath(fname, true).absolute();
+	_fname = FilePath(fname, FilePath::PT_FILE).absolute();
 	_fname = "\"" + _fname + "\"";
 	_numPages = parse_value<int>(mtShow("trailer/Root/Pages/Count"));
 	// extract image and font files from the PDF
@@ -662,7 +662,7 @@ void PDFHandler::doFillText (XMLElement *trcFillTextElement) {
 				filename = "sys://"+fontname;
 			double ptsize = matrix_extent({trm[0], trm[1], 0, trm[2], trm[3]});
 			ptsize = round(100*ptsize)/100;
-			int fontID = FontManager::instance().registerFont(filename, fontname, ptsize);
+			int fontID = FontManager::instance().registerFont(filename, std::move(fontname), ptsize);
 			if (fontID >= 0) {
 				auto font = font_cast<NativeFont*>(FontManager::instance().getFontById(fontID));
 				if (font != _currentFont) {
@@ -673,13 +673,13 @@ void PDFHandler::doFillText (XMLElement *trcFillTextElement) {
 					_x = _y = numeric_limits<double>::max();
 				}
 				Matrix fontMatrix({trm[0]/ptsize, -trm[2]/ptsize, 0, trm[1]/ptsize, -trm[3]/ptsize});
-				fontMatrix.invert();
 				Matrix matrix = parse_attr_value<Matrix>(trcFillTextElement, "transform");
 				matrix.rmultiply(fontMatrix);
 				_svg->setMatrix(matrix);
+				fontMatrix.invert();
 				string colorspace = parse_attr_value<string>(trcFillTextElement, "colorspace");
 				string colorval = parse_attr_value<string>(trcFillTextElement, "color");
-				_svg->setColor(to_color(colorspace, colorval));
+				_svg->setFillColor(to_color(colorspace, colorval));
 				for (const XMLNode *spanchild : *spanElement) {
 					const XMLElement *charElement = spanchild->toElement();
 					if (!charElement || charElement->name() != "g" || !charElement->hasAttribute("glyph"))
@@ -695,7 +695,7 @@ void PDFHandler::doFillText (XMLElement *trcFillTextElement) {
 					// determine code point of current character
 					string utf8;
 					if (charElement->hasAttribute("unicode"))
-						utf8 = parse_attr_value<string>(charElement, "unicode");
+						utf8 = to_utf8(parse_attr_value<string>(charElement, "unicode"));
 					if (utf8.empty())
 						utf8 = compose_utf8_char(charElement, glyph);
 					if (glyph == 0 || utf8.empty())
@@ -816,7 +816,7 @@ void PDFHandler::collectObjects () {
 			string fontname = mtShow(to_string(entry.first) + "/FontName", SearchPattern(R"(/((\w|[+-])+))", "$1"));
 			if (!psFontname.empty() && fontname.find('+') == string::npos)
 				fontname = std::move(psFontname);
-			_objDict.emplace(fontname, ObjID(entry.first, 0, filepath));
+			_objDict.emplace(fontname, ObjID(entry.first, 0, std::move(filepath)));
 		}
 	}
 }

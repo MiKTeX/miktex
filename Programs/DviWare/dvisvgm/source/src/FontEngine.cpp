@@ -191,7 +191,7 @@ unique_ptr<const RangeMap> FontEngine::createCustomToUnicodeMap () {
 		}
 		FT_Set_Charmap(_currentFace, ftcharmap);
 	}
-	return std::move(charmap);
+	return charmap;
 }
 
 

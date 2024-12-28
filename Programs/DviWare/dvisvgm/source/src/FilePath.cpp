@@ -73,10 +73,10 @@ bool FilePath::Directory::operator == (const Directory &dir) const {
 
 /** Constructs a FilePath object.
  *  @param[in] path absolute or relative path to a file or directory
- *  @param[in] isfile true if 'path' references a file, false if a directory is referenced
+ *  @param[in] type type of path (file or directory)
  *  @param[in] current_dir if 'path' is a relative path expression it will be related to 'current_dir' */
-FilePath::FilePath (const string &path, bool isfile, const string &current_dir) {
-	init(path, isfile, current_dir);
+FilePath::FilePath (const std::string &path, PathType type, const std::string &current_dir) {
+	init(path, type, current_dir);
 }
 
 
@@ -84,32 +84,32 @@ FilePath::FilePath (const string &path, bool isfile, const string &current_dir) 
  *  Relative paths are relative to the current working directory.
  *  @param[in] path absolute or relative path to a file or directory */
 void FilePath::set (const string &path) {
-	set(path, !FileSystem::isDirectory(path));
+	set(path, FileSystem::isDirectory(path) ? PT_DIR : PT_FILE);
 }
 
 
 /** Assigns a new path. Relative paths are relative to the current working directory.
  *  @param[in] path absolute or relative path to a file or directory
- *  @param[in] isfile true if 'path' references a file, false if a directory is referenced */
-void FilePath::set (const string &path, bool isfile) {
-	init(path, isfile, "");
+ *  @param[in] type type of path (file or directory) */
+void FilePath::set (const std::string &path, PathType type) {
+	init(path, type, "");
 }
 
 
 /** Assigns a new path. Relative paths are relative to the current working directory.
  *  @param[in] path absolute or relative path to a file or directory
- *  @param[in] isfile true if 'path' references a file, false if a directory is referenced
+ *  @param[in] type type of path (file or directory)
  *  @param[in] current_dir if 'path' is a relative path expression it will be related to 'current_dir' */
-void FilePath::set (const string &path, bool isfile, const string &current_dir) {
-	init(path, isfile, current_dir);
+void FilePath::set (const std::string &path, PathType type, const std::string &current_dir) {
+	init(path, type, current_dir);
 }
 
 
 /** Initializes a FilePath object. This method should be called by the constructors only.
  *  @param[in] path absolute or relative path to a file or directory
- *  @param[in] isfile true if 'path' references a file, false if a directory is referenced
- *  @param[in] current_dir if 'path' is a relative path expression it will be related to 'current_dir' */
-void FilePath::init (string path, bool isfile, string current_dir) {
+ *  @param[in] type type of path (file or directory)
+ *  @param[in] current_dir if 'path' is a relative path expression, it will be related to 'current_dir' */
+void FilePath::init (string path, PathType type, string current_dir) {
 	_dirs.clear();
 	_fname.clear();
 	single_slashes(path);
@@ -119,14 +119,14 @@ void FilePath::init (string path, bool isfile, string current_dir) {
 		current_dir = FileSystem::getcwd();
 #else
 	_drive = strip_drive_letter(path);
-	if (current_dir.empty() || drive_letter(current_dir) != _drive)
+	if (current_dir.empty() || (_drive && drive_letter(current_dir) != _drive))
 		current_dir = FileSystem::getcwd(_drive);
 	if (!_drive)
 		_drive = drive_letter(current_dir);
 	strip_drive_letter(current_dir);
 	path = FileSystem::ensureForwardSlashes(path);
 #endif
-	if (isfile) {
+	if (type == PT_FILE) {
 		auto pos = path.rfind('/');
 		_fname = path.substr((pos == string::npos) ? 0 : pos+1);
 		// remove filename from path
@@ -248,7 +248,7 @@ string FilePath::relative (string reldir, bool with_filename) const {
 #endif
 	if (!isAbsolute)
 		return absolute();
-	FilePath relpath(reldir, false);
+	FilePath relpath(reldir, PT_DIR);
 	string path;
 	auto it1 = _dirs.begin();
 	auto it2 = relpath._dirs.begin();
@@ -285,7 +285,7 @@ string FilePath::relative (const FilePath &filepath, bool with_filename) const {
 *  @param[in] with_filename if false, the filename is omitted */
 string FilePath::shorterAbsoluteOrRelative (string reldir, bool with_filename) const {
 	string abs = absolute(with_filename);
-	string rel = relative(reldir, with_filename);
+	string rel = relative(std::move(reldir), with_filename);
 	return abs.length() < rel.length() ? abs : rel;
 }
 

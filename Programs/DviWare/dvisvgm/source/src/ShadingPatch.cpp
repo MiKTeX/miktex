@@ -29,27 +29,6 @@
 
 using namespace std;
 
-/** Get functions to get/set the current color depending on the assigned color space. */
-void ShadingPatch::colorQueryFuncs (ColorGetter &getter, ColorSetter &setter) const {
-	switch (_colorspace) {
-		case Color::ColorSpace::CMYK:
-			getter = &Color::getCMYK;
-			setter = &Color::setCMYK;
-			break;
-		case Color::ColorSpace::LAB:
-			getter = &Color::getLab;
-			setter = &Color::setLab;
-			break;
-		case Color::ColorSpace::RGB:
-			getter = &Color::getRGB;
-			setter = &Color::setRGB;
-			break;
-		case Color::ColorSpace::GRAY:
-			getter = &Color::getGray;
-			setter = &Color::setGray;
-	}
-}
-
 
 /** Factory method: Creates a shading patch object depending on the given PostScript shading type. */
 unique_ptr<ShadingPatch> ShadingPatch::create (int psShadingType, Color::ColorSpace cspace) {

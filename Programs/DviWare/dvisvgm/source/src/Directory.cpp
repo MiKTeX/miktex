@@ -67,8 +67,8 @@ bool Directory::open (string dirname) {
 #else
 #ifdef _WIN32
 	_firstread = true;
-	if (dirname[dirname.length()-1] == '/' || dirname[dirname.length()-1] == '\\')
-		dirname = dirname.substr(0, dirname.length()-1);
+	if (dirname.back() == '/' || dirname.back() == '\\')
+		dirname.pop_back();
 	dirname += "\\*";
 	_handle = FindFirstFile(dirname.c_str(), &_fileData);
 	return _handle != INVALID_HANDLE_VALUE;

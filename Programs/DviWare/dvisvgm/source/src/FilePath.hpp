@@ -39,13 +39,16 @@ class FilePath {
 	};
 
 	public:
+		enum PathType {PT_DIR, PT_FILE};
+
+	public:
 		FilePath () =default;
 		explicit FilePath (const std::string &path) {set(path);}
-		FilePath (const std::string &path, bool isfile) : FilePath(path, isfile, "") {}
-		FilePath (const std::string &path, bool isfile, const std::string &current_dir);
+		FilePath (const std::string &path, PathType type) : FilePath(path, type, "") {}
+		FilePath (const std::string &path, PathType type, const std::string &current_dir);
 		void set (const std::string &path);
-		void set (const std::string &path, bool isfile);
-		void set (const std::string &path, bool isfile, const std::string &current_dir);
+		void set (const std::string &path, PathType type);
+		void set (const std::string &path, PathType type, const std::string &current_dir);
 		std::string absolute (bool with_filename=true) const;
 		std::string relative (std::string reldir="", bool with_filename=true) const;
 		std::string relative (const FilePath &filepath, bool with_filename=true) const;
@@ -62,7 +65,7 @@ class FilePath {
 		static bool isAbsolute (std::string path);
 
 	protected:
-		void init (std::string path, bool isfile, std::string current_dir);
+		void init (std::string path, PathType type, std::string current_dir);
 		void add (const std::string &elem);
 
 	private:

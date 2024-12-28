@@ -94,10 +94,10 @@ FilePath SVGOutput::filepath (int page, int numPages, const HashTriple &hashes) 
 		// set and expand default pattern if necessary
 		if (expanded_pattern.empty()) {
 			string pattern = hashes.empty() ? (numPages > 1 ? "%f-%p" : "%f") : "%f-%hd";
-			expanded_pattern = expandFormatString(pattern, page, numPages, hashes);
+			expanded_pattern = expandFormatString(std::move(pattern), page, numPages, hashes);
 		}
 		// append suffix if necessary
-		outpath.set(expanded_pattern, true);
+		outpath.set(expanded_pattern, FilePath::PT_FILE);
 		if (outpath.suffix().empty())
 			outpath.suffix(_zipLevel > 0 ? "svgz" : "svg");
 	}

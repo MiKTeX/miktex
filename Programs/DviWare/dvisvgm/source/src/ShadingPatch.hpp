@@ -48,14 +48,12 @@ class ShadingPatch {
 		virtual void setColors (const ColorVec &colors, int edgeflag, ShadingPatch *patch) =0;
 		virtual int numPoints (int edgeflag) const =0;
 		virtual int numColors (int edgeflag) const =0;
-		virtual Color averageColor() const =0;
 		Color::ColorSpace colorSpace () const {return _colorspace;}
 		static std::unique_ptr<ShadingPatch> create (int psShadingType, Color::ColorSpace cspace);
 
 	protected:
 		using ColorGetter = void (Color::*)(std::valarray<double> &va) const;
 		using ColorSetter = void (Color::*)(const std::valarray<double> &va);
-		void colorQueryFuncs (ColorGetter &getter, ColorSetter &setter) const;
 
 	private:
 		Color::ColorSpace _colorspace;  ///< color space used to compute the shading values

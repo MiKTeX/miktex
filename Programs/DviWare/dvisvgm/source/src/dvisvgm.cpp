@@ -296,7 +296,7 @@ static void init_fontmap (const CommandLine &cmdline) {
 	bool additional = !mapseq.empty() && strchr("+-=", mapseq[0]);
 	if (mapseq.empty() || additional) {
 		bool found = false;
-		for (string mapfile : {"ps2pk", "pdftex", "dvipdfm", "psfonts"}) {
+		for (string mapfile : {"dvisvgm", "ps2pk", "pdftex", "dvipdfm", "psfonts"}) {
 			if ((found = FontMap::instance().read(mapfile+".map")))
 				break;
 		}
@@ -304,7 +304,7 @@ static void init_fontmap (const CommandLine &cmdline) {
 			Message::wstream(true) << "none of the default map files could be found\n";
 	}
 	if (!mapseq.empty())
-		FontMap::instance().read(mapseq);
+		FontMap::instance().read(mapseq, true);
 }
 
 
@@ -385,7 +385,7 @@ static void set_variables (const CommandLine &cmdline) {
 #ifdef TTFDEBUG
 	ttf::TTFWriter::CREATE_PS_GLYPH_OUTLINES = cmdline.debugGlyphsOpt.given();
 #endif
-	PsSpecialHandler::EMBED_BITMAP_DATA = cmdline.embedBitmapsOpt.given();
+	SVGTree::EMBED_BITMAP_DATA = cmdline.embedBitmapsOpt.given();
 	if (!PSInterpreter::imageDeviceKnown(PsSpecialHandler::BITMAP_FORMAT)) {
 		ostringstream oss;
 		oss << "unknown image format '" << PsSpecialHandler::BITMAP_FORMAT << "'\nknown formats:\n";

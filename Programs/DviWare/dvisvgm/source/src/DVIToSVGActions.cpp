@@ -35,11 +35,10 @@
 using namespace std;
 
 
-void DVIToSVGActions::reset() {
+void DVIToSVGActions::reset () {
 	FontManager::instance().resetUsedChars();
-	_bbox = BoundingBox();
-	_currentFontNum = -1;
-	_bgcolor = Color::TRANSPARENT;
+	_bbox.invalidate();
+	_bgcolor = Color(0, Color::ColorSpace::TRANSPARENT);
 }
 
 
@@ -171,7 +170,7 @@ void DVIToSVGActions::setRule (double x, double y, double height, double width) 
 	rect->addAttribute("height", height);
 	rect->addAttribute("width", width);
 	rect->setTransform(getMatrix());
-	rect->setFillColor(_svg.getColor());
+	rect->setFillColor(_svg.getFillColor());
 	_svg.appendToPage(std::move(rect));
 
 	// update bounding box
@@ -187,7 +186,6 @@ void DVIToSVGActions::setRule (double x, double y, double height, double width) 
  *  @param[in] num unique number of the font in the DVI file (not necessarily equal to the DVI font number)
  *  @param[in] font pointer to the font object (always represents a physical font and never a virtual font) */
 void DVIToSVGActions::setFont (int num, const Font &font) {
-	_currentFontNum = num;
 	_svg.setFont(num, font);
 }
 
@@ -218,6 +216,7 @@ void DVIToSVGActions::beginPage (unsigned pageno, const vector<int32_t>&) {
 	_svg.newPage(++_pageCount);
 	_bbox = BoundingBox();  // clear bounding box
 	_boxes.clear();
+	setMatrix(Matrix(1));
 	SpecialManager::instance().notifyBeginPage(pageno, *this);
 }
 
@@ -232,7 +231,7 @@ void DVIToSVGActions::endPage (unsigned pageno) {
 	}
 	Matrix matrix = _dvireader->getPageTransformation();
 	_svg.transformPage(matrix);
-	if (_bgcolor != Color::TRANSPARENT) {
+	if (!_bgcolor.isTransparent()) {
 		// create a rectangle filled with the background color
 		auto rect = util::make_unique<SVGElement>("rect");
 		rect->addAttribute("x", _bbox.minX());
@@ -250,14 +249,14 @@ void DVIToSVGActions::setBgColor (const Color &color) {
 }
 
 
-void DVIToSVGActions::embed(const BoundingBox &bbox) {
+void DVIToSVGActions::embed (const BoundingBox &bbox) {
 	_bbox.embed(bbox);
 	for (auto &strboxpair : _boxes)
 		strboxpair.second.embed(bbox);
 }
 
 
-void DVIToSVGActions::embed(const DPair& p, double r) {
+void DVIToSVGActions::embed (const DPair& p, double r) {
 	if (r == 0)
 		_bbox.embed(p);
 	else
@@ -267,7 +266,7 @@ void DVIToSVGActions::embed(const DPair& p, double r) {
 }
 
 
-BoundingBox& DVIToSVGActions::bbox(const string& name, bool reset) {
+BoundingBox& DVIToSVGActions::bbox (const string& name, bool reset) {
 	BoundingBox &box = _boxes[name];
 	if (reset)
 		box = BoundingBox();

@@ -51,7 +51,6 @@ bool PsSpecialHandler::SHADING_SEGMENT_OVERLAP = false;
 int PsSpecialHandler::SHADING_SEGMENT_SIZE = 20;
 double PsSpecialHandler::SHADING_SIMPLIFY_DELTA = 0.01;
 string PsSpecialHandler::BITMAP_FORMAT;
-bool PsSpecialHandler::EMBED_BITMAP_DATA = false;
 
 
 PsSpecialHandler::PsSpecialHandler () : _psi(this), _previewHandler(_psi)
@@ -159,10 +158,10 @@ void PsSpecialHandler::moveToDVIPos () {
  *  @param[in] is  stream to read the PS code from
  *  @param[in] updatePos if true, move the DVI drawing position to the current PS point */
 void PsSpecialHandler::executeAndSync (istream &is, bool updatePos) {
-	if (_actions && _actions->getColor() != _currentcolor) {
+	if (_actions && _actions->getFillColor() != _currentcolor) {
 		// update the PS graphics state if the color has been changed by a color special
 		double r, g, b;
-		_actions->getColor().getRGB(r, g, b);
+		_actions->getFillColor().getRGB(r, g, b);
 		ostringstream oss;
 		oss << '\n' << r << ' ' << g << ' ' << b << " setrgbcolor ";
 		_psi.execute(oss.str(), false);
@@ -434,8 +433,9 @@ PsSpecialHandler::ImageNode PsSpecialHandler::createBitmapNode (const string &fn
 	imgnode.element->addAttribute("y", 0);
 	imgnode.element->addAttribute("width", bbox.width());
 	imgnode.element->addAttribute("height", bbox.height());
-	if (EMBED_BITMAP_DATA)
-		imgnode.element->addAttribute("@@xlink:href", "data:" + util::mimetype(fname) + ";base64," + fname);
+	string mimetype = util::mimetype(fname);
+	if (SVGTree::EMBED_BITMAP_DATA && mimetype != "image/svg+xml")
+		imgnode.element->addAttribute("@@xlink:href", "data:" + mimetype + ";base64," + fname);
 	else {
 		string href = path;
 		// Only reference the image with an absolute path if either an absolute path was given by the user
@@ -486,7 +486,7 @@ PsSpecialHandler::ImageNode PsSpecialHandler::createPDFNode (const string &fname
 		// save SVG state
 		auto savedFont = _actions->svgTree().getFontPair();
 		auto savedMatrix = _actions->svgTree().getMatrix();
-		auto savedColor = _actions->svgTree().getColor();
+		auto savedColor = _actions->svgTree().getFillColor();
 
 		imgnode.element = util::make_unique<SVGElement>("g");
 		_pdfHandler.assignSVGTree(_actions->svgTree());
@@ -496,7 +496,7 @@ PsSpecialHandler::ImageNode PsSpecialHandler::createPDFNode (const string &fname
 		if (savedFont.second)
 			_actions->svgTree().setFont(savedFont.first, *savedFont.second);
 		_actions->svgTree().setMatrix(savedMatrix);
-		_actions->svgTree().setColor(savedColor);
+		_actions->svgTree().setFillColor(savedColor);
 
 		if (imgnode.element->empty())
 			imgnode.element.reset(nullptr);
@@ -739,7 +739,7 @@ void PsSpecialHandler::stroke (vector<double> &p) {
 			path->addAttribute("cx", x);
 			path->addAttribute("cy", y);
 			path->addAttribute("r", r);
-			path->setFillColor(_actions->getColor());
+			path->setFillColor(_actions->getFillColor());
 			bbox = BoundingBox(x-r, y-r, x+r, y+r);
 		}
 	}
@@ -752,7 +752,7 @@ void PsSpecialHandler::stroke (vector<double> &p) {
 		_path.writeSVG(oss, SVGTree::RELATIVE_PATH_CMDS);
 		path = util::make_unique<SVGElement>("path");
 		path->addAttribute("d", oss.str());
-		path->setStrokeColor(_actions->getColor());
+		path->setStrokeColor(_actions->getStrokeColor());
 		path->setNoFillColor();
 		path->setStrokeWidth(_linewidth);
 		path->setStrokeMiterLimit(_miterlimit);
@@ -801,8 +801,8 @@ void PsSpecialHandler::fill (vector<double> &p, bool evenodd) {
 	path->addAttribute("d", oss.str());
 	if (_pattern)
 		path->setFillPatternUrl(XMLString(_pattern->svgID()));
-	else if (_actions->getColor() != Color::BLACK || _makingPattern)
-		path->setFillColor(_actions->getColor(), false);
+	else if (_actions->getFillColor() != Color::BLACK || _makingPattern)
+		path->setFillColor(_actions->getFillColor(), false);
 	if (_clipStack.path() && !_makingPattern) {  // clip path active and not inside pattern definition?
 		// assign clipping path and clip bounding box
 		path->setClipPathUrl("clip"+XMLString(_clipStack.topID()));
@@ -884,8 +884,8 @@ void PsSpecialHandler::image (std::vector<double> &p) {
  *  The given values must be arranged in PostScript matrix order.
  *  @param[in] v vector containing the matrix values
  *  @param[in] startindex vector index of first component
- *  @param[out] matrix the generated matrix */
-static void create_matrix (vector<double> &v, int startindex, Matrix &matrix) {
+ *  @return the generated matrix */
+static Matrix create_matrix (vector<double> &v, int startindex=0) {
 	// Ensure vector p has 6 elements. If necessary, add missing ones
 	// using corresponding values of the identity matrix.
 	if (v.size()-startindex < 6) {
@@ -900,7 +900,7 @@ static void create_matrix (vector<double> &v, int startindex, Matrix &matrix) {
 	swap(v[startindex+1], v[startindex+2]);  // => (a, c, b, d, e, f)
 	swap(v[startindex+2], v[startindex+4]);  // => (a, c, e, d, b, f)
 	swap(v[startindex+3], v[startindex+4]);  // => (a, c, e, b, d, f)
-	matrix.set(v, startindex);
+	return Matrix(v, startindex);
 }
 
 
@@ -929,8 +929,8 @@ void PsSpecialHandler::makepattern (vector<double> &p) {
 			const double &xstep=p[6], &ystep=p[7]; // horizontal and vertical distance of adjacent tiles
 			int paint_type = static_cast<int>(p[8]);
 
-			Matrix matrix;  // transformation matrix given together with pattern definition
-			create_matrix(p, 9, matrix);
+			// transformation matrix given together with pattern definition
+			Matrix matrix = create_matrix(p, 9);
 			matrix.lmultiply(_actions->getMatrix());
 
 			unique_ptr<PSTilingPattern> pattern;
@@ -1087,7 +1087,7 @@ void PsSpecialHandler::shfill (vector<double> &params) {
 		bboxPath.lineto(x2, y2);
 		bboxPath.lineto(x1, y2);
 		bboxPath.closepath();
-		clip(bboxPath, false);
+		clip(std::move(bboxPath), false);
 	}
 	try {
 		if (shadingTypeID == 5)
@@ -1275,11 +1275,8 @@ void PsSpecialHandler::newpath (vector<double> &p) {
 
 
 void PsSpecialHandler::setmatrix (vector<double> &p) {
-	if (_actions) {
-		Matrix m;
-		create_matrix(p, 0, m);
-		_actions->setMatrix(m);
-	}
+	if (_actions)
+		_actions->setMatrix(create_matrix(p));
 }
 
 
@@ -1322,8 +1319,10 @@ void PsSpecialHandler::setgray (vector<double> &p) {
 	if (!_patternEnabled)
 		_pattern = nullptr;
 	_currentcolor.setGray(p[0]);
-	if (_actions)
-		_actions->setColor(_currentcolor);
+	if (_actions) {
+		_actions->setFillColor(_currentcolor);
+		_actions->setStrokeColor(_currentcolor);
+	}
 }
 
 
@@ -1331,8 +1330,10 @@ void PsSpecialHandler::setrgbcolor (vector<double> &p) {
 	if (!_patternEnabled)
 		_pattern= nullptr;
 	_currentcolor.setRGB(p[0], p[1], p[2]);
-	if (_actions)
-		_actions->setColor(_currentcolor);
+	if (_actions) {
+		_actions->setFillColor(_currentcolor);
+		_actions->setStrokeColor(_currentcolor);
+	}
 }
 
 
@@ -1340,8 +1341,10 @@ void PsSpecialHandler::setcmykcolor (vector<double> &p) {
 	if (!_patternEnabled)
 		_pattern = nullptr;
 	_currentcolor.setCMYK(p[0], p[1], p[2], p[3]);
-	if (_actions)
-		_actions->setColor(_currentcolor);
+	if (_actions) {
+		_actions->setFillColor(_currentcolor);
+		_actions->setStrokeColor(_currentcolor);
+	}
 }
 
 
@@ -1349,8 +1352,10 @@ void PsSpecialHandler::sethsbcolor (vector<double> &p) {
 	if (!_patternEnabled)
 		_pattern = nullptr;
 	_currentcolor.setHSB(p[0], p[1], p[2]);
-	if (_actions)
-		_actions->setColor(_currentcolor);
+	if (_actions) {
+		_actions->setFillColor(_currentcolor);
+		_actions->setStrokeColor(_currentcolor);
+	}
 }
 
 
@@ -1398,7 +1403,7 @@ void PsSpecialHandler::ClippingStack::push (const Path &path, int saveID) {
 		_stack.emplace(saveID);
 	else
 		_stack.emplace(path, ++_maxID, saveID);
-	_stack.top().prependedPath = prependedPath;
+	_stack.top().prependedPath = std::move(prependedPath);
 }
 
 

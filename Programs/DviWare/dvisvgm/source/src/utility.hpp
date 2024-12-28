@@ -25,6 +25,7 @@
 #include <config.h>
 #endif
 
+#include <cstdint>
 #include <iomanip>
 #include <functional>
 #include <memory>
@@ -50,6 +51,10 @@ double integral (double t0, double t1, int n, const std::function<double(double)
 /** Signum function (returns x/abs(x) if x != 0, and 0 otherwise). */
 template <typename T>
 inline int sgn (T x) {return (x > T(0)) - (x < T(0));}
+
+inline double clip (double x, double min, double max) {
+	return x < min ? min : (x > max ? max : x);
+}
 
 } // namespace math
 
@@ -229,16 +234,6 @@ struct set_const_of {
 			typename std::remove_const<T>::type
 		>::type;
 	};
-};
-
-class Date {
-	public:
-		Date (int year, int month, int day) : _year(year), _month(month-1), _day(day-1) {}
-		bool operator < (const Date &date) const;
-		size_t operator - (Date date2) const;
-
-	private:
-		int _year, _month, _day;  // _month and _day are 0-based
 };
 
 } // namespace util

@@ -79,15 +79,18 @@ void ClipPathReassigner::execute (XMLElement *defs, XMLElement *context) {
 	for (auto &mapEntry : clipPathMap) {
 		vector<XMLElement*> &identicalClipPathElements = mapEntry.second;
 		set<string> ids;
-		for (auto elem : identicalClipPathElements)
-			ids.insert(elem->getAttributeValue("id"));
+		for (auto elem : identicalClipPathElements) {
+			if (const char *id = elem->getAttributeValue("id"))
+				ids.insert(id);
+		}
 		for (auto it = descendants.begin(); it != descendants.end();) {
-			string id = extract_id_from_url((*it)->getAttributeValue("clip-path"));
-			if (ids.find(id) == ids.end())
-				++it;
-			else {
-				(*it)->addAttribute("clip-path", string("url(#") + (*ids.begin()) + ")");
-				it = descendants.erase(it);  // no need to process this element again
+			if (const char *clipPathRef = (*it)->getAttributeValue("clip-path")) {
+				if (ids.find(extract_id_from_url(clipPathRef)) == ids.end())
+					++it;
+				else {
+					(*it)->addAttribute("clip-path", string("url(#") + (*ids.begin()) + ")");
+					it = descendants.erase(it);  // no need to process this element again
+				}
 			}
 		}
 	}

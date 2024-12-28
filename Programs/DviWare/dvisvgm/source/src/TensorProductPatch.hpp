@@ -43,14 +43,12 @@ class TensorProductPatch : public ShadingPatch {
 		explicit TensorProductPatch (Color::ColorSpace cspace) : ShadingPatch(cspace) {}
 		TensorProductPatch (const PointVec &points, const ColorVec &colors, Color::ColorSpace cspace, int edgeflag, TensorProductPatch *patch);
 		int psShadingType() const override {return 7;}
-		void setPoints (const DPair points[4][4], int edgeflag, TensorProductPatch *patch);
 		void setPoints (const PointVec &points, int edgeflag, ShadingPatch *patch) override;
 		void setColors (const ColorVec &colors, int edgeflag, ShadingPatch *patch) override;
 		virtual DPair valueAt (double u, double v) const;
 		Color colorAt (double u, double v) const;
-		Color averageColor () const override;
-		void horizontalCurve (double v, CubicBezier &bezier) const;
-		void verticalCurve (double u, CubicBezier &bezier) const;
+		CubicBezier horizontalCurve (double v) const;
+		CubicBezier verticalCurve (double u) const;
 		GraphicsPath<double> getBoundaryPath () const override;
 		void subpatch (double u1, double u2, double v1, double v2, TensorProductPatch &patch) const;
 		DPair blossomValue (double u1, double u2, double u3, double v1, double v2, double v3) const;
@@ -61,13 +59,12 @@ class TensorProductPatch : public ShadingPatch {
 		int numColors (int edgeflag) const override {return edgeflag == 0 ? 4 : 2;}
 
 	protected:
-		Color averageColor (const Color &c1, const Color &c2, const Color &c3, const Color &c4) const;
 		void approximateRow (double v1, double inc, bool overlap, double delta, const std::vector<CubicBezier> &beziers, Callback &callback) const;
 		void setFirstMatrixColumn (const DPair source[4], bool reverse);
 		void setFirstMatrixColumn (DPair source[4][4], int col, bool reverse);
 
 	private:
-		DPair _points[4][4];  ///< control point matrix defining the patch surface
+		DPair _points[4][4];  ///< control point tensor defining the geometry of the patch surface
 		Color _colors[4];     ///< vertex colors cK (c0->p00, c1->p03, c2->p30, c3->p33)
 };
 
@@ -84,7 +81,6 @@ class CoonsPatch : public TensorProductPatch {
 		int psShadingType() const override {return 6;}
 		void setPoints (const PointVec &points, int edgeflag, ShadingPatch *patch) override;
 		void setColors (const ColorVec &colors, int edgeflag, ShadingPatch *patch) override;
-		DPair valueAt (double u, double v) const override;
 		int numPoints (int edgeflag) const override {return edgeflag == 0 ? 12 : 8;}
 		int numColors (int edgeflag) const override {return edgeflag == 0 ? 4 : 2;}
 };

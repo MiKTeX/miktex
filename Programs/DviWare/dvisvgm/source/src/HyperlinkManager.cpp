@@ -156,9 +156,10 @@ void HyperlinkManager::markLinkedBox (SpecialActions &actions) {
 			double y = bbox.maxY()+linewidth;
 			double w = bbox.width();
 			double h = linewidth;
-			const Color linecolor = COLORSOURCE == ColorSource::DEFAULT ? actions.getColor() : LINK_LINECOLOR;
+			const Color strokeColor = COLORSOURCE == ColorSource::DEFAULT ? actions.getStrokeColor() : LINK_LINECOLOR;
+			const Color fillColor = COLORSOURCE == ColorSource::DEFAULT ? actions.getFillColor() : LINK_LINECOLOR;
 			if (MARKER_TYPE == MarkerType::LINE)
-				rect->setFillColor(linecolor);
+				rect->setFillColor(fillColor);
 			else {
 				const double offset = _linewidth < 0 ? linewidth : 0 ;
 				x -= offset;
@@ -168,13 +169,13 @@ void HyperlinkManager::markLinkedBox (SpecialActions &actions) {
 				if (MARKER_TYPE == MarkerType::BGCOLOR) {
 					rect->setFillColor(LINK_BGCOLOR);
 					if (COLORSOURCE != ColorSource::DEFAULT) {
-						rect->setStrokeColor(linecolor);
+						rect->setStrokeColor(strokeColor);
 						rect->setStrokeWidth(linewidth);
 					}
 				}
 				else {  // LM_BOX
 					rect->setNoFillColor();
-					rect->setStrokeColor(linecolor);
+					rect->setStrokeColor(strokeColor);
 					rect->setStrokeWidth(linewidth);
 				}
 			}
@@ -246,13 +247,13 @@ bool HyperlinkManager::setLinkMarker (const string &marker) {
 	else if (type == "box")
 		MARKER_TYPE = MarkerType::BOX;
 	else {
-		if (!LINK_BGCOLOR.setPSName(type, false))
+		if (!LINK_BGCOLOR.setPSName(std::move(type), false))
 			return false;
 		MARKER_TYPE = MarkerType::BGCOLOR;
 	}
 	COLORSOURCE = ColorSource::DEFAULT;
 	if (MARKER_TYPE != MarkerType::NONE && !color.empty()) {
-		if (!LINK_LINECOLOR.setPSName(color, false))
+		if (!LINK_LINECOLOR.setPSName(std::move(color), false))
 			return false;
 		COLORSOURCE = ColorSource::LINKMARKER;
 	}

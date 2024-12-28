@@ -107,7 +107,6 @@ class PsSpecialHandler : public SpecialHandler, protected PSActions {
 		static int SHADING_SEGMENT_SIZE;
 		static double SHADING_SIMPLIFY_DELTA;
 		static std::string BITMAP_FORMAT;
-		static bool EMBED_BITMAP_DATA;
 
 	protected:
 		void initialize ();

@@ -413,3 +413,18 @@ int StreamInputReader::peek (size_t n) const {
 		_is.putback(chars[i]);
 	return ret;
 }
+
+
+streamsize StreamInputReader::read (char *buf, streamsize size) {
+	_is.read(buf, size);
+	return _is.gcount();
+}
+
+
+streamsize BufferInputReader::read (char *buf, streamsize size) {
+	char *p = buf;
+	int c = get();
+	while (c >= 0 && size-- > 0)
+		*p++ = char(c);
+	return p-buf;
+}

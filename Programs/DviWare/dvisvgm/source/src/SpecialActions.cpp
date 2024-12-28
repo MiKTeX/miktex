@@ -22,10 +22,19 @@
 #include <config.h>
 #endif
 #include <cstring>
+#include <regex>
 #include "Calculator.hpp"
 #include "SpecialActions.hpp"
 
 using namespace std;
+
+
+inline string get_color_string (SpecialActions &actions, Color (SpecialActions::*getColor)() const) {
+	return SVGElement::USE_CURRENTCOLOR && SVGElement::CURRENTCOLOR == (actions.*getColor)()
+		? "currentColor"
+		: (actions.*getColor)().svgColorString();
+}
+
 
 /** Replaces constants of the form {?name} by their corresponding value.
  *  @param[in,out] str text to expand
@@ -40,7 +49,7 @@ static void expand_constants (string &str, SpecialActions &actions) {
 			auto endpos = pos+7;
 			while (endpos < str.length() && isalnum(str[endpos]))
 				++endpos;
-			if (str[endpos] != '}')
+			if (endpos == str.length() || str[endpos] != '}')
 				repl_bbox = false;
 			else {
 				BoundingBox &box = actions.bbox(str.substr(pos+7, endpos-pos-7));
@@ -52,14 +61,16 @@ static void expand_constants (string &str, SpecialActions &actions) {
 		const char *name;
 		string val;
 	} constants[] = {
-			{"x",       XMLString(actions.getX())},
-			{"y",       XMLString(actions.getY())},
-			{"color",   SVGElement::USE_CURRENTCOLOR && SVGElement::CURRENTCOLOR == actions.getColor() ? "currentColor" : actions.getColor().svgColorString()},
-			{"matrix",  actions.getMatrix().toSVG()},
-			{"nl",      "\n"},
-			{"pageno",  to_string(actions.getCurrentPageNumber())},
-			{"svgfile", actions.getSVGFilePath(actions.getCurrentPageNumber()).relative()},
-			{"svgpath", actions.getSVGFilePath(actions.getCurrentPageNumber()).absolute()},
+		{"x",           XMLString(actions.getX())},
+		{"y",           XMLString(actions.getY())},
+		{"color",       get_color_string(actions, &SpecialActions::getFillColor)},
+		{"fillcolor",   get_color_string(actions, &SpecialActions::getFillColor)},
+		{"strokecolor", get_color_string(actions, &SpecialActions::getStrokeColor)},
+		{"matrix",      actions.getMatrix().toSVG()},
+		{"nl",          "\n"},
+		{"pageno",      to_string(actions.getCurrentPageNumber())},
+		{"svgfile",     actions.getSVGFilePath(actions.getCurrentPageNumber()).relative()},
+		{"svgpath",     actions.getSVGFilePath(actions.getCurrentPageNumber()).absolute()},
 	};
 	for (const Constant &constant : constants) {
 		const string pattern = string("{?")+constant.name+"}";
@@ -69,6 +80,11 @@ static void expand_constants (string &str, SpecialActions &actions) {
 			pos = str.find(pattern, pos+constant.val.length());  // look for further matches
 		}
 	}
+	// expand {?cmyk(c,m,y,k)} to #RRGGBB
+	std::smatch match;
+	std::regex pattern(R"(\{\?(cmyk\(([0-9.]+,){3}[0-9.]\))\})");
+	while (regex_search(str, match, pattern))
+		str = match.prefix().str() + Color(match[1].str()).rgbString() + match.suffix().str();
 }
 
 

@@ -114,35 +114,10 @@ DPair TriangularPatch::valueAt (double u, double v) const {
  *  The relation between the vertices of the triangle and their barycentric coordinates
  *  is as follows: \f$(1,0,0)=p_1, (0,1,0)=p_2, (0,0,1)=p_0\f$. */
 Color TriangularPatch::colorAt (double u, double v) const {
-	ColorGetter getComponents;
-	ColorSetter setComponents;
-	colorQueryFuncs(getComponents, setComponents);
 	valarray<double> comp[3];
 	for (int i=0; i < 3; i++)
-		(_colors[i].*getComponents)(comp[i]);
-	Color color;
-	(color.*setComponents)(comp[0]*(1-u-v) + comp[1]*u + comp[2]*v);
-	return color;
-}
-
-
-Color TriangularPatch::averageColor () const {
-	return averageColor(_colors[0], _colors[1], _colors[2]);
-}
-
-
-/** Compute the average of three given colors depending on the assigned color space. */
-Color TriangularPatch::averageColor (const Color &c1, const Color &c2, const Color &c3) const {
-	ColorGetter getComponents;
-	ColorSetter setComponents;
-	colorQueryFuncs(getComponents, setComponents);
-	valarray<double> va1, va2, va3;
-	(c1.*getComponents)(va1);
-	(c2.*getComponents)(va2);
-	(c3.*getComponents)(va3);
-	Color averageColor;
-	(averageColor.*setComponents)((va1+va2+va3)/3.0);
-	return averageColor;
+		comp[i] = _colors[i].getDoubleValues();
+	return Color(comp[0]*(1-u-v) + comp[1]*u + comp[2]*v, colorSpace());
 }
 
 
@@ -186,7 +161,8 @@ void TriangularPatch::approximate (int gridsize, bool overlap, double delta, Cal
 					path.lineto(valueAt(ou2, v1));
 					path.lineto(valueAt(u1, ov2));
 					path.closepath();
-					callback.patchSegment(path, averageColor(colorAt(u1, v1), colorAt(u2, v1), colorAt(u1, v2)));
+					// draw segment filled with its midpoint color
+					callback.patchSegment(path, colorAt((2*u1+u2)/3, (2*v1+v2)/3));
 					if (snap(u2+v2) <= 1 && (!overlap || inc > delta)) {
 						// create triangular segments pointing in the opposite direction as the whole patch
 						path.clear();
@@ -194,7 +170,8 @@ void TriangularPatch::approximate (int gridsize, bool overlap, double delta, Cal
 						path.lineto(valueAt(u2, v1));
 						path.lineto(valueAt(u2, v2));
 						path.closepath();
-						callback.patchSegment(path, averageColor(colorAt(u1, v2), colorAt(u2, v1), colorAt(u2, v2)));
+						// draw segment filled with its midpoint color
+						callback.patchSegment(path, colorAt((u1+2*u2)/3, (v1+2*v2)/3));
 					}
 				}
 			}

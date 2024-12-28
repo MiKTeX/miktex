@@ -111,7 +111,7 @@ unique_ptr<XMLElement> PSTilingPattern::createGroupNode () const {
 	// add all succeeding path elements to this group
 	auto group = util::make_unique<SVGElement>("g");
 	group->setClipPathUrl("pc"+XMLString(psID()));
-	return std::move(group);
+	return group;
 }
 
 

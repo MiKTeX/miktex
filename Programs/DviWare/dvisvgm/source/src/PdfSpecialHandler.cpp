@@ -250,7 +250,7 @@ void PdfSpecialHandler::processBeginAnn (StreamInputReader &ir, SpecialActions &
 	it = annotDict.find("C");
 	if (it != annotDict.end())
 		HyperlinkManager::setDefaultLinkColor(to_color(it->second));
-	HyperlinkManager::instance().createLink(uri, actions);
+	HyperlinkManager::instance().createLink(std::move(uri), actions);
 }
 
 
