@@ -28,12 +28,6 @@
 #define HB_H
 #define HB_H_IN
 
-#if defined(MIKTEX)
-#include <miktex/harfbuzz/rename-symbols.h>
-#endif
-#ifndef HB_EXTERN
-#define HB_EXTERN extern
-#endif
 #include "hb-blob.h"
 #include "hb-buffer.h"
 #include "hb-common.h"

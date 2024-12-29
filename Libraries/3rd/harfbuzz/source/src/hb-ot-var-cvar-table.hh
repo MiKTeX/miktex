@@ -45,7 +45,8 @@ struct cvar
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) &&
-		  version.sanitize (c) && likely (version.major == 1) &&
+		  hb_barrier () &&
+		  likely (version.major == 1) &&
 		  tupleVariationData.sanitize (c));
   }
 
@@ -54,14 +55,14 @@ struct cvar
 
   bool decompile_tuple_variations (unsigned axis_count,
                                    unsigned point_count,
+                                   hb_blob_t *blob,
                                    bool is_gvar,
                                    const hb_map_t *axes_old_index_tag_map,
                                    TupleVariationData::tuple_variations_t& tuple_variations /* OUT */) const
   {
     hb_vector_t<unsigned> shared_indices;
     TupleVariationData::tuple_iterator_t iterator;
-    unsigned var_data_length = tupleVariationData.get_size (axis_count);
-    hb_bytes_t var_data_bytes = hb_bytes_t (reinterpret_cast<const char*> (get_tuple_var_data ()), var_data_length);
+    hb_bytes_t var_data_bytes = blob->as_bytes ().sub_array (4);
     if (!TupleVariationData::get_tuple_iterator (var_data_bytes, axis_count, this,
                                                  shared_indices, &iterator))
       return false;
@@ -106,14 +107,14 @@ struct cvar
 
       bool has_private_points = iterator.current_tuple->has_private_points ();
       if (has_private_points &&
-          !TupleVariationData::unpack_points (p, private_indices, end))
+          !TupleVariationData::decompile_points (p, private_indices, end))
         return false;
       const hb_vector_t<unsigned int> &indices = has_private_points ? private_indices : shared_indices;
 
       bool apply_to_all = (indices.length == 0);
       unsigned num_deltas = apply_to_all ? num_cvt_item : indices.length;
       if (unlikely (!unpacked_deltas.resize (num_deltas, false))) return false;
-      if (unlikely (!TupleVariationData::unpack_deltas (p, unpacked_deltas, end))) return false;
+      if (unlikely (!TupleVariationData::decompile_deltas (p, unpacked_deltas, end))) return false;
 
       for (unsigned int i = 0; i < num_deltas; i++)
       {
@@ -143,19 +144,6 @@ struct cvar
     if (c->plan->all_axes_pinned)
       return_trace (false);
 
-    /* subset() for cvar is called by partial instancing only, we always pass
-     * through cvar table in other cases */
-    if (!c->plan->normalized_coords)
-    {
-      unsigned axis_count = c->plan->source->table.fvar->get_axis_count ();
-      unsigned total_size = min_size + tupleVariationData.get_size (axis_count);
-      char *out = c->serializer->allocate_size<char> (total_size);
-      if (unlikely (!out)) return_trace (false);
-
-      hb_memcpy (out, this, total_size);
-      return_trace (true);
-    }
-
     OT::TupleVariationData::tuple_variations_t tuple_variations;
     unsigned axis_count = c->plan->axes_old_index_tag_map.get_population ();
 
@@ -164,7 +152,8 @@ struct cvar
     unsigned point_count = hb_blob_get_length (cvt_blob) / FWORD::static_size;
     hb_blob_destroy (cvt_blob);
 
-    if (!decompile_tuple_variations (axis_count, point_count, false,
+    if (!decompile_tuple_variations (axis_count, point_count,
+                                     c->source_blob, false,
                                      &(c->plan->axes_old_index_tag_map),
                                      tuple_variations))
       return_trace (false);
