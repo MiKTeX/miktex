@@ -457,15 +457,17 @@ static int do_write_tounicode(PDF pdf, char **glyph_names, char *name, internal_
     else
         subrange_count = bfrange_count;
     bfrange_count -= subrange_count;
-    pdf_printf(pdf, "%i beginbfrange\n", subrange_count);
-    for (j = 0; j < subrange_count; j++) {
+    if (subrange_count>0) {
+      pdf_printf(pdf, "%i beginbfrange\n", subrange_count);
+      for (j = 0; j < subrange_count; j++) {
         while (range_size[i] <= 1 && i < 256)
-            i++;
+	  i++;
         assert(i < 256);
         pdf_printf(pdf, "<%02X> <%02X> <%s>\n", i, i + range_size[i] - 1, utf16be_str(gtab[i].code));
         i += range_size[i];
+      }
+      pdf_printf(pdf, "endbfrange\n");
     }
-    pdf_printf(pdf, "endbfrange\n");
     if (bfrange_count > 0)
         goto write_bfrange;
     /*tex Write out |bfchar|. */
@@ -656,14 +658,16 @@ int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
     else
         subrange_count = bfrange_count;
     bfrange_count -= subrange_count;
-    pdf_printf(pdf, "%i beginbfrange\n", subrange_count);
-    for (j = 0; j < subrange_count; j++) {
+    if (subrange_count>0) {
+      pdf_printf(pdf, "%i beginbfrange\n", subrange_count);
+      for (j = 0; j < subrange_count; j++) {
         while (range_size[i] <= 1 && i < 65536)
-            i++;
+	  i++;
         pdf_printf(pdf, "<%04X> <%04X> <%s>\n", i, i + range_size[i] - 1, utf16be_str(gtab[i].code));
         i += range_size[i];
+      }
+      pdf_printf(pdf, "endbfrange\n");
     }
-    pdf_printf(pdf, "endbfrange\n");
     if (bfrange_count > 0)
         goto write_bfrange;
     /*tex Write out |bfchar| */

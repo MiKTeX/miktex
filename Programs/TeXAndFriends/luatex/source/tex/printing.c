@@ -531,6 +531,7 @@ void tprint(const char *sss)
                     }
                 }
             }
+	    tally += i;
             if (*buffer) {
                 buffer[i++] = '\0';
                 fputs(buffer, term_out);
