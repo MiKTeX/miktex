@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 -- DynASM ARM module.
 --
--- Copyright (C) 2005-2011 Mike Pall. All rights reserved.
+-- Copyright (C) 2005-2017 Mike Pall. All rights reserved.
 -- See dynasm.lua for full copyright notice.
 ------------------------------------------------------------------------------
 
@@ -9,9 +9,9 @@
 local _info = {
   arch =	"arm",
   description =	"DynASM ARM module",
-  version =	"1.3.0",
-  vernum =	 10300,
-  release =	"2011-05-05",
+  version =	"1.4.0",
+  vernum =	 10400,
+  release =	"2015-10-18",
   author =	"Mike Pall",
   license =	"MIT",
 }
@@ -26,6 +26,9 @@ local _s = string
 local sub, format, byte, char = _s.sub, _s.format, _s.byte, _s.char
 local match, gmatch, gsub = _s.match, _s.gmatch, _s.gsub
 local concat, sort, insert = table.concat, table.sort, table.insert
+local bit = bit or require("bit")
+local band, shl, shr, sar = bit.band, bit.lshift, bit.rshift, bit.arshift
+local ror, tohex = bit.ror, bit.tohex
 
 -- Inherited tables and callbacks.
 local g_opt, g_arch
@@ -36,7 +39,7 @@ local wline, werror, wfatal, wwarn
 local action_names = {
   "STOP", "SECTION", "ESC", "REL_EXT",
   "ALIGN", "REL_LG", "LABEL_LG",
-  "REL_PC", "LABEL_PC", "LONG", "IMM", "IMM12", "IMM16", "IMML8", "IMML12",
+  "REL_PC", "LABEL_PC","LONG", "IMM", "IMM12", "IMM16", "IMML8", "IMML12", "IMMV8",
 }
 
 -- Maximum number of section buffer positions for dasm_put().
@@ -59,11 +62,6 @@ local actargs = { 0 }
 local secpos = 1
 
 ------------------------------------------------------------------------------
-
--- Return 8 digit hex number.
-local function tohex(x)
-  return sub(format("%08x", x), -8) -- Avoid 64 bit portability problem in Lua.
-end
 
 -- Dump action names and numbers.
 local function dumpactions(out)
@@ -407,14 +405,14 @@ local map_op = {
   strd_2 = "e00000f0DL", strd_3 = "e00000f0DL", -- v5TE
   ldrsh_2 = "e01000f0DL", ldrsh_3 = "e01000f0DL",
 
-  ldm_2 = "e8900000nR", ldmia_2 = "e8900000nR", ldmfd_2 = "e8900000nR",
-  ldmda_2 = "e8100000nR", ldmfa_2 = "e8100000nR",
-  ldmdb_2 = "e9100000nR", ldmea_2 = "e9100000nR",
-  ldmib_2 = "e9900000nR", ldmed_2 = "e9900000nR",
-  stm_2 = "e8800000nR", stmia_2 = "e8800000nR", stmfd_2 = "e8800000nR",
-  stmda_2 = "e8000000nR", stmfa_2 = "e8000000nR",
-  stmdb_2 = "e9000000nR", stmea_2 = "e9000000nR",
-  stmib_2 = "e9800000nR", stmed_2 = "e9800000nR",
+  ldm_2 = "e8900000oR", ldmia_2 = "e8900000oR", ldmfd_2 = "e8900000oR",
+  ldmda_2 = "e8100000oR", ldmfa_2 = "e8100000oR",
+  ldmdb_2 = "e9100000oR", ldmea_2 = "e9100000oR",
+  ldmib_2 = "e9900000oR", ldmed_2 = "e9900000oR",
+  stm_2 = "e8800000oR", stmia_2 = "e8800000oR", stmfd_2 = "e8800000oR",
+  stmda_2 = "e8000000oR", stmfa_2 = "e8000000oR",
+  stmdb_2 = "e9000000oR", stmea_2 = "e9000000oR",
+  stmib_2 = "e9800000oR", stmed_2 = "e9800000oR",
   pop_1 = "e8bd0000R", push_1 = "e92d0000R",
 
   -- Branch instructions.
@@ -430,9 +428,89 @@ local map_op = {
   svc_1 = "ef000000T", swi_1 = "ef000000T",
   ud_0 = "e7f001f0",
 
-  -- NYI: Advanced SIMD and VFP instructions.
+  -- VFP instructions.
+  ["vadd.f32_3"] = "ee300a00dnm",
+  ["vadd.f64_3"] = "ee300b00Gdnm",
+  ["vsub.f32_3"] = "ee300a40dnm",
+  ["vsub.f64_3"] = "ee300b40Gdnm",
+  ["vmul.f32_3"] = "ee200a00dnm",
+  ["vmul.f64_3"] = "ee200b00Gdnm",
+  ["vnmul.f32_3"] = "ee200a40dnm",
+  ["vnmul.f64_3"] = "ee200b40Gdnm",
+  ["vmla.f32_3"] = "ee000a00dnm",
+  ["vmla.f64_3"] = "ee000b00Gdnm",
+  ["vmls.f32_3"] = "ee000a40dnm",
+  ["vmls.f64_3"] = "ee000b40Gdnm",
+  ["vnmla.f32_3"] = "ee100a40dnm",
+  ["vnmla.f64_3"] = "ee100b40Gdnm",
+  ["vnmls.f32_3"] = "ee100a00dnm",
+  ["vnmls.f64_3"] = "ee100b00Gdnm",
+  ["vdiv.f32_3"] = "ee800a00dnm",
+  ["vdiv.f64_3"] = "ee800b00Gdnm",
 
-  -- NYI instructions, since I have no need for them right now:
+  ["vabs.f32_2"] = "eeb00ac0dm",
+  ["vabs.f64_2"] = "eeb00bc0Gdm",
+  ["vneg.f32_2"] = "eeb10a40dm",
+  ["vneg.f64_2"] = "eeb10b40Gdm",
+  ["vsqrt.f32_2"] = "eeb10ac0dm",
+  ["vsqrt.f64_2"] = "eeb10bc0Gdm",
+  ["vcmp.f32_2"] = "eeb40a40dm",
+  ["vcmp.f64_2"] = "eeb40b40Gdm",
+  ["vcmpe.f32_2"] = "eeb40ac0dm",
+  ["vcmpe.f64_2"] = "eeb40bc0Gdm",
+  ["vcmpz.f32_1"] = "eeb50a40d",
+  ["vcmpz.f64_1"] = "eeb50b40Gd",
+  ["vcmpze.f32_1"] = "eeb50ac0d",
+  ["vcmpze.f64_1"] = "eeb50bc0Gd",
+
+  vldr_2 = "ed100a00dl|ed100b00Gdl",
+  vstr_2 = "ed000a00dl|ed000b00Gdl",
+  vldm_2 = "ec900a00or",
+  vldmia_2 = "ec900a00or",
+  vldmdb_2 = "ed100a00or",
+  vpop_1 = "ecbd0a00r",
+  vstm_2 = "ec800a00or",
+  vstmia_2 = "ec800a00or",
+  vstmdb_2 = "ed000a00or",
+  vpush_1 = "ed2d0a00r",
+
+  ["vmov.f32_2"] = "eeb00a40dm|eeb00a00dY",	-- #imm is VFPv3 only
+  ["vmov.f64_2"] = "eeb00b40Gdm|eeb00b00GdY",	-- #imm is VFPv3 only
+  vmov_2 = "ee100a10Dn|ee000a10nD",
+  vmov_3 = "ec500a10DNm|ec400a10mDN|ec500b10GDNm|ec400b10GmDN",
+
+  vmrs_0 = "eef1fa10",
+  vmrs_1 = "eef10a10D",
+  vmsr_1 = "eee10a10D",
+
+  ["vcvt.s32.f32_2"] = "eebd0ac0dm",
+  ["vcvt.s32.f64_2"] = "eebd0bc0dGm",
+  ["vcvt.u32.f32_2"] = "eebc0ac0dm",
+  ["vcvt.u32.f64_2"] = "eebc0bc0dGm",
+  ["vcvtr.s32.f32_2"] = "eebd0a40dm",
+  ["vcvtr.s32.f64_2"] = "eebd0b40dGm",
+  ["vcvtr.u32.f32_2"] = "eebc0a40dm",
+  ["vcvtr.u32.f64_2"] = "eebc0b40dGm",
+  ["vcvt.f32.s32_2"] = "eeb80ac0dm",
+  ["vcvt.f64.s32_2"] = "eeb80bc0GdFm",
+  ["vcvt.f32.u32_2"] = "eeb80a40dm",
+  ["vcvt.f64.u32_2"] = "eeb80b40GdFm",
+  ["vcvt.f32.f64_2"] = "eeb70bc0dGm",
+  ["vcvt.f64.f32_2"] = "eeb70ac0GdFm",
+
+  -- VFPv4 only:
+  ["vfma.f32_3"] = "eea00a00dnm",
+  ["vfma.f64_3"] = "eea00b00Gdnm",
+  ["vfms.f32_3"] = "eea00a40dnm",
+  ["vfms.f64_3"] = "eea00b40Gdnm",
+  ["vfnma.f32_3"] = "ee900a40dnm",
+  ["vfnma.f64_3"] = "ee900b40Gdnm",
+  ["vfnms.f32_3"] = "ee900a00dnm",
+  ["vfnms.f64_3"] = "ee900b00Gdnm",
+
+  -- NYI: Advanced SIMD instructions.
+
+  -- NYI: I have no need for these instructions right now:
   -- swp, swpb, strex, ldrex, strexd, ldrexd, strexb, ldrexb, strexh, ldrexh
   -- msr, nopv6, yield, wfe, wfi, sev, dbg, bxj, smc, srs, rfe
   -- cps, setend, pli, pld, pldw, clrex, dsb, dmb, isb
@@ -478,13 +556,25 @@ local function parse_gpr_pm(expr)
   return parse_gpr(expr2), (pm == "-")
 end
 
+local function parse_vr(expr, tp)
+  local t, r = match(expr, "^([sd])([0-9]+)$")
+  if t == tp then
+    r = tonumber(r)
+    if r <= 31 then
+      if t == "s" then return shr(r, 1), band(r, 1) end
+      return band(r, 15), shr(r, 4)
+    end
+  end
+  werror("bad register name `"..expr.."'")
+end
+
 local function parse_reglist(reglist)
   reglist = match(reglist, "^{%s*([^}]*)}$")
   if not reglist then werror("register list expected") end
   local rr = 0
   for p in gmatch(reglist..",", "%s*([^,]*),") do
-    local rbit = 2^parse_gpr(gsub(p, "%s+$", ""))
-    if ((rr - (rr % rbit)) / rbit) % 2 ~= 0 then
+    local rbit = shl(1, parse_gpr(gsub(p, "%s+$", "")))
+    if band(rr, rbit) ~= 0 then
       werror("duplicate register `"..p.."'")
     end
     rr = rr + rbit
@@ -492,21 +582,34 @@ local function parse_reglist(reglist)
   return rr
 end
 
+local function parse_vrlist(reglist)
+  local ta, ra, tb, rb = match(reglist,
+			   "^{%s*([sd])([0-9]+)%s*%-%s*([sd])([0-9]+)%s*}$")
+  ra, rb = tonumber(ra), tonumber(rb)
+  if ta and ta == tb and ra and rb and ra <= 31 and rb <= 31 and ra <= rb then
+    local nr = rb+1 - ra
+    if ta == "s" then
+      return shl(shr(ra,1),12)+shl(band(ra,1),22) + nr
+    else
+      return shl(band(ra,15),12)+shl(shr(ra,4),22) + nr*2 + 0x100
+    end
+  end
+  werror("register list expected")
+end
+
 local function parse_imm(imm, bits, shift, scale, signed)
   imm = match(imm, "^#(.*)$")
   if not imm then werror("expected immediate operand") end
   local n = tonumber(imm)
   if n then
-    if n % 2^scale == 0 then
-      n = n / 2^scale
+    local m = sar(n, scale)
+    if shl(m, scale) == n then
       if signed then
-	if n >= 0 then
-	  if n < 2^(bits-1) then return n*2^shift end
-	else
-	  if n >= -(2^(bits-1))-1 then return (n+2^bits)*2^shift end
-	end
+	local s = sar(m, bits-1)
+	if s == 0 then return shl(m, shift)
+	elseif s == -1 then return shl(m + shl(1, bits), shift) end
       else
-	if n >= 0 and n <= 2^bits-1 then return n*2^shift end
+	if sar(m, bits) == 0 then return shl(m, shift) end
       end
     end
     werror("out of range immediate `"..imm.."'")
@@ -519,11 +622,10 @@ end
 local function parse_imm12(imm)
   local n = tonumber(imm)
   if n then
-    local m = n
+    local m = band(n)
     for i=0,-15,-1 do
-      if m >= 0 and m <= 255 and n % 1 == 0 then return m + (i%16) * 256 end
-      local t = m % 4
-      m = (m - t) / 4 + t * 2^30
+      if shr(m, 8) == 0 then return m + shl(band(i, 15), 8) end
+      m = ror(m, 2)
     end
     werror("out of range immediate `"..imm.."'")
   else
@@ -537,10 +639,7 @@ local function parse_imm16(imm)
   if not imm then werror("expected immediate operand") end
   local n = tonumber(imm)
   if n then
-    if n >= 0 and n <= 65535 and n % 1 == 0 then
-      local t = n % 4096
-      return (n - t) * 16 + t
-    end
+    if shr(n, 16) == 0 then return band(n, 0x0fff) + shl(band(n, 0xf000), 4) end
     werror("out of range immediate `"..imm.."'")
   else
     waction("IMM16", 32*16, imm)
@@ -555,7 +654,7 @@ local function parse_imm_load(imm, ext)
       if n >= -255 and n <= 255 then
 	local up = 0x00800000
 	if n < 0 then n = -n; up = 0 end
-	return (n-(n%16))*16+(n%16) + up
+	return shl(band(n, 0xf0), 4) + band(n, 0x0f) + up
       end
     else
       if n >= -4095 and n <= 4095 then
@@ -565,7 +664,7 @@ local function parse_imm_load(imm, ext)
     end
     werror("out of range immediate `"..imm.."'")
   else
-    waction(ext and "IMML8" or "IMML12", 32768 + 32*(ext and 8 or 12), imm)
+    waction(ext and "IMML8" or "IMML12", 32768 + shl(ext and 8 or 12, 5), imm)
     return 0
   end
 end
@@ -578,10 +677,10 @@ local function parse_shift(shift, gprok)
     s = map_shift[s]
     if not s then werror("expected shift operand") end
     if sub(s2, 1, 1) == "#" then
-      return parse_imm(s2, 5, 7, 0, false) + s * 32
+      return parse_imm(s2, 5, 7, 0, false) + shl(s, 5)
     else
       if not gprok then werror("expected immediate shift operand") end
-      return parse_gpr(s2) * 256 + s * 32 + 16
+      return shl(parse_gpr(s2), 8) + shl(s, 5) + 16
     end
   end
 end
@@ -617,13 +716,13 @@ local function parse_label(label, def)
 end
 
 local function parse_load(params, nparams, n, op)
-  local oplo = op % 256
+  local oplo = band(op, 255)
   local ext, ldrd = (oplo ~= 0), (oplo == 208)
   local d
-  if (ldrd or oplo == 240) then
-    d = ((op - (op % 4096)) / 4096) % 16
-    if d % 2 ~= 0 then werror("odd destination register") end
-  end
+  --[[if (ldrd or oplo == 240) then
+    d = band(shr(op, 12), 15)
+    if band(d, 1) ~= 0 then werror("odd destination register") end
+  end]]
   local pn = params[n]
   local p1, wb = match(pn, "^%[%s*(.-)%s*%](!?)$")
   local p2 = params[n+1]
@@ -640,7 +739,7 @@ local function parse_load(params, nparams, n, op)
 	if tp then
 	  waction(ext and "IMML8" or "IMML12", 32768 + 32*(ext and 8 or 12),
 		  format(tp.ctypefmt, tailr))
-	  return op + d * 65536 + 0x01000000 + (ext and 0x00400000 or 0)
+	  return op + shl(d, 16) + 0x01000000 + (ext and 0x00400000 or 0)
 	end
       end
     end
@@ -650,7 +749,7 @@ local function parse_load(params, nparams, n, op)
   if p2 then
     if wb == "!" then werror("bad use of '!'") end
     local p3 = params[n+2]
-    op = op + parse_gpr(p1) * 65536
+    op = op + shl(parse_gpr(p1), 16)
     local imm = match(p2, "^#(.*)$")
     if imm then
       local m = parse_imm_load(imm, ext)
@@ -664,7 +763,7 @@ local function parse_load(params, nparams, n, op)
     end
   else
     local p1a, p2 = match(p1, "^([^,%s]*)%s*(.*)$")
-    op = op + parse_gpr(p1a) * 65536 + 0x01000000
+    op = op + shl(parse_gpr(p1a), 16) + 0x01000000
     if p2 ~= "" then
       local imm = match(p2, "^,%s*#(.*)$")
       if imm then
@@ -688,82 +787,132 @@ local function parse_load(params, nparams, n, op)
   return op
 end
 
+local function parse_vload(q)
+  local reg, imm = match(q, "^%[%s*([^,%s]*)%s*(.*)%]$")
+  if reg then
+    local d = shl(parse_gpr(reg), 16)
+    if imm == "" then return d end
+    imm = match(imm, "^,%s*#(.*)$")
+    if imm then
+      local n = tonumber(imm)
+      if n then
+	if n >= -1020 and n <= 1020 and n%4 == 0 then
+	  return d + (n >= 0 and n/4+0x00800000 or -n/4)
+	end
+	werror("out of range immediate `"..imm.."'")
+      else
+	waction("IMMV8", 32768 + 32*8, imm)
+	return d
+      end
+    end
+  else
+    if match(q, "^[<>=%-]") or match(q, "^extern%s+") then
+      local mode, n, s = parse_label(q, false)
+      waction("REL_"..mode, n + 0x2800, s, 1)
+      return 15 * 65536
+    end
+    local reg, tailr = match(q, "^([%w_:]+)%s*(.*)$")
+    if reg and tailr ~= "" then
+      local d, tp = parse_gpr(reg)
+      if tp then
+	waction("IMMV8", 32768 + 32*8, format(tp.ctypefmt, tailr))
+	return shl(d, 16)
+      end
+    end
+  end
+  werror("expected address operand")
+end
+
 ------------------------------------------------------------------------------
 
 -- Handle opcodes defined with template strings.
-map_op[".template__"] = function(params, template, nparams)
-  if not params then return sub(template, 9) end
+local function parse_template(params, template, nparams, pos)
   local op = tonumber(sub(template, 1, 8), 16)
   local n = 1
-
-  -- Limit number of section buffer positions used by a single dasm_put().
-  -- A single opcode needs a maximum of 3 positions.
-  if secpos+3 > maxsecpos then wflush() end
-  local pos = wpos()
+  local vr = "s"
 
   -- Process each character.
   for p in gmatch(sub(template, 9), ".") do
+    local q = params[n]
     if p == "D" then
-      op = op + parse_gpr(params[n]) * 4096; n = n + 1
+      op = op + shl(parse_gpr(q), 12); n = n + 1
     elseif p == "N" then
-      op = op + parse_gpr(params[n]) * 65536; n = n + 1
+      op = op + shl(parse_gpr(q), 16); n = n + 1
     elseif p == "S" then
-      op = op + parse_gpr(params[n]) * 256; n = n + 1
+      op = op + shl(parse_gpr(q), 8); n = n + 1
     elseif p == "M" then
-      op = op + parse_gpr(params[n]); n = n + 1
+      op = op + parse_gpr(q); n = n + 1
+    elseif p == "d" then
+      local r,h = parse_vr(q, vr); op = op+shl(r,12)+shl(h,22); n = n + 1
+    elseif p == "n" then
+      local r,h = parse_vr(q, vr); op = op+shl(r,16)+shl(h,7); n = n + 1
+    elseif p == "m" then
+      local r,h = parse_vr(q, vr); op = op+r+shl(h,5); n = n + 1
     elseif p == "P" then
-      local imm = match(params[n], "^#(.*)$")
+      local imm = match(q, "^#(.*)$")
       if imm then
 	op = op + parse_imm12(imm) + 0x02000000
       else
-	op = op + parse_gpr(params[n])
+	op = op + parse_gpr(q)
       end
       n = n + 1
     elseif p == "p" then
-      op = op + parse_shift(params[n], true); n = n + 1
+      op = op + parse_shift(q, true); n = n + 1
     elseif p == "L" then
       op = parse_load(params, nparams, n, op)
+    elseif p == "l" then
+      op = op + parse_vload(q)
     elseif p == "B" then
-      local mode, n, s = parse_label(params[n], false)
+      local mode, n, s = parse_label(q, false)
       waction("REL_"..mode, n, s, 1)
     elseif p == "C" then -- blx gpr vs. blx label.
-      local p = params[n]
-      if match(p, "^([%w_]+):(r1?[0-9])$") or match(p, "^r(1?[0-9])$") then
-	op = op + parse_gpr(p)
+      if match(q, "^([%w_]+):(r1?[0-9])$") or match(q, "^r(1?[0-9])$") then
+	op = op + parse_gpr(q)
       else
 	if op < 0xe0000000 then werror("unconditional instruction") end
-	local mode, n, s = parse_label(p, false)
+	local mode, n, s = parse_label(q, false)
 	waction("REL_"..mode, n, s, 1)
 	op = 0xfa000000
       end
-    elseif p == "n" then
-      local r, wb = match(params[n], "^([^!]*)(!?)$")
-      op = op + parse_gpr(r) * 65536 + (wb == "!" and 0x00200000 or 0)
+    elseif p == "F" then
+      vr = "s"
+    elseif p == "G" then
+      vr = "d"
+    elseif p == "o" then
+      local r, wb = match(q, "^([^!]*)(!?)$")
+      op = op + shl(parse_gpr(r), 16) + (wb == "!" and 0x00200000 or 0)
       n = n + 1
     elseif p == "R" then
-      op = op + parse_reglist(params[n]); n = n + 1
+      op = op + parse_reglist(q); n = n + 1
+    elseif p == "r" then
+      op = op + parse_vrlist(q); n = n + 1
     elseif p == "W" then
-      op = op + parse_imm16(params[n]); n = n + 1
+      op = op + parse_imm16(q); n = n + 1
     elseif p == "v" then
-      op = op + parse_imm(params[n], 5, 7, 0, false); n = n + 1
+      op = op + parse_imm(q, 5, 7, 0, false); n = n + 1
     elseif p == "w" then
-      local imm = match(params[n], "^#(.*)$")
+      local imm = match(q, "^#(.*)$")
       if imm then
-	op = op + parse_imm(params[n], 5, 7, 0, false); n = n + 1
+	op = op + parse_imm(q, 5, 7, 0, false); n = n + 1
       else
-	op = op + parse_gpr(params[n]) * 256 + 16
+	op = op + shl(parse_gpr(q), 8) + 16
       end
     elseif p == "X" then
-      op = op + parse_imm(params[n], 5, 16, 0, false); n = n + 1
-    elseif p == "K" then
-      local imm = tonumber(match(params[n], "^#(.*)$")); n = n + 1
-      if not imm or imm % 1 ~= 0 or imm < 0 or imm > 0xffff then
+      op = op + parse_imm(q, 5, 16, 0, false); n = n + 1
+    elseif p == "Y" then
+      local imm = tonumber(match(q, "^#(.*)$")); n = n + 1
+      if not imm or shr(imm, 8) ~= 0 then
 	werror("bad immediate operand")
       end
-      local t = imm % 16
-      op = op + (imm - t) * 16 + t
+      op = op + shl(band(imm, 0xf0), 12) + band(imm, 0x0f)
+    elseif p == "K" then
+      local imm = tonumber(match(q, "^#(.*)$")); n = n + 1
+      if not imm or shr(imm, 16) ~= 0 then
+	werror("bad immediate operand")
+      end
+      op = op + shl(band(imm, 0xfff0), 4) + band(imm, 0x000f)
     elseif p == "T" then
-      op = op + parse_imm(params[n], 24, 0, 0, false); n = n + 1
+      op = op + parse_imm(q, 24, 0, 0, false); n = n + 1
     elseif p == "s" then
       -- Ignored.
     else
@@ -771,6 +920,30 @@ map_op[".template__"] = function(params, template, nparams)
     end
   end
   wputpos(pos, op)
+end
+
+map_op[".template__"] = function(params, template, nparams)
+  if not params then return template:gsub("%x%x%x%x%x%x%x%x", "") end
+
+  -- Limit number of section buffer positions used by a single dasm_put().
+  -- A single opcode needs a maximum of 3 positions.
+  if secpos+3 > maxsecpos then wflush() end
+  local pos = wpos()
+  local lpos, apos, spos = #actlist, #actargs, secpos
+
+  local ok, err
+  for t in gmatch(template, "[^|]+") do
+    ok, err = pcall(parse_template, params, t, nparams, pos)
+    if ok then return end
+    secpos = spos
+    actlist[lpos+1] = nil
+    actlist[lpos+2] = nil
+    actlist[lpos+3] = nil
+    actargs[apos+1] = nil
+    actargs[apos+2] = nil
+    actargs[apos+3] = nil
+  end
+  error(err, 0)
 end
 
 ------------------------------------------------------------------------------
@@ -826,10 +999,11 @@ map_op[".long_*"] = function(params)
       wputw(n)
       if secpos+2 > maxsecpos then wflush() end
     else
-      waction("LONG", 0, format("(uintptr_t)(%s)", p))
+      waction("LONG", 0, format("(int)(%s)", p))
     end
   end
 end
+
 
 -- Alignment pseudo-opcode.
 map_op[".align_1"] = function(params)
@@ -935,11 +1109,14 @@ function _M.mergemaps(map_coreop, map_def)
   setmetatable(map_op, { __index = function(t, k)
     local v = map_coreop[k]
     if v then return v end
-    local cc = sub(k, -4, -3)
+    local k1, cc, k2 = match(k, "^(.-)(..)([._].*)$")
     local cv = map_cond[cc]
     if cv then
-      local v = rawget(t, sub(k, 1, -5)..sub(k, -2))
-      if type(v) == "string" then return format("%x%s", cv, sub(v, 2)) end
+      local v = rawget(t, k1..k2)
+      if type(v) == "string" then
+	local scv = format("%x", cv)
+	return gsub(scv..sub(v, 2), "|e", "|"..scv)
+      end
     end
   end })
   setmetatable(map_def, { __index = map_archdef })

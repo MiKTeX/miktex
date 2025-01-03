@@ -1,6 +1,6 @@
 ## luaffi.cmake
 ##
-## Copyright (C) 2010-2023 Christian Schenk
+## Copyright (C) 2010-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -9,6 +9,8 @@
 set(luaffi_sources
     source/luaffi/call.c
     source/luaffi/call_arm.h
+    source/luaffi/call_arm64.h
+    source/luaffi/call_arm_hf.h
     source/luaffi/call_x64.h
     source/luaffi/call_x64win.h
     source/luaffi/call_x86.h

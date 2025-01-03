@@ -1,7 +1,7 @@
 /*
 ** DynASM ARM encoding engine.
-** Copyright (C) 2005-2011 Mike Pall. All rights reserved.
-** Released under the MIT/X license. See dynasm.lua for full copyright notice.
+** Copyright (C) 2005-2017 Mike Pall. All rights reserved.
+** Released under the MIT license. See dynasm.lua for full copyright notice.
 */
 
 #include <stddef.h>
@@ -22,7 +22,7 @@ enum {
   DASM_ALIGN, DASM_REL_LG, DASM_LABEL_LG,
   /* The following actions also have an argument. */
   DASM_REL_PC, DASM_LABEL_PC,
-  DASM_LONG, DASM_IMM, DASM_IMM12, DASM_IMM16, DASM_IMML8, DASM_IMML12,
+  DASM_LONG,DASM_IMM, DASM_IMM12, DASM_IMM16, DASM_IMML8, DASM_IMML12, DASM_IMMV8,
   DASM__MAX
 };
 
@@ -211,7 +211,8 @@ void dasm_put(Dst_DECL, int start, ...)
       case DASM_ALIGN: ofs += (ins & 255); b[pos++] = ofs; break;
       case DASM_REL_LG:
 	n = (ins & 2047) - 10; pl = D->lglabels + n;
-	if (n >= 0) { CKPL(lg, LG); goto putrel; }  /* Bkwd rel or global. */
+	/* Bkwd rel or global. */
+	if (n >= 0) { CK(n>=10||*pl<0, RANGE_LG); CKPL(lg, LG); goto putrel; }
 	pl += 10; n = *pl;
 	if (n < 0) n = 0;  /* Start new chain for fwd rel if label exists. */
 	goto linkrel;
@@ -239,7 +240,7 @@ void dasm_put(Dst_DECL, int start, ...)
 	*pl = -pos;  /* Label exists now. */
 	b[pos++] = ofs;  /* Store pass1 offset estimate. */
 	break;
-      case DASM_LONG:
+	case DASM_LONG:
         ofs += 4;
         b[pos++] = n;
         break;
@@ -254,6 +255,10 @@ void dasm_put(Dst_DECL, int start, ...)
 #endif
 	b[pos++] = n;
 	break;
+      case DASM_IMMV8:
+	CK((n & 3) == 0, RANGE_I);
+	n >>= 2;
+	/* fallthrough */
       case DASM_IMML8:
       case DASM_IMML12:
 	CK(n >= 0 ? ((n>>((ins>>5)&31)) == 0) :
@@ -319,8 +324,8 @@ int dasm_link(Dst_DECL, size_t *szp)
 	case DASM_ALIGN: ofs -= (b[pos++] + ofs) & (ins & 255); break;
 	case DASM_REL_LG: case DASM_REL_PC: pos++; break;
 	case DASM_LABEL_LG: case DASM_LABEL_PC: b[pos++] += ofs; break;
-        case DASM_LONG: case DASM_IMM: case DASM_IMM12: case DASM_IMM16:
-	case DASM_IMML8: case DASM_IMML12: pos++; break;
+	case DASM_IMM:  case DASM_LONG:case DASM_IMM12: case DASM_IMM16:
+	case DASM_IMML8: case DASM_IMML12: case DASM_IMMV8: pos++; break;
 	}
       }
       stop: (void)0;
@@ -371,6 +376,7 @@ int dasm_encode(Dst_DECL, void *buffer)
 	  break;
 	case DASM_REL_LG:
 	  CK(n >= 0, UNDEF_LG);
+	  /* fallthrough */
 	case DASM_REL_PC:
 	  CK(n >= 0, UNDEF_PC);
 	  n = *DASM_POS2PTR(D, n) - (int)((char *)cp - base) - 4;
@@ -381,17 +387,21 @@ int dasm_encode(Dst_DECL, void *buffer)
 	  } else if ((ins & 0x1000)) {
 	    CK((n & 3) == 0 && -256 <= n && n <= 256, RANGE_REL);
 	    goto patchimml8;
-	  } else {
+	  } else if ((ins & 0x2000) == 0) {
 	    CK((n & 3) == 0 && -4096 <= n && n <= 4096, RANGE_REL);
-	    goto patchimml12;
+	    goto patchimml;
+	  } else {
+	    CK((n & 3) == 0 && -1020 <= n && n <= 1020, RANGE_REL);
+	    n >>= 2;
+	    goto patchimml;
 	  }
 	  break;
 	case DASM_LABEL_LG:
 	  ins &= 2047; if (ins >= 20) D->globals[ins-10] = (void *)(base + n);
 	  break;
 	case DASM_LABEL_PC: break;
-        case DASM_LONG:
-          *cp++ = n;
+	case DASM_LONG:
+          *cp++ = (unsigned int) n;
           break;
 	case DASM_IMM:
 	  cp[-1] |= ((n>>((ins>>10)&31)) & ((1<<((ins>>5)&31))-1)) << (ins&31);
@@ -406,7 +416,7 @@ int dasm_encode(Dst_DECL, void *buffer)
 	  cp[-1] |= n >= 0 ? (0x00800000 | (n & 0x0f) | ((n & 0xf0) << 4)) :
 			     ((-n & 0x0f) | ((-n & 0xf0) << 4));
 	  break;
-	case DASM_IMML12: patchimml12:
+	case DASM_IMML12: case DASM_IMMV8: patchimml:
 	  cp[-1] |= n >= 0 ? (0x00800000 | n) : (-n);
 	  break;
 	default: *cp++ = ins; break;

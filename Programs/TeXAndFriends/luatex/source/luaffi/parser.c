@@ -72,7 +72,7 @@ static char tok1[] = {
 
 static int next_token(lua_State* L, struct parser* P, struct token* tok)
 {
-    size_t i;
+    size_t i; char ch;
     const char* s = P->next;
 
     /* UTF8 BOM */
@@ -83,7 +83,7 @@ static int next_token(lua_State* L, struct parser* P, struct token* tok)
     /* consume whitespace and comments */
     for (;;) {
         /* consume whitespace */
-        while(*s == '\t' || *s == '\n' || *s == ' ' || *s == '\v' || *s == '\r') {
+        while((ch=*s) == '\t' || ch == '\n' || ch == ' ' || ch == '\v' || ch == '\r') {
             if (*s == '\n') {
                 P->line++;
             }
@@ -91,14 +91,14 @@ static int next_token(lua_State* L, struct parser* P, struct token* tok)
         }
 
         /* consume comments */
-        if (*s == '/' && *(s+1) == '/') {
+        if ((ch=*s) == '/' && *(s+1) == '/') {
 
             s = strchr(s, '\n');
             if (!s) {
                 luaL_error(L, "non-terminated comment");
             }
 
-        } else if (*s == '/' && *(s+1) == '*') {
+        } else if (ch == '/' && *(s+1) == '*') {
             s += 2;
 
             for (;;) {
@@ -113,7 +113,7 @@ static int next_token(lua_State* L, struct parser* P, struct token* tok)
                 s++;
             }
 
-        } else if (*s == '\0') {
+        } else if (ch == '\0') {
             tok->type = TOK_NIL;
             return 0;
 
@@ -123,9 +123,9 @@ static int next_token(lua_State* L, struct parser* P, struct token* tok)
     }
 
     P->prev = s;
-
+    ch=s[0];
     for (i = 0; i < sizeof(tok3) / sizeof(tok3[0]); i++) {
-        if (s[0] == tok3[i][0] && s[1] == tok3[i][1] && s[2] == tok3[i][2]) {
+        if (ch == tok3[i][0] && s[1] == tok3[i][1] && s[2] == tok3[i][2]) {
             tok->type = (enum etoken) (TOK_3_BEGIN + 1 + i);
             P->next = s + 3;
             goto end;
@@ -133,7 +133,7 @@ static int next_token(lua_State* L, struct parser* P, struct token* tok)
     }
 
     for (i = 0; i < sizeof(tok2) / sizeof(tok2[0]); i++) {
-        if (s[0] == tok2[i][0] && s[1] == tok2[i][1]) {
+        if (ch == tok2[i][0] && s[1] == tok2[i][1]) {
             tok->type = (enum etoken) (TOK_2_BEGIN + 1 + i);
             P->next = s + 2;
             goto end;
@@ -141,48 +141,50 @@ static int next_token(lua_State* L, struct parser* P, struct token* tok)
     }
 
     for (i = 0; i < sizeof(tok1) / sizeof(tok1[0]); i++) {
-        if (s[0] == tok1[i]) {
+        if (ch == tok1[i]) {
             tok->type = (enum etoken) (TOK_1_BEGIN + 1 + i);
             P->next = s + 1;
             goto end;
         }
     }
 
-    if (*s == '.' || *s == '-' || ('0' <= *s && *s <= '9')) {
+    if (ch == '.' || ch == '-' || ('0' <= ch && ch <= '9')) {
         /* number */
         tok->type = TOK_NUMBER;
+        tok->str=s;
 
         /* split out the negative case so we get the full range of bits for
          * unsigned (eg to support 0xFFFFFFFF where sizeof(long) == 4)
          */
-        if (*s == '-') {
+        if (ch == '-') {
             tok->integer = strtol(s, (char**) &s, 0);
         } else {
             tok->integer = strtoul(s, (char**) &s, 0);
         }
+        tok->size=s-tok->str;
 
-        while (*s == 'u' || *s == 'U' || *s == 'l' || *s == 'L') {
+        while ((ch=*s) == 'u' || ch == 'U' || ch == 'l' || ch == 'L') {
             s++;
         }
 
         P->next = s;
         goto end;
 
-    } else if (*s == '\'' || *s == '\"') {
+    } else if (ch == '\'' || ch == '\"') {
         /* "..." or '...' */
-        char quote = *s;
+        char quote = ch;
         s++; /* jump over " */
 
         tok->type = TOK_STRING;
         tok->str = s;
 
-        while (*s != quote) {
+        while ((ch=*s) != quote) {
 
-            if (*s == '\0' || (*s == '\\' && *(s+1) == '\0')) {
+            if (ch == '\0' || (ch == '\\' && *(s+1) == '\0')) {
                 return luaL_error(L, "string not finished");
             }
 
-            if (*s == '\\') {
+            if (ch == '\\') {
                 s++;
             }
 
@@ -194,12 +196,14 @@ static int next_token(lua_State* L, struct parser* P, struct token* tok)
         P->next = s;
         goto end;
 
-    } else if (('a' <= *s && *s <= 'z') || ('A' <= *s && *s <= 'Z') || *s == '_') {
+    } else if (('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch == '_' ||
+        ((signed char)ch)<0/*support for non-ascii charsets*/) {
         /* tokens */
         tok->type = TOK_TOKEN;
         tok->str = s;
 
-        while (('a' <= *s && *s <= 'z') || ('A' <= *s && *s <= 'Z') || *s == '_' || ('0' <= *s && *s <= '9')) {
+        while (('a' <= (ch=*s) && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch == '_'
+            || ('0' <= ch && ch <= '9')|| ((signed char)ch)<0/*support for non-ascii charsets*/) {
             s++;
         }
 
@@ -208,7 +212,7 @@ static int next_token(lua_State* L, struct parser* P, struct token* tok)
         goto end;
 
     } else {
-        return luaL_error(L, "invalid character %d", P->line);
+        return luaL_error(L, "invalid character %c on line %d",ch, P->line);
     }
 
 end:
@@ -216,27 +220,45 @@ end:
     return 1;
 }
 
-#define require_token(L, P, tok) require_token_line(L, P, tok, __FILE__, __LINE__)
+static const char* token_str(lua_State* L,struct token* tk){
+    switch(tk->type){
+        case TOK_TOKEN:
+        case TOK_STRING:
+        case TOK_NUMBER:
+            lua_pushlstring(L,tk->str,tk->size);
+            return lua_tostring(L,-1);
+        case TOK_NIL:
+            return "";
+        default:
+            if(tk->type<TOK_2_BEGIN){
+                return tok3[tk->type-TOK_3_BEGIN-1];
+            } else if(tk->type<TOK_1_BEGIN){
+                return tok2[tk->type-TOK_2_BEGIN-1];
+            }else {
+                lua_pushlstring(L,&tok1[tk->type-TOK_1_BEGIN-1],1);
+                return lua_tostring(L,-1);
+            }
+    }
 
-static void require_token_line(lua_State* L, struct parser* P, struct token* tok, const char* file, int line)
+}
+//#define require_token(L, P, tok) require_token_line(L, P, tok, __FILE__, __LINE__)
+
+static void require_token(lua_State* L, struct parser* P, struct token* tok)
 {
     if (!next_token(L, P, tok)) {
-        luaL_error(L, "unexpected end on line %s:%d", file, line);
+        luaL_error(L, "unexpected end '%s' on line %d",token_str(L,tok), P->line);
     }
 }
 
-static void check_token(lua_State* L, struct parser* P, int type, const char* str, const char* err, ...)
+static void check_token(lua_State* L, struct parser* P, int type, const char* str, const char* err)
 {
     struct token tok;
     if (!next_token(L, P, &tok) || tok.type != type || (tok.type == TOK_TOKEN && (tok.size != strlen(str) || memcmp(tok.str, str, tok.size) != 0))) {
-        va_list ap;
-        va_start(ap, err);
-        lua_pushvfstring(L, err, ap);
-        lua_error(L);
+        luaL_error(L,err,token_str(L,&tok),P->line);
     }
 }
 
-static void put_back(struct parser* P)
+static ALWAYS_INLINE void put_back(struct parser* P)
 { P->next = P->prev; }
 
 
@@ -273,7 +295,7 @@ static int parse_enum(lua_State* L, struct parser* P, struct ctype* type)
         if (tok.type == TOK_CLOSE_CURLY) {
             break;
         } else if (tok.type != TOK_TOKEN) {
-            return luaL_error(L, "unexpected token in enum at line %d", P->line);
+            return luaL_error(L, "unexpected token '%s' in enum at line %d",token_str(L,&tok), P->line);
         }
 
         lua_pushlstring(L, tok.str, tok.size);
@@ -288,7 +310,7 @@ static int parse_enum(lua_State* L, struct parser* P, struct ctype* type)
             value = (int) calculate_constant(L, P);
             require_token(L, P, &tok);
         } else {
-            return luaL_error(L, "unexpected token in enum at line %d", P->line);
+            return luaL_error(L, "unexpected token '%s' in enum at line %d",token_str(L,&tok), P->line);
         }
 
         assert(lua_gettop(L) == ct_usr + 1);
@@ -309,7 +331,7 @@ static int parse_enum(lua_State* L, struct parser* P, struct ctype* type)
         if (tok.type == TOK_CLOSE_CURLY) {
             break;
         } else if (tok.type != TOK_COMMA) {
-            return luaL_error(L, "unexpected token in enum at line %d", P->line);
+            return luaL_error(L, "unexpected token '%s' in enum at line %d",token_str(L,&tok), P->line);
         }
     }
 
@@ -320,38 +342,35 @@ static int parse_enum(lua_State* L, struct parser* P, struct ctype* type)
     return 0;
 }
 
-static void calculate_member_position(lua_State* L, struct parser* P, struct ctype* ct, struct ctype* mt, int* pbit_offset, int* pbitfield_type)
+static void calculate_member_position(lua_State* L, struct parser* P, struct ctype* ct, struct member_type* mt, int* pbit_offset, int* pbitfield_type)
 {
     int bit_offset = *pbit_offset;
 
     if (ct->type == UNION_TYPE) {
         size_t msize;
 
-        if (mt->is_variable_struct || mt->is_variable_array) {
+        if (mt->ct.is_variable_struct || mt->ct.is_variable_array) {
             luaL_error(L, "NYI: variable sized members in unions");
             return;
 
-        } else if (mt->is_bitfield) {
-            msize = (mt->align_mask + 1);
+        } else if (mt->ct.is_bitfield) {
+            msize = (mt->ct.align_mask + 1);
 #ifdef _WIN32
             /* MSVC has a bug where it doesn't update the alignment of
              * a union for bitfield members. */
-            mt->align_mask = 0;
+            mt->ct.align_mask = 0;
 #endif
 
-        } else if (mt->is_array) {
-            msize = mt->array_size * (mt->pointers > 1 ? sizeof(void*) : mt->base_size);
+        } else if (mt->ct.is_array) {
+            msize = mt->ct.array_size * (mt->ct.pointers > 1 ? sizeof(void*) : mt->ct.base_size);
 
         } else {
-            msize = mt->pointers ? sizeof(void*) : mt->base_size;
+            msize = mt->ct.pointers ? sizeof(void*) : mt->ct.base_size;
         }
 
         ct->base_size = max(ct->base_size, msize);
 
-    } else if (mt->is_bitfield) {
-        if (mt->has_member_name && mt->bit_size == 0) {
-            luaL_error(L, "zero length bitfields must be unnamed on line %d", P->line);
-        }
+    } else if (mt->ct.is_bitfield) {
 
 #if defined _WIN32
         /* MSVC uses a seperate storage unit for each size. This is aligned
@@ -361,30 +380,30 @@ static void calculate_member_position(lua_State* L, struct parser* P, struct cty
          * unit, but not necesserily using it yet.
          */
 
-        if (*pbitfield_type == -1 && mt->bit_size == 0) {
+        if (*pbitfield_type == -1 && mt->ct.bit_size == 0) {
             /* :0 not after a bitfield are ignored */
             return;
         }
 
         {
-            int different_storage = mt->align_mask != *pbitfield_type;
-            int no_room_left = bit_offset + mt->bit_size > (mt->align_mask + 1) * CHAR_BIT;
+            int different_storage = mt->ct.align_mask != *pbitfield_type;
+            int no_room_left = bit_offset + mt->ct.bit_size > (mt->ct.align_mask + 1) * CHAR_BIT;
 
-            if (different_storage || no_room_left || !mt->bit_size) {
+            if (different_storage || no_room_left || !mt->ct.bit_size) {
                 ct->base_size += (bit_offset + CHAR_BIT - 1) / CHAR_BIT;
                 bit_offset = 0;
                 if (*pbitfield_type >= 0) {
                     ct->base_size = ALIGN_UP(ct->base_size, *pbitfield_type);
                 }
-                ct->base_size = ALIGN_UP(ct->base_size, mt->align_mask);
+                ct->base_size = ALIGN_UP(ct->base_size, mt->ct.align_mask);
             }
         }
 
-        mt->bit_offset = bit_offset;
+        mt->ct.bit_offset = bit_offset;
         mt->offset = ct->base_size;
 
-        *pbitfield_type = mt->align_mask;
-        bit_offset += mt->bit_size;
+        *pbitfield_type = mt->ct.align_mask;
+        bit_offset += mt->ct.bit_size;
 
 // #elif defined OS_OSX
 //         /* OSX doesn't use containers and bitfields are not aligned. So
@@ -413,26 +432,29 @@ static void calculate_member_position(lua_State* L, struct parser* P, struct cty
          * :0 forces an alignment based off the type used with the :0
          */
 
-        int bits_used = (ct->base_size - ALIGN_DOWN(ct->base_size, mt->align_mask)) * CHAR_BIT + bit_offset;
-        int need_to_realign = bits_used + mt->bit_size > mt->base_size * CHAR_BIT;
+        int bits_used = (ct->base_size - ALIGN_DOWN(ct->base_size, mt->ct.align_mask)) * CHAR_BIT + bit_offset;
+        int need_to_realign = bits_used + mt->ct.bit_size > mt->ct.base_size * CHAR_BIT;
 
-        if (!mt->is_packed && (!mt->bit_size || need_to_realign)) {
+        if (!mt->ct.is_packed && (!mt->ct.bit_size || need_to_realign)) {
             ct->base_size += (bit_offset + CHAR_BIT - 1) / CHAR_BIT;
-            ct->base_size = ALIGN_UP(ct->base_size, mt->align_mask);
+            ct->base_size = ALIGN_UP(ct->base_size, mt->ct.align_mask);
             bit_offset = 0;
         }
 
-        mt->bit_offset = bit_offset;
+        mt->ct.bit_offset = bit_offset;
         mt->offset = ct->base_size;
 
-        bit_offset += mt->bit_size;
+        bit_offset += mt->ct.bit_size;
         ct->base_size += bit_offset / CHAR_BIT;
         bit_offset = bit_offset % CHAR_BIT;
 
+//arm ignored it
+#if !defined(ARCH_ARM64) &&!defined(ARCH_ARM)
         /* unnamed bitfields don't update the struct alignment */
         if (!mt->has_member_name) {
-            mt->align_mask = 0;
+            mt->ct.align_mask = 0;
         }
+#endif
 #else
 #error
 #endif
@@ -448,42 +470,42 @@ static void calculate_member_position(lua_State* L, struct parser* P, struct cty
 
         *pbitfield_type = -1;
 
-        ct->base_size = ALIGN_UP(ct->base_size, mt->align_mask);
+        ct->base_size = ALIGN_UP(ct->base_size, mt->ct.align_mask);
         mt->offset = ct->base_size;
 
-        if (mt->is_variable_array) {
+        if (mt->ct.is_variable_array) {
             ct->is_variable_struct = 1;
-            ct->variable_increment = mt->pointers > 1 ? sizeof(void*) : mt->base_size;
+            ct->variable_increment = mt->ct.pointers > 1 ? sizeof(void*) : mt->ct.base_size;
 
-        } else if (mt->is_variable_struct) {
-            assert(!mt->variable_size_known && !mt->is_array && !mt->pointers);
-            ct->base_size += mt->base_size;
+        } else if (mt->ct.is_variable_struct) {
+            assert(!mt->ct.variable_size_known && !mt->ct.is_array && !mt->ct.pointers);
+            ct->base_size += mt->ct.base_size;
             ct->is_variable_struct = 1;
-            ct->variable_increment = mt->variable_increment;
+            ct->variable_increment = mt->ct.variable_increment;
 
-        } else if (mt->is_array) {
-            ct->base_size += mt->array_size * (mt->pointers > 1 ? sizeof(void*) : mt->base_size);
+        } else if (mt->ct.is_array) {
+            ct->base_size += mt->ct.array_size * (mt->ct.pointers > 1 ? sizeof(void*) : mt->ct.base_size);
 
         } else {
-            ct->base_size += mt->pointers ? sizeof(void*) : mt->base_size;
+            ct->base_size += mt->ct.pointers ? sizeof(void*) : mt->ct.base_size;
         }
     }
 
     /* increase the outer struct/union alignment if needed */
-    if (mt->align_mask > (int) ct->align_mask) {
-        ct->align_mask = mt->align_mask;
+    if (mt->ct.align_mask > (int) ct->align_mask) {
+        ct->align_mask = mt->ct.align_mask;
     }
 
-    if (mt->has_bitfield || mt->is_bitfield) {
+    if (mt->ct.has_bitfield || mt->ct.is_bitfield) {
         ct->has_bitfield = 1;
     }
 
     *pbit_offset = bit_offset;
 }
 
-static int copy_submembers(lua_State* L, int to_usr, int from_usr, const struct ctype* ft, int* midx)
+static int copy_submembers(lua_State* L, int to_usr, int from_usr, const struct member_type* ft, int* midx)
 {
-    struct ctype ct;
+    struct member_type ct;
     int i, sublen;
 
     from_usr = lua_absindex(L, from_usr);
@@ -494,11 +516,11 @@ static int copy_submembers(lua_State* L, int to_usr, int from_usr, const struct 
     for (i = 1; i <= sublen; i++) {
         lua_rawgeti(L, from_usr, i);
 
-        ct = *(const struct ctype*) lua_touserdata(L, -1);
+        ct = *(const struct member_type*) lua_touserdata(L, -1);
         ct.offset += ft->offset;
         lua_getuservalue(L, -1);
 
-        push_ctype(L, -1, &ct);
+        push_member_type(L, -1, &ct);
         lua_rawseti(L, to_usr, (*midx)++);
 
         lua_pop(L, 2); /* ctype, user value */
@@ -508,13 +530,13 @@ static int copy_submembers(lua_State* L, int to_usr, int from_usr, const struct 
     lua_pushnil(L);
     while (lua_next(L, from_usr)) {
         if (lua_type(L, -2) == LUA_TSTRING) {
-            struct ctype ct = *(const struct ctype*) lua_touserdata(L, -1);
+            ct = *(const struct member_type*) lua_touserdata(L, -1);
             ct.offset += ft->offset;
             lua_getuservalue(L, -1);
 
             /* uservalue[sub_mname] = new_sub_mtype */
             lua_pushvalue(L, -3);
-            push_ctype(L, -2, &ct);
+            push_member_type(L, -2, &ct);
             lua_rawset(L, to_usr);
 
             lua_pop(L, 1); /* remove submember user value */
@@ -525,12 +547,12 @@ static int copy_submembers(lua_State* L, int to_usr, int from_usr, const struct 
     return 0;
 }
 
-static int add_member(lua_State* L, int ct_usr, int mname, int mbr_usr, const struct ctype* mt, int* midx)
+static int add_member(lua_State* L, int ct_usr, int mname, int mbr_usr, const struct member_type* mt, int* midx)
 {
     ct_usr = lua_absindex(L, ct_usr);
     mname = lua_absindex(L, mname);
 
-    push_ctype(L, mbr_usr, mt);
+    push_member_type(L, mbr_usr, mt);
 
     /* usrvalue[mbr index] = pushed mtype */
     lua_pushvalue(L, -1);
@@ -589,7 +611,7 @@ static int parse_struct(lua_State* L, struct parser* P, int tmp_usr, const struc
 
         for (;;) {
             struct token mname;
-            struct ctype mt = mbase;
+            struct member_type mt={mbase};
 
             memset(&mname, 0, sizeof(mname));
 
@@ -598,14 +620,14 @@ static int parse_struct(lua_State* L, struct parser* P, int tmp_usr, const struc
             }
 
             assert(lua_gettop(L) == top + 1);
-            parse_argument(L, P, -1, &mt, &mname, NULL);
+            parse_argument(L, P, -1, &mt.ct, &mname, NULL, 0);
             assert(lua_gettop(L) == top + 2);
 
-            if (!mt.is_defined && (mt.pointers - mt.is_array) == 0) {
+            if (!mt.ct.is_defined && (mt.ct.pointers - mt.ct.is_array) == 0) {
                 return luaL_error(L, "member type is undefined on line %d", P->line);
             }
 
-            if (mt.type == VOID_TYPE && (mt.pointers - mt.is_array) == 0) {
+            if (mt.ct.type == VOID_TYPE && (mt.ct.pointers - mt.ct.is_array) == 0) {
                 return luaL_error(L, "member type can not be void on line %d", P->line);
             }
 
@@ -622,7 +644,7 @@ static int parse_struct(lua_State* L, struct parser* P, int tmp_usr, const struc
             if (tok.type == TOK_SEMICOLON) {
                 break;
             } else if (tok.type != TOK_COMMA) {
-                luaL_error(L, "unexpected token in struct definition on line %d", P->line);
+                luaL_error(L, "unexpected token '%s' in struct definition on line %d", token_str(L,&tok), P->line);
             }
         }
 
@@ -646,11 +668,11 @@ static int calculate_struct_offsets(lua_State* L, struct parser* P, int ct_usr, 
     tmp_usr = lua_absindex(L, tmp_usr);
 
     for (i = 1; i <= sz; i++) {
-        struct ctype mt;
+        struct member_type mt;
 
         /* get the member type */
         lua_rawgeti(L, tmp_usr, i);
-        mt = *(const struct ctype*) lua_touserdata(L, -1);
+        mt = *(const struct member_type*) lua_touserdata(L, -1);
 
         /* get the member user table */
         lua_getuservalue(L, -1);
@@ -665,7 +687,7 @@ static int calculate_struct_offsets(lua_State* L, struct parser* P, int ct_usr, 
             assert(!lua_isnil(L, -1));
             add_member(L, ct_usr, -1, -2, &mt, &midx);
 
-        } else if (mt.type == STRUCT_TYPE || mt.type == UNION_TYPE) {
+        } else if (mt.ct.type == STRUCT_TYPE || mt.ct.type == UNION_TYPE) {
             /* With an unnamed member we copy all of the submembers into our
              * usr value adjusting the offset as necessary. Note ctypes are
              * immutable so need to push a new ctype to update the offset.
@@ -686,6 +708,7 @@ static int calculate_struct_offsets(lua_State* L, struct parser* P, int ct_usr, 
     /* only void is allowed 0 size */
     if (ct->base_size == 0) {
         ct->base_size = 1;
+        ct->is_empty=1;
     }
 
     ct->base_size = ALIGN_UP(ct->base_size, ct->align_mask);
@@ -847,22 +870,24 @@ static int parse_type_name(lua_State* L, struct parser* P)
 {
     struct token tok;
     int flags = 0;
+    const char* st=P->next;
 
     enum {
-        UNSIGNED = 0x01,
-        SIGNED = 0x02,
-        LONG = 0x04,
-        SHORT = 0x08,
-        INT = 0x10,
-        CHAR = 0x20,
-        LONG_LONG = 0x40,
-        INT8 = 0x80,
-        INT16 = 0x100,
-        INT32 = 0x200,
-        INT64 = 0x400,
-        DOUBLE = 0x800,
-        FLOAT = 0x1000,
-        COMPLEX = 0x2000,
+        REGISTER= 1,
+        UNSIGNED = 1<<1,
+        SIGNED = 1<<2,
+        COMPLEX = 1<<3,
+        LONG = 1<<4,
+        LONG_LONG = 1<<5,
+        SHORT = 1<<6,
+        INT = 1<<7,
+        CHAR = 1<<8,
+        INT8 = 1<<9,
+        INT16 = 1<<10,
+        INT32 = 1<<11,
+        INT64 = 1<<12,
+        DOUBLE = 1<<13,
+        FLOAT = 1<<14,
     };
 
     require_token(L, P, &tok);
@@ -874,44 +899,70 @@ static int parse_type_name(lua_State* L, struct parser* P)
         if (tok.type != TOK_TOKEN) {
             break;
         } else if (IS_LITERAL(tok, "unsigned")) {
+            if(flags&(SIGNED|UNSIGNED)) goto invalid_type;
             flags |= UNSIGNED;
         } else if (IS_LITERAL(tok, "signed")) {
+            if(flags&(SIGNED|UNSIGNED)) goto invalid_type;
             flags |= SIGNED;
         } else if (IS_LITERAL(tok, "short")) {
+            if(flags&~(SIGNED|UNSIGNED|INT|REGISTER)) goto invalid_type;
             flags |= SHORT;
         } else if (IS_LITERAL(tok, "char")) {
+            if(flags&~(SIGNED|UNSIGNED|REGISTER)) goto invalid_type;
             flags |= CHAR;
         } else if (IS_LITERAL(tok, "long")) {
-            flags |= (flags & LONG) ? LONG_LONG : LONG;
+            if(flags&~(SIGNED|UNSIGNED|REGISTER|LONG|DOUBLE|INT)) goto invalid_type;
+            if(flags & LONG)  {
+                flags &=~LONG;
+                flags |=LONG_LONG;
+            } else flags |= LONG;
         } else if (IS_LITERAL(tok, "int")) {
+            if(flags&~(SIGNED|UNSIGNED|REGISTER|SHORT|LONG|LONG_LONG)) goto invalid_type;
             flags |= INT;
         } else if (IS_LITERAL(tok, "__int8")) {
+            if(flags&~(SIGNED|UNSIGNED|REGISTER)) goto invalid_type;
             flags |= INT8;
         } else if (IS_LITERAL(tok, "__int16")) {
+            if(flags&~(SIGNED|UNSIGNED|REGISTER)) goto invalid_type;
             flags |= INT16;
         } else if (IS_LITERAL(tok, "__int32")) {
+            if(flags&~(SIGNED|UNSIGNED|REGISTER)) goto invalid_type;
             flags |= INT32;
         } else if (IS_LITERAL(tok, "__int64")) {
+            if(flags&~(SIGNED|UNSIGNED|REGISTER)) goto invalid_type;
             flags |= INT64;
         } else if (IS_LITERAL(tok, "double")) {
+            if(flags&~(COMPLEX|REGISTER|LONG)) goto invalid_type;
             flags |= DOUBLE;
         } else if (IS_LITERAL(tok, "float")) {
+            if(flags&~(COMPLEX|REGISTER)) goto invalid_type;
             flags |= FLOAT;
         } else if (IS_LITERAL(tok, "complex") || IS_LITERAL(tok, "_Complex")) {
+            if(flags&~(FLOAT|DOUBLE|REGISTER)) goto invalid_type;
             flags |= COMPLEX;
         } else if (IS_LITERAL(tok, "register")) {
-            /* ignore */
+            if(flags&REGISTER) goto invalid_type;
+            flags |=REGISTER;
         } else {
             break;
+            invalid_type:
+            {
+                lua_pushliteral(L,"Invalid type: ");
+                lua_pushlstring(L,st,P->next-st);
+                lua_concat(L,2);
+                luaL_error(L,lua_tostring(L,-1));
+            };
+
         }
 
         if (!next_token(L, P, &tok)) {
-            break;
+            goto handle_register;
         }
     }
-
+    if(flags) put_back(P);
+    handle_register:
     if (flags) {
-        put_back(P);
+        flags&=~REGISTER;//ignored;
     }
 
     if (flags & CHAR) {
@@ -940,16 +991,24 @@ static int parse_type_name(lua_State* L, struct parser* P)
         } else {
             lua_pushliteral(L, "complex double");
         }
+#define CHECK_SIGN_FLOAT()\
+        if((flags&SIGNED)||(flags&UNSIGNED)){\
+            luaL_error(L,"Error: '%s' cannot be signed or unsigned",lua_tostring(L,-1));\
+        }
+        CHECK_SIGN_FLOAT();
 
     } else if (flags & DOUBLE) {
+
         if (flags & LONG) {
             lua_pushliteral(L, "long double");
         } else {
             lua_pushliteral(L, "double");
         }
+        CHECK_SIGN_FLOAT();
 
     } else if (flags & FLOAT) {
         lua_pushliteral(L, "float");
+        CHECK_SIGN_FLOAT();
 
     } else if (flags & SHORT) {
 #define SHORT_TYPE(u) (sizeof(short) == sizeof(int64_t) ? u "int64_t" : sizeof(short) == sizeof(int32_t) ? u "int32_t" : u "int16_t")
@@ -997,7 +1056,7 @@ static int parse_attribute(lua_State* L, struct parser* P, struct token* tok, st
         return 0;
 
     } else if (asmname && (IS_LITERAL(*tok, "__asm__") || IS_LITERAL(*tok, "__asm"))) {
-        check_token(L, P, TOK_OPEN_PAREN, NULL, "unexpected token after __asm__ on line %d", P->line);
+        check_token(L, P, TOK_OPEN_PAREN, NULL, "unexpected token '%s' after __asm__ on line %d");
         *asmname = *P;
 
         require_token(L, P, tok);
@@ -1006,13 +1065,13 @@ static int parse_attribute(lua_State* L, struct parser* P, struct token* tok, st
         }
 
         if (tok->type != TOK_CLOSE_PAREN) {
-            luaL_error(L, "unexpected token after __asm__ on line %d", P->line);
+            luaL_error(L, "unexpected token '%s' after __asm__ on line %d",token_str(L,tok), P->line);
         }
         return 1;
 
     } else if (IS_LITERAL(*tok, "__attribute__") || IS_LITERAL(*tok, "__declspec")) {
         int parens = 1;
-        check_token(L, P, TOK_OPEN_PAREN, NULL, "expected parenthesis after __attribute__ or __declspec on line %d", P->line);
+        check_token(L, P, TOK_OPEN_PAREN, NULL, "expected parenthesis but got '%s' after __attribute__ or __declspec on line %d");
 
         for (;;) {
             require_token(L, P, tok);
@@ -1032,7 +1091,9 @@ static int parse_attribute(lua_State* L, struct parser* P, struct token* tok, st
 
                 switch (tok->type) {
                 case TOK_CLOSE_PAREN:
-                    align = ALIGNED_DEFAULT;
+                    //__attribute__((algined)) indicates max alignment
+                    //it only works for gcc
+                    align = ALIGNED_MAX;
                     put_back(P);
                     break;
 
@@ -1053,7 +1114,7 @@ static int parse_attribute(lua_State* L, struct parser* P, struct token* tok, st
                         luaL_error(L, "unsupported align size on line %d", P->line);
                     }
 
-                    check_token(L, P, TOK_CLOSE_PAREN, NULL, "expected align(#) on line %d", P->line);
+                    check_token(L, P, TOK_CLOSE_PAREN, NULL, "expected align(#) but got '%s' on line %d");
                     break;
 
                 default:
@@ -1069,11 +1130,11 @@ static int parse_attribute(lua_State* L, struct parser* P, struct token* tok, st
 
             } else if (IS_LITERAL(*tok, "mode") || IS_LITERAL(*tok, "__mode__")) {
 
-                check_token(L, P, TOK_OPEN_PAREN, NULL, "expected mode(MODE) on line %d", P->line);
+                check_token(L, P, TOK_OPEN_PAREN, NULL, "expected mode(MODE) but got '%s' on line %d");
 
                 require_token(L, P, tok);
                 if (tok->type != TOK_TOKEN) {
-                    luaL_error(L, "expected mode(MODE) on line %d", P->line);
+                    luaL_error(L, "expected mode(MODE) but got %s on line %d");
                 }
 
                 if (ct->type == FLOAT_TYPE || ct->type == DOUBLE_TYPE) {
@@ -1122,7 +1183,7 @@ static int parse_attribute(lua_State* L, struct parser* P, struct token* tok, st
                         ct->align_mask = ALIGNOF(a32);
 
                     } else if (IS_LITERAL(*tok, "DI") || IS_LITERAL(*tok, "__DI__")
-#if defined ARCH_X64 || defined ARCH_PPC64
+#if defined ARCH_X64 || defined ARCH_PPC64 ||defined(ARCH_ARM64)
                             || IS_LITERAL(*tok, "word") || IS_LITERAL(*tok, "__word__")
                             || IS_LITERAL(*tok, "pointer") || IS_LITERAL(*tok, "__pointer__")
 #endif
@@ -1136,7 +1197,7 @@ static int parse_attribute(lua_State* L, struct parser* P, struct token* tok, st
                     }
                 }
 
-                check_token(L, P, TOK_CLOSE_PAREN, NULL, "expected mode(MODE) on line %d", P->line);
+                check_token(L, P, TOK_CLOSE_PAREN, NULL, "expected mode(MODE) but got '%s' on line %d");
 
             } else if (IS_LITERAL(*tok, "cdecl") || IS_LITERAL(*tok, "__cdecl__")) {
                 ct->calling_convention = C_CALL;
@@ -1496,7 +1557,7 @@ static void parse_function_arguments(lua_State* L, struct parser* P, int ct_usr,
 
         if (args) {
             if (tok.type != TOK_COMMA) {
-                luaL_error(L, "unexpected token in function argument %d on line %d", args, P->line);
+                luaL_error(L, "unexpected token '%s' in function argument %d on line %d",token_str(L,&tok), args, P->line);
             }
 
             require_token(L, P, &tok);
@@ -1504,7 +1565,7 @@ static void parse_function_arguments(lua_State* L, struct parser* P, int ct_usr,
 
         if (tok.type == TOK_VA_ARG) {
             ct->has_var_arg = true;
-            check_token(L, P, TOK_CLOSE_PAREN, "", "unexpected token after ... in function on line %d", P->line);
+            check_token(L, P, TOK_CLOSE_PAREN, "", "unexpected token '%s' after ... in function on line %d");
             break;
 
         } else if (tok.type == TOK_TOKEN) {
@@ -1512,7 +1573,7 @@ static void parse_function_arguments(lua_State* L, struct parser* P, int ct_usr,
 
             put_back(P);
             parse_type(L, P, &at);
-            parse_argument(L, P, -1, &at, NULL, NULL);
+            parse_argument(L, P, -1, &at, NULL, NULL, 1);
 
             assert(lua_gettop(L) == top + 2);
 
@@ -1525,7 +1586,7 @@ static void parse_function_arguments(lua_State* L, struct parser* P, int ct_usr,
                     luaL_error(L, "can't have argument of type void on line %d", P->line);
                 }
 
-                check_token(L, P, TOK_CLOSE_PAREN, "", "unexpected void in function on line %d", P->line);
+                check_token(L, P, TOK_CLOSE_PAREN, "", "unexpected token '%s' after void in function on line %d");
                 lua_pop(L, 2);
                 break;
             }
@@ -1562,7 +1623,9 @@ static int max_bitfield_size(int type)
     }
 }
 
-static struct ctype* parse_argument2(lua_State* L, struct parser* P, int ct_usr, struct ctype* ct, struct token* name, struct parser* asmname);
+static struct ctype *
+parse_argument2(lua_State *L, struct parser *P, int ct_usr, struct ctype *ct, struct token *name,
+                struct parser *asmname, bool ignore_name);
 
 /* parses from after the first ( in a function declaration or function pointer
  * can be one of:
@@ -1591,39 +1654,43 @@ static struct ctype* parse_function(lua_State* L, struct parser* P, int ct_usr, 
     ct->type = FUNCTION_TYPE;
     ct->is_defined = 1;
 
-    if (name->type == TOK_NIL) {
-        for (;;) {
-            require_token(L, P, &tok);
+    for (;;) {
+        require_token(L, P, &tok);
 
-            if (tok.type == TOK_STAR) {
+        if (tok.type == TOK_STAR) {
 
-                if (ct->type == FUNCTION_TYPE) {
-                    ct->type = FUNCTION_PTR_TYPE;
-                } else if (ct->pointers == POINTER_MAX) {
-                    luaL_error(L, "maximum number of pointer derefs reached - use a struct to break up the pointers on line %d", P->line);
-                } else {
-                    ct->pointers++;
-                    ct->const_mask <<= 1;
-                }
-
-            } else if (parse_attribute(L, P, &tok, ct, asmname)) {
-                /* parse_attribute sets the appropriate fields */
-
+            if (ct->type == FUNCTION_TYPE) {
+                ct->type = FUNCTION_PTR_TYPE;
+            } else if (ct->pointers == POINTER_MAX) {
+                luaL_error(L,
+                           "maximum number of pointer derefs reached - use a struct to break up the pointers on line %d",
+                           P->line);
             } else {
-                /* call parse_argument to handle the inner contents
-                 * e.g. the <> in "void (* <>) (...)". Note that the
-                 * inner contents can itself be a function, a function
-                 * ptr, array, etc (e.g. "void (*signal(int sig, void
-                 * (*func)(int)))(int)" ).
-                 */
-                put_back(P);
-                ct = parse_argument2(L, P, ct_usr, ct, name, asmname);
-                break;
+                ct->pointers++;
+                ct->const_mask <<= 1;
             }
-        }
 
-        check_token(L, P, TOK_CLOSE_PAREN, NULL, "unexpected token in function on line %d", P->line);
-        check_token(L, P, TOK_OPEN_PAREN, NULL, "unexpected token in function on line %d", P->line);
+        } else if (parse_attribute(L, P, &tok, ct, asmname)) {
+            /* parse_attribute sets the appropriate fields */
+
+        } else if (ct->type == FUNCTION_PTR_TYPE) {
+            /* call parse_argument to handle the inner contents
+             * e.g. the <> in "void (* <>) (...)". Note that the
+             * inner contents can itself be a function, a function
+             * ptr, array, etc (e.g. "void (*signal(int sig, void
+             * (*func)(int)))(int)" ).
+             */
+            put_back(P);
+            ct = parse_argument2(L, P, ct_usr, ct, name, asmname, 1);
+            check_token(L, P, TOK_CLOSE_PAREN, NULL, "unexpected token '%s' in function on line %d");
+            check_token(L, P, TOK_OPEN_PAREN, NULL, "unexpected token '%s' in function on line %d");
+            break;
+        } else {
+            //when the type is not a function ptr type like the inner '()' in
+            //void (* ())(), directly parse its arguments.
+            put_back(P);
+            break;
+        }
     }
 
     parse_function_arguments(L, P, ct_usr, ct);
@@ -1641,7 +1708,9 @@ static struct ctype* parse_function(lua_State* L, struct parser* P, int ct_usr, 
     return ret;
 }
 
-static struct ctype* parse_argument2(lua_State* L, struct parser* P, int ct_usr, struct ctype* ct, struct token* name, struct parser* asmname)
+static struct ctype *
+parse_argument2(lua_State *L, struct parser *P, int ct_usr, struct ctype *ct, struct token *name,
+                struct parser *asmname, bool ignore_name)
 {
     struct token tok;
     int top = lua_gettop(L);
@@ -1675,6 +1744,9 @@ static struct ctype* parse_argument2(lua_State* L, struct parser* P, int ct_usr,
             /* parse attribute has filled out appropriate fields in type */
 
         } else if (tok.type == TOK_OPEN_PAREN) {
+            if(ft_usr!=0){
+                luaL_error(L,"duplicated '(' in function on line %d",P->line);
+            }
             ct = parse_function(L, P, ct_usr, ct, name, asmname);
             ft_usr = lua_gettop(L);
 
@@ -1699,7 +1771,7 @@ static struct ctype* parse_argument2(lua_State* L, struct parser* P, int ct_usr,
             if (tok.type == TOK_QUESTION) {
                 ct->is_variable_array = 1;
                 ct->variable_increment = (ct->pointers > 1) ? sizeof(void*) : ct->base_size;
-                check_token(L, P, TOK_CLOSE_SQUARE, "", "invalid character in array on line %d", P->line);
+                check_token(L, P, TOK_CLOSE_SQUARE, "", "invalid character '%s' in array on line %d");
 
             } else if (tok.type == TOK_CLOSE_SQUARE) {
                 ct->array_size = 0;
@@ -1707,7 +1779,7 @@ static struct ctype* parse_argument2(lua_State* L, struct parser* P, int ct_usr,
             } else if (tok.type == TOK_TOKEN && IS_RESTRICT(tok)) {
                 /* odd gcc extension foo[__restrict] for arguments */
                 ct->array_size = 0;
-                check_token(L, P, TOK_CLOSE_SQUARE, "", "invalid character in array on line %d", P->line);
+                check_token(L, P, TOK_CLOSE_SQUARE, "", "invalid character '%s' in array on line %d");
 
             } else {
                 int64_t asize;
@@ -1717,7 +1789,7 @@ static struct ctype* parse_argument2(lua_State* L, struct parser* P, int ct_usr,
                     luaL_error(L, "array size can not be negative on line %d", P->line);
                 }
                 ct->array_size = (size_t) asize;
-                check_token(L, P, TOK_CLOSE_SQUARE, "", "invalid character in array on line %d", P->line);
+                check_token(L, P, TOK_CLOSE_SQUARE, "", "invalid character '%s' in array on line %d");
             }
 
         } else if (tok.type == TOK_COLON) {
@@ -1725,6 +1797,10 @@ static struct ctype* parse_argument2(lua_State* L, struct parser* P, int ct_usr,
 
             if (ct->pointers || bsize < 0 || bsize > max_bitfield_size(ct->type)) {
                 luaL_error(L, "invalid bitfield on line %d", P->line);
+            }
+
+            if (name->size && bsize == 0) {
+                luaL_error(L, "zero length bitfields must be unnamed on line %d", P->line);
             }
 
             ct->is_bitfield = 1;
@@ -1741,8 +1817,10 @@ static struct ctype* parse_argument2(lua_State* L, struct parser* P, int ct_usr,
         } else if (IS_VOLATILE(tok) || IS_RESTRICT(tok)) {
             /* ignored for now */
 
-        } else {
+        } else if(name){
             *name = tok;
+        } else if(!ignore_name){
+            luaL_error(L,"argument name '%s' not expected on line %d",token_str(L,&tok),P->line);
         }
     }
 
@@ -1839,13 +1917,14 @@ static void find_canonical_usr(lua_State* L, int ct_usr, const struct ctype *ct)
  *
  * pushes the updated user value on the top of the stack
  */
-void parse_argument(lua_State* L, struct parser* P, int ct_usr, struct ctype* ct, struct token* pname, struct parser* asmname)
+void parse_argument(lua_State *L, struct parser *P, int ct_usr, struct ctype *ct,
+                    struct token *pname,
+                    struct parser *asmname, bool ignore_name)
 {
-    struct token tok, name;
+    struct token tok;
     int top = lua_gettop(L);
 
-    memset(&name, 0, sizeof(name));
-    parse_argument2(L, P, ct_usr, ct, &name, asmname);
+    parse_argument2(L, P, ct_usr, ct, pname, asmname, ignore_name);
 
     for (;;) {
         if (!next_token(L, P, &tok)) {
@@ -1864,9 +1943,6 @@ void parse_argument(lua_State* L, struct parser* P, int ct_usr, struct ctype* ct
 
     find_canonical_usr(L, -1, ct);
 
-    if (pname) {
-        *pname = name;
-    }
 }
 
 static void parse_typedef(lua_State* L, struct parser* P)
@@ -1884,7 +1960,7 @@ static void parse_typedef(lua_State* L, struct parser* P)
         memset(&name, 0, sizeof(name));
 
         assert(lua_gettop(L) == top + 1);
-        parse_argument(L, P, -1, &arg_type, &name, NULL);
+        parse_argument(L, P, -1, &arg_type, &name, NULL, 0);
         assert(lua_gettop(L) == top + 2);
 
         if (!name.size) {
@@ -2014,7 +2090,7 @@ static void parse_constant_assignemnt(lua_State* L,
 {
     int64_t val = calculate_constant(L, P);
 
-    check_token(L, P, TOK_SEMICOLON, "", "expected ; after constant definition on line %d", P->line);
+    check_token(L, P, TOK_SEMICOLON, "", "expected ';' but got '%s' after constant definition on line %d");
 
     push_upval(L, &constants_key);
     lua_pushlstring(L, name->str, name->size);
@@ -2063,25 +2139,25 @@ static int parse_root(lua_State* L, struct parser* P)
 
         } else if (tok.type == TOK_POUND) {
 
-            check_token(L, P, TOK_TOKEN, "pragma", "unexpected pre processor directive on line %d", P->line);
-            check_token(L, P, TOK_TOKEN, "pack", "unexpected pre processor directive on line %d", P->line);
-            check_token(L, P, TOK_OPEN_PAREN, "", "invalid pack directive on line %d", P->line);
+            check_token(L, P, TOK_TOKEN, "pragma", "unexpected pre processor directive '%s' on line %d");
+            check_token(L, P, TOK_TOKEN, "pack", "unexpected pre processor directive '%s' on line %d");
+            check_token(L, P, TOK_OPEN_PAREN, "", "invalid pack directive '%s' on line %d");
 
             require_token(L, P, &tok);
 
             if (tok.type == TOK_NUMBER) {
                 if (tok.integer != 1 && tok.integer != 2 && tok.integer != 4 && tok.integer != 8 && tok.integer != 16) {
-                    luaL_error(L, "pack directive with invalid pack size on line %d", P->line);
+                    luaL_error(L, "pack directive with invalid pack size %d on line %d",tok.integer, P->line);
                 }
 
                 P->align_mask = (unsigned) (tok.integer - 1);
-                check_token(L, P, TOK_CLOSE_PAREN, "", "invalid pack directive on line %d", P->line);
+                check_token(L, P, TOK_CLOSE_PAREN, "", "invalid pack directive '%s' on line %d");
 
             } else if (tok.type == TOK_TOKEN && IS_LITERAL(tok, "push")) {
                 int line = P->line;
                 unsigned previous_alignment = P->align_mask;
 
-                check_token(L, P, TOK_CLOSE_PAREN, "", "invalid pack directive on line %d", P->line);
+                check_token(L, P, TOK_CLOSE_PAREN, "", "invalid pack directive '%s' on line %d");
 
                 if (parse_root(L, P) != PRAGMA_POP) {
                     luaL_error(L, "reached end of string without a pragma pop to match the push on line %d", line);
@@ -2090,16 +2166,16 @@ static int parse_root(lua_State* L, struct parser* P)
                 P->align_mask = previous_alignment;
 
             } else if (tok.type == TOK_TOKEN && IS_LITERAL(tok, "pop")) {
-                check_token(L, P, TOK_CLOSE_PAREN, "", "invalid pack directive on line %d", P->line);
+                check_token(L, P, TOK_CLOSE_PAREN, "", "invalid pack directive '%s' on line %d");
                 return PRAGMA_POP;
 
             } else {
-                luaL_error(L, "invalid pack directive on line %d", P->line);
+                luaL_error(L, "invalid pack directive %s on line %d",token_str(L,&tok), P->line);
             }
 
 
         } else if (tok.type != TOK_TOKEN) {
-            return luaL_error(L, "unexpected character on line %d", P->line);
+            return luaL_error(L, "unexpected character '%s' on line %d",token_str(L,&tok), P->line);
 
         } else if (IS_LITERAL(tok, "__extension__")) {
             /* ignore */
@@ -2125,7 +2201,7 @@ static int parse_root(lua_State* L, struct parser* P)
             parse_type(L, P, &type);
 
             for (;;) {
-                parse_argument(L, P, -1, &type, &name, &asmname);
+                parse_argument(L, P, -1, &type, &name, &asmname, 0);
 
                 if (name.size) {
                     /* global/function declaration */
@@ -2257,7 +2333,7 @@ static int try_cast(lua_State* L)
     memset(&name, 0, sizeof(name));
 
     parse_type(L, P, &ct);
-    parse_argument(L, P, -1, &ct, &name, NULL);
+    parse_argument(L, P, -1, &ct, &name, NULL, 0);
 
     require_token(L, P, &tok);
     if (tok.type != TOK_CLOSE_PAREN || name.size) {
@@ -2291,8 +2367,7 @@ static int64_t calculate_constant1(lua_State* L, struct parser* P, struct token*
         lua_remove(L, -2); /* constants table */
 
         if (!lua_isnumber(L, -1)) {
-            lua_pushlstring(L, tok->str, tok->size);
-            luaL_error(L, "use of undefined constant %s on line %d", lua_tostring(L, -1), P->line);
+            luaL_error(L, "use of undefined constant %s on line %d", token_str(L,tok), P->line);
         }
 
         ret = (int64_t) lua_tonumber(L, -1);
@@ -2331,7 +2406,7 @@ static int64_t calculate_constant1(lua_State* L, struct parser* P, struct token*
         return ret;
 
     } else {
-        return luaL_error(L, "unexpected token whilst parsing constant at line %d", P->line);
+        return luaL_error(L, "unexpected token '%s' whilst parsing constant at line %d",token_str(L,tok), P->line);
     }
 }
 
@@ -2369,7 +2444,7 @@ static int64_t calculate_constant2(lua_State* L, struct parser* P, struct token*
         }
 
         parse_type(L, P, &type);
-        parse_argument(L, P, -1, &type, NULL, NULL);
+        parse_argument(L, P, -1, &type, NULL, NULL, 0);
         lua_pop(L, 2);
 
         require_token(L, P, tok);

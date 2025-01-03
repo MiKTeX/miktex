@@ -1,0 +1,1496 @@
+/* vim: ts=4 sw=4 sts=4 et tw=78
+ * Portions copyright (c) 2015-present, Facebook, Inc. All rights reserved.
+ * Portions copyright (c) 2011 James R. McKaskill.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
+|.arch arm64
+
+|.actionlist build_actionlist
+|.globalnames globnames
+|.externnames extnames
+
+#define JUMP_SIZE 16
+
+//in aarch64 the pc is indicated the current 
+#define MIN_BRANCH ((INT32_MIN) >> 6)
+#define MAX_BRANCH ((INT32_MAX) >> 6)
+//arm64 pc has no offset so comparing with next instruction is -4 
+#define BRANCH_OFF -4
+#define ROUND_UP(x, align) (((int) (x) + (align - 1)) & ~(align - 1))
+
+static void compile_extern_jump(struct jit* jit, lua_State* L, cfunction func, uint8_t* code)
+{
+    /* The jump code is the function pointer followed by a stub to call the
+     * function pointer. The stub exists so we can jump to functions with an
+     * offset greater than 128MB.
+     *
+     * Note we have to manually set this up since there are commands buffered
+     * in the jit state.
+     */
+	 
+	 //l: ptr
+	 *(cfunction*) code = func;
+	 // ldr x9,#-8
+	  *(uint32_t*) &code[8] = 0x58FFFFC9;
+	 //br x9
+	 *(uint32_t*) &code[12] = 0xD61F0120;
+	
+}
+
+|.define TOP, x19
+|.define DATA,x20
+|.define L_ARG,x21
+|.macro load64, reg, val
+//| ldr reg, >5
+//| b >6
+//|5:
+//|.long64 val
+//|6:
+| mov reg, #(unsigned short)(val)
+| movk reg, #(((unsigned int)(val))>>16), lsl #16
+| movk reg, #(unsigned short)((unsigned long)(val)>>32), lsl #32
+| movk reg, #(unsigned short)((unsigned long)(val)>>48), lsl #48
+|.endmacro
+
+|.macro load32, reg, val
+| mov reg, #(unsigned short)(val)
+| movk reg, #(((unsigned int)(val))>>16), lsl #16
+|.endmacro
+
+|.macro lcall, func
+| mov x0, L_ARG
+| bl func
+|.endmacro
+
+void compile_globals(struct jit* jit, lua_State* L)
+{
+    (void) jit;
+}
+typedef struct reg_info{
+	uint8_t ints;
+	uint8_t floats;
+	uint16_t ex;
+} reg_info;
+
+static ALWAYS_INLINE bool is_float_type(int t){
+    return t==FLOAT_TYPE||t==DOUBLE_TYPE;
+}
+
+static int hfa_size(lua_State* L,int idx, const struct ctype* ct,int* isfloat){
+	struct ctype* mt;
+	int type,ele_count,i,ct_usr;
+	lua_getuservalue(L,idx);
+	ct_usr=lua_absindex(L,-1);
+    lua_rawgeti(L,ct_usr,1);
+    mt=(struct ctype*)lua_touserdata(L,-1);
+    if(mt==NULL||(mt->pointers&&!mt->is_array)||mt->is_reference||!is_float_type(mt->type)){
+        lua_pop(L,2);
+        return 0;
+    }
+	type=mt->type;
+    ele_count=(int)(ct->base_size/mt->base_size);
+    if(ele_count>4||ct->base_size%mt->base_size){
+        lua_pop(L,2);
+        return 0;
+    }
+	lua_pop(L,1);
+    for (i = 2;i<=4; ++i) {
+        lua_rawgeti(L,ct_usr,i);
+		if(lua_isnil(L,-1)){//case have array member;
+            lua_pop(L,1);
+            break;
+        }
+        mt=(struct ctype*)lua_touserdata(L,-1);
+        if(mt->type!=type||(mt->pointers&&!mt->is_array)||mt->is_reference||!is_float_type(mt->type)){
+            lua_pop(L,2);
+            return 0;
+        }
+        lua_pop(L,1);
+    }
+	if(isfloat){
+		*isfloat=mt->type==FLOAT_TYPE;
+	}
+	lua_pop(L,1);
+    return ele_count;
+}
+
+static reg_info caculate_regs(lua_State* L,int ct_usr,int nargs){
+    int i;reg_info regs;
+    const struct ctype* mt;
+    for (i = 1,regs.ints=0,regs.floats=0; i <= nargs&&(regs.floats<8||regs.ints<8); ++i){
+		lua_rawgeti(L, ct_usr, i);
+        mt = (const struct ctype*) lua_touserdata(L, -1);
+		if (mt->pointers || mt->is_reference) {
+			if(regs.ints<8)regs.ints++;
+		}else{
+			switch(mt->type){
+				case COMPLEX_DOUBLE_TYPE:
+				case COMPLEX_FLOAT_TYPE:
+					if(regs.floats<7)
+						regs.floats+=2;
+					else if(regs.floats==7)
+						regs.floats=8;
+					break;
+				case FLOAT_TYPE:
+				case DOUBLE_TYPE:
+					if(regs.floats<8) ++regs.floats;
+					break;
+				case STRUCT_TYPE:{
+                    int hfasize=hfa_size(L,-1,mt,NULL);
+                    if(hfasize>0){
+						regs.floats+=hfasize;
+						if(regs.floats>8)
+							regs.floats=8;
+						break;
+                    }
+                }
+				case UNION_TYPE:{
+					int size=mt->base_size;
+					if(size>16){//passed by address
+						if(regs.ints<8)++regs.ints;
+						break;
+					}
+					if(mt->is_empty){
+						break; //ignored empty struct
+					}
+					size=(size+7)>>3;
+					if(regs.ints+size<=8) regs.ints+=size;
+					break;
+				}
+				default:
+					if(regs.ints<8)++regs.ints;//no need to check type support here
+			}
+		}
+		lua_pop(L,1);
+	}
+	
+	return regs;
+}
+
+// arm store/load range for immediate value is only -256-255
+static ALWAYS_INLINE void load_int(struct jit* Dst,reg_info* regs){
+	if(regs->ints<8)
+		| ldr x1, [sp, #0x60+(regs->ints++<<3)] //64 bit ptr
+	else
+		| ldr x1, [DATA],  #(regs->ex++,8)
+}
+
+static void load_float(struct jit* Dst,reg_info* regs,int isfloat,int exSize){
+	if(regs->floats+exSize<8){
+		switch(exSize){
+			case 3:
+				| ldp d2,d3, [sp, #0x30+(regs->floats<<3)]
+				goto l_dual;
+			case 2:
+			    | ldr d2, [sp, #0x30+(regs->floats<<3)]
+			case 1:
+			    l_dual:
+				| ldp d0,d1, [sp, #0x20+(regs->floats<<3)]
+				break;
+			case 0:
+			    | ldr d0, [sp, #0x20+(regs->floats<<3)]
+				break;
+		}
+		regs->floats+=exSize+1;
+		
+	}else{
+		regs->floats=8;
+		regs->ex+=exSize+1;
+		switch(exSize){
+			case 3:
+				if(isfloat){
+					| ldp s0,s1, [DATA], #8
+					| ldp s2,s3, [DATA], #8
+				}else{
+					| ldp d0, d1, [DATA], #16
+					| ldp d2, d3, [DATA], #16
+				}
+			     break;
+			case 2:
+				if(isfloat){ //12 bytes rounded to 16
+					| ldp s0,s1, [DATA], #8
+					| ldr s2, [DATA], #8
+					break;
+				}else {
+					| ldp d0, d1, [DATA], #16
+					| ldr d2, [DATA], #8
+				}
+			     break;
+			case 1:
+				if(isfloat){
+					| ldp s0,s1, [DATA], #8
+				}else{
+					| ldp d0, d1, [DATA], #16
+				}
+				break;
+			case 0:
+				if(isfloat){
+					| ldr s0, [DATA], #8
+				}else {
+					| ldr d0, [DATA], #8
+				}
+				break;
+		}
+	
+	}
+}
+
+cfunction compile_callback(lua_State* L, int fidx, int ct_usr, const struct ctype* ct)
+{
+    struct jit* Dst = get_jit(L);;
+    int i, nargs, num_upvals, ref,ret_by_addr;
+    const struct ctype* mt;
+
+    int top = lua_gettop(L);
+
+    ct_usr = lua_absindex(L, ct_usr);
+    fidx = lua_absindex(L, fidx);
+    nargs = (int) lua_rawlen(L, ct_usr);
+
+    dasm_setup(Dst, build_actionlist);
+
+    lua_newtable(L);
+    lua_pushvalue(L, -1);
+    ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    num_upvals = 0;
+
+    if (ct->has_var_arg) {
+        luaL_error(L, "can't create callbacks with varargs");
+    }
+	
+	lua_rawgeti(L, ct_usr, 0);
+    mt = (const struct ctype*) lua_touserdata(L, -1);
+	ret_by_addr=!mt->pointers && !mt->is_reference &&(mt->type==STRUCT_TYPE||mt->type==UNION_TYPE)
+				&& mt->base_size>16&& !(mt->type==STRUCT_TYPE&&hfa_size(L,-1,mt,NULL)!=0);
+	if(ret_by_addr){
+		| str x8, [sp, #-16]! //preserve ret address;
+	}
+	lua_pop(L,1);	
+	reg_info regs=caculate_regs(L,ct_usr,nargs);
+	
+	if(regs.ints||regs.floats){
+		| sub sp,sp,#0xa0
+	}else{
+		| sub sp,sp,#0x20
+	}
+	//8 integer reigsters and 8 floating registers
+	switch(regs.ints){
+		case 8:
+		case 7:
+			| stp x6,x7, [sp,#0x90]
+		case 6:
+		case 5:
+			| stp x4,x5, [sp,#0x80]
+		case 4:
+		case 3:
+			| stp x2,x3, [sp,#0x70]
+		case 2:
+		case 1:
+			| stp x0,x1, [sp,#0x60]	
+	}	
+
+	switch(regs.floats){
+		case 8:
+		case 7:
+			| stp d6,d7, [sp,#0x50]
+		case 6:
+		case 5:
+			| stp d4,d5, [sp,#0x40]
+		case 4:
+		case 3:
+			| stp d2,d3, [sp,#0x30]
+		case 2:
+		case 1:
+			| stp d0,d1, [sp,#0x20]
+	} 
+	| stp DATA, L_ARG,[sp,#0x10]
+	| stp x29, x30,[sp]
+	
+	if(regs.ints==8||regs.floats==8){ // may be overflowed if it's full
+		| add DATA, sp, #0xa0+ret_by_addr*0x10
+	}
+	
+    /* get the lua function */
+    lua_pushvalue(L, fidx);
+    lua_rawseti(L, -2, ++num_upvals);
+	
+	| load64 L_ARG, L
+	| load32 w2, ref
+	| load32 w1, LUA_REGISTRYINDEX
+	| lcall extern rawgeti //get the table
+	
+	| mov w2, #num_upvals
+    | movn x1, #0 // -1
+    | lcall extern rawgeti //get the function
+	
+
+    for (i = 1,regs.ints=0,regs.floats=0; i <= nargs; ++i) {
+        lua_rawgeti(L, ct_usr, i);
+        mt = (const struct ctype*) lua_touserdata(L, -1);
+
+        if (mt->pointers || mt->is_reference) {
+            lua_getuservalue(L, -1);
+            lua_rawseti(L, -3, ++num_upvals); /* usr value */
+            lua_rawseti(L, -2, ++num_upvals); /* mt */
+			
+            | mov w2, #num_upvals-1 // usr value
+            | movn x1, #i // -i-1, stack is upval table, func, i-1 args
+            | lcall extern rawgeti
+            | load64 x2, mt
+            | movn w1, #0 // -1
+            | lcall extern push_cdata
+			load_int(Dst,&regs);
+            | str x1, [x0]
+            | movn w1, #1 //-2
+            | lcall extern lua_remove // remove the usr value
+
+        } else {
+            switch (mt->type) {
+			case STRUCT_TYPE:
+			case UNION_TYPE:{
+				int isfloat,hfasize=0;
+				if(mt->type!=UNION_TYPE){
+					hfasize=hfa_size(L,-1,mt,&isfloat);
+				}
+				lua_getuservalue(L, -1);
+				lua_rawseti(L, -3, ++num_upvals); /* usr value */
+				lua_rawseti(L, -2, ++num_upvals); /* mt */
+				| mov w2, #num_upvals-1 // usr value
+				| movn x1, #i // -i-1, stack is upval table, func, i-1 args
+				| lcall extern rawgeti
+				| load64 x2, mt
+				| movn w1, #0 // -1
+                | lcall extern push_cdata
+				
+				if(hfasize){
+					load_float(Dst,&regs,isfloat,hfasize-1);
+					switch(hfasize){
+						case 4:
+							if(isfloat){
+								| stp s2, s3, [x0,#8]
+							}else{
+								| stp d2, d3, [x0,#16]
+							}
+							goto hfa2;
+						case 3:
+							if(isfloat){
+								| str s2, [x0,#8]
+							}else{
+								| str d2, [x0,#16]
+							}
+						case 2:
+            			hfa2:
+							if(isfloat){
+								| stp s0, s1, [x0]
+							}else{
+								| stp d0, d1, [x0]
+							}
+							break;
+						case 1:
+							if(isfloat){
+								| str s0, [x0]
+							}else{
+								| str d0, [x0]
+							}
+							break;
+         							
+					}
+				}else if(!mt->is_empty){
+					size_t size=mt->base_size;
+					if(size>16){
+						load_int(Dst,&regs);
+						| load64 x2, mt->base_size
+						| load64 x9, memcpy
+						| blr x9
+					}else{
+						size=(size+7)>>3;
+						if(mt->align_mask>8){
+							if(regs.ints&1) regs.ints++;
+							else if(regs.ex&1) regs.ex++;
+						}
+						if(regs.ints+size<=8){
+							if(size>1){
+								| ldp x1,x2, [sp,#0x60+(regs.ints<<3)]
+								| stp x1, x2, [x0]
+							}else{
+								| ldr x1, [sp,#0x60+(regs.ints<<3)]
+								| str x1, [x0]
+							}
+							regs.ints+=size;
+						}else{
+							regs.ints=8;
+							if(size>1){
+								| ldp x1,x2, [DATA], #16
+								| stp x1, x2, [x0]
+							}else{
+								| ldr x1, [DATA], #8
+								| str x1, [x0]
+							}
+							
+						} 
+					}
+					
+					
+				}
+				
+                | movn w1, #1 // -2
+                | lcall extern lua_remove // remove the nil usr
+			    break;
+			}
+			case COMPLEX_DOUBLE_TYPE:
+				lua_getuservalue(L, -1);
+				lua_rawseti(L, -3, ++num_upvals); /* usr value */
+				lua_rawseti(L, -2, ++num_upvals); /* mt */
+				
+				| mov w2, #num_upvals-1 // usr value
+				| movn x1, #i // -i-1, stack is upval table, func, i-1 args
+				| lcall extern rawgeti
+				| load64 x2, mt
+				| movn w1, #0 // -1
+                | lcall extern push_cdata
+				load_float(Dst,&regs,0,1);
+				|stp d0,d1,[x0]
+                | movn w1, #1 // -2
+                | lcall extern lua_remove // remove the nil usr
+				
+				break;
+			case COMPLEX_FLOAT_TYPE:
+				lua_getuservalue(L, -1);
+				lua_rawseti(L, -3, ++num_upvals); /* usr value */
+				lua_rawseti(L, -2, ++num_upvals); /* mt */
+				
+                | mov w2, #num_upvals-1 // usr value
+                | movn x1, #i // -i-1, stack is upval table, func, i-1 args
+                | lcall extern rawgeti
+                | load64 x2, mt
+                | movn w1, #0 // -1
+                | lcall extern push_cdata
+				load_float(Dst,&regs,1,1);
+                | stp s0,s1, [x0]
+                | movn w1, #1 // -2
+                | lcall extern lua_remove // remove the nil usr
+				
+				break;
+            case INT64_TYPE:
+			    #if LUA_VERSION_NUM>=503
+                lua_pop(L, 1);
+				load_int(Dst,&regs);
+                | lcall extern lua_pushinteger
+				
+				#else
+                lua_rawseti(L, -2, ++num_upvals); /* mt */
+				
+                | load64 x2, mt
+                | mov w1, wzr
+                | lcall extern push_cdata
+                load_int(Dst,&regs);
+                | str x1, [x0]
+                | movn w1, #1 // -2
+                | lcall extern lua_remove // remove the nil usr
+				
+				#endif
+                break;
+
+            case INTPTR_TYPE:
+                lua_rawseti(L, -2, ++num_upvals); /* mt */
+				
+                | load64 x2, mt
+                | mov w1, wzr
+                | lcall extern push_cdata
+                load_int(Dst,&regs);
+                | str x1, [x0]
+                | movn w1, #1 // -2
+                | lcall extern lua_remove // remove the nil usr
+				
+                break;
+
+            case BOOL_TYPE:
+                lua_pop(L, 1);
+				
+				load_int(Dst,&regs);
+				| lcall extern lua_pushboolean
+				
+                break;
+
+            case INT8_TYPE:// need to narrow for caller doesn't do it
+				lua_pop(L, 1);
+				if(regs.ints<8){
+					if (mt->is_unsigned) {
+						| ldrb w1, [sp,#0x60+(regs.ints++<<3)]
+					} else {
+						| ldrsb w1, [sp,#0x60+(regs.ints++<<3)]
+					}
+				}else {
+					if (mt->is_unsigned) {
+						| ldrb w1, [DATA], #8
+					} else {
+						| ldrsb w1, [DATA], #8
+					}
+				}
+				| lcall extern push_int
+				break;
+			
+            case INT16_TYPE:// need to narrow for caller doesn't do it
+				lua_pop(L, 1);
+				if(regs.ints<8){
+					if (mt->is_unsigned) {
+						| ldrh w1, [sp,#0x60+(regs.ints++<<3)]
+					} else {
+						| ldrsh w1, [sp,#0x60+(regs.ints++<<3)]
+					}
+				}else {
+					if (mt->is_unsigned) {
+						| ldrh w1, [DATA], #8
+					} else {
+						| ldrsh w1, [DATA], #8
+					}
+				}
+				| lcall extern push_int
+				break;
+				
+            case ENUM_TYPE:
+            case INT32_TYPE:
+                lua_pop(L, 1);
+				load_int(Dst,&regs);
+				
+                | lcall extern push_int
+                break;
+
+            case FLOAT_TYPE:
+                lua_pop(L, 1);
+				load_float(Dst,&regs,1,0);
+                | lcall extern push_float
+                break;
+
+            case DOUBLE_TYPE:
+                lua_pop(L, 1);
+				load_float(Dst,&regs,0,0);
+                | lcall extern lua_pushnumber
+                break;
+            default:
+                luaL_error(L, "NYI: callback arg type");
+            }
+        }
+    }
+
+    lua_rawgeti(L, ct_usr, 0);
+    mt = (const struct ctype*) lua_touserdata(L, -1);
+
+    | mov w2, #((mt->pointers || mt->is_reference || mt->type != VOID_TYPE) ? 1 : 0)
+    | mov w1, #nargs
+    | lcall extern lua_call
+    
+	|.macro retcdata, func
+	| mov w2, #num_upvals-1 // usr value
+	| movn x1, #1 // -2 stack is (upval table, ret val)
+	| lcall extern rawgeti
+	| load64 x3, mt
+	| movn x2, #0 // -1 - ct_usr
+	| movn x1, #1 // -2 - val
+	| lcall extern func
+	|.endmacro
+
+	
+    if (mt->pointers || mt->is_reference) {
+        lua_getuservalue(L, -1);
+        lua_rawseti(L, -3, ++num_upvals); /* usr value */
+        lua_rawseti(L, -2, ++num_upvals); /* mt */
+
+        | retcdata check_typed_pointer
+        goto single_no_pop;
+    } else {
+        switch (mt->type) {
+		case STRUCT_TYPE:
+		case UNION_TYPE:{
+			int hfasize=0,isfloat;
+			if(mt->type!=UNION_TYPE){
+				hfasize=hfa_size(L,-1,mt,&isfloat);
+			}
+			lua_getuservalue(L, -1);
+			lua_rawseti(L, -3, ++num_upvals); /* usr value */
+			lua_rawseti(L, -2, ++num_upvals); /* mt */
+			| retcdata check_struct
+			| mov DATA ,x0
+			| movn w1, #2 // -3
+            | lcall extern lua_settop
+			if(hfasize){
+				switch(hfasize){
+					case 4:
+					    if(isfloat){
+							| ldp s2,s3, [DATA,#8]
+						}else{
+							| ldp d2,d3, [DATA,#16]
+						}
+						goto ld_hfa;
+					case 3:
+						if(isfloat){
+							| ldr s2, [DATA,#8]
+						}else{
+							| ldr d2, [DATA,#16]
+						}
+					case 2:
+						ld_hfa:
+					    if(isfloat){
+							| ldp s0,s1, [DATA]
+						}else{
+							| ldp d0,d1, [DATA]
+						}
+						break;
+					case 1:
+						if(isfloat){
+							| ldr s0, [DATA]
+						}else{
+							| ldr d0, [DATA]
+						}
+					    break;
+				}
+			}else{
+				if(mt->base_size>16){
+					| ldr x0, [sp, #0x20+((regs.ints||regs.floats)?0x80:0)]
+					| mov x1, DATA
+					| load64 x2, mt->base_size
+					| load64 x9, memcpy
+					| blr x9
+				}else{
+					if(mt->base_size>8){
+						| ldp x0, x1, [DATA]
+					}else{
+						| ldr x0, [DATA]
+					}
+				}
+			}
+			break;
+		}
+        case ENUM_TYPE:
+            lua_getuservalue(L, -1);
+            lua_rawseti(L, -3, ++num_upvals); /* usr value */
+            lua_rawseti(L, -2, ++num_upvals); /* mt */
+
+            | retcdata check_enum
+
+            goto single_no_pop;
+
+        case VOID_TYPE:
+		    | movn w1,#1 //-2
+            | lcall extern lua_settop
+            lua_pop(L, 1);
+            break;
+
+        case BOOL_TYPE:
+        case INT8_TYPE:
+        case INT16_TYPE:
+        case INT32_TYPE: //caller's responsiblity to narrow 
+		    | movn w1,#0
+            if (mt->is_unsigned) {
+                | lcall extern check_uint32
+            } else {
+                | lcall extern check_int32
+            }
+			
+            goto single;
+
+        case INT64_TYPE:
+            | movn w1,#0 //-1
+            if (mt->is_unsigned) {
+                | lcall extern check_uint64
+            } else {
+                | lcall extern check_int64
+            }
+			
+			goto single;
+
+        case INTPTR_TYPE:
+            | movn w1,#0 //-1
+            | lcall extern check_uintptr
+            goto single;
+
+        case FLOAT_TYPE:
+            | movn w1,#0 //-1
+            | lcall extern check_float
+			
+            | fmov DATA,d0
+            | movn w1, #2 // -3
+            | lcall extern lua_settop
+            | fmov d0,DATA
+            lua_pop(L, 1);
+			break;
+        case DOUBLE_TYPE:
+            | movn w1,#0 //-1
+            | lcall extern check_double
+			
+			| fmov DATA,d0
+            | movn w1, #2 // -3
+            | lcall extern lua_settop
+            | fmov d0,DATA
+			
+            lua_pop(L, 1);
+			break;
+			
+		case COMPLEX_DOUBLE_TYPE:
+
+			| movn w1, #0 // -1
+			| lcall extern check_complex_double
+		    
+			goto complex_ret;
+		case COMPLEX_FLOAT_TYPE:
+			| movn w1, #0 // -1
+			| lcall extern check_complex_float
+			
+		complex_ret:	
+			| mov x0,L_ARG
+            | movn w1, #2 // -3
+		    | fmov DATA,d0
+			| fmov L_ARG,d1
+            | bl extern lua_settop
+            | fmov d0,DATA
+			| fmov d1,L_ARG
+
+            lua_pop(L, 1);			
+			break;
+        single:
+            lua_pop(L, 1);
+		single_no_pop:	
+            | mov DATA, x0
+            | movn w1, #2 // -3
+            | lcall extern lua_settop
+            | mov x0, DATA
+            break;
+
+        
+        default:
+            luaL_error(L, "NYI: callback return type");
+        }
+    }
+	
+	| ldp x29,x30,[sp] 
+	| ldp DATA, L_ARG,[sp,#0x10]
+	| add sp,sp, # (0x20 +ret_by_addr*0x10+ ((regs.floats!=0)||(regs.ints!=0)) * 0x80)
+	| ret
+	
+    lua_pop(L, 1); /* upval table - already in registry */
+    assert(lua_gettop(L) == top);
+
+    {
+        void* p;
+        struct ctype ft;
+        cfunction func;
+
+        func = compile(Dst, L, NULL, ref);
+
+        ft = *ct;
+        ft.is_jitted = 1;
+        p = push_cdata(L, ct_usr, &ft);
+        *(cfunction*) p = func;
+
+        assert(lua_gettop(L) == top + 1);
+
+        return func;
+    }
+}
+
+//arm64 argument can only be in stack or registers. An argument can't be splited between stack and register.
+static  void store_float(struct jit* Dst,reg_info* regs,int isfloat,int ex){
+	if(regs->floats+ex<8){
+		
+		switch(ex){
+			case 3:
+				| stp d2,d3, [sp, #0x10+(regs->floats<<3)] 
+			     goto sd_dual;
+			case 2:
+			    | str d2, [sp, #0x10+(regs->floats<<3)]
+			case 1:
+			    sd_dual:
+				| stp d0,d1, [sp, #(regs->floats<<3)] 
+				break;
+			case 0:
+				| str d0, [sp, #(regs->floats<<3)]
+				break;
+		}
+		regs->floats+=1+ex;
+	}else {
+		regs->floats=8;
+		switch(ex){
+			case 3:
+			    if(isfloat){
+					| stp s0,s1, [DATA], #8
+					| stp s2,s3, [DATA], #8
+				}else{
+					| stp d0, d1, [DATA], #16
+					| stp d2, d3, [DATA], #16
+				}				
+			    break;
+			case 2:
+			    if(isfloat){
+					| stp s0,s1, [DATA], #8
+					| str s2, [DATA], #8
+				}else{
+					| stp d0, d1,[DATA], #16
+					| str d2, [DATA], #8
+				}
+				break;
+			case 1:
+			    if(isfloat){
+					| stp s0,s1, [DATA], #8
+				}else{
+					| stp d0, d1,[DATA], #16
+				}
+				break;
+			case 0:
+				if(isfloat){
+					| str s0, [DATA], #8
+				}else {
+					| str d0, [DATA], #8
+				}
+				break;
+		}
+		//complex float is packed as one double on stack
+		regs->ex+=ex+1;
+	} 
+}
+
+static void store_int(struct jit* Dst,reg_info* regs,int intSize){
+	switch(intSize){
+		case 1:
+			if(regs->ints<8)
+				| str w0, [sp,#0x40+(regs->ints++<<3)]
+			else
+				| str w0, [DATA], #(regs->ex++,8)
+            break;
+		case 2:
+			if(regs->ints<8)
+				| str x0, [sp,#0x40+(regs->ints++<<3)]
+			else
+				| str x0, [DATA], #(regs->ex++,8)
+			break;
+		case 3:
+		case 4:
+			if(regs->ints<7){
+				| stp x0,x1, [sp,#0x40+(regs->ints<<3)]
+				regs->ints+=2;
+			}
+			else{
+				if(regs->ints==7)
+					regs->ints=8;
+				| stp x0,x1, [DATA], #16
+				regs->ex+=2;
+			}
+				
+			break;
+	}
+}
+
+static int caculate_stack(lua_State* L,int ct_usr,int nargs){
+    int i;reg_info regs={0,0,0};
+    const struct ctype* mt;int stack=0,extra=0;
+    for (i = 1; i <= nargs; ++i){
+		lua_rawgeti(L, ct_usr, i);
+        mt = (const struct ctype*) lua_touserdata(L, -1);
+		if (mt->pointers || mt->is_reference) {
+			if(regs.ints<8)regs.ints++;
+			else stack++;
+		}else{
+			switch(mt->type){
+				case COMPLEX_DOUBLE_TYPE:
+				case COMPLEX_FLOAT_TYPE:
+					if(regs.floats<7)
+						regs.floats+=2;
+					else if(regs.floats==7)
+						regs.floats=8;
+					else stack+=mt->base_size>>3;
+					break;
+				case FLOAT_TYPE:
+				case DOUBLE_TYPE:
+					if(regs.floats<8) ++regs.floats;
+					else stack++;
+					break;
+				case STRUCT_TYPE:{
+					int isfloat;
+                    int hfasize=hfa_size(L,-1,mt,&isfloat);
+                    if(hfasize>0){
+						if(regs.floats+hfasize<=8)
+							regs.floats +=hfasize;
+						else {
+						    regs.floats=8;
+							stack+=(hfasize*(2-isfloat)+1)>>1;	
+						}
+						break;
+                    }
+                }
+				case UNION_TYPE:{
+					int size=mt->base_size;
+					size=(size+7)>>3;
+					if(size>2){//passed by address
+						if(regs.ints<8)++regs.ints;
+						else stack++;
+					    extra+=size;//extra copy stack;
+						break;
+					}
+					if(mt->is_empty){
+						break; //ignored empty struct
+					}
+					if(mt->align_mask>8){
+						if(regs.ints&1) regs.ints++;
+						else if(stack&1) stack++;
+					}
+					if(regs.ints+size<=8) regs.ints+=size;
+					else{
+						regs.ints=8;
+						stack+=size;
+					} 
+					
+					break;
+				}
+				default:
+					if(regs.ints<8)++regs.ints;//no need to check type support here
+					else stack++;
+			}
+		}
+		lua_pop(L,1);
+	}
+	
+	return (regs.ints||regs.floats)?((stack+extra+17/*16 for regs, 1 for align*/)>>1)<<4:0;//2 eightbytes align
+}
+
+
+void compile_function(lua_State* L, cfunction func, int ct_usr, const struct ctype* ct)
+{
+    struct jit* Dst = get_jit(L);;
+    int i, nargs, num_upvals,ret_by_addr;
+    const struct ctype* mt;
+	int stack_size,struct_offset;
+    void* p;
+
+    int top = lua_gettop(L);
+
+    ct_usr = lua_absindex(L, ct_usr);
+    nargs = (int) lua_rawlen(L, ct_usr);
+
+    p = push_cdata(L, ct_usr, ct);
+    *(cfunction*) p = func;
+    num_upvals = 1;
+
+    dasm_setup(Dst, build_actionlist);
+
+    reg_info regs={0,0};
+	
+	| sub sp,sp,#0x30
+	| str L_ARG, [sp,#20]
+	| stp TOP,DATA,[sp,#0x10]
+	| stp x29,x30,[sp]
+	| mov x29,sp
+	| mov L_ARG,x0
+	
+    /* reserve enough stack space for all of the arguments. */
+	stack_size=caculate_stack(L,ct_usr,nargs);
+	struct_offset=0;
+	if(stack_size>0){
+		if(stack_size>=1<<12){
+			| load32 x9, stack_size //trick x9
+			| sub sp, sp, x9
+		}
+		else{
+			| sub sp, sp, #stack_size
+		}
+		 if (ct->has_var_arg) {
+			| bl extern lua_gettop
+			| cmp w0, #nargs
+			| bge >1
+			| load64 x1, "too few arguments"
+			| lcall extern luaL_error
+			|1:
+			| mov TOP, x0
+			| add x0, x0, #1
+			| bfm x0,xzr, #0, #0 //round up 2 for stack alignment.
+			| sub sp, sp, x0, lsl #3
+		}
+		| add DATA,sp,#0x80
+    }
+	
+    for (i = 1,regs.ints=0,regs.floats=0; i <= nargs; i++) {
+        lua_rawgeti(L, ct_usr, i);
+        mt = (const struct ctype*) lua_touserdata(L, -1);
+		
+        if (mt->pointers || mt->is_reference || mt->type == FUNCTION_PTR_TYPE || mt->type == ENUM_TYPE||mt->type==STRUCT_TYPE||mt->type==UNION_TYPE) {
+            lua_getuservalue(L, -1);
+            num_upvals += 2;
+
+			
+			| load64 x3,mt
+			| load32 w2,lua_upvalueindex(num_upvals)
+			| mov x1,#i
+			
+            if (mt->pointers || mt->is_reference) {
+                | lcall extern check_typed_pointer
+            } else{
+				switch (mt->type) {
+					case FUNCTION_PTR_TYPE: {
+						| lcall extern check_typed_cfunction
+						break;
+					}
+					case ENUM_TYPE:{
+						| lcall extern check_enum
+						break;
+					} 
+					case STRUCT_TYPE:
+					case UNION_TYPE:{
+						if(mt->is_empty) continue;
+		
+						int isfloat;
+						int hfasize=hfa_size(L,-2,mt,&isfloat);
+						| lcall extern check_struct
+                        if(hfasize>0){
+							switch(hfasize){
+								case 4:
+									if(isfloat){
+										| ldp s2,s3, [x0,#8]
+									}else{
+										| ldp d2,d3, [x0,#16]
+									}
+									goto ld_hfa;
+								case 3:
+									if(isfloat){
+										| ldr s2, [x0,#8]
+									}else{
+										| ldr d2, [x0,#16]
+									}
+								case 2:
+									ld_hfa:
+									if(isfloat){
+										| ldp s0,s1, [x0]
+									}else{
+										| ldp d0,d1, [x0]
+									}
+									break;
+								case 1:
+									if(isfloat){
+										| ldr s0, [x0]
+									}else{
+										| ldr d0, [x0]
+									}
+									break;
+									
+							}
+							store_float(Dst,&regs,isfloat,hfasize-1);
+							continue;
+						}
+						if(mt->base_size>16){
+							| mov x1 ,x0
+							struct_offset+=(mt->base_size+7)&(~7);
+							if(struct_offset>=1<<12){
+								| load32 x0, struct_offset //trick x0
+								| sub x0, x29, x0
+							}
+							else{
+								| sub x0, x29, #struct_offset
+							}
+							store_int(Dst,&regs,2);
+							| mov x2, #mt->base_size
+							| load64 x9, memcpy
+							| blr x9
+						}else{
+							if(mt->align_mask>8){//==15
+								if(regs.ints&1) regs.ints++;
+								else if(regs.ex&1) regs.ex++;
+							}
+							int intSize=(mt->base_size+3)>>2;
+							switch(intSize){
+								case 1:
+									| ldr w0, [x0]
+									break;
+								case 2:
+									| ldr x0, [x0]
+									break;
+								case 3:
+								case 4:
+								    | ldp x0, x1, [x0]
+									break;
+							}
+							store_int(Dst,&regs,intSize);
+						}
+						continue;
+					}	
+				}
+			}
+			goto longstore;
+
+        } else {
+            lua_pop(L, 1);
+            | mov w1, #i
+
+            switch (mt->type) {
+            case BOOL_TYPE:
+                | lcall extern check_uint32
+                | cmp w0, wzr
+                | cset w0, ne
+                goto intstore;
+				
+            case INT8_TYPE:
+            case INT16_TYPE: //arm64 requires callee to narrow the type
+            case INT32_TYPE:
+                
+                | lcall extern check_int32
+                
+ 				goto intstore;
+
+            case INT64_TYPE:
+               
+                | lcall extern check_int64
+               
+              	goto longstore;
+				
+            case INTPTR_TYPE:
+                | lcall extern check_uintptr
+                
+                goto longstore;
+
+            case DOUBLE_TYPE:
+                | lcall extern check_double
+                store_float(Dst,&regs,0,0);
+                break;
+
+            case FLOAT_TYPE:
+                | lcall extern check_float
+                store_float(Dst,&regs,1,0);
+                break;
+			case COMPLEX_DOUBLE_TYPE:
+                | lcall extern check_complex_double
+				store_float(Dst,&regs,0,1);
+                break;
+
+            case COMPLEX_FLOAT_TYPE:
+                | lcall extern check_complex_float
+				store_float(Dst,&regs,1,1);
+                break;
+				
+			intstore:
+				store_int(Dst,&regs,1);
+                break;
+			longstore:
+				store_int(Dst,&regs,2);
+                break;
+				
+            default:
+                luaL_error(L, "NYI: call arg type");
+            }
+        }
+    }
+
+    if (ct->has_var_arg) {
+		if(regs.floats<8){
+			| add x4, sp ,#regs.floats<<3
+			| mov w3, #(8-regs.floats)
+			| mov x2, TOP
+			| mov w1, #nargs+1
+			| lcall extern unpack_varargs_float 
+		}
+		if(regs.ints<8){
+			| add x4, sp ,#0x40+(regs.ints<<3)
+			| mov w3, #(8-regs.ints)
+			| mov x2, TOP
+			| mov w1, #nargs+1
+			| lcall extern unpack_varargs_int
+		}
+		|//case when DATA is not allocated, all arg is skipped
+		| cmp TOP,#(nargs>8?nargs:8)
+		| ble >1
+		| mov x5, DATA
+		| mov w3, #(8-regs.floats)
+		| mov w3, #(8-regs.ints)
+		| mov x2, TOP
+		| mov w1, #nargs+1
+		| lcall extern unpack_varargs_stack_skip
+		| 1:
+		regs.floats=regs.ints=8;
+    }
+	
+	lua_rawgeti(L, ct_usr, 0);
+    mt = (const struct ctype*) lua_touserdata(L, -1);
+	ret_by_addr=!mt->pointers && !mt->is_reference &&(mt->type==STRUCT_TYPE||mt->type==UNION_TYPE)
+				&& mt->base_size>16&& !(mt->type==STRUCT_TYPE&&hfa_size(L,-1,mt,NULL)!=0);
+	if(ret_by_addr){
+		| load64 x2, mt
+		| mov x1, #0 
+		| lcall extern push_cdata	
+		| mov x8, x0
+	}
+	
+	//pop all args in registers
+	switch(regs.ints){
+		case 8:
+		case 7:
+            | ldp x6,x7,[sp,#0x70]
+		case 6:
+		case 5:
+            | ldp x4,x5,[sp,#0x60]
+		case 4:
+		case 3:
+            | ldp x2,x3,[sp,#0x50]
+		case 2:
+		case 1:
+			| ldp x0,x1,[sp,#0x40]
+    }
+	
+	switch(regs.floats){
+		case 8:
+		case 7:
+            | ldp d6,d7,[sp,#0x30]
+		case 6:
+		case 5:
+            | ldp d4,d5,[sp,#0x20]
+		case 4:
+		case 3:
+            | ldp d2,d3,[sp,#0x10]
+		case 2:
+		case 1:
+			| ldp d0,d1,[sp]
+    }
+	if(regs.ints==8|| regs.floats==8){// fix stack case registers is full
+		| add sp,sp,#0x80
+	}
+	
+	| load64 x9,func
+    | blr x9
+
+    |.macro return
+	| mov sp, x29
+	| ldp x29, x30, [sp]
+	| ldp TOP, DATA, [sp,#0x10]
+	| ldr L_ARG, [sp,#0x20]
+	| add sp, sp, #0x30
+	| ret
+    |.endmacro
+
+    if (mt->pointers || mt->is_reference || mt->type==FUNCTION_PTR_TYPE) {
+        lua_getuservalue(L, -1);
+        num_upvals += 2;
+        | mov DATA, x0
+        | load64 x2, mt
+        | load32 w1, lua_upvalueindex(num_upvals)
+        | lcall extern push_cdata
+        | str DATA, [x0]
+        | mov w0, #1
+        | return
+
+    } else {
+        switch (mt->type) {
+        case INT64_TYPE:
+		#if LUA_VERSION_NUM>=503
+			 lua_pop(L, 1);
+            | mov x1, x0
+            | lcall extern lua_pushinteger
+            | mov w0, #1
+            | return
+            break;
+		#endif
+
+        case INTPTR_TYPE:
+            num_upvals++;
+            | mov DATA, x0
+            | load64 x2, mt
+            | mov w1, wzr
+            | lcall extern push_cdata
+            | str DATA, [x0]
+            | mov w0, #1
+            | return
+			break;
+        case VOID_TYPE:
+            lua_pop(L, 1);
+            | mov w0, wzr
+            | return
+            break;
+
+        case BOOL_TYPE:
+            lua_pop(L, 1);
+            | mov w1, w0
+            | lcall extern lua_pushboolean
+            | mov w0, #1
+            | return
+            break;
+
+        case INT8_TYPE:// we need to narrow the value before return
+			lua_pop(L, 1);
+            | mov w1, w0
+            if (mt->is_unsigned) {
+				| uxtb w1, w1
+                | lcall extern push_uint
+            } else {
+				| sxtb w1, w1
+                | lcall extern push_int
+            }
+            | mov w0, #1
+            | return
+			break;
+        case INT16_TYPE:// we need to narrow the value before return
+			lua_pop(L, 1);
+            | mov w1, w0
+            if (mt->is_unsigned) {
+				| uxth w1, w1
+                | lcall extern push_uint
+            } else {
+				| sxth w1, w1
+                | lcall extern push_int
+            }
+            | mov w0, #1
+            | return
+			break;
+        case INT32_TYPE:
+        case ENUM_TYPE:
+            lua_pop(L, 1);
+            | mov w1, w0
+            if (mt->is_unsigned) {
+                | lcall extern push_uint
+            } else {
+                | lcall extern push_int
+            }
+            | mov w0, #1
+            | return
+            break;
+
+        case FLOAT_TYPE:
+            lua_pop(L, 1);
+            | lcall extern push_float
+            | mov w0, #1
+            | return
+            break;
+
+        case DOUBLE_TYPE:
+            lua_pop(L, 1);
+            | lcall extern lua_pushnumber
+            | mov w0, #1
+            | return
+            break;
+		case COMPLEX_FLOAT_TYPE:
+            lua_getuservalue(L, -1);
+            num_upvals+=2;
+            | fmov w0, s0
+            | fmov w1, s1
+            | orr x0, x0, x1, lsl #32
+            | mov DATA, x0
+            | load64 x2, mt
+            | load32 w1, lua_upvalueindex(num_upvals)
+            | lcall extern push_cdata
+            | str DATA, [x0]
+            | mov w0, #1
+            | return
+            break;
+
+        case COMPLEX_DOUBLE_TYPE:
+            lua_getuservalue(L, -1);
+            num_upvals+=2;
+            | fmov TOP, d0
+            | fmov DATA, d1
+            | load64 x2, mt
+            | load32 w1, lua_upvalueindex(num_upvals)
+            | lcall extern push_cdata
+            | stp TOP,DATA, [x0]
+            | mov w0, #1
+            | return
+            break;
+		case STRUCT_TYPE:
+		case UNION_TYPE:
+			lua_getuservalue(L, -1);
+            num_upvals+=2;
+		    if(ret_by_addr){
+				if(!lua_isnil(L,-1)){
+					| load32 w1, lua_upvalueindex(num_upvals)
+					| lcall extern lua_pushvalue // lua_pushvalue(L,lua_upvalueindex(num_upvals))
+					| movn w1, #1 //-2
+					| lcall extern lua_setuservalue // lua_setuservalue(L,-2)
+				}
+				| mov w0, #1
+				| return
+			}else if(mt->is_empty){
+				| mov w0, #0
+				| return
+			}else{
+				int isfloat;
+				int hfasize=hfa_size(L,-2,mt,&isfloat);
+				if(hfasize){
+					switch(hfasize){
+						case 4:
+							| stp d2, d3, [sp, #-16]!
+							goto hfs_dual;
+						case 3:
+							| str d2, [sp, #-16]!
+						case 2:
+							hfs_dual:
+							| fmov TOP, d1
+						case 1:
+							| fmov DATA, d0
+							break;
+					}
+				}else{
+					if(mt->base_size>8){
+						| mov TOP, x1
+					}
+					| mov DATA, x0 
+					
+				} 
+				| load64 x2, mt
+				| load32 w1, lua_upvalueindex(num_upvals)
+				| lcall extern push_cdata
+				if(hfasize){
+					switch(hfasize){
+						case 4:
+							| ldp d0, d1, [sp], #16
+							if(isfloat){
+								| stp s0,s1, [x0,#8]
+							}else{
+								| stp d0,d1, [x0,#16]
+							} 
+							goto hfl_dual;
+						case 3:
+							| ldr d0, [sp], #16
+							if(isfloat){
+								| str s0, [x0,#8]
+							}else{
+								| str d0, [x0,#16]
+							}
+						case 2:
+							hfl_dual:
+							if(isfloat){
+								| fmov d0, TOP
+								| str s0, [x0,#4]
+							}else{
+								| str TOP, [x0,#8]
+							}
+						case 1:
+							if(isfloat){
+								| fmov d0, DATA
+								| str s0, [x0]
+							}else{
+								| str DATA, [x0]
+							}
+							break;
+					}
+				}else{
+					if(mt->base_size>8){
+						| str TOP, [x0, #8]
+					}
+					| str DATA, [x0]
+					
+				} 
+				| mov w0, #1
+				| return
+			}
+			break;	
+		
+        default:
+            luaL_error(L, "NYI: call return type");
+        }
+    }
+
+    assert(lua_gettop(L) == top + num_upvals);
+	{
+        cfunction f = compile(Dst, L, NULL, LUA_NOREF);
+        /* add a callback as an upval so that the jitted code gets cleaned up when
+         * the function gets gc'd */
+        push_callback(L, f, func);
+        lua_pushcclosure(L, (lua_CFunction) f, num_upvals+1);
+    }
+}
+

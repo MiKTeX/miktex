@@ -1,5 +1,5 @@
 /*
-** DynASM PPC/PPC64 encoding engine.
+** DynASM MIPS encoding engine.
 ** Copyright (C) 2005-2017 Mike Pall. All rights reserved.
 ** Released under the MIT license. See dynasm.lua for full copyright notice.
 */
@@ -9,7 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define DASM_ARCH		"ppc"
+#define DASM_ARCH		"mips"
 
 #ifndef DASM_EXTERN
 #define DASM_EXTERN(a,b,c,d)	0
@@ -21,7 +21,7 @@ enum {
   /* The following actions need a buffer position. */
   DASM_ALIGN, DASM_REL_LG, DASM_LABEL_LG,
   /* The following actions also have an argument. */
-  DASM_REL_PC, DASM_LABEL_PC, DASM_IMM, DASM_IMMSH,
+  DASM_REL_PC, DASM_LABEL_PC, DASM_IMM, DASM_IMMS,
   DASM__MAX
 };
 
@@ -187,7 +187,7 @@ void dasm_put(Dst_DECL, int start, ...)
   va_start(ap, start);
   while (1) {
     unsigned int ins = *p++;
-    unsigned int action = (ins >> 16);
+    unsigned int action = (ins >> 16) - 0xff00;
     if (action >= DASM__MAX) {
       ofs += 4;
     } else {
@@ -231,7 +231,7 @@ void dasm_put(Dst_DECL, int start, ...)
 	*pl = -pos;  /* Label exists now. */
 	b[pos++] = ofs;  /* Store pass1 offset estimate. */
 	break;
-      case DASM_IMM:
+      case DASM_IMM: case DASM_IMMS:
 #ifdef DASM_CHECKS
 	CK((n & ((1<<((ins>>10)&31))-1)) == 0, RANGE_I);
 #endif
@@ -242,10 +242,6 @@ void dasm_put(Dst_DECL, int start, ...)
 	else
 	  CK((n>>((ins>>5)&31)) == 0, RANGE_I);
 #endif
-	b[pos++] = n;
-	break;
-      case DASM_IMMSH:
-	CK((n >> 6) == 0, RANGE_I);
 	b[pos++] = n;
 	break;
       }
@@ -295,7 +291,7 @@ int dasm_link(Dst_DECL, size_t *szp)
       dasm_ActList p = D->actionlist + b[pos++];
       while (1) {
 	unsigned int ins = *p++;
-	unsigned int action = (ins >> 16);
+	unsigned int action = (ins >> 16) - 0xff00;
 	switch (action) {
 	case DASM_STOP: case DASM_SECTION: goto stop;
 	case DASM_ESC: p++; break;
@@ -303,7 +299,7 @@ int dasm_link(Dst_DECL, size_t *szp)
 	case DASM_ALIGN: ofs -= (b[pos++] + ofs) & (ins & 255); break;
 	case DASM_REL_LG: case DASM_REL_PC: pos++; break;
 	case DASM_LABEL_LG: case DASM_LABEL_PC: b[pos++] += ofs; break;
-	case DASM_IMM: case DASM_IMMSH: pos++; break;
+	case DASM_IMM: case DASM_IMMS: pos++; break;
 	}
       }
       stop: (void)0;
@@ -341,13 +337,13 @@ int dasm_encode(Dst_DECL, void *buffer)
       dasm_ActList p = D->actionlist + *b++;
       while (1) {
 	unsigned int ins = *p++;
-	unsigned int action = (ins >> 16);
+	unsigned int action = (ins >> 16) - 0xff00;
 	int n = (action >= DASM_ALIGN && action < DASM__MAX) ? *b++ : 0;
 	switch (action) {
 	case DASM_STOP: case DASM_SECTION: goto stop;
 	case DASM_ESC: *cp++ = *p++; break;
 	case DASM_REL_EXT:
-	  n = DASM_EXTERN(Dst, (unsigned char *)cp, (ins & 2047), 1) - 4;
+	  n = DASM_EXTERN(Dst, (unsigned char *)cp, (ins & 2047), 1);
 	  goto patchrel;
 	case DASM_ALIGN:
 	  ins &= 255; while ((((char *)cp - base) & ins)) *cp++ = 0x60000000;
@@ -357,22 +353,26 @@ int dasm_encode(Dst_DECL, void *buffer)
 	  /* fallthrough */
 	case DASM_REL_PC:
 	  CK(n >= 0, UNDEF_PC);
-	  n = *DASM_POS2PTR(D, n) - (int)((char *)cp - base);
+	  n = *DASM_POS2PTR(D, n);
+	  if (ins & 2048)
+	    n = n - (int)((char *)cp - base);
+	  else
+	    n = (n + (int)(size_t)base) & 0x0fffffff;
 	patchrel:
 	  CK((n & 3) == 0 &&
-	      (((n+4) + ((ins & 2048) ? 0x00008000 : 0x02000000)) >>
-	       ((ins & 2048) ? 16 : 26)) == 0, RANGE_REL);
-	  cp[-1] |= ((n+4) & ((ins & 2048) ? 0x0000fffc: 0x03fffffc));
+	     ((n + ((ins & 2048) ? 0x00020000 : 0)) >>
+	       ((ins & 2048) ? 18 : 28)) == 0, RANGE_REL);
+	  cp[-1] |= ((n>>2) & ((ins & 2048) ? 0x0000ffff: 0x03ffffff));
 	  break;
 	case DASM_LABEL_LG:
 	  ins &= 2047; if (ins >= 20) D->globals[ins-10] = (void *)(base + n);
 	  break;
 	case DASM_LABEL_PC: break;
+	case DASM_IMMS:
+	  cp[-1] |= ((n>>3) & 4); n &= 0x1f;
+	  /* fallthrough */
 	case DASM_IMM:
 	  cp[-1] |= (n & ((1<<((ins>>5)&31))-1)) << (ins&31);
-	  break;
-	case DASM_IMMSH:
-	  cp[-1] |= (ins & 1) ? ((n&31)<<11)|((n&32)>>4) : ((n&31)<<6)|(n&32);
 	  break;
 	default: *cp++ = ins; break;
 	}
