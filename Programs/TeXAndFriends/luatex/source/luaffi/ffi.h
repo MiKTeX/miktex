@@ -44,11 +44,27 @@ extern "C" {
 
 #if __STDC_VERSION__+0 >= 199901L
 
+#if ( defined( _WIN32) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__bsdi__) || defined(__DragonFly__))
+/* We should include something equivalent to */
+/* complex.h                                 */
+/* e.g. Mingw GCC >=10 should have complex functions builtin */
+/* and we can check them with the macro __has_include */
+#if (__GNUC__ >= 10)
+# if defined __has_include
+#  if __has_include (<complex.h>)
+#    include <complex.h>
+#    define HAVE_COMPLEX
+#    define HAVE_LONG_DOUBLE
+#  endif
+# endif
+#endif 
+#else
 #include <complex.h>
 #define HAVE_COMPLEX
 #define HAVE_LONG_DOUBLE
-
 #endif
+#endif
+
 
 #ifndef NDEBUG
 #define DASM_CHECKS
@@ -121,13 +137,18 @@ struct jit;
 #if defined ARCH_X86 || defined ARCH_X64
 #define ALLOW_MISALIGNED_ACCESS
 #endif
-#ifdef OS_WIN
-#define ALWAYS_INLINE __forceinline
-#elif defined(__GNUC__)
-#define ALWAYS_INLINE __attribute__ ((always_inline))
-#else
+
+/* #ifdef OS_WIN */
+/* #define ALWAYS_INLINE __forceinline */
+/* #elif defined(__GNUC__) */
+/* #define ALWAYS_INLINE __attribute__ ((always_inline)) */
+/* #else */
+/* #define ALWAYS_INLINE inline */
+/* #endif */
+
 #define ALWAYS_INLINE inline
-#endif
+
+
 EXTERN_C EXPORT int luaopen_ffi(lua_State* L);
 
 static int lua_absindex2(lua_State* L, int idx) {
@@ -463,18 +484,12 @@ static ALWAYS_INLINE complex_float mk_complex_float(double real, double imag) {
     return real + imag * 1i;
 }
 #endif
-/* static ALWAYS_INLINE complex_double mk_complex_double(double real, double imag) { */
-/*       return (complex_double){real , imag }; */
-/* } */
-/* static ALWAYS_INLINE complex_float mk_complex_float(double real, double imag) { */
-/*       return (complex_float){real , imag}; */
-/* } */
 
-
-extern float cimagf(complex_float);
-extern float crealf(complex_float);
-extern double cimag(complex_double);
-extern double creal(complex_double);
+/* AlpineLinux musl doesn't like them */
+/* extern float cimagf(complex_float); */
+/* extern float crealf(complex_float); */
+/* extern double cimag(complex_double); */
+/* extern double creal(complex_double); */
 
 
 #if defined(OS_ANDROID) && __ANDROID_API__<26
@@ -514,6 +529,7 @@ static ALWAYS_INLINE complex_double mk_complex_double(double real, double imag) 
 static ALWAYS_INLINE complex_float mk_complex_float(double real, double imag) {
     return (complex_float){ real, imag };
 }
+
 static ALWAYS_INLINE double creal(complex_double c) {
     return c.real;
 }
@@ -544,6 +560,7 @@ static complex_double cpow(complex_double f, complex_double s) {
     r = exp(f.real);
     return (complex_double) {r*cos(f.imag),r*sin(f.imag)};
 }
+
 #endif
 
 #define CALLBACK_FUNC_USR_IDX 1
