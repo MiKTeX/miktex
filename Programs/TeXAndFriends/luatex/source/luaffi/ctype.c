@@ -164,9 +164,9 @@ void* push_cdata(lua_State* L, int ct_usr, const struct ctype* ct)
      */
     /* Changed:To allow fast write to memory for struct in 64-bit machine in jit
      */
-    //if (ct->has_bitfield) {
-        sz = ALIGN_UP(sz, 7);
-    //}
+    if (ct->has_bitfield) {
+      sz = ALIGN_UP(sz, 7);
+    }
 
     cd = (struct cdata*) lua_newuserdata(L, sizeof(struct cdata) + sz);
     *(struct ctype*) &cd->type = *ct;
@@ -246,7 +246,8 @@ err:
     luaL_error(L, "expected cdata, ctype or string for arg #%d", idx);
 }
 
-static ALWAYS_INLINE int is_cdata(lua_State* L, int idx){
+/* static ALWAYS_INLINE int is_cdata(lua_State* L, int idx){*/
+static int is_cdata(lua_State* L, int idx){
     if (!lua_isuserdata(L, idx) || !lua_getmetatable(L, idx)) {
         lua_pushnil(L);
         return 0;
@@ -288,6 +289,8 @@ void* to_cdata(lua_State* L, int idx, struct ctype* ct)
         return NULL;
 
     cd = (struct cdata*) lua_touserdata(L, idx);
+    if (!cd) {lua_pushnil(L);return NULL;}
+    
     *ct = cd->type;
     lua_getuservalue(L, idx);
 

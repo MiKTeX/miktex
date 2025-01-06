@@ -9,7 +9,7 @@
 * dvips 2024.1
 * dvisvgm 3.4.2
 * hitex 2.1
-* luatex 1.20.1
+* luatex 1.20.2
 * upmendex 1.10
 
 ## 24.12 - 2024-12-23
