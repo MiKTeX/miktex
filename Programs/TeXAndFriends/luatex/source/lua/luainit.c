@@ -76,7 +76,7 @@ const_string LUATEX_IHELP[] = {
     "   --alias=NAME                  pretend to be program NAME; this affects the format file used and the search path",
     "   --aux-directory=DIR           use DIR as the directory to write auxiliary files to",
     "   --c-style-errors              enable file:line:error style messages",
-    "   --cnf-line =STRING            parse STRING as a configuration file line",
+    "   --cnf-line=STRING             parse STRING as a configuration file line",
     "   --credits                     display credits and exit",
     "   --debug-format                enable format debugging",
     "   --disable-installer           disable the package installer (do not automatically install missing files)",
@@ -637,7 +637,7 @@ static void parse_options(int ac, char **av)
             initversionstring(&versions);
             print_version_banner();
             /* *INDENT-OFF* */
-            puts("\n\nThe LuaTeX team is Hans Hagen, Hartmut Henkel, Taco Hoekwater, Luigi Scarso.\n\n"
+            puts("\n\nThe luatex project is a ConTeXt community project by\nHans Hagen, Hartmut Henkel, Taco Hoekwater and Luigi Scarso.\nThe current maintainers are Hans Hagen and Luigi Scarso.\n\n"
                  MyName " merges and builds upon (parts of) the code from these projects:\n\n"
                  "tex       : Donald Knuth\n"
                  "etex      : Peter Breitenlohner, Phil Taylor and friends\n"

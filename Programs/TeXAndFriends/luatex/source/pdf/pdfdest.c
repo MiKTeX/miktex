@@ -309,7 +309,7 @@ static int dest_cmp(const void *a, const void *b)
 
 void sort_dest_names(PDF pdf)
 {
-    qsort(pdf->dest_names, (size_t) pdf->dest_names_ptr, sizeof(dest_name_entry), dest_cmp);
+  qsort(pdf->dest_names, (size_t) pdf->dest_names_ptr, sizeof(dest_name_entry), dest_cmp);
 }
 
 /*tex

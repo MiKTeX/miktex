@@ -120,7 +120,7 @@ struct jit;
 #elif defined __powerpc64__
 # define ARCH_PPC64
 #else
-# UNSUPPORTED_ARCH /*error*/
+# define UNSUPPORTED_ARCH /*error*/
 #endif
 
 /* See ffi.c: replace luaopen_ffi with a stub    */

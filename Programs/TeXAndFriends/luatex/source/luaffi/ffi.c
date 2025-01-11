@@ -3751,14 +3751,14 @@ static int setup_upvals(lua_State* L)
     lua_pushboolean(L, 1);
     lua_setfield(L, -2, "64bit");
 #else
-#error
+# define UNSUPPORTED_ARCH  /*error*/
 #endif
 
 #if defined ARCH_X86 || defined ARCH_X64 || defined ARCH_ARM ||defined(ARCH_ARM64)|| defined ARCH_PPC64
     lua_pushboolean(L, 1);
     lua_setfield(L, -2, "le");
 #else
-#error
+# define UNSUPPORTED_ARCH  /*error*/
 #endif
 
 #if defined ARCH_X86 || defined ARCH_X64 || defined ARCH_PPC64 ||defined(ARCH_ARM64)
@@ -3773,7 +3773,7 @@ static int setup_upvals(lua_State* L)
     lua_setfield(L, -2, "softfp");
 #endif
 #else
-#error
+# define UNSUPPORTED_ARCH  /*error*/
 #endif
     lua_pop(L, 1); /* abi tbl */
 
@@ -3820,7 +3820,7 @@ static int setup_upvals(lua_State* L)
 #elif defined ARCH_PPC64
     lua_pushliteral(L, "ppc64");
 #else
-# error
+# define UNSUPPORTED_ARCH /* error */
 #endif
     lua_setfield(L, 1, "arch");
 
