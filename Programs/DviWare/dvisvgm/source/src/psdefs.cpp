@@ -2,7 +2,7 @@
 ** psdefs.cpp                                                           **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2024 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2025 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -83,7 +83,7 @@ const char *PSInterpreter::PSDEFS =
 "{ColorSpace load add}if bbknown{4 add}if ShadingType 5 eq{1 add}if(shfill)prcm"
 "d}if end}if}if end}put @SD/image{dup type/dicttype eq{dup}{<</Width 6 index/He"
 "ight 7 index/colorimg false>>}ifelse @execimg}put @SD/colorimage{<<2 index{/Wi"
-"dth 2 index 8 add index/Height 4 index 9 add index}{/Width 8 index/Height 9 in"
+"dth 2 index 7 add index/Height 4 index 8 add index}{/Width 8 index/Height 9 in"
 "dex}ifelse/colorimg true>>@execimg}put/@imgbase(./)def/@imgdevice(jpeg)def/@ex"
 "ecimg{@GD/@imgcnt 2 copy .knownget{1 add}{1}ifelse put begin<</imgid @GD/@imgc"
 "nt get/ispng @imgdevice 0 3 getinterval(png)eq dup/suffix exch{(.png)}{(.jpg)}"
