@@ -1588,8 +1588,25 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
                         f = g;
                         c = y;
                         w = u;
-                        if (u >= v)
-                            goto FOUND;
+                        if (u >= v) {
+                            /* 
+                                This solves a leftbrace middle being abused as starting point 
+                                for an extensible bar in cmex. It's the only known case where 
+                                a middle piece is so large that it makes us consider it a valid 
+                                sized character. It is large because it braces have variants. The 
+                                reason why actually these starting points can be somewhat weird 
+                                (like: the extesible is a bottom parent piece (small) that has a 
+                                recipe using shared middle pieces and and self references bottom 
+                                piece usage.) In opentype the extensibles always sit on a complete 
+                                shape i.e. they are end points in a variant list or a base 
+                                character. It took two decades to run into an example (HH & MS). 
+                            */
+                            if (is_new_mathfont(z)) {
+                                goto FOUND;
+                            } else if (char_tag(g, y) != ext_tag) {
+                                goto FOUND;
+                            }
+                        }
                     }
                     if (char_tag(g, y) == ext_tag) {
                         f = g;
