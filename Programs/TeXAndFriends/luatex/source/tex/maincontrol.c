@@ -1704,7 +1704,7 @@ void normal_paragraph(void)
     if (inter_line_penalties_par_ptr != null)
         eq_define(inter_line_penalties_loc, shape_ref_cmd, null);
     if (shape_mode_par > 0)
-        eq_word_define(dimen_base + shape_mode_code, 0);
+        eq_word_define(int_base + shape_mode_code, 0);
 }
 
 /*tex

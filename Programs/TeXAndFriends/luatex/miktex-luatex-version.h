@@ -14,9 +14,9 @@
 #define MIKTEX_COMP_MINOR_VERSION 22
 #define MIKTEX_COMP_PATCH_VERSION 0
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "1.20.4"
+#define MIKTEX_COMP_ORIG_VERSION_STR "1.20.5"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 2024 Taco Hoekwater and the LuaTeX Team"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 2025 Taco Hoekwater and the LuaTeX Team"
 #define MIKTEX_COMP_TM_STR "TeX is a trademark of the American Mathematical Society. METAFONT is a trademark of Addison-Wesley Publishing Company. PostScript is a trademark of Adobe Systems Incorporated."
 
 #include <miktex/Version>

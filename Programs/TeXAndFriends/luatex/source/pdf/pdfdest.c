@@ -298,13 +298,273 @@ void scan_pdfdest(PDF pdf)
     }
 }
 
-/*tex Sort |dest_names| by names: */
+/*tex 
+  Sort |dest_names| by names: we have to consider the lexical meaning of 
+  the literal strings, as well as the hexadecimal strings as byte stream.
+*/
+
+static int unescapebuf(char *buf,const char *src, size_t *newsize){
+  const char *pch = src;
+  unsigned char bs = 0;
+  int bal = 0;
+
+  *newsize=0;
+  while (*pch!='\0'){
+    switch (*pch) {
+    case '\\':
+      if (bs==0){
+	bs=1;
+      }else if (bs>=1){
+	/* seen '\\' i.e. a backslash */
+	*buf++ = '\\';
+	(*newsize)++;
+	bs=0;
+      }
+      break;
+    case '\r': 
+      if(bs==1){/* drop '\\','\r' */ pch++;if(*pch!='\n'){ pch--;}; /* drop '\\', '\n' */ bs=0;} else { pch++; if(*pch!='\n'){*buf++='\n';(*newsize)++;}; pch--;/* next cycle will eventually manage \n */}  
+      break; 
+    case '\n': 
+      if(bs==1){/* drop '\\','\n' */ bs=0;} else { *buf++ = '\n';(*newsize)++;} 
+      break; 
+   case 'n':
+     if(bs==1){ *buf++ = '\n'; bs=0;} else { *buf++ = 'n';}
+     (*newsize)++;
+     break;
+    case 'r':
+      if(bs==1){ *buf++ = '\r'; bs=0;} else { *buf++ = 'r';}
+      (*newsize)++;
+      break;
+    case 't':
+      if(bs==1){ *buf++ = '\t';	bs=0;} else { *buf++ = 't';}
+      (*newsize)++;
+      break;
+    case 'b':
+      if(bs==1){ *buf++ = '\b';	bs=0;} else { *buf++ = 'b';}
+      (*newsize)++;
+      break;
+    case 'f':
+      if(bs==1){ *buf++ = '\f'; bs=0;} else { *buf++ = 'f';}
+      (*newsize)++;
+      break;
+    case '(': case ')':
+      if(bs==0){if( *pch=='(' ) bal++; else bal--;}; /* we keep track of unescaped '(' or ')' because they can be unbalanced. */
+      bs=0;  
+      *buf++ = *pch;
+      (*newsize)++;
+      break;
+    case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7':
+      if(bs==1){
+	/* seen \o */
+	char last_seen[]={'\0','\0','\0'};
+	last_seen[0]=*pch-'0';
+	pch++;
+	if ('0'<=*pch && *pch<='7'){
+	  /* seen \oo */
+	  last_seen[1]=*pch-'0';
+	  pch++;
+	  if ('0'<=*pch && *pch<='7'){
+	      /* seen \ooo */
+	      last_seen[2] = last_seen[0]*64+last_seen[1]*8+(*pch-'0'); 
+	      *buf++ = last_seen[2];
+	      (*newsize)++;
+	    } else {
+	      /* seen \ooO */
+	      pch--; /* next cycle will manage O */
+	      last_seen[2] = last_seen[0]*8+last_seen[1] ;
+	      *buf++ = last_seen[2];
+	      (*newsize)++;
+	    }
+	}else {
+	  /*seen \oO */
+	  pch--; /* next cycle will manage O */
+	  *buf++ = last_seen[0];
+	  (*newsize)++;
+	}
+	bs=0;
+      }else {
+	*buf++ = *pch;
+	(*newsize)++;
+      }
+      break;
+    default:
+      bs=0; /* skip isolated backslash */
+      *buf++ = *pch;
+      (*newsize)++;
+      break;
+    }
+    pch++;
+  }
+  return bal;
+}
+
 
 static int dest_cmp(const void *a, const void *b)
 {
     dest_name_entry aa = *(const dest_name_entry *) a;
     dest_name_entry bb = *(const dest_name_entry *) b;
-    return strcmp(aa.objname, bb.objname);
+
+    size_t la=strlen(aa.objname), lb=strlen(bb.objname);
+
+    boolean aa_is_hexstring=false, bb_is_hexstring=false;
+    boolean aa_is_empty=false, bb_is_empty=false;
+    boolean free_cmp_aa=false,free_cmp_bb=false;
+    
+    char *cmp_aa = NULL;
+    char *cmp_bb = NULL;
+    size_t cmp_aa_size,cmp_bb_size;
+    int res;
+
+    aa_is_empty = (la==0) || ( la==2? (aa.objname[0] == '<') && (aa.objname[1] == '>'): false);
+    bb_is_empty = (lb==0) || ( lb==2? (bb.objname[0] == '<') && (bb.objname[1] == '>'): false);
+    
+    
+    if (aa_is_empty && bb_is_empty) {
+      formatted_warning("pdf backend", "both entries are empty");
+      return 0;
+    }
+
+    if (aa_is_empty && !(bb_is_empty))
+      return -1;
+
+    if (!(aa_is_empty) && bb_is_empty)
+      return 1;
+    
+    
+    if ((aa.objname[0] == '<') && (aa.objname[la-1] == '>') && !(odd(la))) {
+      /* perhaps a hexadecimal string */
+      cmp_aa_size = (la/2)-1 ;
+      cmp_aa = malloc(cmp_aa_size);
+      if (cmp_aa) {
+	aa_is_hexstring = true;
+	free_cmp_aa = true;
+	size_t j;
+	for (j=1;j<(la-1);j+=2){
+	  unsigned char c1=aa.objname[j];
+	  unsigned char c0=aa.objname[j+1];
+	  if( isxdigit(c1) && isxdigit(c0) ){
+	    if (isdigit(c1)) c1=c1-'0'; else c1=(tolower(c1)-'a')+10;
+	    if (isdigit(c0)) c0=c0-'0'; else c0=(tolower(c0)-'a')+10;
+	    cmp_aa[(j-1)/2]=c1*16+c0;
+	  }else {
+	    aa_is_hexstring = false;
+	    free_cmp_aa = false;
+	    cmp_aa_size = 0;
+	    xfree(cmp_aa);
+	    break;
+	  }
+	}
+      } else {
+	/* something went wrong with malloc */
+	free_cmp_aa = false;
+	cmp_aa_size = 0;
+	cmp_aa = NULL;
+      }
+    }
+
+    if ( !(aa_is_hexstring) && (strchr(aa.objname,'\\')!=NULL || strchr(aa.objname,'\n')!=NULL || strchr(aa.objname,'\r')!=NULL)){
+      size_t l = la; /* strlen(aa.objname) */
+      int res1 = 0;
+      cmp_aa=malloc(l);
+      if (cmp_aa) {
+	free_cmp_aa = true;
+	memset(cmp_aa,'\0',l);
+	res1 = unescapebuf(cmp_aa,aa.objname,&cmp_aa_size);
+	if (res1)
+	  formatted_warning("pdf backend", "unbalanced () in (%s)",aa.objname);
+	if (0<cmp_aa_size && cmp_aa_size<l){
+	  cmp_aa = realloc(cmp_aa, cmp_aa_size);
+	}
+      } else {
+	/* something went wrong with malloc */
+	free_cmp_aa = false;
+	cmp_aa_size = 0;
+	cmp_aa = NULL;
+      }
+    }
+
+
+    if ((bb.objname[0] == '<') && (bb.objname[lb-1] == '>') && !(odd(lb))) {
+      /* perhaps a hexadecimal string */
+      cmp_bb_size =(lb/2)-1 ;
+      cmp_bb = malloc(cmp_bb_size);
+      if (cmp_bb) {
+	size_t j;
+	for (j=1;j<(lb-1);j+=2){
+	  unsigned char c1=bb.objname[j];
+	  unsigned char c0=bb.objname[j+1];
+	  if( isxdigit(c1) && isxdigit(c0) ){
+	    if (isdigit(c1)) c1=c1-'0'; else c1=(tolower(c1)-'a')+10;
+	    if (isdigit(c0)) c0=c0-'0'; else c0=(tolower(c0)-'a')+10;
+	    cmp_bb[(j-1)/2]=c1*16+c0;
+	  }else {
+	    bb_is_hexstring = false;
+	    free_cmp_bb = false;
+	    cmp_bb_size = 0;
+	    xfree(cmp_bb);
+	    break;
+	  }
+	}
+      } else {
+	/* something went wrong with malloc */
+	free_cmp_bb = false;
+	cmp_bb_size = 0;
+	cmp_bb = NULL;
+      }
+    }
+
+    if ( !(bb_is_hexstring) && (strchr(bb.objname,'\\')!=NULL || strchr(bb.objname,'\n')!=NULL || strchr(bb.objname,'\r')!=NULL)){
+      size_t l = lb; /* strlen(bb.objname) */
+      int res1 = 0;
+      cmp_bb=malloc(l);
+      if (cmp_bb) {
+	free_cmp_bb = true;
+	memset(cmp_bb,'\0',l);
+	res1 = unescapebuf(cmp_bb,bb.objname,&cmp_bb_size);
+	if (res1)
+	  formatted_warning("pdf backend", "unbalanced () in (%s)",bb.objname);
+	if (0<cmp_bb_size && cmp_bb_size<l){
+	  cmp_bb = realloc(cmp_bb, cmp_bb_size);
+	}
+      } else {
+	/* something went wrong with malloc */
+	free_cmp_bb = false;
+	cmp_bb_size = 0;
+	cmp_bb = NULL;
+      }
+    }
+        
+    if (cmp_aa==NULL && cmp_bb==NULL){
+      res = strcmp(aa.objname, bb.objname);
+      if (res==0)
+	formatted_warning("pdf backend", "duplicate entry %s",aa.objname);
+
+    }
+    if (cmp_aa == NULL) {
+      cmp_aa_size= la;
+      cmp_aa = aa.objname;
+    }
+    if (cmp_bb == NULL) {
+      cmp_bb_size= lb;
+      cmp_bb = bb.objname;
+    }
+
+    res = memcmp(cmp_aa,cmp_bb, cmp_aa_size<cmp_bb_size? cmp_aa_size : cmp_bb_size);
+    if (res==0) {
+      if (cmp_aa_size==cmp_bb_size)
+	formatted_warning("pdf backend", "entries %s and %s  are equivalent to %s",aa.objname,bb.objname,cmp_aa);
+      else {
+	if (cmp_aa_size<cmp_bb_size)
+	  res=-1;
+	else
+	  res=1;
+      }
+    }
+    if (free_cmp_aa)
+      free(cmp_aa);
+    if (free_cmp_bb)
+      free(cmp_bb);
+    return res;
 }
 
 void sort_dest_names(PDF pdf)
