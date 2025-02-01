@@ -2,7 +2,7 @@
  $Id$
  Part of the XeTeX typesetting system
  Copyright (c) 1994-2008 by SIL International
- Copyright (c) 2009-2021 by Jonathan Kew
+ Copyright (c) 2009-2025 by Jonathan Kew
  Copyright (c) 2012 by Khaled Hosny
 
  SIL Author(s): Jonathan Kew
@@ -131,7 +131,15 @@ if translate_filename then begin
   wterm_ln('" ignored)');
 @z
 
-@x We add a new |history| value for failure of the output driver
+@x l.1891 - have print_ignored_error respect --file-line-error
+  print_nl("ignored error: "); print(#);
+@y
+  if file_line_error_style_p then print_file_line
+  else print_nl("");
+  print("ignored error: "); print(#);
+@z
+
+@x l.2020 - add a new |history| value for failure of the output driver
 has been detected. It has four possible values: |spotless|, |warning_issued|,
 |error_message_issued|, and |fatal_error_stop|.
 @y
@@ -139,14 +147,14 @@ has been detected. It has five possible values: |spotless|, |warning_issued|,
 |error_message_issued|, |fatal_error_stop|, and |output_failure|.
 @z
 
-@x
+@x l.2031
 @d fatal_error_stop=3 {|history| value when termination was premature}
 @y
 @d fatal_error_stop=3 {|history| value when termination was premature}
 @d output_failure=4 {|history| value when output driver returned an error}
 @z
 
-@x
+@x l.2036
 @!history:spotless..fatal_error_stop; {has the source input been clean so far?}
 @y
 @!history:spotless..output_failure; {has the source input been clean so far?}

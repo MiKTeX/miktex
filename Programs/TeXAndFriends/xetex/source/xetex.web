@@ -1,5 +1,5 @@
+% Copyright (c) 2009-2029 by Jonathan Kew
 % Copyright (c) 1994-2008 by SIL International
-% Copyright (c) 2009-2024 by Jonathan Kew
 % Copyright (c) 2010-2012 by Han The Thanh
 % Copyright (c) 2012-2013 by Khaled Hosny
 
@@ -319,8 +319,8 @@ known as `\eTeX'.
 @d eTeX_version_string=='-2.6' {current \eTeX\ version}
 @#
 @d XeTeX_version=0 { \.{\\XeTeXversion} }
-@d XeTeX_revision==".999996" { \.{\\XeTeXrevision} }
-@d XeTeX_version_string=='-0.999996' {current \XeTeX\ version}
+@d XeTeX_revision==".999997" { \.{\\XeTeXrevision} }
+@d XeTeX_version_string=='-0.999997' {current \XeTeX\ version}
 @#
 @d XeTeX_banner=='This is XeTeX, Version 3.141592653',eTeX_version_string,XeTeX_version_string
   {printed when \XeTeX\ starts}
@@ -1984,6 +1984,9 @@ amounts of user interaction:
 @d error_stop_mode=3 {stops at every opportunity to interact}
 @d print_err(#)==begin if interaction=error_stop_mode then wake_up_terminal;
   print_nl("! "); print(#);
+  end
+@d print_ignored_err(#)==begin if interaction=error_stop_mode then wake_up_terminal;
+  print_nl("ignored error: "); print(#);
   end
 
 @<Glob...@>=
@@ -4240,7 +4243,7 @@ for q:=hi_mem_min to mem_end do
 end;
 gubed
 
-@ Some stuff for character protrusion.
+@ Some stuff for character protrusion, etc.
 
 @p
 procedure pdf_error(t, p: str_number);
@@ -4291,6 +4294,16 @@ if positive then
     round_xn_over_d:=u
 else
     round_xn_over_d:=-u;
+end;
+
+function is_bit_set(n: integer; s: small_number): boolean;
+{check if $s$-th bit (one-based) of $n$ is set}
+var m, i: integer;
+begin
+  m := 1;
+  for i := 1 to s - 1 do
+    m := m * 2;
+  is_bit_set := (n div m) mod 2;
 end;
 
 @<Declare procedures that need to be declared forward for \pdfTeX@>@;
@@ -5882,10 +5895,11 @@ that will be defined later.
 @d saving_vdiscards_code=etex_int_base+7 {save items discarded from vlists}
 @d saving_hyph_codes_code=etex_int_base+8 {save hyphenation codes for languages}
 @d suppress_fontnotfound_error_code=etex_int_base+9 {suppress errors for missing fonts}
-@d XeTeX_linebreak_locale_code=etex_int_base+10 {string number of locale to use for linebreak locations}
-@d XeTeX_linebreak_penalty_code=etex_int_base+11 {penalty to use at locale-dependent linebreak locations}
-@d XeTeX_protrude_chars_code=etex_int_base+12 {protrude chars at left/right edge of paragraphs}
-@d eTeX_state_code=etex_int_base+13 {\eTeX\ state variables}
+@d ignore_primitive_error_code=etex_int_base+10 {ignore some primitive/engine errors}
+@d XeTeX_linebreak_locale_code=etex_int_base+11 {string number of locale to use for linebreak locations}
+@d XeTeX_linebreak_penalty_code=etex_int_base+12 {penalty to use at locale-dependent linebreak locations}
+@d XeTeX_protrude_chars_code=etex_int_base+13 {protrude chars at left/right edge of paragraphs}
+@d eTeX_state_code=etex_int_base+14 {\eTeX\ state variables}
 @d etex_int_pars=eTeX_state_code+eTeX_states {total number of \eTeX's integer parameters}
 @#
 @d int_pars=etex_int_pars {total number of integer parameters}
@@ -5962,6 +5976,7 @@ that will be defined later.
 @d saving_vdiscards==int_par(saving_vdiscards_code)
 @d saving_hyph_codes==int_par(saving_hyph_codes_code)
 @d suppress_fontnotfound_error==int_par(suppress_fontnotfound_error_code)
+@d ignore_primitive_error==int_par(ignore_primitive_error_code)
 @d XeTeX_linebreak_locale==int_par(XeTeX_linebreak_locale_code)
 @d XeTeX_linebreak_penalty==int_par(XeTeX_linebreak_penalty_code)
 @d XeTeX_protrude_chars==int_par(XeTeX_protrude_chars_code)
@@ -23149,13 +23164,18 @@ else  begin q:=glue_ptr(p);
   active_height[6]:=active_height[6]+shrink(q);
   if (shrink_order(q)<>normal)and(shrink(q)<>0) then
     begin@t@>@;@/
-    print_err("Infinite glue shrinkage found in box being split");@/
+    if is_bit_set(ignore_primitive_error, 1) then
+      print_ignored_err("Infinite glue shrinkage found in box being split")
+    else begin
+      print_err("Infinite glue shrinkage found in box being split");@/
 @.Infinite glue shrinkage...@>
-    help4("The box you are \vsplitting contains some infinitely")@/
-      ("shrinkable glue, e.g., `\vss' or `\vskip 0pt minus 1fil'.")@/
-      ("Such glue doesn't belong there; but you can safely proceed,")@/
-      ("since the offensive shrinkability has been made finite.");
-    error; r:=new_spec(q); shrink_order(r):=normal; delete_glue_ref(q);
+      help4("The box you are \vsplitting contains some infinitely")@/
+        ("shrinkable glue, e.g., `\vss' or `\vskip 0pt minus 1fil'.")@/
+        ("Such glue doesn't belong there; but you can safely proceed,")@/
+        ("since the offensive shrinkability has been made finite.");
+      error; 
+    end;
+    r:=new_spec(q); shrink_order(r):=normal; delete_glue_ref(q);
     glue_ptr(p):=r; q:=r;
     end;
   end;
@@ -31277,6 +31297,8 @@ primitive("savingvdiscards",assign_int,int_base+saving_vdiscards_code);@/
 @!@:saving_vdiscards_}{\.{\\savingvdiscards} primitive@>
 primitive("savinghyphcodes",assign_int,int_base+saving_hyph_codes_code);@/
 @!@:saving_hyph_codes_}{\.{\\savinghyphcodes} primitive@>
+primitive("ignoreprimitiveerror",assign_int,int_base+ignore_primitive_error_code);@/
+@!@:ignore_primitive_error_}{\.{\\ignoreprimitiveerror} primitive@>
 
 @ @d every_eof==equiv(every_eof_loc)
 
@@ -31294,6 +31316,7 @@ pre_display_direction_code:print_esc("predisplaydirection");
 last_line_fit_code:print_esc("lastlinefit");
 saving_vdiscards_code:print_esc("savingvdiscards");
 saving_hyph_codes_code:print_esc("savinghyphcodes");
+ignore_primitive_error_code:print_esc("ignoreprimitiveerror");
 
 @ In order to handle \.{\\everyeof} we need an array |eof_seen| of
 boolean variables.
