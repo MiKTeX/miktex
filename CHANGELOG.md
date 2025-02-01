@@ -10,6 +10,7 @@
 * dvisvgm 3.4.3
 * hitex 2.1
 * luatex 1.20.5
+* pdftex 1.40.27
 * upmendex 1.10
 
 ## 24.12 - 2024-12-23

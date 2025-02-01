@@ -307,8 +307,8 @@ known as `\eTeX'.
   {printed when \eTeX\ starts}
 @#
 @d pdftex_version==140 { \.{\\pdftexversion} }
-@d pdftex_revision=="26" { \.{\\pdftexrevision} }
-@d pdftex_version_string=='-1.40.26' {current \pdfTeX\ version}
+@d pdftex_revision=="27" { \.{\\pdftexrevision} }
+@d pdftex_version_string=='-1.40.27' {current \pdfTeX\ version}
 @#
 @d pdfTeX_banner=='This is pdfTeX, Version 3.141592653',eTeX_version_string,pdftex_version_string
    {printed when \pdfTeX\ starts}
@@ -1886,6 +1886,9 @@ amounts of user interaction:
 @d error_stop_mode=3 {stops at every opportunity to interact}
 @d print_err(#)==begin if interaction=error_stop_mode then wake_up_terminal;
   print_nl("! "); print(#);
+  end
+@d print_ignored_err(#)==begin if interaction=error_stop_mode then wake_up_terminal;
+  print_nl("ignored error: "); print(#);
   end
 
 @<Glob...@>=
@@ -5720,7 +5723,8 @@ that will be defined later.
 @d last_line_fit_code=etex_int_base+6 {adjustment for last line of paragraph}
 @d saving_vdiscards_code=etex_int_base+7 {save items discarded from vlists}
 @d saving_hyph_codes_code=etex_int_base+8 {save hyphenation codes for languages}
-@d eTeX_state_code=etex_int_base+9 {\eTeX\ state variables}
+@d ignore_primitive_error_code=etex_int_base+9 {ignore some primitive/engine errors}
+@d eTeX_state_code=etex_int_base+10 {\eTeX\ state variables}
 @d etex_int_pars=eTeX_state_code+eTeX_states {total number of \eTeX's integer parameters}
 @#
 @d int_pars=etex_int_pars {total number of integer parameters}
@@ -5834,6 +5838,7 @@ that will be defined later.
 @d last_line_fit==int_par(last_line_fit_code)
 @d saving_vdiscards==int_par(saving_vdiscards_code)
 @d saving_hyph_codes==int_par(saving_hyph_codes_code)
+@d ignore_primitive_error==int_par(ignore_primitive_error_code)
 
 @<Assign the values |depth_threshold:=show_box_depth|...@>=
 depth_threshold:=show_box_depth;
@@ -15784,6 +15789,7 @@ accuracy.
 @!one_bp: scaled; {scaled value corresponds to 1bp}
 @!one_hundred_bp: scaled; {scaled value corresponds to 100bp}
 @!one_hundred_inch: scaled; {scaled value corresponds to 100in}
+@!one_inch: integer; {(1in in sp)/|maxdimen|}
 @!ten_pow: array[0..9] of integer; {$10^0..10^9$}
 @!scaled_out: integer; {amount of |scaled| that was taken out in
 |divide_scaled|}
@@ -15795,6 +15801,7 @@ accuracy.
 one_bp := 65782; {65781.76}
 one_hundred_bp := 6578176;
 one_hundred_inch := 473628672;
+one_inch := 226;
 ten_pow[0] := 1;
 for i := 1 to 9 do
     ten_pow[i] := 10*ten_pow[i - 1];
@@ -15853,6 +15860,16 @@ if positive then
     round_xn_over_d := u
 else
     round_xn_over_d := -u;
+end;
+
+function is_bit_set(n: integer; s: small_number): boolean;
+{check if $s$-th bit (one-based) of $n$ is set}
+var m, i: integer;
+begin
+  m := 1;
+  for i := 1 to s - 1 do
+    m := m * 2;
+  is_bit_set := (n div m) mod 2;
 end;
 
 @ Next subroutines are needed for controlling spacing in PDF page description.
@@ -15974,7 +15991,6 @@ DVI}
 @!pdf_draftmode_value: integer;
 @!pdf_cur_Tm_a: integer; {|a| value of the current text matrix, i.e., the current
                           horizontal scaling factor}
-@!pdf_last_f: internal_font_number; {last font in PDF output page}
 @!pdf_last_fs: internal_font_number; {last font size in PDF output page}
 @!pdf_dummy_font: internal_font_number; {font used to insert artificial interword spaces}
 
@@ -16160,7 +16176,7 @@ begin
     end;
     pdf_append_list(f)(pdf_font_list); {|f| not found in |pdf_font_list|, append it now}
 found:
-    if (k = pdf_last_f) and (font_size[f] = pdf_last_fs) then
+    if (k = pdf_f) and (font_size[f] = pdf_last_fs) then
         return;
     pdf_print("/F");
     pdf_print_int(k);
@@ -16168,7 +16184,7 @@ found:
     pdf_out(" ");
     pdf_print_real(divide_scaled(font_size[f], one_hundred_bp, 6), 4);
     pdf_print(" Tf");
-    pdf_last_f := k;
+    pdf_f := k;
     pdf_last_fs := font_size[f];
 end;
 
@@ -16178,7 +16194,6 @@ begin
     pdf_print_ln("BT");
     pdf_doing_text := true;
     pdf_f := null_font;
-    pdf_last_f := null_font;
     pdf_last_fs := 0;
     pdf_doing_string := false;
     pdf_cur_Tm_a := 0;
@@ -16207,10 +16222,14 @@ var s_out, v, v_out: scaled;
     s: integer;
     must_end_string: boolean;  {must we end the current string?}
     must_insert_space: boolean;  {must we insert an interword space?}
+    move_by_tm: boolean;  {movement must be set using Tm operator}
+
 begin
     if not pdf_doing_text then
         pdf_begin_text;
-    if f <> pdf_f then begin
+   if (not gen_faked_interword_space and pdf_f <> f)
+      or (gen_faked_interword_space and not (font_used[f] and font_used[pdf_f]))
+    then begin
         pdf_end_string;
         pdf_set_font(f);
     end;
@@ -16244,23 +16263,22 @@ begin
 
     must_insert_space := false;
     must_end_string := false;
+    move_by_tm := (v <> 0) or (abs(s) >= @'100000);
 
-    if (f <> pdf_f) or (v <> 0) or (abs(s) >= @'100000) then begin
+    if move_by_tm then begin
         must_end_string := true;
     end;
 
     if gen_faked_interword_space
-        and pdf_doing_string
-        and (not must_end_string)
+        and (not move_by_tm)
         and (s_out > space(f) - space_shrink(f) - 65536)
-        and (v = 0)
     then begin
         must_insert_space := true;
     end;
 
     if (must_insert_space) then begin
         {insert a real space char from the font when possible}
-        if pdf_font_has_space_char[f]  then begin
+        if pdf_font_has_space_char[f] and pdf_doing_string then begin
             pdf_out(" ");
             save_pdf_delta_h := pdf_delta_h;
             adv_char_width(f, 32, 3); { to get |adv_char_width_s| and |adv_char_width_s_out|}
@@ -16280,7 +16298,6 @@ begin
             pdf_set_font(f);
         end;
         pdf_set_textmatrix(v, v_out, f);
-        pdf_f := f;
         s := 0;
     end;
 
@@ -27637,13 +27654,18 @@ else  begin q:=glue_ptr(p);
   active_height[6]:=active_height[6]+shrink(q);
   if (shrink_order(q)<>normal)and(shrink(q)<>0) then
     begin@t@>@;@/
-    print_err("Infinite glue shrinkage found in box being split");@/
+    if is_bit_set(ignore_primitive_error, 1) then
+      print_ignored_err("Infinite glue shrinkage found in box being split")
+    else begin
+      print_err("Infinite glue shrinkage found in box being split");@/
 @.Infinite glue shrinkage...@>
-    help4("The box you are \vsplitting contains some infinitely")@/
-      ("shrinkable glue, e.g., `\vss' or `\vskip 0pt minus 1fil'.")@/
-      ("Such glue doesn't belong there; but you can safely proceed,")@/
-      ("since the offensive shrinkability has been made finite.");
-    error; r:=new_spec(q); shrink_order(r):=normal; delete_glue_ref(q);
+      help4("The box you are \vsplitting contains some infinitely")@/
+        ("shrinkable glue, e.g., `\vss' or `\vskip 0pt minus 1fil'.")@/
+        ("Such glue doesn't belong there; but you can safely proceed,")@/
+        ("since the offensive shrinkability has been made finite.");
+      error; 
+    end;
+    r:=new_spec(q); shrink_order(r):=normal; delete_glue_ref(q);
     glue_ptr(p):=r; q:=r;
     end;
   end;
@@ -34429,6 +34451,13 @@ begin
     end;
     if (x <= 0) or (y <= 0) or (xr < 0) or (yr < 0) then
         pdf_error("ext1", "invalid image dimensions");
+    if (x / one_inch >= xr) or (y / one_inch >= yr) then begin
+        {It's better to warn and ignore too-small resolutions given in
+         the image file, usually 1dpi x 1dpi, to avoid arithmetic overflow.}
+        xr := 0;
+        yr := 0;
+        pdf_warning("ext1", "too small image resolution ignored", true, true);
+    end;
     if is_pdf_image(image) then begin
         w := x;
         h := y;
@@ -37200,6 +37229,8 @@ primitive("savingvdiscards",assign_int,int_base+saving_vdiscards_code);@/
 @!@:saving_vdiscards_}{\.{\\savingvdiscards} primitive@>
 primitive("savinghyphcodes",assign_int,int_base+saving_hyph_codes_code);@/
 @!@:saving_hyph_codes_}{\.{\\savinghyphcodes} primitive@>
+primitive("ignoreprimitiveerror",assign_int,int_base+ignore_primitive_error_code);@/
+@!@:ignore_primitive_error_}{\.{\\ignoreprimitiveerror} primitive@>
 
 @ @d every_eof==equiv(every_eof_loc)
 
@@ -37216,6 +37247,7 @@ pre_display_direction_code:print_esc("predisplaydirection");
 last_line_fit_code:print_esc("lastlinefit");
 saving_vdiscards_code:print_esc("savingvdiscards");
 saving_hyph_codes_code:print_esc("savinghyphcodes");
+ignore_primitive_error_code:print_esc("ignoreprimitiveerror");
 
 @ In order to handle \.{\\everyeof} we need an array |eof_seen| of
 boolean variables.

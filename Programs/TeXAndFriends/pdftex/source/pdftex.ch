@@ -1,4 +1,4 @@
-% Copyright 1996-2023 Han The Thanh, <thanh@pdftex.org>
+% Copyright 1996-2025 Han The Thanh, <thanh@pdftex.org>
 %
 % This file is part of pdfTeX.
 %
@@ -23,7 +23,6 @@
 
 % Change file to assist in creating the web2c-specific change file.
 % This one resolves inconsistencies between tex.ch and tex.ech.
-% Public domain.
 
 @x [1] m.2 l.188 - banner
 @d banner==TeX_banner
@@ -33,7 +32,15 @@
 @d banner_k==pdfTeX_banner
 @z
 
-@x [16.215] - e-TeX last_node_type
+@x l.1891 - have print_ignored_error respect --file-line-error
+  print_nl("ignored error: "); print(#);
+@y
+  if file_line_error_style_p then print_file_line
+  else print_nl("");
+  print("ignored error: "); print(#);
+@z
+
+@x [16.215] l.28025 - restore e-TeX last_node_type removed in tex.ch
 last_glue:=max_halfword; last_penalty:=0; last_kern:=0;
 @y
 last_glue:=max_halfword; last_penalty:=0; last_kern:=0;
@@ -145,23 +152,30 @@ label reswitch, move_past, fin_rule, next_p, found, continue;
 continue:
 @z
 
-@x [49.1259]
+% this @x code is modified from tex.web by tex.ch.
+@x [49.1259] omit block if pdf_font_step[f] is nonzero; preserve indentation
     begin if s>0 then
       begin if s=font_size[f] then goto common_ending;
       end
-    else if font_size[f]=xn_over_d(font_dsize[f],-s,1000) then
-      goto common_ending;
+    else begin arith_error:=false;
+      if font_size[f]=xn_over_d(font_dsize[f],-s,1000)
+      then if not arith_error
+        then goto common_ending;
+      end;
     end
 @y
-    begin
-    if pdf_font_step[f] = 0 then begin
-       if s>0 then
-         begin if s=font_size[f] then goto common_ending;
-         end
-       else if font_size[f]=xn_over_d(font_dsize[f],-s,1000) then
-         goto common_ending;
-       end
+  begin {preserved}
+  if pdf_font_step[f] = 0 then begin
+    if s>0 then
+      begin if s=font_size[f] then goto common_ending;
+      end
+    else begin arith_error:=false;
+      if font_size[f]=xn_over_d(font_dsize[f],-s,1000)
+      then if not arith_error
+        then goto common_ending;
+      end;
     end
+  end
 @z
 
 @x (WEB2C!)
