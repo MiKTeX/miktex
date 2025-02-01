@@ -2009,6 +2009,22 @@ if not miktex_open_tfm_file(tfm_file,name_of_file) then abort;
 
 % _____________________________________________________________________________
 %
+% [32.568]
+% _____________________________________________________________________________
+
+@x
+  else z:=xn_over_d(z,-s,1000);
+@y
+  else begin sw:=z; arith_error:=false; z:=xn_over_d(z,-s,1000);
+    if arith_error or z>=@'1000000000 then begin
+       start_font_error_message; print(" scaled to 2048pt or higher");
+       help1("I will ignore the scaling factor."); error; z:=sw;
+       end;
+    end;
+@z
+
+% _____________________________________________________________________________
+%
 % [32.592]
 % _____________________________________________________________________________
 
@@ -2229,6 +2245,17 @@ flushable_string:=str_ptr-1;
     if s>0 then
 @y
     begin if s>0 then
+@z
+
+@x
+    else if font_size[f]=xn_over_d(font_dsize[f],-s,1000) then
+      goto common_ending;
+@y
+    else begin arith_error:=false;
+      if font_size[f]=xn_over_d(font_dsize[f],-s,1000)
+      then if not arith_error
+        then goto common_ending;
+      end;
 @z
 
 % _____________________________________________________________________________
