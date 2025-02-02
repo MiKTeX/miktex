@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Version number
  *
- * @copyright Copyright © 2021-2024 Christian Schenk
+ * @copyright Copyright © 2021-2025 Christian Schenk
  *
  * This file is free software; the copyright holder gives unlimited permission
  * to copy and/or distribute it, with or without modifications, as long as this
@@ -11,7 +11,7 @@
  */
 
 #define MIKTEX_COMP_MAJOR_VERSION 1
-#define MIKTEX_COMP_MINOR_VERSION 9
+#define MIKTEX_COMP_MINOR_VERSION 10
 #define MIKTEX_COMP_PATCH_VERSION 0
 
 #define MIKTEX_COMP_ID "miktex-euptex"

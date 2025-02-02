@@ -86,6 +86,7 @@ add_custom_command(
 	        ${euptex_ch_synctex}
 	        ${CMAKE_CURRENT_SOURCE_DIR}/source/fam256.ch
             ${CMAKE_CURRENT_SOURCE_DIR}/source/pdfutils.ch
+            ${CMAKE_CURRENT_SOURCE_DIR}/miktex-euptex-adapter.ch
             ${CMAKE_CURRENT_SOURCE_DIR}/source/suppresserrors.ch
             ${CMAKE_CURRENT_SOURCE_DIR}/source/unbalanced-braces-eptex.ch
             ${CMAKE_CURRENT_SOURCE_DIR}/source/char-warning-eptex.ch
@@ -95,6 +96,7 @@ add_custom_command(
         ${CMAKE_CURRENT_BINARY_DIR}/euptex-1.web
     DEPENDS
         ${CMAKE_CURRENT_BINARY_DIR}/euptex-1.web
+        ${CMAKE_CURRENT_SOURCE_DIR}/miktex-euptex-adapter.ch
         ${CMAKE_CURRENT_SOURCE_DIR}/source/char-warning-eptex.ch
         ${CMAKE_CURRENT_SOURCE_DIR}/source/eptex.ech
         ${CMAKE_CURRENT_SOURCE_DIR}/source/etex.ch0

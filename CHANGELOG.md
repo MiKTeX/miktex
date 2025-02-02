@@ -5,7 +5,7 @@
 ### Upgraded programs
 
 * chktex 1.7.9
-* dvipdfmx 20240922
+* dvipdfmx 20250202
 * dvips 2024.1
 * dvisvgm 3.4.3
 * hitex 2.1

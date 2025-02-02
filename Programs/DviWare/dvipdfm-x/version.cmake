@@ -1,6 +1,6 @@
 ## version.cmake:
 ##
-## Copyright (C) 2017-2024 Christian Schenk
+## Copyright (C) 2017-2025 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -18,9 +18,9 @@
 ## USA.
 
 set(MIKTEX_COMP_MAJOR_VERSION 4)
-set(MIKTEX_COMP_MINOR_VERSION 19)
+set(MIKTEX_COMP_MINOR_VERSION 20)
 set(MIKTEX_COMP_PATCH_VERSION 0)
 
-set(MIKTEX_COMP_ORIG_VERSION_STR "20240922")
+set(MIKTEX_COMP_ORIG_VERSION_STR "20250202")
 
-set(MIKTEX_COMP_COPYRIGHT_STR "© 1998,1999 Mark Wicks, © 2002-2024 Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata, the DVIPDFMx project team")
+set(MIKTEX_COMP_COPYRIGHT_STR "© 1998,1999 Mark Wicks, © 2002-2025 Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata, the DVIPDFMx project team")

@@ -294,6 +294,8 @@ do_builtin_encoding (pdf_font *font, const char *usedchars, sfnt *sfont)
   USHORT            gid, idx;
   int               code, count;
   double            widths[256];
+  USHORT            code_to_idx[256] = {0};
+  int               cmap_old_format = 0;
 
   ttcm = tt_cmap_read(sfont, TT_MAC, TT_MAC_ROMAN);
   if (!ttcm) {
@@ -301,16 +303,52 @@ do_builtin_encoding (pdf_font *font, const char *usedchars, sfnt *sfont)
     return  -1;
   }
 
-  cmap_table = NEW(274, char);
-  memset(cmap_table, 0, 274);
-  sfnt_put_ushort(cmap_table,    0);            /* Version  */
-  sfnt_put_ushort(cmap_table+2,  1);            /* Number of subtables */
-  sfnt_put_ushort(cmap_table+4,  TT_MAC);       /* Platform ID */
-  sfnt_put_ushort(cmap_table+6,  TT_MAC_ROMAN); /* Encoding ID */
-  sfnt_put_ulong (cmap_table+8,  12);           /* Offset   */
-  sfnt_put_ushort(cmap_table+12, 0);            /* Format   */
-  sfnt_put_ushort(cmap_table+14, 262);          /* Length   */
-  sfnt_put_ushort(cmap_table+16, 0);            /* Language */
+  if (cmap_old_format) {
+    cmap_table = NEW(274, char);
+    memset(cmap_table, 0, 274);
+    sfnt_put_ushort(cmap_table,    0);            /* Version  */
+    sfnt_put_ushort(cmap_table+2,  1);            /* Number of subtables */
+    sfnt_put_ushort(cmap_table+4,  TT_MAC);       /* Platform ID */
+    sfnt_put_ushort(cmap_table+6,  TT_MAC_ROMAN); /* Encoding ID */
+    sfnt_put_ulong (cmap_table+8,  12);           /* Offset   */
+    sfnt_put_ushort(cmap_table+12, 0);            /* Format   */
+    sfnt_put_ushort(cmap_table+14, 262);          /* Length   */
+    sfnt_put_ushort(cmap_table+16, 0);            /* Language */
+  } else {
+    cmap_table = NEW(1086, char); /* = 20 + 522 + 544 */
+    memset(cmap_table, 0, 1086);
+    sfnt_put_ushort(cmap_table,    0);            /* Version  */
+    sfnt_put_ushort(cmap_table+2,  2);            /* Number of subtables */
+    sfnt_put_ushort(cmap_table+4,  TT_MAC);       /* Platform ID */
+    sfnt_put_ushort(cmap_table+6,  TT_MAC_ROMAN); /* Encoding ID */
+    sfnt_put_ulong (cmap_table+8,  20);           /* Offset   */
+    sfnt_put_ushort(cmap_table+12, TT_WIN);       /* Platform ID */
+    sfnt_put_ushort(cmap_table+14, TT_WIN_SYMBOL);/* Encoding ID */
+    sfnt_put_ulong (cmap_table+16, 542);          /* Offset   = 20 + 522 */
+    /* (1, 0) subtable */
+    sfnt_put_ushort(cmap_table+20, 6);            /* format   */
+    sfnt_put_ushort(cmap_table+22, 522);          /* length   = 10 + 512 */
+    sfnt_put_ushort(cmap_table+24, 0);            /* language */
+    sfnt_put_ushort(cmap_table+26, 0);            /* firstCode */
+    sfnt_put_ushort(cmap_table+28, 256);          /* entryCount */
+    /* (3, 0) subtable */
+    sfnt_put_ushort(cmap_table+542, 4);           /* format   */
+    sfnt_put_ushort(cmap_table+544, 544);         /* length   = 16 + 8 * 2 + 512 */
+    sfnt_put_ushort(cmap_table+546, 0);           /* language */
+    sfnt_put_ushort(cmap_table+548, 4);           /* segCountX2 */
+    sfnt_put_ushort(cmap_table+550, 4);           /* searchRange */
+    sfnt_put_ushort(cmap_table+552, 1);           /* entrySelector */
+    sfnt_put_ushort(cmap_table+554, 0);           /* rangeShift */
+    sfnt_put_ushort(cmap_table+556, 0xf0ff)       /* endCode[0] */
+    sfnt_put_ushort(cmap_table+558, 0xffff)       /* endCode[1] */
+    sfnt_put_ushort(cmap_table+560, 0);           /* reservedPad */
+    sfnt_put_ushort(cmap_table+562, 0xf000);      /* startCode[0] */
+    sfnt_put_ushort(cmap_table+564, 0xffff);      /* startCode[1] */
+    sfnt_put_short (cmap_table+566, 0);           /* idDelta[0] */
+    sfnt_put_short (cmap_table+568, 1);           /* idDelta[1] */
+    sfnt_put_ushort(cmap_table+570, 4);           /* idRangeOffset[0] */
+    sfnt_put_ushort(cmap_table+572, 0);           /* idRangeOffset[1] */
+  }
 
   glyphs = tt_build_init();
 
@@ -335,7 +373,19 @@ do_builtin_encoding (pdf_font *font, const char *usedchars, sfnt *sfont)
       if (idx == 0)
         idx  = tt_add_glyph(glyphs, (USHORT)gid, (USHORT)count); /* count returned. */
     }
-    cmap_table[18+code] = idx & 0xff; /* bug here */
+    code_to_idx[code] = idx;
+    if (cmap_old_format) {
+      if (idx >= 256) {
+        WARN("Font font-file=\"%s\" uses more than 255 glyphs", font->filename);
+        WARN(">> Glyph for character code=0x%02x will be inaccessible.", code);
+        cmap_table[18 + code] = 0;
+      } else {
+        cmap_table[18 + code] = (char)(BYTE)idx;
+      }
+    } else {
+      sfnt_put_ushort(cmap_table +  30 + 2 * code, idx);
+      sfnt_put_ushort(cmap_table + 574 + 2 * code, idx);
+    }
     count++;
   }
   tt_cmap_release(ttcm);
@@ -352,7 +402,7 @@ do_builtin_encoding (pdf_font *font, const char *usedchars, sfnt *sfont)
 
   for (code = 0; code < 256; code++) {
     if (usedchars[code]) {
-      idx = tt_get_index(glyphs, (USHORT) cmap_table[18+code]);
+      idx = tt_get_index(glyphs, code_to_idx[code]);
       widths[code] = PDFUNIT(glyphs->gd[idx].advw);
     } else {
       widths[code] = 0.0;
@@ -365,7 +415,11 @@ do_builtin_encoding (pdf_font *font, const char *usedchars, sfnt *sfont)
 
   tt_build_finish(glyphs);
 
-  sfnt_set_table(sfont, "cmap", cmap_table, 274);
+  if (cmap_old_format) {
+    sfnt_set_table(sfont, "cmap", cmap_table,  274);
+  } else {
+    sfnt_set_table(sfont, "cmap", cmap_table, 1086);
+  }
 
   return  0;
 }
@@ -780,7 +834,9 @@ do_custom_encoding (pdf_font *font,
   double                 widths[256];
   struct glyph_mapper    gm;
   USHORT                 idx, gid;
+  USHORT                 code_to_idx[256] = {0};
   int                    error = 0;
+  int                    cmap_old_format = 0;
 
   ASSERT(font && encoding && usedchars && sfont);
 
@@ -791,16 +847,52 @@ do_custom_encoding (pdf_font *font,
     return  -1;
   }
 
-  cmap_table = NEW(274, char);
-  memset(cmap_table, 0, 274);
-  sfnt_put_ushort(cmap_table,    0);            /* Version  */
-  sfnt_put_ushort(cmap_table+2,  1);            /* Number of subtables */
-  sfnt_put_ushort(cmap_table+4,  TT_MAC);       /* Platform ID */
-  sfnt_put_ushort(cmap_table+6,  TT_MAC_ROMAN); /* Encoding ID */
-  sfnt_put_ulong (cmap_table+8,  12);           /* Offset   */
-  sfnt_put_ushort(cmap_table+12, 0);            /* Format   */
-  sfnt_put_ushort(cmap_table+14, 262);          /* Length   */
-  sfnt_put_ushort(cmap_table+16, 0);            /* Language */
+  if (cmap_old_format) {
+    cmap_table = NEW(274, char);
+    memset(cmap_table, 0, 274);
+    sfnt_put_ushort(cmap_table,    0);            /* Version  */
+    sfnt_put_ushort(cmap_table+2,  1);            /* Number of subtables */
+    sfnt_put_ushort(cmap_table+4,  TT_MAC);       /* Platform ID */
+    sfnt_put_ushort(cmap_table+6,  TT_MAC_ROMAN); /* Encoding ID */
+    sfnt_put_ulong (cmap_table+8,  12);           /* Offset   */
+    sfnt_put_ushort(cmap_table+12, 0);            /* Format   */
+    sfnt_put_ushort(cmap_table+14, 262);          /* Length   */
+    sfnt_put_ushort(cmap_table+16, 0);            /* Language */
+  } else {
+    cmap_table = NEW(1086, char); /* = 20 + 522 + 544 */
+    memset(cmap_table, 0, 1086);
+    sfnt_put_ushort(cmap_table,    0);            /* Version  */
+    sfnt_put_ushort(cmap_table+2,  2);            /* Number of subtables */
+    sfnt_put_ushort(cmap_table+4,  TT_MAC);       /* Platform ID */
+    sfnt_put_ushort(cmap_table+6,  TT_MAC_ROMAN); /* Encoding ID */
+    sfnt_put_ulong (cmap_table+8,  20);           /* Offset   */
+    sfnt_put_ushort(cmap_table+12, TT_WIN);       /* Platform ID */
+    sfnt_put_ushort(cmap_table+14, TT_WIN_SYMBOL);/* Encoding ID */
+    sfnt_put_ulong (cmap_table+16, 542);          /* Offset   = 20 + 522 */
+    /* (1, 0) subtable */
+    sfnt_put_ushort(cmap_table+20, 6);            /* format   */
+    sfnt_put_ushort(cmap_table+22, 522);          /* length   = 10 + 512 */
+    sfnt_put_ushort(cmap_table+24, 0);            /* language */
+    sfnt_put_ushort(cmap_table+26, 0);            /* firstCode */
+    sfnt_put_ushort(cmap_table+28, 256);          /* entryCount */
+    /* (3, 0) subtable */
+    sfnt_put_ushort(cmap_table+542, 4);           /* format   */
+    sfnt_put_ushort(cmap_table+544, 544);         /* length   = 16 + 8 * 2 + 512 */
+    sfnt_put_ushort(cmap_table+546, 0);           /* language */
+    sfnt_put_ushort(cmap_table+548, 4);           /* segCountX2 */
+    sfnt_put_ushort(cmap_table+550, 4);           /* searchRange */
+    sfnt_put_ushort(cmap_table+552, 1);           /* entrySelector */
+    sfnt_put_ushort(cmap_table+554, 0);           /* rangeShift */
+    sfnt_put_ushort(cmap_table+556, 0xf0ff)       /* endCode[0] */
+    sfnt_put_ushort(cmap_table+558, 0xffff)       /* endCode[1] */
+    sfnt_put_ushort(cmap_table+560, 0);           /* reservedPad */
+    sfnt_put_ushort(cmap_table+562, 0xf000);      /* startCode[0] */
+    sfnt_put_ushort(cmap_table+564, 0xffff);      /* startCode[1] */
+    sfnt_put_short (cmap_table+566, 0);           /* idDelta[0] */
+    sfnt_put_short (cmap_table+568, 1);           /* idDelta[1] */
+    sfnt_put_ushort(cmap_table+570, 4);           /* idRangeOffset[0] */
+    sfnt_put_ushort(cmap_table+572, 0);           /* idRangeOffset[1] */
+  }
 
   glyphs = tt_build_init();
 
@@ -837,7 +929,19 @@ do_custom_encoding (pdf_font *font,
         count++;
       }
     }
-    cmap_table[18 + code] = idx & 0xff; /* bug here */
+    code_to_idx[code] = idx;
+    if (cmap_old_format) {
+      if (idx >= 256) {
+        WARN("Font font-file=\"%s\" uses more than 255 glyphs", font->filename);
+        WARN(">> Glyph glyph-name=\"%s\" will be inaccessible.", encoding[code]);
+        cmap_table[18 + code] = 0;
+      } else {
+        cmap_table[18 + code] = (char)(BYTE)idx;
+      }
+    } else {
+      sfnt_put_ushort(cmap_table +  30 + 2 * code, idx);
+      sfnt_put_ushort(cmap_table + 574 + 2 * code, idx);
+    }
   }
   clean_glyph_mapper(&gm);
 
@@ -850,7 +954,7 @@ do_custom_encoding (pdf_font *font,
 
   for (code = 0; code < 256; code++) {
     if (usedchars[code]) {
-      idx = tt_get_index(glyphs, (USHORT) cmap_table[18+code]);
+      idx = tt_get_index(glyphs, code_to_idx[code]);
       widths[code] = PDFUNIT(glyphs->gd[idx].advw);
     } else {
       widths[code] = 0.0;
@@ -863,7 +967,11 @@ do_custom_encoding (pdf_font *font,
 
   tt_build_finish(glyphs);
 
-  sfnt_set_table(sfont, "cmap", cmap_table, 274);
+  if (cmap_old_format) {
+    sfnt_set_table(sfont, "cmap", cmap_table,  274);
+  } else {
+    sfnt_set_table(sfont, "cmap", cmap_table, 1086);
+  }
 
   return  0;
 }

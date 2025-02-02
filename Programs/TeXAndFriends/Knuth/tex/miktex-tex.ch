@@ -629,6 +629,29 @@ end
 
 % _____________________________________________________________________________
 %
+% [7.104]
+% _____________________________________________________________________________
+
+@x
+|remainder|, holds the remainder after a division.
+
+@<Glob...@>=
+@y
+|remainder|, holds the remainder after a division. For Web2C, we rename
+it to |tex_remainder| to avoid conflicts with a system library routine
+named |remainder|.
+
+Also, we define a new variable |save_arith_error| for when we want to
+save and restore |arith_error|, down below.
+
+@d remainder==tex_remainder
+
+@<Glob...@>=
+@!save_arith_error:boolean;
+@z
+
+% _____________________________________________________________________________
+%
 % [7.109]
 % _____________________________________________________________________________
 
@@ -1101,17 +1124,6 @@ first:=buf_size; repeat buffer[first]:=0; decr(first); until first=0;
 @y
 first:=buf_size; repeat buffer[first]:=0; decr(first); until first=0;
 buffer[0]:=0;
-@z
-
-% _____________________________________________________________________________
-%
-% [24.336]
-% _____________________________________________________________________________
-
-@x
-begin if scanner_status<>normal then
-@y
-begin if OK_to_interrupt and(scanner_status<>normal) then
 @z
 
 % _____________________________________________________________________________
@@ -2015,12 +2027,15 @@ if not miktex_open_tfm_file(tfm_file,name_of_file) then abort;
 @x
   else z:=xn_over_d(z,-s,1000);
 @y
-  else begin sw:=z; arith_error:=false; z:=xn_over_d(z,-s,1000);
+  else begin
+    save_arith_error:=arith_error;
+    sw:=z; z:=xn_over_d(z,-s,1000);
     if arith_error or z>=@'1000000000 then begin
        start_font_error_message; print(" scaled to 2048pt or higher");
        help1("I will ignore the scaling factor."); error; z:=sw;
        end;
-    end;
+    arith_error:=save_arith_error;
+  end;
 @z
 
 % _____________________________________________________________________________
