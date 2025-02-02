@@ -1854,7 +1854,11 @@ halfword vert_break(halfword p, scaled h, scaled d)
             active_height[2 + stretch_order(p)] += stretch(p);
             active_height[7] += shrink(p);
             if ((shrink_order(p) != normal) && (shrink(p) != 0)) {
+	      if (((unsigned int)ignore_primitive_error_par) & 0x1){
+		print_ignored_err("Infinite glue shrinkage found in box being split");
+	      } else {
                 print_err("Infinite glue shrinkage found in box being split");
+		
                 help4(
                     "The box you are \\vsplitting contains some infinitely",
                     "shrinkable glue, e.g., `\\vss' or `\\vskip 0pt minus 1fil'.",
@@ -1862,7 +1866,8 @@ halfword vert_break(halfword p, scaled h, scaled d)
                     "since the offensive shrinkability has been made finite."
                 );
                 error();
-                shrink_order(p) = normal;
+	      }
+	    shrink_order(p) = normal;
             }
         }
         cur_height = cur_height + prev_dp + width(p);

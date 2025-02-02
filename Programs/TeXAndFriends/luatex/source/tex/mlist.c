@@ -1553,6 +1553,7 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
         return b;
     }
 
+    x = 0;
     f = null_font;
     c = 0;
     if (d == null) {

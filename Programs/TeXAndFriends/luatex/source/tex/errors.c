@@ -106,7 +106,12 @@ void flush_err(void)
         if (callback_id > 0) {
             run_callback(callback_id, "->");
         } else {
-            tprint(s);
+	    callback_id = callback_defined(show_ignored_error_message_callback);
+	    if (callback_id > 0) {
+	      run_callback(callback_id, "->");
+	    } else {
+              tprint(s);
+	    }  
         }
         in_error = 0 ;
     }
@@ -127,6 +132,30 @@ void print_err(const char *s)
         print_file_line();
     } else {
         tprint_nl("! ");
+    }
+    tprint(s);
+    if (callback_id <= 0) {
+        xfree(last_error);
+        last_error = (string) xmalloc((unsigned) (strlen(s) + 1));
+        strcpy(last_error,s);
+    }
+}
+
+void print_ignored_err(const char *s)
+{
+    int callback_id = callback_defined(show_ignored_error_message_callback);
+    if (interaction == error_stop_mode) {
+        wake_up_terminal();
+    }
+    if (callback_id > 0) {
+        err_old_setting = selector;
+        selector = new_string;
+        in_error = 1 ;
+    }
+    if (filelineerrorstylep) {
+        print_file_line();
+    } else {
+        tprint_nl("ignored error ");
     }
     tprint(s);
     if (callback_id <= 0) {

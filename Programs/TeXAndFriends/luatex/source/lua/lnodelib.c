@@ -1187,9 +1187,9 @@ static int lua_nodelib_direct_getdisc(lua_State * L)
         nodelib_pushdirect_or_nil_alink(vlink(post_break(n)));
         nodelib_pushdirect_or_nil_alink(vlink(no_break(n)));
         if (lua_isboolean(L, 2) && lua_toboolean(L, 2)) {
-            nodelib_pushdirect_or_nil_alink(tlink(pre_break(n)));
-            nodelib_pushdirect_or_nil_alink(tlink(post_break(n)));
-            nodelib_pushdirect_or_nil_alink(tlink(no_break(n)));
+            nodelib_pushdirect_or_nil(tlink(pre_break(n)));
+            nodelib_pushdirect_or_nil(tlink(post_break(n)));
+            nodelib_pushdirect_or_nil(tlink(no_break(n)));
             return 6;
         }
         return 3;
@@ -8542,19 +8542,24 @@ static int lua_nodelib_direct_effective_glue(lua_State * L)
 
 */
 
-#define check_disc(c) \
-    p = c ; \
-    if (p != null && vlink(p) != null) \
-        tlink(p) = tail_of_list(vlink(p));
+static void check_disc(halfword p) 
+{ 
+    if (p != null) { 
+        if (vlink(p) != null) { 
+            tlink(p) = tail_of_list(vlink(p));
+        } else { 
+            tlink(p) = null;
+        }
+    }
+}
 
 static int lua_nodelib_direct_check_discretionaries(lua_State * L) {
     halfword c = lua_tointeger(L, 1);
-    halfword p ;
     while (c != null) {
         if (type(c) == disc_node) {
-            check_disc(no_break(c)) ;
-            check_disc(pre_break(c)) ;
-            check_disc(post_break(c)) ;
+            check_disc(no_break(c));
+            check_disc(pre_break(c)); 
+            check_disc(post_break(c)); 
         }
         c = vlink(c) ;
     }
@@ -8564,10 +8569,9 @@ static int lua_nodelib_direct_check_discretionaries(lua_State * L) {
 static int lua_nodelib_direct_check_discretionary(lua_State * L) {
     halfword c = lua_tointeger(L, 1);
     if (c != null && type(c) == disc_node) {
-        halfword p ;
-        check_disc(no_break(c)) ;
-        check_disc(pre_break(c)) ;
-        check_disc(post_break(c)) ;
+        check_disc(no_break(c)); 
+        check_disc(pre_break(c)); 
+        check_disc(post_break(c)); 
     }
     return 0;
 }
@@ -8614,12 +8618,11 @@ static int lua_nodelib_direct_flatten_discretionaries(lua_State * L)
 
 static int lua_nodelib_check_discretionaries(lua_State * L) {
     halfword c = *check_isnode(L, 1);
-    halfword p ;
     while (c != null) {
         if (type(c) == disc_node) {
-            check_disc(no_break(c)) ;
-            check_disc(pre_break(c)) ;
-            check_disc(post_break(c)) ;
+            check_disc(no_break(c)); 
+            check_disc(pre_break(c)); 
+            check_disc(post_break(c)); 
         }
         c = vlink(c) ;
     }
@@ -8629,10 +8632,9 @@ static int lua_nodelib_check_discretionaries(lua_State * L) {
 static int lua_nodelib_check_discretionary(lua_State * L) {
     halfword c = *check_isnode(L, 1);
     if (c != null && type(c) == disc_node) {
-        halfword p ;
-        check_disc(no_break(c)) ;
-        check_disc(pre_break(c)) ;
-        check_disc(post_break(c)) ;
+        check_disc(no_break(c)); 
+        check_disc(pre_break(c)); 
+        check_disc(post_break(c)); 
     }
     return 0;
 }

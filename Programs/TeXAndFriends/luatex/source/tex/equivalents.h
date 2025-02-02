@@ -316,7 +316,10 @@ the |number_regs| \.{\\dimen} registers.
 #  define math_eq_dir_mode_code 123
 #  define var_fam_code 124
 
-#  define math_option_code 125
+#  define ignore_primitive_error_code 125 				/*ignore some primitive/engine errors*/
+
+#  define math_option_code 126
+
 
 #  define mathoption_int_base_code (math_option_code+1)                 /* one reserve */
 #  define mathoption_int_last_code (mathoption_int_base_code+8)
@@ -805,6 +808,7 @@ extern halfword last_cs_name;
 #define default_hyphen_char_par            int_par(default_hyphen_char_code)
 #define default_skew_char_par              int_par(default_skew_char_code)
 #define saving_hyph_codes_par              int_par(saving_hyph_codes_code)
+#define ignore_primitive_error_par         int_par(ignore_primitive_error_code)
 
 #define hyphen_penalty_mode_par            int_par(hyphen_penalty_mode_code)
 #define automatic_hyphen_penalty_par       int_par(automatic_hyphen_penalty_code)

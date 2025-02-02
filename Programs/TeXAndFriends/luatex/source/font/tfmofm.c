@@ -849,7 +849,21 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     /*tex Read the arrays before the character info. */
     set_font_dsize(f, z);
     if (s != -1000) {
+        boolean saved_arith_error = arith_error;
+	scaled sw = z;
+	arith_error = false;
         z = (s >= 0 ? s : xn_over_d(z, -s, 1000));
+	if ((arith_error) || (z>= 01000000000)) {
+	  char err[256];
+	  const char *errhelp[] = {
+	    "I will ignore the scaling factor.",
+	    NULL
+	  };
+	  snprintf(err, 255, "Font scaled to 2048pt or higher");
+	  tex_error(err, errhelp);
+	}
+	z = sw ;
+	arith_error = saved_arith_error;
     }
     set_font_size(f, z);
     if (np > 7) {

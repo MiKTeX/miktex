@@ -2565,21 +2565,20 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
                 if (math_direction_par==dir_TLT) {
                     /*tex TRT + TLT + \eqno: (swap_dir=true,  math_direction_par=TLT, l=true) */
                     s = new_kern(width(r) + eqno_w);
-                    try_couple_nodes(eqno_box,r);
-                    try_couple_nodes(r,eq_box);
-                    try_couple_nodes(eq_box,s);
                 } else {
                     /*tex TLT + TRT + \eqno: (swap_dir=true,  math_direction_par=TRT, l=true) */
-                    try_couple_nodes(eqno_box,r);
-                    try_couple_nodes(r,eq_box);
+                    s = new_kern(d);
                 }
+                try_couple_nodes(eqno_box,r);
+                try_couple_nodes(r,eq_box);
+                try_couple_nodes(eq_box,s);
             } else {
                 if (math_direction_par==dir_TLT) {
                     /*tex TLT + TLT + \leqno: (swap_dir=false, math_direction_par=TLT, l=true) */
                     s = new_kern(width(r) + eqno_w);
                 } else {
                     /*tex TRT + TRT + \leqno: (swap_dir=false, math_direction_par=TRT, l=true) */
-                    s = new_kern(width(r));
+                    s = new_kern(d);
                 }
                 try_couple_nodes(eqno_box,r);
                 try_couple_nodes(r,eq_box);
@@ -2590,9 +2589,12 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
             if (swap_dir) {
                 if (math_direction_par==dir_TLT) {
                     /*tex TRT + TLT + \leqno: (swap_dir=true,  math_direction_par=TLT, l=false) */
+                    s = new_kern(d);
                 } else {
                     /*tex TLT + TRT + \leqno: (swap_dir=true,  math_direction_par=TRT, l=false) */
+                    s = new_kern(width(r) + eqno_w);
                 }
+                try_couple_nodes(s,eq_box);
                 try_couple_nodes(eq_box,r);
                 try_couple_nodes(r,eqno_box);
             } else {
@@ -2606,8 +2608,8 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
                 try_couple_nodes(s,eq_box);
                 try_couple_nodes(eq_box,r);
                 try_couple_nodes(r,eqno_box);
-                eq_box = s;
             }
+            eq_box = s;
         }
         eq_box = hpack(eq_box, 0, additional, -1);
         subtype(eq_box) = equation_list; /* new */

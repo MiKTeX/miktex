@@ -2018,6 +2018,17 @@ void copy_node_wrapup_pdf(halfword p, halfword r)
     }
 }
 
+static void check_disc(halfword p) 
+{ 
+    if (p != null) { 
+        if (vlink(p) != null) { 
+            tlink(p) = tail_of_list(vlink(p));
+        } else { 
+            tlink(p) = null;
+        }
+    }
+}
+
 halfword copy_node(const halfword p)
 {
     /*tex current node being fabricated for new list */
@@ -2091,31 +2102,22 @@ halfword copy_node(const halfword p)
             break;
         case disc_node:
             pre_break(r) = pre_break_head(r);
-            if (vlink_pre_break(p) != null) {
-                s = copy_node_list(vlink_pre_break(p));
-                alink(s) = pre_break(r);
-                tlink_pre_break(r) = tail_of_list(s);
-                vlink_pre_break(r) = s;
-            } else {
-                assert(tlink(pre_break(r)) == null);
-            }
             post_break(r) = post_break_head(r);
-            if (vlink_post_break(p) != null) {
-                s = copy_node_list(vlink_post_break(p));
-                alink(s) = post_break(r);
-                tlink_post_break(r) = tail_of_list(s);
-                vlink_post_break(r) = s;
-            } else {
-                assert(tlink_post_break(r) == null);
-            }
             no_break(r) = no_break_head(r);
+            if (vlink(pre_break(p)) != null) {
+               s = copy_node_list(vlink(pre_break(p)));
+               vlink(pre_break(r)) = s;
+               check_disc(pre_break(r));
+            }
+            if (vlink(post_break(p)) != null) {
+                s = copy_node_list(vlink(post_break(p)));
+                vlink(post_break(r)) = s;
+                check_disc(post_break(r));
+            }
             if (vlink(no_break(p)) != null) {
-                s = copy_node_list(vlink_no_break(p));
-                alink(s) = no_break(r);
-                tlink_no_break(r) = tail_of_list(s);
-                vlink_no_break(r) = s;
-            } else {
-                assert(tlink_no_break(r) == null);
+                s = copy_node_list(vlink(no_break(p)));
+                vlink(no_break(r)) = s;
+                check_disc(no_break(r));
             }
             break;
         case math_node:

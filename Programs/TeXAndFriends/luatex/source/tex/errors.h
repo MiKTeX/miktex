@@ -50,6 +50,7 @@ extern char *last_error_context;
 extern void set_last_error_context(void);
 
 extern void print_err(const char *s);
+extern void print_ignored_err(const char *s);
 
 extern void fixup_selector(boolean log_opened);
 

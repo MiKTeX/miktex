@@ -9,7 +9,7 @@
 * dvips 2024.1
 * dvisvgm 3.4.3
 * hitex 2.1
-* luatex 1.20.5
+* luatex 1.21.0
 * pdftex 1.40.27
 * upmendex 1.10
 * xetex 0.999997

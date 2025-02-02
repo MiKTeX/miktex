@@ -60,7 +60,7 @@ typedef enum {
     finish_pdfpage_callback,
     pre_dump_callback,
     start_file_callback, stop_file_callback,
-    show_error_message_callback, show_lua_error_hook_callback,
+    show_error_message_callback, show_lua_error_hook_callback,show_ignored_error_message_callback,
     show_warning_message_callback,
     hpack_quality_callback, vpack_quality_callback,
     process_rule_callback,

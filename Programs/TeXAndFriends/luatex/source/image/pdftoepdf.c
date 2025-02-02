@@ -366,9 +366,11 @@ static int addInObj(PDF pdf, PdfDocument * pdf_doc, ppref * ref)
             because new objects are being added while the list is being
             written out by writeRefs().
         */
+        q = NULL;
         for (p = pdf_doc->inObjList; p != NULL; p = p->next)
             q = p;
-        q->next = n;
+        if (q) 
+            q->next = n;
     }
     return n->num;
 }
