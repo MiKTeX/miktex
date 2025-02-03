@@ -25,18 +25,33 @@
 
 namespace Tw {
 
-class Settings : public QSettings
+class Settings
 {
-	Q_OBJECT
+	QSettings m_s;
 public:
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	using KeyType = QString;
+#else
+	using KeyType = QAnyStringView;
+#endif
+
 #if defined(MIKTEX)
 	Settings();
 #else
 	Settings() = default;
 #endif
 
-	using QSettings::defaultFormat;
-	using QSettings::setDefaultFormat;
+	bool contains(KeyType key) const;
+	void remove(KeyType key);
+	void setValue(KeyType key, const QVariant & value);
+	QVariant value(KeyType key, const QVariant & defaultValue = QVariant()) const;
+
+	QString fileName() const;
+
+	static void setPortableIniPath(const QString & iniPath);
+#if defined(Q_OS_WIN)
+	bool isStoredInRegistry();
+#endif
 };
 
 } // namespace Tw

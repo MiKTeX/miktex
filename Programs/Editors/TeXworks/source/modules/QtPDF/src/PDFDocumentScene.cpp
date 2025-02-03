@@ -15,6 +15,9 @@
 
 #include "PDFDocumentView.h"
 
+#include <QLabel>
+#include <QPushButton>
+
 #include <QtConcurrent>
 
 namespace QtPDF {

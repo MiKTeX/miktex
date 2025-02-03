@@ -18,7 +18,6 @@
 #include "PDFPageTile.h"
 
 #include <QCache>
-#include <QMap>
 #include <QReadWriteLock>
 #include <QSharedPointer>
 #include <QWriteLocker>

@@ -39,6 +39,7 @@
 #include "document/SpellChecker.h"
 #include "scripting/ScriptAPI.h"
 #include "utils/CommandlineParser.h"
+#include "utils/IniConfig.h"
 #include "utils/ResourcesLibrary.h"
 #include "utils/SystemCommand.h"
 #include "utils/TextCodecs.h"
@@ -56,7 +57,6 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
-#include <QSettings>
 #include <QString>
 #include <QStringList>
 #include <QTextCodec>
@@ -150,12 +150,6 @@ TWApp::~TWApp()
 
 void TWApp::init()
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-	constexpr auto SkipEmptyParts = QString::SkipEmptyParts;
-#else
-	constexpr auto SkipEmptyParts = Qt::SkipEmptyParts;
-#endif
-
 	QIcon::setThemeName(QStringLiteral("tango-texworks"));
 	QIcon appIcon;
 #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
@@ -171,65 +165,7 @@ void TWApp::init()
 	setApplicationName(QStringLiteral("TeXworks"));
 	setApplicationVersion(Tw::Utils::VersionInfo::fullVersionString());
 
-	// <Check for portable mode>
-#if defined(Q_OS_DARWIN)
-	QDir appDir(applicationDirPath() + QLatin1String("/../../..")); // move up to dir containing the .app package
-#else
-	QDir appDir(applicationDirPath());
-#endif
-	QDir iniPath(appDir.absolutePath());
-	QDir libPath(appDir.absolutePath());
-	if (appDir.exists(QString::fromLatin1(SETUP_FILE_NAME))) {
-		QSettings portable(appDir.filePath(QString::fromLatin1(SETUP_FILE_NAME)), QSettings::IniFormat);
-		if (portable.contains(QString::fromLatin1("inipath"))) {
-			if (iniPath.cd(portable.value(QString::fromLatin1("inipath")).toString())) {
-				Tw::Settings::setDefaultFormat(QSettings::IniFormat);
-				Tw::Settings::setPath(QSettings::IniFormat, QSettings::UserScope, iniPath.absolutePath());
-			}
-		}
-		if (portable.contains(QString::fromLatin1("libpath"))) {
-			if (libPath.cd(portable.value(QString::fromLatin1("libpath")).toString())) {
-				Tw::Utils::ResourcesLibrary::setPortableLibPath(libPath.absolutePath());
-			}
-		}
-		if (portable.contains(QString::fromLatin1("defaultbinpaths"))) {
-			defaultBinPaths = std::unique_ptr<QStringList>(new QStringList);
-			*defaultBinPaths = portable.value(QString::fromLatin1("defaultbinpaths")).toString().split(QString::fromLatin1(PATH_LIST_SEP), SkipEmptyParts);
-		}
-	}
-#if defined(MIKTEX_WINDOWS)
-        QString envPath = QString::fromUtf8(getenv("TW_INIPATH"));
-#else
-	QString envPath = QString::fromLocal8Bit(getenv("TW_INIPATH"));
-#endif
-	if (!envPath.isNull() && iniPath.cd(envPath)) {
-		Tw::Settings::setDefaultFormat(QSettings::IniFormat);
-		Tw::Settings::setPath(QSettings::IniFormat, QSettings::UserScope, iniPath.absolutePath());
-	}
-#if defined(MIKTEX)
-        else
-        {
-          auto session = MIKTEX_SESSION();
-          if (!session->IsAdminMode())
-          {
-            if (session->IsMiKTeXPortable())
-            {
-              Tw::Settings::setDefaultFormat(QSettings::IniFormat);
-              MiKTeX::Util::PathName path = session->GetSpecialPath(MiKTeX::Configuration::SpecialPath::UserConfigRoot);
-              Tw::Settings::setPath(QSettings::IniFormat, QSettings::UserScope, QString::fromUtf8(path.GetData()));
-            }
-          }
-        }
-#endif
-#if defined(MIKTEX)
-        envPath = QString::fromUtf8(getenv("TW_LIBPATH"));
-#else
-	envPath = QString::fromLocal8Bit(getenv("TW_LIBPATH"));
-#endif
-	if (!envPath.isNull() && libPath.cd(envPath)) {
-		Tw::Utils::ResourcesLibrary::setPortableLibPath(libPath.absolutePath());
-	}
-	// </Check for portable mode>
+	checkPortableMode();
 
 	// Required for TWUtils::getLibraryPath()
 	theAppInstance = this;
@@ -415,6 +351,56 @@ bool TWApp::ensureSingleInstance(const CommandLineData &cld)
 	QObject::connect(&m_IPC, &Tw::InterProcessCommunicator::receivedOpenFile, this, &TWApp::openFile);
 	QObject::connect(&m_IPC, &Tw::InterProcessCommunicator::receivedInsertText, this, &TWApp::insertText);
 	return true;
+}
+
+void TWApp::checkPortableMode()
+{
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+	constexpr auto SkipEmptyParts = QString::SkipEmptyParts;
+#else
+	constexpr auto SkipEmptyParts = Qt::SkipEmptyParts;
+#endif
+
+#if defined(Q_OS_DARWIN)
+	QDir appDir(applicationDirPath() + QLatin1String("/../../..")); // move up to dir containing the .app package
+#else
+	QDir appDir(applicationDirPath());
+#endif
+	QDir iniPath(appDir.absolutePath());
+	QDir libPath(appDir.absolutePath());
+	if (appDir.exists(QString::fromLatin1(SETUP_FILE_NAME))) {
+		Tw::Utils::IniConfig portable(appDir.filePath(QString::fromLatin1(SETUP_FILE_NAME)));
+		if (portable.contains(QString::fromLatin1("inipath"))) {
+			if (iniPath.cd(portable.value(QString::fromLatin1("inipath")).toString())) {
+				Tw::Settings::setPortableIniPath(iniPath.absolutePath());
+			}
+		}
+		if (portable.contains(QString::fromLatin1("libpath"))) {
+			if (libPath.cd(portable.value(QString::fromLatin1("libpath")).toString())) {
+				Tw::Utils::ResourcesLibrary::setPortableLibPath(libPath.absolutePath());
+			}
+		}
+		if (portable.contains(QString::fromLatin1("defaultbinpaths"))) {
+			defaultBinPaths = std::unique_ptr<QStringList>(new QStringList);
+			*defaultBinPaths = portable.value(QString::fromLatin1("defaultbinpaths")).toString().split(QString::fromLatin1(PATH_LIST_SEP), SkipEmptyParts);
+		}
+	}
+#if defined(MIKTEX_WINDOWS)
+	QString envPath = QString::fromUtf8("TW_INIPATH");
+#else
+	QString envPath = QString::fromLocal8Bit(getenv("TW_INIPATH"));
+#endif
+	if (!envPath.isNull() && iniPath.cd(envPath)) {
+		Tw::Settings::setPortableIniPath(iniPath.absolutePath());
+	}
+#if defined(MIKTEX_WINDOWS)
+	envPath = QString::fromUtf8(getenv("TW_LIBPATH"));
+#else
+	envPath = QString::fromLocal8Bit(getenv("TW_LIBPATH"));
+#endif
+	if (!envPath.isNull() && libPath.cd(envPath)) {
+		Tw::Utils::ResourcesLibrary::setPortableLibPath(libPath.absolutePath());
+	}
 }
 
 void TWApp::exitLater(int retCode)
@@ -1202,7 +1188,7 @@ void TWApp::setDefaultEngineList()
 	    << Engine(QString::fromLatin1("LuaLaTeX"), QString::fromLatin1("lualatex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
 	    << Engine(QString::fromLatin1("XeTeX"), QString::fromLatin1("xetex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
 	    << Engine(QString::fromLatin1("XeLaTeX"), QString::fromLatin1("xelatex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
-	    << Engine(QString::fromLatin1("ConTeXt (LuaTeX)"), QString::fromLatin1("context" EXE), QStringList(QString::fromLatin1("--synctex")) << QString::fromLatin1("$fullname"), true)
+	    << Engine(QString::fromLatin1("ConTeXt (LuaTeX)"), QString::fromLatin1("context" EXE), QStringList(QString::fromLatin1("--synctex=repeat")) << QString::fromLatin1("$fullname"), true)
 	    << Engine(QString::fromLatin1("ConTeXt (pdfTeX)"), QString::fromLatin1("texexec" EXE), QStringList(QString::fromLatin1("--synctex")) << QString::fromLatin1("$fullname"), true)
 	    << Engine(QString::fromLatin1("ConTeXt (XeTeX)"), QString::fromLatin1("texexec" EXE), QStringList(QString::fromLatin1("--synctex")) << QString::fromLatin1("--xtx") << QString::fromLatin1("$fullname"), true)
 	    << Engine(QString::fromLatin1("BibTeX"), QString::fromLatin1("bibtex" EXE), QStringList(QString::fromLatin1("$basename")), false)
@@ -1216,57 +1202,28 @@ const QList<Engine> TWApp::getEngineList()
 {
 	if (!engineList) {
 		engineList = std::unique_ptr< QList<Engine> >(new QList<Engine>);
-		bool foundList = false;
-		// check for old engine list in Preferences
-		Tw::Settings settings;
-		int count = settings.beginReadArray(QString::fromLatin1("engines"));
-		if (count > 0) {
-			for (int i = 0; i < count; ++i) {
-				settings.setArrayIndex(i);
+
+		const QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
+		const QFile toolsFile(configDir.filePath(QString::fromLatin1("tools.ini")));
+		if (toolsFile.exists()) {
+			Tw::Utils::IniConfig toolsSettings(toolsFile.fileName());
+			QStringList toolNames = toolsSettings.childGroups();
+			foreach (const QString& n, toolNames) {
+				toolsSettings.beginGroup(n);
 				Engine eng;
-				eng.setName(settings.value(QString::fromLatin1("name")).toString());
-				eng.setProgram(settings.value(QString::fromLatin1("program")).toString());
-				eng.setArguments(settings.value(QString::fromLatin1("arguments")).toStringList());
-				eng.setShowPdf(settings.value(QString::fromLatin1("showPdf")).toBool());
+				eng.setName(toolsSettings.value(QString::fromLatin1("name")).toString());
+				eng.setProgram(toolsSettings.value(QString::fromLatin1("program")).toString());
+				eng.setArguments(toolsSettings.value(QString::fromLatin1("arguments")).toStringList());
+				eng.setShowPdf(toolsSettings.value(QString::fromLatin1("showPdf")).toBool());
 				engineList->append(eng);
-				settings.remove(QString());
-			}
-			foundList = true;
-			saveEngineList();
-		}
-		settings.endArray();
-		settings.remove(QString::fromLatin1("engines"));
-
-		if (!foundList) { // read engine list from config file
-			QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
-			QFile toolsFile(configDir.filePath(QString::fromLatin1("tools.ini")));
-			if (toolsFile.exists()) {
-				QSettings toolsSettings(toolsFile.fileName(), QSettings::IniFormat);
-				QStringList toolNames = toolsSettings.childGroups();
-				foreach (const QString& n, toolNames) {
-					toolsSettings.beginGroup(n);
-					Engine eng;
-					eng.setName(toolsSettings.value(QString::fromLatin1("name")).toString());
-					eng.setProgram(toolsSettings.value(QString::fromLatin1("program")).toString());
-					eng.setArguments(toolsSettings.value(QString::fromLatin1("arguments")).toStringList());
-					eng.setShowPdf(toolsSettings.value(QString::fromLatin1("showPdf")).toBool());
-					engineList->append(eng);
-					toolsSettings.endGroup();
-				}
-				foundList = true;
+				toolsSettings.endGroup();
 			}
 		}
-
-		if (!foundList)
+		else {
 			setDefaultEngineList();
-#if defined(MIKTEX)
-                if (!settings.value("defaultEngine").toString().isEmpty())
-                {
-                  setDefaultEngine(settings.value(QStringLiteral("defaultEngine")).toString());
-                }
-#else
+		}
+		Tw::Settings settings;
 		setDefaultEngine(settings.value(QString::fromLatin1("defaultEngine"), QString::fromUtf8(DEFAULT_ENGINE_NAME)).toString());
-#endif
 	}
 	return *engineList;
 }
@@ -1275,7 +1232,7 @@ void TWApp::saveEngineList()
 {
 	QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
 	QFile toolsFile(configDir.filePath(QString::fromLatin1("tools.ini")));
-	QSettings toolsSettings(toolsFile.fileName(), QSettings::IniFormat);
+	Tw::Utils::IniConfig toolsSettings(toolsFile.fileName());
 	toolsSettings.clear();
 	int n = 0;
 	foreach (const Engine& e, *engineList) {

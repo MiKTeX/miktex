@@ -34,7 +34,6 @@
 #include <QMenu>
 #include <QMenuBar>
 #endif
-#include <QSettings>
 #include <QStack>
 #include <QString>
 #include <QTextCodec>
@@ -267,6 +266,7 @@ private:
 	void init();
 	CommandLineData processCommandLine();
 	bool ensureSingleInstance(const CommandLineData & cld);
+	void checkPortableMode();
 	void exitLater(int retCode);
 
 	void arrangeWindows(WindowArrangementFunction func);

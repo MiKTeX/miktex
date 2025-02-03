@@ -49,10 +49,10 @@ gray		Y	%.*
 
 [ConTeXt]
 # special characters
-red		N	[$#{}&]
+red		N	[${}]
 
 # 'other' special characters
-sienna	N	[=\[\]]
+sienna	N	[=\[\]#<>"']
 
 # mathematical operations
 orange		N	[\-+/^_]
@@ -61,10 +61,25 @@ orange		N	[\-+/^_]
 olive;B	N	\\(?:start|stop)[A-Za-z]+
 
 # control sequences
-royalblue;B		N	\\(?:[\p{L}@]+|.)
+royalblue;B		N	\\(?:[\p{L}@\?\!]+|.)
 
 # comments
 gray		Y	%.*
+
+
+[ConTeXt XML]
+
+# todo: attributes
+
+darkred      N   \<\?xml.*\?\>
+darkblue     N   \<\!\-\-.*\-\-\>
+darkblue     N   [\"\']
+goldenrod    N   \<\?.*\?\>
+darkgreen    N   \<\/*[a-zA-Z\_\-]*\:*[a-zA-Z\_\-]+
+darkgreen    N   \/\>
+darkgreen    N   \>
+darkred      N   \&[a-zA-Z\_\-]+\;
+
 
 [BibTeX]
 

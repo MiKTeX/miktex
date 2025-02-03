@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2009-2024 Christian Schenk
+## Copyright (C) 2009-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -160,6 +160,7 @@ set(texworks_sources
     source/src/utils/FileVersionDatabase.h
     source/src/utils/FullscreenManager.cpp
     source/src/utils/FullscreenManager.h
+    source/src/utils/IniConfig.h
     source/src/utils/ResourcesLibrary.cpp
     source/src/utils/ResourcesLibrary.h
     source/src/utils/SystemCommand.cpp
@@ -261,6 +262,77 @@ if(QT_SERIES STREQUAL "5")
     qt5_add_translation(texworks_qm_sources ${texworks_ts_files})
 else()
     qt_add_translation(texworks_qm_sources ${texworks_ts_files})
+endif()
+
+set(qt_ts_files
+    source/trans/qt/qt_ar.ts
+    source/trans/qt/qt_ca.ts
+    source/trans/qt/qt_cs.ts
+    source/trans/qt/qt_de.ts
+    source/trans/qt/qt_es.ts
+    source/trans/qt/qt_fa.ts
+    source/trans/qt/qt_fr.ts
+    source/trans/qt/qt_it.ts
+    source/trans/qt/qt_ja.ts
+    source/trans/qt/qt_ko.ts
+    source/trans/qt/qt_nl.ts
+    source/trans/qt/qt_pl.ts
+    source/trans/qt/qt_pt_BR.ts
+    source/trans/qt/qt_ru.ts
+    source/trans/qt/qt_sl.ts
+    source/trans/qt/qt_tr.ts
+    source/trans/qt/qt_zh_CN.ts
+    source/trans/qt/qtbase_ca.ts
+    source/trans/qt/qtbase_cs.ts
+    source/trans/qt/qtbase_de.ts
+    source/trans/qt/qtbase_fr.ts
+    source/trans/qt/qtbase_it.ts
+    source/trans/qt/qtbase_ja.ts
+    source/trans/qt/qtbase_ko.ts
+    source/trans/qt/qtbase_pl.ts
+    source/trans/qt/qtbase_ru.ts
+    source/trans/qt/qtmultimedia_ca.ts
+    source/trans/qt/qtmultimedia_cs.ts
+    source/trans/qt/qtmultimedia_de.ts
+    source/trans/qt/qtmultimedia_fr.ts
+    source/trans/qt/qtmultimedia_it.ts
+    source/trans/qt/qtmultimedia_ja.ts
+    source/trans/qt/qtmultimedia_ko.ts
+    source/trans/qt/qtmultimedia_pl.ts
+    source/trans/qt/qtmultimedia_ru.ts
+    source/trans/qt/qtquick1_ca.ts
+    source/trans/qt/qtquick1_cs.ts
+    source/trans/qt/qtquick1_de.ts
+    source/trans/qt/qtquick1_fr.ts
+    source/trans/qt/qtquick1_it.ts
+    source/trans/qt/qtquick1_ja.ts
+    source/trans/qt/qtquick1_ko.ts
+    source/trans/qt/qtquick1_pl.ts
+    source/trans/qt/qtquick1_ru.ts
+    source/trans/qt/qtscript_ca.ts
+    source/trans/qt/qtscript_cs.ts
+    source/trans/qt/qtscript_de.ts
+    source/trans/qt/qtscript_fr.ts
+    source/trans/qt/qtscript_it.ts
+    source/trans/qt/qtscript_ja.ts
+    source/trans/qt/qtscript_ko.ts
+    source/trans/qt/qtscript_pl.ts
+    source/trans/qt/qtscript_ru.ts
+    source/trans/qt/qtxmlpatterns_ca.ts
+    source/trans/qt/qtxmlpatterns_cs.ts
+    source/trans/qt/qtxmlpatterns_de.ts
+    source/trans/qt/qtxmlpatterns_fr.ts
+    source/trans/qt/qtxmlpatterns_it.ts
+    source/trans/qt/qtxmlpatterns_ja.ts
+    source/trans/qt/qtxmlpatterns_ko.ts
+    source/trans/qt/qtxmlpatterns_pl.ts
+    source/trans/qt/qtxmlpatterns_ru.ts
+)
+
+if(QT_SERIES STREQUAL "5")
+    qt5_add_translation(qt_qm_sources ${qt_ts_files})
+else()
+    qt_add_translation(qt_qm_sources ${qt_ts_files})
 endif()
 
 configure_file(TeXworks_trans.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/TeXworks_trans.qrc)

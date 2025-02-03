@@ -22,4 +22,50 @@
 
 namespace Tw {
 
+bool Settings::contains(KeyType key) const
+{
+	return m_s.contains(key);
+}
+
+void Settings::remove(KeyType key)
+{
+	m_s.remove(key);
+}
+
+void Settings::setValue(KeyType key, const QVariant &value)
+{
+	m_s.setValue(key, value);
+}
+
+QVariant Settings::value(KeyType key, const QVariant &defaultValue) const
+{
+	return m_s.value(key, defaultValue);
+}
+
+QString Settings::fileName() const
+{
+	return m_s.fileName();
+}
+
+void Settings::setPortableIniPath(const QString &iniPath)
+{
+	QSettings::setDefaultFormat(QSettings::IniFormat);
+	QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, iniPath);
+}
+
+#if defined(Q_OS_WIN)
+bool Settings::isStoredInRegistry()
+{
+	if (m_s.format() == QSettings::NativeFormat) {
+		return true;
+	}
+#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
+	if (m_s.format() == QSettings::Registry32Format || m_s.format() == QSettings::Registry64Format) {
+		return true;
+	}
+#endif
+	return false;
+}
+#endif // defined(Q_OS_WIN)
+
 } // namespace Tw

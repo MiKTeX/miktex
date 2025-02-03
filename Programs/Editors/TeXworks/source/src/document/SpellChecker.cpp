@@ -32,6 +32,8 @@
 
 #include <hunspell.h>
 
+#include <QLocale>
+
 namespace Tw {
 namespace Document {
 
@@ -40,6 +42,29 @@ QHash<const QString,SpellChecker::Dictionary*> * SpellChecker::dictionaries = nu
 SpellChecker * SpellChecker::_instance = new SpellChecker();
 
 // static
+QString SpellChecker::labelForDict(QString &dict)
+{
+	QLocale loc{dict};
+
+	if (loc.language() != QLocale::C) {
+		const QString languageString = QLocale::languageToString(loc.language());
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
+		const QString territoryString = (loc.country() != QLocale::AnyCountry ? QLocale::countryToString(loc.country()) : QString());
+#else
+		const QString territoryString = (loc.territory() != QLocale::AnyTerritory ? QLocale::territoryToString(loc.territory()) : QString());
+#endif
+		if (!territoryString.isEmpty()) {
+			//: Format to display spell-checking dictionaries (ex. "English - United States (en_US)")
+			return tr("%1 - %2 (%3)").arg(languageString, territoryString, dict);
+		}
+		else {
+			//: Format to display spell-checking dictionaries (ex. "English (en)")
+			return tr("%1 (%2)").arg(languageString, dict);
+		}
+	}
+	return dict;
+}
+
 QMultiHash<QString, QString> * SpellChecker::getDictionaryList(const bool forceReload /* = false */)
 {
 	if (dictionaryList) {

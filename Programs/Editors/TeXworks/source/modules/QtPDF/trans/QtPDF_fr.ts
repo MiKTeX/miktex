@@ -765,37 +765,37 @@
 <context>
     <name>QtPDF::PDFDocumentScene</name>
     <message>
-        <location filename="../src/PDFBackend.cpp" line="321"/>
+        <location filename="../src/PDFBackend.cpp" line="326"/>
         <source>rendering page</source>
         <translation>rendu de la page</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="243"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="246"/>
         <source>Unlock PDF</source>
         <translation>Déverrouiller le PDF</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="243"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="246"/>
         <source>Please enter the password to unlock the PDF</source>
         <translation>Veuillez entrer le mot de passe pour déverrouiller le PDF</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="259"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="262"/>
         <source>Incorrect password</source>
         <translation>Mot de passe incorrect</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="259"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="262"/>
         <source>The password you entered was incorrect.</source>
         <translation>Le mot de passe que vous avez entré est incorrect.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="265"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="268"/>
         <source>This document is locked. You need a password to open it.</source>
         <translation>Ce document est verrouillé. Vous avez besoin d&apos;un mot de passe pour l&apos;ouvrir.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="266"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="269"/>
         <source>Unlock</source>
         <translation>Déverrouiller</translation>
     </message>
@@ -828,303 +828,303 @@
         <translation>Couche</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="48"/>
-        <location filename="../src/InfoWidgets.cpp" line="65"/>
+        <location filename="../src/InfoWidgets.cpp" line="54"/>
+        <location filename="../src/InfoWidgets.cpp" line="71"/>
         <source>Table of Contents</source>
         <translation>Table des matières</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="157"/>
-        <location filename="../src/InfoWidgets.cpp" line="364"/>
+        <location filename="../src/InfoWidgets.cpp" line="163"/>
+        <location filename="../src/InfoWidgets.cpp" line="370"/>
         <source>Meta Data</source>
         <translation>Méta donnée</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="213"/>
-        <location filename="../src/InfoWidgets.cpp" line="374"/>
+        <location filename="../src/InfoWidgets.cpp" line="219"/>
+        <location filename="../src/InfoWidgets.cpp" line="380"/>
         <source>Processing</source>
         <translation>Traitement</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="245"/>
-        <location filename="../src/InfoWidgets.cpp" line="381"/>
+        <location filename="../src/InfoWidgets.cpp" line="251"/>
+        <location filename="../src/InfoWidgets.cpp" line="387"/>
         <source>Other</source>
         <translation>Autre</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="270"/>
+        <location filename="../src/InfoWidgets.cpp" line="276"/>
         <source>B</source>
         <extracomment>File size: bytes</extracomment>
         <translation>o</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="272"/>
+        <location filename="../src/InfoWidgets.cpp" line="278"/>
         <source>kB</source>
         <extracomment>File size: kilobytes</extracomment>
         <translation>ko</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="274"/>
+        <location filename="../src/InfoWidgets.cpp" line="280"/>
         <source>MB</source>
         <extracomment>File size: megabytes</extracomment>
         <translation>Mo</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="276"/>
+        <location filename="../src/InfoWidgets.cpp" line="282"/>
         <source>GB</source>
         <extracomment>File size: gigabytes</extracomment>
         <translation>Go</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="278"/>
+        <location filename="../src/InfoWidgets.cpp" line="284"/>
         <source>TB</source>
         <extracomment>File size: terabytes</extracomment>
         <translation>To</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="308"/>
+        <location filename="../src/InfoWidgets.cpp" line="314"/>
         <source>Yes</source>
         <translation>Oui</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="311"/>
+        <location filename="../src/InfoWidgets.cpp" line="317"/>
         <source>No</source>
         <translation>Non</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="314"/>
-        <location filename="../src/InfoWidgets.cpp" line="351"/>
+        <location filename="../src/InfoWidgets.cpp" line="320"/>
+        <location filename="../src/InfoWidgets.cpp" line="357"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="366"/>
+        <location filename="../src/InfoWidgets.cpp" line="372"/>
         <source>Document</source>
         <translation>Document</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="367"/>
+        <location filename="../src/InfoWidgets.cpp" line="373"/>
         <source>Title:</source>
         <translation>Titre :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="368"/>
+        <location filename="../src/InfoWidgets.cpp" line="374"/>
         <source>Author:</source>
         <translation>Auteur :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="369"/>
+        <location filename="../src/InfoWidgets.cpp" line="375"/>
         <source>Subject:</source>
         <translation>Sujet :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="370"/>
+        <location filename="../src/InfoWidgets.cpp" line="376"/>
         <source>Keywords:</source>
         <translation>Mots clé :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="371"/>
+        <location filename="../src/InfoWidgets.cpp" line="377"/>
         <source>Page size:</source>
         <translation>Dimension de page :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="372"/>
+        <location filename="../src/InfoWidgets.cpp" line="378"/>
         <source>File size:</source>
         <translation>Taille du fichier :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="375"/>
+        <location filename="../src/InfoWidgets.cpp" line="381"/>
         <source>Creator:</source>
         <translation>Créateur :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="376"/>
+        <location filename="../src/InfoWidgets.cpp" line="382"/>
         <source>Producer:</source>
         <translation>Producteur :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="377"/>
+        <location filename="../src/InfoWidgets.cpp" line="383"/>
         <source>Creation date:</source>
         <translation>Date de création :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="378"/>
+        <location filename="../src/InfoWidgets.cpp" line="384"/>
         <source>Modification date:</source>
         <translation>Date de modification :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="379"/>
+        <location filename="../src/InfoWidgets.cpp" line="385"/>
         <source>Trapped:</source>
         <translation>Capturé :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="390"/>
-        <location filename="../src/InfoWidgets.cpp" line="484"/>
+        <location filename="../src/InfoWidgets.cpp" line="396"/>
+        <location filename="../src/InfoWidgets.cpp" line="490"/>
         <source>Fonts</source>
         <translation>Polices</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="440"/>
+        <location filename="../src/InfoWidgets.cpp" line="446"/>
         <source>Type 0</source>
         <translation>Type 0</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="443"/>
+        <location filename="../src/InfoWidgets.cpp" line="449"/>
         <source>Type 1</source>
         <translation>Type 1</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="446"/>
+        <location filename="../src/InfoWidgets.cpp" line="452"/>
         <source>Type 1 (multiple master)</source>
         <translation>Type 1 (attributs multiples)</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="449"/>
+        <location filename="../src/InfoWidgets.cpp" line="455"/>
         <source>Type 3</source>
         <translation>Type 3</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="452"/>
+        <location filename="../src/InfoWidgets.cpp" line="458"/>
         <source>TrueType</source>
         <translation>TrueType</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="455"/>
+        <location filename="../src/InfoWidgets.cpp" line="461"/>
         <source>yes</source>
         <translation>oui</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="455"/>
+        <location filename="../src/InfoWidgets.cpp" line="461"/>
         <source>no</source>
         <translation>non</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="458"/>
+        <location filename="../src/InfoWidgets.cpp" line="464"/>
         <source>[embedded]</source>
         <translation>[enchâssé]</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="461"/>
+        <location filename="../src/InfoWidgets.cpp" line="467"/>
         <source>[builtin]</source>
         <translation>[inclus]</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Type</source>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Subset</source>
         <translation>Sous-ensemble</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Source</source>
         <translation>Source</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="493"/>
-        <location filename="../src/InfoWidgets.cpp" line="588"/>
+        <location filename="../src/InfoWidgets.cpp" line="499"/>
+        <location filename="../src/InfoWidgets.cpp" line="594"/>
         <source>Permissions</source>
         <translation>Permissions</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="542"/>
-        <location filename="../src/InfoWidgets.cpp" line="551"/>
-        <location filename="../src/InfoWidgets.cpp" line="560"/>
-        <location filename="../src/InfoWidgets.cpp" line="567"/>
-        <location filename="../src/InfoWidgets.cpp" line="572"/>
+        <location filename="../src/InfoWidgets.cpp" line="548"/>
+        <location filename="../src/InfoWidgets.cpp" line="557"/>
+        <location filename="../src/InfoWidgets.cpp" line="566"/>
+        <location filename="../src/InfoWidgets.cpp" line="573"/>
+        <location filename="../src/InfoWidgets.cpp" line="578"/>
         <source>Allowed</source>
         <translation>Permis</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="544"/>
+        <location filename="../src/InfoWidgets.cpp" line="550"/>
         <source>Low resolution only</source>
         <translation>Basse résolution seulement</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="547"/>
-        <location filename="../src/InfoWidgets.cpp" line="557"/>
-        <location filename="../src/InfoWidgets.cpp" line="564"/>
-        <location filename="../src/InfoWidgets.cpp" line="569"/>
-        <location filename="../src/InfoWidgets.cpp" line="574"/>
-        <location filename="../src/InfoWidgets.cpp" line="579"/>
+        <location filename="../src/InfoWidgets.cpp" line="553"/>
+        <location filename="../src/InfoWidgets.cpp" line="563"/>
+        <location filename="../src/InfoWidgets.cpp" line="570"/>
+        <location filename="../src/InfoWidgets.cpp" line="575"/>
         <location filename="../src/InfoWidgets.cpp" line="580"/>
-        <location filename="../src/InfoWidgets.cpp" line="581"/>
-        <location filename="../src/InfoWidgets.cpp" line="582"/>
-        <location filename="../src/InfoWidgets.cpp" line="583"/>
+        <location filename="../src/InfoWidgets.cpp" line="585"/>
+        <location filename="../src/InfoWidgets.cpp" line="586"/>
+        <location filename="../src/InfoWidgets.cpp" line="587"/>
+        <location filename="../src/InfoWidgets.cpp" line="588"/>
+        <location filename="../src/InfoWidgets.cpp" line="589"/>
         <source>Denied</source>
         <translation>Refusé</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="553"/>
+        <location filename="../src/InfoWidgets.cpp" line="559"/>
         <source>Assembling only</source>
         <translation>Uniquement assembler</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="554"/>
+        <location filename="../src/InfoWidgets.cpp" line="560"/>
         <source>Insert, rotate, or delete pages and create bookmarks or thumbnail images</source>
         <translation>Insérer, faire tourner, ou supprimer des pages et créer des onglets ou de images signets</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="562"/>
+        <location filename="../src/InfoWidgets.cpp" line="568"/>
         <source>Accessibility support only</source>
         <translation>Uniquement aide d&apos;accès</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="590"/>
+        <location filename="../src/InfoWidgets.cpp" line="596"/>
         <source>Printing:</source>
         <translation>Impression :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="591"/>
+        <location filename="../src/InfoWidgets.cpp" line="597"/>
         <source>Modifications:</source>
         <translation>Modifications :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="592"/>
+        <location filename="../src/InfoWidgets.cpp" line="598"/>
         <source>Extraction:</source>
         <translation>Extraction :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="593"/>
+        <location filename="../src/InfoWidgets.cpp" line="599"/>
         <source>Annotation:</source>
         <translation>Annotation :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="594"/>
+        <location filename="../src/InfoWidgets.cpp" line="600"/>
         <source>Filling forms:</source>
         <translation>Formes de sauvegarde :</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="602"/>
-        <location filename="../src/InfoWidgets.cpp" line="694"/>
+        <location filename="../src/InfoWidgets.cpp" line="608"/>
+        <location filename="../src/InfoWidgets.cpp" line="700"/>
         <source>Annotations</source>
         <translation>Annotations</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Page</source>
         <translation>Page</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Subject</source>
         <translation>Sujet</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Author</source>
         <translation>Auteur</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Contents</source>
         <translation>Table des matières</translation>
     </message>

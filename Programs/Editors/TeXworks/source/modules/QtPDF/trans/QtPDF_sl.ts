@@ -765,37 +765,37 @@
 <context>
     <name>QtPDF::PDFDocumentScene</name>
     <message>
-        <location filename="../src/PDFBackend.cpp" line="321"/>
+        <location filename="../src/PDFBackend.cpp" line="326"/>
         <source>rendering page</source>
         <translation>izris strani</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="243"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="246"/>
         <source>Unlock PDF</source>
         <translation>Odklep datoteke PDF</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="243"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="246"/>
         <source>Please enter the password to unlock the PDF</source>
         <translation>Vnesite geslo za odklep datoteke PDF</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="259"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="262"/>
         <source>Incorrect password</source>
         <translation>Nepravilno geslo</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="259"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="262"/>
         <source>The password you entered was incorrect.</source>
         <translation>Geslo, ki ste ga vpisali, ni pravilno.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="265"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="268"/>
         <source>This document is locked. You need a password to open it.</source>
         <translation>Dokument je zaklenjen. Za odklep potrebujete geslo.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="266"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="269"/>
         <source>Unlock</source>
         <translation>Odkleni</translation>
     </message>
@@ -829,321 +829,321 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="48"/>
-        <location filename="../src/InfoWidgets.cpp" line="65"/>
+        <location filename="../src/InfoWidgets.cpp" line="54"/>
+        <location filename="../src/InfoWidgets.cpp" line="71"/>
         <source>Table of Contents</source>
         <translatorcomment>Vsebina</translatorcomment>
         <translation type="unfinished">Kazalo</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="157"/>
-        <location filename="../src/InfoWidgets.cpp" line="364"/>
+        <location filename="../src/InfoWidgets.cpp" line="163"/>
+        <location filename="../src/InfoWidgets.cpp" line="370"/>
         <source>Meta Data</source>
         <translation type="unfinished">Meta podatki</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="213"/>
-        <location filename="../src/InfoWidgets.cpp" line="374"/>
+        <location filename="../src/InfoWidgets.cpp" line="219"/>
+        <location filename="../src/InfoWidgets.cpp" line="380"/>
         <source>Processing</source>
         <translation type="unfinished">Obdelujem</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="245"/>
-        <location filename="../src/InfoWidgets.cpp" line="381"/>
+        <location filename="../src/InfoWidgets.cpp" line="251"/>
+        <location filename="../src/InfoWidgets.cpp" line="387"/>
         <source>Other</source>
         <translatorcomment>Drugo</translatorcomment>
         <translation type="unfinished">Ostalo</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="270"/>
+        <location filename="../src/InfoWidgets.cpp" line="276"/>
         <source>B</source>
         <extracomment>File size: bytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="272"/>
+        <location filename="../src/InfoWidgets.cpp" line="278"/>
         <source>kB</source>
         <extracomment>File size: kilobytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="274"/>
+        <location filename="../src/InfoWidgets.cpp" line="280"/>
         <source>MB</source>
         <extracomment>File size: megabytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="276"/>
+        <location filename="../src/InfoWidgets.cpp" line="282"/>
         <source>GB</source>
         <extracomment>File size: gigabytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="278"/>
+        <location filename="../src/InfoWidgets.cpp" line="284"/>
         <source>TB</source>
         <extracomment>File size: terabytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="308"/>
+        <location filename="../src/InfoWidgets.cpp" line="314"/>
         <source>Yes</source>
         <translation>Da</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="311"/>
+        <location filename="../src/InfoWidgets.cpp" line="317"/>
         <source>No</source>
         <translation>Ne</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="314"/>
-        <location filename="../src/InfoWidgets.cpp" line="351"/>
+        <location filename="../src/InfoWidgets.cpp" line="320"/>
+        <location filename="../src/InfoWidgets.cpp" line="357"/>
         <source>Unknown</source>
         <translation type="unfinished">Neznano</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="366"/>
+        <location filename="../src/InfoWidgets.cpp" line="372"/>
         <source>Document</source>
         <translation>Dokument</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="367"/>
+        <location filename="../src/InfoWidgets.cpp" line="373"/>
         <source>Title:</source>
         <translation>Naslov:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="368"/>
+        <location filename="../src/InfoWidgets.cpp" line="374"/>
         <source>Author:</source>
         <translation>Avtor:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="369"/>
+        <location filename="../src/InfoWidgets.cpp" line="375"/>
         <source>Subject:</source>
         <translation type="unfinished">Zadeva:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="370"/>
+        <location filename="../src/InfoWidgets.cpp" line="376"/>
         <source>Keywords:</source>
         <translation>Ključne besede:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="371"/>
+        <location filename="../src/InfoWidgets.cpp" line="377"/>
         <source>Page size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="372"/>
+        <location filename="../src/InfoWidgets.cpp" line="378"/>
         <source>File size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="375"/>
+        <location filename="../src/InfoWidgets.cpp" line="381"/>
         <source>Creator:</source>
         <translatorcomment>Program, ki je ustvaril dokument, kreator, ...?</translatorcomment>
         <translation type="unfinished">Ustvarjeno z:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="376"/>
+        <location filename="../src/InfoWidgets.cpp" line="382"/>
         <source>Producer:</source>
         <translatorcomment>Program, ki je stavil dokument, &apos;producent&apos;, ...? (Običajno knjižnica.)</translatorcomment>
         <translation type="unfinished">Sestavljeno z:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="377"/>
+        <location filename="../src/InfoWidgets.cpp" line="383"/>
         <source>Creation date:</source>
         <translation>Datum nastanka:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="378"/>
+        <location filename="../src/InfoWidgets.cpp" line="384"/>
         <source>Modification date:</source>
         <translation type="unfinished">Zadnje spremembe:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="379"/>
+        <location filename="../src/InfoWidgets.cpp" line="385"/>
         <source>Trapped:</source>
         <translatorcomment>Postopek prekrivanja sosednje ležečih polno potiskanih površin, s katerimi se izognemo napakam zaradi neskladja barvnih izvlečkov v tisku CMYK. Trapping je proces, ki barvne izvlečke tako prilagodi, da se na končnem odtisu izognemo vidnim napakam zaradi tehničnih omejitev tiskanja. (Tehnologija grafičnih procesov, NTF)</translatorcomment>
         <translation type="unfinished">Barvno prekrivanje:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="390"/>
-        <location filename="../src/InfoWidgets.cpp" line="484"/>
+        <location filename="../src/InfoWidgets.cpp" line="396"/>
+        <location filename="../src/InfoWidgets.cpp" line="490"/>
         <source>Fonts</source>
         <translation>Pisave</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="440"/>
+        <location filename="../src/InfoWidgets.cpp" line="446"/>
         <source>Type 0</source>
         <translation>Type 0</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="443"/>
+        <location filename="../src/InfoWidgets.cpp" line="449"/>
         <source>Type 1</source>
         <translation>Type 1</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="446"/>
+        <location filename="../src/InfoWidgets.cpp" line="452"/>
         <source>Type 1 (multiple master)</source>
         <translation>Type 1 (multiple master)</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="449"/>
+        <location filename="../src/InfoWidgets.cpp" line="455"/>
         <source>Type 3</source>
         <translation>Type 3</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="452"/>
+        <location filename="../src/InfoWidgets.cpp" line="458"/>
         <source>TrueType</source>
         <translation>TrueType</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="455"/>
+        <location filename="../src/InfoWidgets.cpp" line="461"/>
         <source>yes</source>
         <translation>da</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="455"/>
+        <location filename="../src/InfoWidgets.cpp" line="461"/>
         <source>no</source>
         <translation>ne</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="458"/>
+        <location filename="../src/InfoWidgets.cpp" line="464"/>
         <source>[embedded]</source>
         <translatorcomment>ali so pisave vključene v dokumentu</translatorcomment>
         <translation type="unfinished">[vključene v dokument]</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="461"/>
+        <location filename="../src/InfoWidgets.cpp" line="467"/>
         <source>[builtin]</source>
         <translatorcomment>standardne pisave, ki niso dodane v dokument, pač pa so del pregledovalnika</translatorcomment>
         <translation type="unfinished">[vgrajene]</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Name</source>
         <translation>Ime</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Type</source>
         <translation>Vrsta</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Subset</source>
         <translatorcomment>Potreben je boljši prevod za &apos;font subsetting&apos;</translatorcomment>
         <translation type="unfinished">Podmnožica</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Source</source>
         <translatorcomment>Kaj je &apos;source&apos; pri pisavah?</translatorcomment>
         <translation type="unfinished">Izvor</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="493"/>
-        <location filename="../src/InfoWidgets.cpp" line="588"/>
+        <location filename="../src/InfoWidgets.cpp" line="499"/>
+        <location filename="../src/InfoWidgets.cpp" line="594"/>
         <source>Permissions</source>
         <translation type="unfinished">Dovoljenja</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="542"/>
-        <location filename="../src/InfoWidgets.cpp" line="551"/>
-        <location filename="../src/InfoWidgets.cpp" line="560"/>
-        <location filename="../src/InfoWidgets.cpp" line="567"/>
-        <location filename="../src/InfoWidgets.cpp" line="572"/>
+        <location filename="../src/InfoWidgets.cpp" line="548"/>
+        <location filename="../src/InfoWidgets.cpp" line="557"/>
+        <location filename="../src/InfoWidgets.cpp" line="566"/>
+        <location filename="../src/InfoWidgets.cpp" line="573"/>
+        <location filename="../src/InfoWidgets.cpp" line="578"/>
         <source>Allowed</source>
         <translation type="unfinished">Dovoljeno</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="544"/>
+        <location filename="../src/InfoWidgets.cpp" line="550"/>
         <source>Low resolution only</source>
         <translatorcomment>ali je dovoljeno tiskati</translatorcomment>
         <translation>Samo v nizki resoluciji</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="547"/>
-        <location filename="../src/InfoWidgets.cpp" line="557"/>
-        <location filename="../src/InfoWidgets.cpp" line="564"/>
-        <location filename="../src/InfoWidgets.cpp" line="569"/>
-        <location filename="../src/InfoWidgets.cpp" line="574"/>
-        <location filename="../src/InfoWidgets.cpp" line="579"/>
+        <location filename="../src/InfoWidgets.cpp" line="553"/>
+        <location filename="../src/InfoWidgets.cpp" line="563"/>
+        <location filename="../src/InfoWidgets.cpp" line="570"/>
+        <location filename="../src/InfoWidgets.cpp" line="575"/>
         <location filename="../src/InfoWidgets.cpp" line="580"/>
-        <location filename="../src/InfoWidgets.cpp" line="581"/>
-        <location filename="../src/InfoWidgets.cpp" line="582"/>
-        <location filename="../src/InfoWidgets.cpp" line="583"/>
+        <location filename="../src/InfoWidgets.cpp" line="585"/>
+        <location filename="../src/InfoWidgets.cpp" line="586"/>
+        <location filename="../src/InfoWidgets.cpp" line="587"/>
+        <location filename="../src/InfoWidgets.cpp" line="588"/>
+        <location filename="../src/InfoWidgets.cpp" line="589"/>
         <source>Denied</source>
         <translation type="unfinished">Zavrnjeno</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="553"/>
+        <location filename="../src/InfoWidgets.cpp" line="559"/>
         <source>Assembling only</source>
         <translatorcomment>ali je dovoljeno spreminjati dokument PDF</translatorcomment>
         <translation type="unfinished">Samo sestavljanje dokumenta</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="554"/>
+        <location filename="../src/InfoWidgets.cpp" line="560"/>
         <source>Insert, rotate, or delete pages and create bookmarks or thumbnail images</source>
         <translatorcomment>ali je dovoljeno spreminjati dokument PDF</translatorcomment>
         <translation type="unfinished">Vstavljanje, rotacija ali izbris strani, dodajanje zaznamkov ali predoglednih sličic</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="562"/>
+        <location filename="../src/InfoWidgets.cpp" line="568"/>
         <source>Accessibility support only</source>
         <translation type="unfinished">Samo podpora dostopnosti</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="590"/>
+        <location filename="../src/InfoWidgets.cpp" line="596"/>
         <source>Printing:</source>
         <translatorcomment>dovoljenja</translatorcomment>
         <translation>Tiskanje:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="591"/>
+        <location filename="../src/InfoWidgets.cpp" line="597"/>
         <source>Modifications:</source>
         <translatorcomment>dovoljenja</translatorcomment>
         <translation>Spremembe:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="592"/>
+        <location filename="../src/InfoWidgets.cpp" line="598"/>
         <source>Extraction:</source>
         <translatorcomment>dovoljenja</translatorcomment>
         <translation type="unfinished">Izvleček strani:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="593"/>
+        <location filename="../src/InfoWidgets.cpp" line="599"/>
         <source>Annotation:</source>
         <translatorcomment>dovoljenja</translatorcomment>
         <translation type="unfinished">Dodajanje opomb:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="594"/>
+        <location filename="../src/InfoWidgets.cpp" line="600"/>
         <source>Filling forms:</source>
         <translatorcomment>dovoljenja</translatorcomment>
         <translation type="unfinished">Izpolnjevanje obrazcev:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="602"/>
-        <location filename="../src/InfoWidgets.cpp" line="694"/>
+        <location filename="../src/InfoWidgets.cpp" line="608"/>
+        <location filename="../src/InfoWidgets.cpp" line="700"/>
         <source>Annotations</source>
         <translation>Opombe</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Page</source>
         <translation>Stran</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Subject</source>
         <translatorcomment>Zadeva, predmet, ...?</translatorcomment>
         <translation type="unfinished">Naslov</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Author</source>
         <translation>Avtor</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Contents</source>
         <translation>Vsebina</translation>
     </message>

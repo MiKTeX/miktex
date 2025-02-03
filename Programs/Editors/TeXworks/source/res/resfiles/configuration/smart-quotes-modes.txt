@@ -15,6 +15,14 @@
 '	\lq{}	\rq{}
 "	\lq\lq{}	\rq\rq{}
 
+[LaTeX csquotes]
+'	\enquote*{ }
+"	\enquote{ }
+
+[ConTeXt commands]
+'	\quote{	}
+"	\quotation{	}
+
 [Unicode characters]
 '	‘	’
 "	“	”

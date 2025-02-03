@@ -765,37 +765,37 @@
 <context>
     <name>QtPDF::PDFDocumentScene</name>
     <message>
-        <location filename="../src/PDFBackend.cpp" line="321"/>
+        <location filename="../src/PDFBackend.cpp" line="326"/>
         <source>rendering page</source>
         <translation>페이지 준비 중</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="243"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="246"/>
         <source>Unlock PDF</source>
         <translation>PDF 잠금 해제</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="243"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="246"/>
         <source>Please enter the password to unlock the PDF</source>
         <translation>PDF 잠금 해제를 위해 패스워드를 입력하세요</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="259"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="262"/>
         <source>Incorrect password</source>
         <translation>패스워드 오류</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="259"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="262"/>
         <source>The password you entered was incorrect.</source>
         <translation>패스워드를 잘못 입력하셨습니다.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="265"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="268"/>
         <source>This document is locked. You need a password to open it.</source>
         <translation>문서가 잠겨 있습니다. 패스워드가 있어야 문서를 열 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="266"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="269"/>
         <source>Unlock</source>
         <translation>잠금 해제</translation>
     </message>
@@ -828,303 +828,303 @@
         <translation>레이어</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="48"/>
-        <location filename="../src/InfoWidgets.cpp" line="65"/>
+        <location filename="../src/InfoWidgets.cpp" line="54"/>
+        <location filename="../src/InfoWidgets.cpp" line="71"/>
         <source>Table of Contents</source>
         <translation>차례</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="157"/>
-        <location filename="../src/InfoWidgets.cpp" line="364"/>
+        <location filename="../src/InfoWidgets.cpp" line="163"/>
+        <location filename="../src/InfoWidgets.cpp" line="370"/>
         <source>Meta Data</source>
         <translation>메타 정보</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="213"/>
-        <location filename="../src/InfoWidgets.cpp" line="374"/>
+        <location filename="../src/InfoWidgets.cpp" line="219"/>
+        <location filename="../src/InfoWidgets.cpp" line="380"/>
         <source>Processing</source>
         <translation>경과</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="245"/>
-        <location filename="../src/InfoWidgets.cpp" line="381"/>
+        <location filename="../src/InfoWidgets.cpp" line="251"/>
+        <location filename="../src/InfoWidgets.cpp" line="387"/>
         <source>Other</source>
         <translation>기타</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="308"/>
+        <location filename="../src/InfoWidgets.cpp" line="314"/>
         <source>Yes</source>
         <translation>예</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="311"/>
+        <location filename="../src/InfoWidgets.cpp" line="317"/>
         <source>No</source>
         <translation>아니오</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="314"/>
-        <location filename="../src/InfoWidgets.cpp" line="351"/>
+        <location filename="../src/InfoWidgets.cpp" line="320"/>
+        <location filename="../src/InfoWidgets.cpp" line="357"/>
         <source>Unknown</source>
         <translation>알 수 없음</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="366"/>
+        <location filename="../src/InfoWidgets.cpp" line="372"/>
         <source>Document</source>
         <translation>문서</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="367"/>
+        <location filename="../src/InfoWidgets.cpp" line="373"/>
         <source>Title:</source>
         <translation>제목:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="368"/>
+        <location filename="../src/InfoWidgets.cpp" line="374"/>
         <source>Author:</source>
         <translation>작성자:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="369"/>
+        <location filename="../src/InfoWidgets.cpp" line="375"/>
         <source>Subject:</source>
         <translation>주제:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="370"/>
+        <location filename="../src/InfoWidgets.cpp" line="376"/>
         <source>Keywords:</source>
         <translation>키워드:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="375"/>
+        <location filename="../src/InfoWidgets.cpp" line="381"/>
         <source>Creator:</source>
         <translation>작성 도구:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="376"/>
+        <location filename="../src/InfoWidgets.cpp" line="382"/>
         <source>Producer:</source>
         <translation>제작 도구:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="377"/>
+        <location filename="../src/InfoWidgets.cpp" line="383"/>
         <source>Creation date:</source>
         <translation>작성 날짜:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="378"/>
+        <location filename="../src/InfoWidgets.cpp" line="384"/>
         <source>Modification date:</source>
         <translation>수정 날짜:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="379"/>
+        <location filename="../src/InfoWidgets.cpp" line="385"/>
         <source>Trapped:</source>
         <translation>트랩됨:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="390"/>
-        <location filename="../src/InfoWidgets.cpp" line="484"/>
+        <location filename="../src/InfoWidgets.cpp" line="396"/>
+        <location filename="../src/InfoWidgets.cpp" line="490"/>
         <source>Fonts</source>
         <translation>글꼴</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="440"/>
+        <location filename="../src/InfoWidgets.cpp" line="446"/>
         <source>Type 0</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="443"/>
+        <location filename="../src/InfoWidgets.cpp" line="449"/>
         <source>Type 1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="446"/>
+        <location filename="../src/InfoWidgets.cpp" line="452"/>
         <source>Type 1 (multiple master)</source>
         <translation>Type 1 (다중 마스터)</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="449"/>
+        <location filename="../src/InfoWidgets.cpp" line="455"/>
         <source>Type 3</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="452"/>
+        <location filename="../src/InfoWidgets.cpp" line="458"/>
         <source>TrueType</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="455"/>
+        <location filename="../src/InfoWidgets.cpp" line="461"/>
         <source>yes</source>
         <translation>예</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="455"/>
+        <location filename="../src/InfoWidgets.cpp" line="461"/>
         <source>no</source>
         <translation>아니오</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="458"/>
+        <location filename="../src/InfoWidgets.cpp" line="464"/>
         <source>[embedded]</source>
         <translation>[내장됨]</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="461"/>
+        <location filename="../src/InfoWidgets.cpp" line="467"/>
         <source>[builtin]</source>
         <translation>[내장]</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Name</source>
         <translation>이름</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Type</source>
         <translation>유형</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Subset</source>
         <translation>서브셋</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Source</source>
         <translation>위치</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="493"/>
-        <location filename="../src/InfoWidgets.cpp" line="588"/>
+        <location filename="../src/InfoWidgets.cpp" line="499"/>
+        <location filename="../src/InfoWidgets.cpp" line="594"/>
         <source>Permissions</source>
         <translation>권한</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="542"/>
-        <location filename="../src/InfoWidgets.cpp" line="551"/>
-        <location filename="../src/InfoWidgets.cpp" line="560"/>
-        <location filename="../src/InfoWidgets.cpp" line="567"/>
-        <location filename="../src/InfoWidgets.cpp" line="572"/>
+        <location filename="../src/InfoWidgets.cpp" line="548"/>
+        <location filename="../src/InfoWidgets.cpp" line="557"/>
+        <location filename="../src/InfoWidgets.cpp" line="566"/>
+        <location filename="../src/InfoWidgets.cpp" line="573"/>
+        <location filename="../src/InfoWidgets.cpp" line="578"/>
         <source>Allowed</source>
         <translation>허용됨</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="544"/>
+        <location filename="../src/InfoWidgets.cpp" line="550"/>
         <source>Low resolution only</source>
         <translation>저해상도만 허용</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="547"/>
-        <location filename="../src/InfoWidgets.cpp" line="557"/>
-        <location filename="../src/InfoWidgets.cpp" line="564"/>
-        <location filename="../src/InfoWidgets.cpp" line="569"/>
-        <location filename="../src/InfoWidgets.cpp" line="574"/>
-        <location filename="../src/InfoWidgets.cpp" line="579"/>
+        <location filename="../src/InfoWidgets.cpp" line="553"/>
+        <location filename="../src/InfoWidgets.cpp" line="563"/>
+        <location filename="../src/InfoWidgets.cpp" line="570"/>
+        <location filename="../src/InfoWidgets.cpp" line="575"/>
         <location filename="../src/InfoWidgets.cpp" line="580"/>
-        <location filename="../src/InfoWidgets.cpp" line="581"/>
-        <location filename="../src/InfoWidgets.cpp" line="582"/>
-        <location filename="../src/InfoWidgets.cpp" line="583"/>
+        <location filename="../src/InfoWidgets.cpp" line="585"/>
+        <location filename="../src/InfoWidgets.cpp" line="586"/>
+        <location filename="../src/InfoWidgets.cpp" line="587"/>
+        <location filename="../src/InfoWidgets.cpp" line="588"/>
+        <location filename="../src/InfoWidgets.cpp" line="589"/>
         <source>Denied</source>
         <translation>허용 안됨</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="553"/>
+        <location filename="../src/InfoWidgets.cpp" line="559"/>
         <source>Assembling only</source>
         <translation>어셈블리만 허용</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="554"/>
+        <location filename="../src/InfoWidgets.cpp" line="560"/>
         <source>Insert, rotate, or delete pages and create bookmarks or thumbnail images</source>
         <translation>페이지 삽입·회전·삭제 및 북마크·썸네일 넣기</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="562"/>
+        <location filename="../src/InfoWidgets.cpp" line="568"/>
         <source>Accessibility support only</source>
         <translation>접근성 지원만 허용</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="590"/>
+        <location filename="../src/InfoWidgets.cpp" line="596"/>
         <source>Printing:</source>
         <translation>인쇄:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="591"/>
+        <location filename="../src/InfoWidgets.cpp" line="597"/>
         <source>Modifications:</source>
         <translation>내용 변경:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="592"/>
+        <location filename="../src/InfoWidgets.cpp" line="598"/>
         <source>Extraction:</source>
         <translation>텍스트 추출:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="593"/>
+        <location filename="../src/InfoWidgets.cpp" line="599"/>
         <source>Annotation:</source>
         <translation>주석 달기:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="594"/>
+        <location filename="../src/InfoWidgets.cpp" line="600"/>
         <source>Filling forms:</source>
         <translation>양식 채우기:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="602"/>
-        <location filename="../src/InfoWidgets.cpp" line="694"/>
+        <location filename="../src/InfoWidgets.cpp" line="608"/>
+        <location filename="../src/InfoWidgets.cpp" line="700"/>
         <source>Annotations</source>
         <translation>주석</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Page</source>
         <translation>쪽</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Subject</source>
         <translation>이름</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Author</source>
         <translation>작성자</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Contents</source>
         <translation>내용</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="270"/>
+        <location filename="../src/InfoWidgets.cpp" line="276"/>
         <source>B</source>
         <extracomment>File size: bytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="272"/>
+        <location filename="../src/InfoWidgets.cpp" line="278"/>
         <source>kB</source>
         <extracomment>File size: kilobytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="274"/>
+        <location filename="../src/InfoWidgets.cpp" line="280"/>
         <source>MB</source>
         <extracomment>File size: megabytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="276"/>
+        <location filename="../src/InfoWidgets.cpp" line="282"/>
         <source>GB</source>
         <extracomment>File size: gigabytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="278"/>
+        <location filename="../src/InfoWidgets.cpp" line="284"/>
         <source>TB</source>
         <extracomment>File size: terabytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="371"/>
+        <location filename="../src/InfoWidgets.cpp" line="377"/>
         <source>Page size:</source>
         <translation>쪽 크기:</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="372"/>
+        <location filename="../src/InfoWidgets.cpp" line="378"/>
         <source>File size:</source>
         <translation>파일 크기:</translation>
     </message>

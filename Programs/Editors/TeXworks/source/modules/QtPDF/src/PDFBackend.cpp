@@ -15,9 +15,9 @@
 #include "PDFBackend.h"
 
 #include <QApplication>
-#include <QElapsedTimer>
 #include <QPainter>
 #include <QPainterPath>
+#include <QTimeZone>
 #include <algorithm>
 #include <memory>
 #include <list>
@@ -91,6 +91,11 @@ static QBrush * pageDummyBrush = nullptr;
 
 QDateTime fromPDFDate(QString pdfDate)
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 5, 0)
+  const auto UTC = Qt::UTC;
+#else
+  const auto UTC = QTimeZone::utc();
+#endif
   QDate date;
   QTime time;
   QString format;
@@ -130,7 +135,7 @@ QDateTime fromPDFDate(QString pdfDate)
     return QDateTime(date, time);
   switch (pdfDate[0].toLatin1()) {
     case 'Z':
-      return QDateTime(date, time, Qt::UTC).toLocalTime();
+      return QDateTime(date, time, UTC).toLocalTime();
     case '+':
       // Note: A `+` signifies that pdfDate is later than UTC. Since we will
       // specify the QDateTime in UTC below, we have to _subtract_ the offset
@@ -151,7 +156,7 @@ QDateTime fromPDFDate(QString pdfDate)
   pdfDate.remove(0, 3);
   if (pdfDate.length() >= 2)
     minuteOffset = pdfDate.left(2).toInt();
-  return QDateTime(date, time, Qt::UTC).addSecs(sign * (hourOffset * 3600 + minuteOffset * 60)).toLocalTime();
+  return QDateTime(date, time, UTC).addSecs(sign * (hourOffset * 3600 + minuteOffset * 60)).toLocalTime();
 }
 
 // PDF ABCs

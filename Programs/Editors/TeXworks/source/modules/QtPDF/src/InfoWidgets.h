@@ -15,12 +15,14 @@
 #define InfoWidgets_H
 
 #include <QFutureWatcher>
-#include <QGroupBox>
-#include <QLabel>
-#include <QListView>
-#include <QTableWidget>
-#include <QTreeWidgetItem>
 #include <QWidget>
+
+class QGroupBox;
+class QLabel;
+class QListView;
+class QTableWidget;
+class QTreeWidget;
+class QTreeWidgetItem;
 
 namespace QtPDF {
 

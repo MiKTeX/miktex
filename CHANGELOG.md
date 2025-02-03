@@ -11,6 +11,7 @@
 * hitex 2.1
 * luatex 1.21.0
 * pdftex 1.40.27
+* texworks 0.6.10
 * upmendex 1.10
 * xetex 0.999997
 

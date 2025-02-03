@@ -152,7 +152,7 @@ void PDFDocumentView::setScene(QSharedPointer<PDFDocumentScene> a_scene)
     // **TODO:**
     // _May want to consider not doing this by default. It is conceivable to have
     // a View that would ignore page jumps that other scenes would respond to._
-    connect(_pdf_scene.data(), &PDFDocumentScene::pageChangeRequested, this, [=](int pageNum){ this->goToPage(pageNum); });
+    connect(_pdf_scene.data(), &PDFDocumentScene::pageChangeRequested, this, [this](int pageNum){ this->goToPage(pageNum); });
     connect(_pdf_scene.data(), &PDFDocumentScene::pdfActionTriggered, this, &PDFDocumentView::pdfActionTriggered);
     connect(_pdf_scene.data(), &PDFDocumentScene::documentChanged, this, &PDFDocumentView::reinitializeFromScene);
     // The connection PDFDocumentScene::documentChanged > PDFDocumentView::changedDocument

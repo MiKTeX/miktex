@@ -17,7 +17,6 @@
 
 #include "PhysicalUnits.h"
 
-#include <QAction>
 #include <QActionGroup>
 #include <QMenu>
 #include <QVector>

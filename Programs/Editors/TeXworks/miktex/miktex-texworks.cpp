@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Version number
  *
- * @copyright Copyright © 2015-2023 Christian Schenk
+ * @copyright Copyright © 2015-2025 Christian Schenk
  *
  * This file is free software; the copyright holder gives unlimited permission
  * to copy and/or distribute it, with or without modifications, as long as this
@@ -225,8 +225,9 @@ void Wrapper::Sorry(string reason)
 namespace Tw {
 #if defined(MIKTEX_WINDOWS)
     Settings::Settings() :
-        QSettings("\\HKEY_CURRENT_USER\\" MIKTEX_REGPATH_SERIES "\\" "TeXworks", QSettings::NativeFormat)
+        m_s("\\HKEY_CURRENT_USER\\" MIKTEX_REGPATH_SERIES "\\" "TeXworks", QSettings::NativeFormat)
     {
+        
     }
 #else
     Settings::Settings()

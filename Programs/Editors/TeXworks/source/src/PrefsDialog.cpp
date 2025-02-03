@@ -483,32 +483,10 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 
 	QList< DictPair > dictList;
 	foreach (const QString& dictKey, Tw::Document::SpellChecker::getDictionaryList()->uniqueKeys()) {
-		QString dict, label;
-		QLocale loc;
-
-		foreach (dict, Tw::Document::SpellChecker::getDictionaryList()->values(dictKey)) {
-			loc = QLocale(dict);
-			if (loc.language() != QLocale::C) break;
+		foreach (QString dict, Tw::Document::SpellChecker::getDictionaryList()->values(dictKey)) {
+			const QString label{Tw::Document::SpellChecker::labelForDict(dict)};
+			dictList << qMakePair(label, dict);
 		}
-
-		if (loc.language() == QLocale::C)
-			label = dict;
-		else {
-			const QString languageString = QLocale::languageToString(loc.language());
-#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
-			const QString territoryString = (loc.country() != QLocale::AnyCountry ? QLocale::countryToString(loc.country()) : QString());
-#else
-			const QString territoryString = (loc.territory() != QLocale::AnyTerritory ? QLocale::territoryToString(loc.territory()) : QString());
-#endif
-			if (!territoryString.isEmpty()) {
-				label = tr("%1 - %2 (%3)").arg(languageString, territoryString, dict);
-			}
-			else {
-				label = tr("%1 (%2)").arg(languageString, dict);
-			}
-		}
-
-		dictList << qMakePair(label, dict);
 	}
 	std::sort(dictList.begin(), dictList.end(), dictPairLessThan);
 	foreach (const DictPair& dict, dictList)

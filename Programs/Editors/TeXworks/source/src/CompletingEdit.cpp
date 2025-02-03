@@ -111,74 +111,49 @@ CompletingEdit::CompletingEdit(QWidget *parent /* = nullptr */)
 
 void CompletingEdit::prefixLines(const QString &prefix)
 {
-	QTextCursor cursor = textCursor();
+	const QTextCursor selection{textCursor()};
+	QTextCursor cursor{selection};
+
 	cursor.beginEditBlock();
-	pos_type selStart = cursor.selectionStart();
-	pos_type selEnd = cursor.selectionEnd();
-	cursor.setPosition(selStart);
+
+	cursor.setPosition(cursor.selectionStart());
 	if (!cursor.atBlockStart()) {
 		cursor.movePosition(QTextCursor::StartOfBlock);
-		selStart = cursor.position();
 	}
-	cursor.setPosition(selEnd);
-	if (!cursor.atBlockStart() || selEnd == selStart) {
-		cursor.movePosition(QTextCursor::NextBlock);
-		selEnd = cursor.position();
-	}
-	if (selEnd == selStart)
-		goto handle_end_of_doc;	// special case - cursor in blank line at end of doc
-	if (!cursor.atBlockStart()) {
-		cursor.movePosition(QTextCursor::StartOfBlock);
-		goto handle_end_of_doc; // special case - unterminated last line
-	}
-	while (cursor.position() > selStart) {
-		cursor.movePosition(QTextCursor::PreviousBlock);
-	handle_end_of_doc:
+	while (cursor.position() < selection.selectionEnd() || cursor.position() == selection.selectionStart()) {
 		cursor.insertText(prefix);
-		cursor.movePosition(QTextCursor::StartOfBlock);
-		selEnd += static_cast<pos_type>(prefix.length());
+		if (!cursor.movePosition(QTextCursor::NextBlock)) {
+			// Reached end of file (no more blocks)
+			break;
+		}
 	}
-	cursor.setPosition(selStart);
-	cursor.setPosition(selEnd, QTextCursor::KeepAnchor);
-	setTextCursor(cursor);
+
 	cursor.endEditBlock();
 }
 
 void CompletingEdit::unPrefixLines(const QString &prefix)
 {
-	QTextCursor cursor = textCursor();
+	const QTextCursor selection{textCursor()};
+	QTextCursor cursor{selection};
+
 	cursor.beginEditBlock();
-	pos_type selStart = cursor.selectionStart();
-	pos_type selEnd = cursor.selectionEnd();
-	cursor.setPosition(selStart);
+
+	cursor.setPosition(cursor.selectionStart());
 	if (!cursor.atBlockStart()) {
 		cursor.movePosition(QTextCursor::StartOfBlock);
-		selStart = cursor.position();
 	}
-	cursor.setPosition(selEnd);
-	if (!cursor.atBlockStart() || selEnd == selStart) {
-		cursor.movePosition(QTextCursor::NextBlock);
-		selEnd = cursor.position();
-	}
-	if (!cursor.atBlockStart()) {
-		cursor.movePosition(QTextCursor::StartOfBlock);
-		goto handle_end_of_doc; // special case - unterminated last line
-	}
-	while (cursor.position() > selStart) {
-		cursor.movePosition(QTextCursor::PreviousBlock);
-	handle_end_of_doc:
-		cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-		QString		str = cursor.selectedText();
-		if (str == prefix) {
+
+	while (cursor.position() < selection.selectionEnd() || cursor.position() == selection.selectionStart()) {
+		cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, prefix.length());
+		if (cursor.selectedText() == prefix) {
 			cursor.removeSelectedText();
-			selEnd -= static_cast<pos_type>(prefix.length());
 		}
-		else
-			cursor.movePosition(QTextCursor::PreviousCharacter);
+		if (!cursor.movePosition(QTextCursor::NextBlock)) {
+			// Reached end of file (no more blocks)
+			break;
+		}
 	}
-	cursor.setPosition(selStart);
-	cursor.setPosition(selEnd, QTextCursor::KeepAnchor);
-	setTextCursor(cursor);
+
 	cursor.endEditBlock();
 }
 

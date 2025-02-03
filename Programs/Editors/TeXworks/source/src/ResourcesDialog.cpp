@@ -39,7 +39,7 @@ void ResourcesDialog::init()
 	setupUi(this);
 
 #if defined(Q_OS_WIN)
-	if(Tw::Settings::defaultFormat() == QSettings::NativeFormat)
+	if(s.isStoredInRegistry())
 		locationOfSettings->setText(tr("Registry (%1)").arg(s.fileName()));
 	else
 		locationOfSettings->setText(pathToLink(s.fileName()));

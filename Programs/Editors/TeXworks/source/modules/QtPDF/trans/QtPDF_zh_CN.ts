@@ -765,37 +765,37 @@
 <context>
     <name>QtPDF::PDFDocumentScene</name>
     <message>
-        <location filename="../src/PDFBackend.cpp" line="321"/>
+        <location filename="../src/PDFBackend.cpp" line="326"/>
         <source>rendering page</source>
         <translation>渲染页面</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="243"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="246"/>
         <source>Unlock PDF</source>
         <translation>解锁 PDF</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="243"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="246"/>
         <source>Please enter the password to unlock the PDF</source>
         <translation>请输入密码以解锁 PDF</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="259"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="262"/>
         <source>Incorrect password</source>
         <translation>密码不正确</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="259"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="262"/>
         <source>The password you entered was incorrect.</source>
         <translation>您输入的密码不正确。</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="265"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="268"/>
         <source>This document is locked. You need a password to open it.</source>
         <translation>这个文档已被锁定。您需要输入密码来打开文件。</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentScene.cpp" line="266"/>
+        <location filename="../src/PDFDocumentScene.cpp" line="269"/>
         <source>Unlock</source>
         <translation>解锁</translation>
     </message>
@@ -828,303 +828,303 @@
         <translation>层</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="48"/>
-        <location filename="../src/InfoWidgets.cpp" line="65"/>
+        <location filename="../src/InfoWidgets.cpp" line="54"/>
+        <location filename="../src/InfoWidgets.cpp" line="71"/>
         <source>Table of Contents</source>
         <translation>目录</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="157"/>
-        <location filename="../src/InfoWidgets.cpp" line="364"/>
+        <location filename="../src/InfoWidgets.cpp" line="163"/>
+        <location filename="../src/InfoWidgets.cpp" line="370"/>
         <source>Meta Data</source>
         <translation>元数据</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="213"/>
-        <location filename="../src/InfoWidgets.cpp" line="374"/>
+        <location filename="../src/InfoWidgets.cpp" line="219"/>
+        <location filename="../src/InfoWidgets.cpp" line="380"/>
         <source>Processing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="245"/>
-        <location filename="../src/InfoWidgets.cpp" line="381"/>
+        <location filename="../src/InfoWidgets.cpp" line="251"/>
+        <location filename="../src/InfoWidgets.cpp" line="387"/>
         <source>Other</source>
         <translation>其它</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="308"/>
+        <location filename="../src/InfoWidgets.cpp" line="314"/>
         <source>Yes</source>
         <translation>是</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="311"/>
+        <location filename="../src/InfoWidgets.cpp" line="317"/>
         <source>No</source>
         <translation>否</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="314"/>
-        <location filename="../src/InfoWidgets.cpp" line="351"/>
+        <location filename="../src/InfoWidgets.cpp" line="320"/>
+        <location filename="../src/InfoWidgets.cpp" line="357"/>
         <source>Unknown</source>
         <translation>未知</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="366"/>
+        <location filename="../src/InfoWidgets.cpp" line="372"/>
         <source>Document</source>
         <translation>文档</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="367"/>
+        <location filename="../src/InfoWidgets.cpp" line="373"/>
         <source>Title:</source>
         <translation>标题：</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="368"/>
+        <location filename="../src/InfoWidgets.cpp" line="374"/>
         <source>Author:</source>
         <translation>作者：</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="369"/>
+        <location filename="../src/InfoWidgets.cpp" line="375"/>
         <source>Subject:</source>
         <translation>主题：</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="370"/>
+        <location filename="../src/InfoWidgets.cpp" line="376"/>
         <source>Keywords:</source>
         <translation>关键字：</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="375"/>
+        <location filename="../src/InfoWidgets.cpp" line="381"/>
         <source>Creator:</source>
         <translation>创建者：</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="376"/>
+        <location filename="../src/InfoWidgets.cpp" line="382"/>
         <source>Producer:</source>
         <translation>创建工具：</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="377"/>
+        <location filename="../src/InfoWidgets.cpp" line="383"/>
         <source>Creation date:</source>
         <translation>创建日期：</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="378"/>
+        <location filename="../src/InfoWidgets.cpp" line="384"/>
         <source>Modification date:</source>
         <translation>修改日期：</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="379"/>
+        <location filename="../src/InfoWidgets.cpp" line="385"/>
         <source>Trapped:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="390"/>
-        <location filename="../src/InfoWidgets.cpp" line="484"/>
+        <location filename="../src/InfoWidgets.cpp" line="396"/>
+        <location filename="../src/InfoWidgets.cpp" line="490"/>
         <source>Fonts</source>
         <translation>字体</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="440"/>
+        <location filename="../src/InfoWidgets.cpp" line="446"/>
         <source>Type 0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="443"/>
+        <location filename="../src/InfoWidgets.cpp" line="449"/>
         <source>Type 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="446"/>
+        <location filename="../src/InfoWidgets.cpp" line="452"/>
         <source>Type 1 (multiple master)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="449"/>
+        <location filename="../src/InfoWidgets.cpp" line="455"/>
         <source>Type 3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="452"/>
+        <location filename="../src/InfoWidgets.cpp" line="458"/>
         <source>TrueType</source>
         <translation>TrueType</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="455"/>
+        <location filename="../src/InfoWidgets.cpp" line="461"/>
         <source>yes</source>
         <translation>是</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="455"/>
+        <location filename="../src/InfoWidgets.cpp" line="461"/>
         <source>no</source>
         <translation>否</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="458"/>
+        <location filename="../src/InfoWidgets.cpp" line="464"/>
         <source>[embedded]</source>
         <translation>[已嵌入]</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="461"/>
+        <location filename="../src/InfoWidgets.cpp" line="467"/>
         <source>[builtin]</source>
         <translation>[内建]</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Name</source>
         <translation>名称</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Type</source>
         <translation>类型</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Subset</source>
         <translation>子集</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="485"/>
+        <location filename="../src/InfoWidgets.cpp" line="491"/>
         <source>Source</source>
         <translation>来源</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="493"/>
-        <location filename="../src/InfoWidgets.cpp" line="588"/>
+        <location filename="../src/InfoWidgets.cpp" line="499"/>
+        <location filename="../src/InfoWidgets.cpp" line="594"/>
         <source>Permissions</source>
         <translation>权限</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="542"/>
-        <location filename="../src/InfoWidgets.cpp" line="551"/>
-        <location filename="../src/InfoWidgets.cpp" line="560"/>
-        <location filename="../src/InfoWidgets.cpp" line="567"/>
-        <location filename="../src/InfoWidgets.cpp" line="572"/>
+        <location filename="../src/InfoWidgets.cpp" line="548"/>
+        <location filename="../src/InfoWidgets.cpp" line="557"/>
+        <location filename="../src/InfoWidgets.cpp" line="566"/>
+        <location filename="../src/InfoWidgets.cpp" line="573"/>
+        <location filename="../src/InfoWidgets.cpp" line="578"/>
         <source>Allowed</source>
         <translation>允许</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="544"/>
+        <location filename="../src/InfoWidgets.cpp" line="550"/>
         <source>Low resolution only</source>
         <translation>仅低分辨率</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="547"/>
-        <location filename="../src/InfoWidgets.cpp" line="557"/>
-        <location filename="../src/InfoWidgets.cpp" line="564"/>
-        <location filename="../src/InfoWidgets.cpp" line="569"/>
-        <location filename="../src/InfoWidgets.cpp" line="574"/>
-        <location filename="../src/InfoWidgets.cpp" line="579"/>
+        <location filename="../src/InfoWidgets.cpp" line="553"/>
+        <location filename="../src/InfoWidgets.cpp" line="563"/>
+        <location filename="../src/InfoWidgets.cpp" line="570"/>
+        <location filename="../src/InfoWidgets.cpp" line="575"/>
         <location filename="../src/InfoWidgets.cpp" line="580"/>
-        <location filename="../src/InfoWidgets.cpp" line="581"/>
-        <location filename="../src/InfoWidgets.cpp" line="582"/>
-        <location filename="../src/InfoWidgets.cpp" line="583"/>
+        <location filename="../src/InfoWidgets.cpp" line="585"/>
+        <location filename="../src/InfoWidgets.cpp" line="586"/>
+        <location filename="../src/InfoWidgets.cpp" line="587"/>
+        <location filename="../src/InfoWidgets.cpp" line="588"/>
+        <location filename="../src/InfoWidgets.cpp" line="589"/>
         <source>Denied</source>
         <translation>拒绝</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="553"/>
+        <location filename="../src/InfoWidgets.cpp" line="559"/>
         <source>Assembling only</source>
         <translation>仅组装</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="554"/>
+        <location filename="../src/InfoWidgets.cpp" line="560"/>
         <source>Insert, rotate, or delete pages and create bookmarks or thumbnail images</source>
         <translation>插入、旋转或删除页面以及创建书签或缩略图</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="562"/>
+        <location filename="../src/InfoWidgets.cpp" line="568"/>
         <source>Accessibility support only</source>
         <translation>仅可访问性支持</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="590"/>
+        <location filename="../src/InfoWidgets.cpp" line="596"/>
         <source>Printing:</source>
         <translation>打印：</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="591"/>
+        <location filename="../src/InfoWidgets.cpp" line="597"/>
         <source>Modifications:</source>
         <translation>修改：</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="592"/>
+        <location filename="../src/InfoWidgets.cpp" line="598"/>
         <source>Extraction:</source>
         <translation>提取：</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="593"/>
+        <location filename="../src/InfoWidgets.cpp" line="599"/>
         <source>Annotation:</source>
         <translation>标注：</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="594"/>
+        <location filename="../src/InfoWidgets.cpp" line="600"/>
         <source>Filling forms:</source>
         <translation>填充表格：</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="602"/>
-        <location filename="../src/InfoWidgets.cpp" line="694"/>
+        <location filename="../src/InfoWidgets.cpp" line="608"/>
+        <location filename="../src/InfoWidgets.cpp" line="700"/>
         <source>Annotations</source>
         <translation>标注</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Page</source>
         <translation>页面</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Subject</source>
         <translation>主题</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Author</source>
         <translation>作者</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="695"/>
+        <location filename="../src/InfoWidgets.cpp" line="701"/>
         <source>Contents</source>
         <translation>目录</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="270"/>
+        <location filename="../src/InfoWidgets.cpp" line="276"/>
         <source>B</source>
         <extracomment>File size: bytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="272"/>
+        <location filename="../src/InfoWidgets.cpp" line="278"/>
         <source>kB</source>
         <extracomment>File size: kilobytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="274"/>
+        <location filename="../src/InfoWidgets.cpp" line="280"/>
         <source>MB</source>
         <extracomment>File size: megabytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="276"/>
+        <location filename="../src/InfoWidgets.cpp" line="282"/>
         <source>GB</source>
         <extracomment>File size: gigabytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="278"/>
+        <location filename="../src/InfoWidgets.cpp" line="284"/>
         <source>TB</source>
         <extracomment>File size: terabytes</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="371"/>
+        <location filename="../src/InfoWidgets.cpp" line="377"/>
         <source>Page size:</source>
         <translation>页面尺寸：</translation>
     </message>
     <message>
-        <location filename="../src/InfoWidgets.cpp" line="372"/>
+        <location filename="../src/InfoWidgets.cpp" line="378"/>
         <source>File size:</source>
         <translation>文件大小：</translation>
     </message>

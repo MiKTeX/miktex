@@ -10,6 +10,9 @@
 <file>resfiles/configuration/syntax-patterns.txt</file>
 <file>resfiles/configuration/tag-patterns.txt</file>
 <file>resfiles/configuration/texworks-config.txt</file>
+<file>resfiles/scripts/ConTeXt styles/makeBold.lua</file>
+<file>resfiles/scripts/ConTeXt styles/makeEmph.lua</file>
+<file>resfiles/scripts/ConTeXt styles/makeFigure.lua</file>
 <file>resfiles/scripts/Hooks/babelLanguage.js</file>
 <file>resfiles/scripts/Hooks/logParser.js</file>
 <file>resfiles/scripts/LaTeX styles/toggleBold.js</file>

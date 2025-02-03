@@ -26,6 +26,8 @@
 #include "scripting/Script.h"
 #include "scripting/ScriptAPIInterface.h"
 
+#include <QCoreApplication>
+
 // Forward declaration taken from the Python headers to avoid having to include
 // Python in this header file
 struct _object;
@@ -37,8 +39,8 @@ namespace Scripting {
 /** \brief Class for handling python scripts */
 class PythonScript : public Script
 {
-	Q_OBJECT
 	Q_INTERFACES(Tw::Scripting::Script)
+	Q_DECLARE_TR_FUNCTIONS(Tw::Scripting::ECMAScript)
 
 public:
 	/** \brief Constructor

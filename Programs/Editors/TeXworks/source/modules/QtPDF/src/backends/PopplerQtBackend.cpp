@@ -17,6 +17,8 @@
 
 #include <QBitArray>
 
+#include <QDomDocument>
+
 #if !defined(MIKTEX)
 #if defined(HAVE_POPPLER_XPDF_HEADERS) && defined(Q_OS_DARWIN)
 #include "poppler-config.h"
@@ -279,6 +281,60 @@ void Document::parseDocument()
   if (metaKeys.contains(QString::fromUtf8("ModDate"))) {
     _meta_modDate = fromPDFDate(_poppler_doc->info(QString::fromUtf8("ModDate")));
     metaKeys.removeAll(QString::fromUtf8("ModDate"));
+  }
+
+  const QString xmpMetadata = _poppler_doc->metadata();
+  if (!xmpMetadata.isEmpty()) {
+    QDomDocument domDoc;
+    const auto getMetadataEntry = [&domDoc](const QString & nsURI, const QString & tag) {
+      const QDomNodeList nodes = domDoc.elementsByTagName(tag);
+      QString retVal;
+      for (int iNode = 0; iNode < nodes.size(); ++iNode) {
+        const QDomNode node = nodes.at(iNode);
+        // NB: Use startsWith() as full namespaces may contain version info
+        // which we don't care about here
+        if (!node.namespaceURI().startsWith(nsURI)) {
+          continue;
+        }
+        const QDomElement el = nodes.at(iNode).toElement();
+        retVal += el.text();
+      }
+      return retVal;
+    };
+    const auto setMetadataString = [&getMetadataEntry](const QString & nsURI, const QString & tag, QString & entry) {
+      const QString str{getMetadataEntry(nsURI, tag)};
+      if (!str.isEmpty()) {
+        entry = str;
+      }
+    };
+    const auto setMetadataDatetime = [&getMetadataEntry](const QString & nsURI, const QString & tag, QDateTime & datetime) {
+      const QString str{getMetadataEntry(nsURI, tag)};
+      const QDateTime dt{QDateTime::fromString(str, Qt::ISODate)};
+      if (dt.isValid()) {
+        datetime = dt;
+      }
+    };
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
+    QString errMsg;
+    int errLine{0}, errCol{0};
+    if (domDoc.setContent(_poppler_doc->metadata(), true, &errMsg, &errLine, &errCol)) {
+#else
+    if (domDoc.setContent(_poppler_doc->metadata(), QDomDocument::ParseOption::UseNamespaceProcessing)) {
+#endif
+      const QString dcNS{QStringLiteral("http://purl.org/dc/")};
+      const QString xmpNS{QStringLiteral("http://ns.adobe.com/xap/")};
+      const QString pdfNS{QStringLiteral("http://ns.adobe.com/pdf/")};
+
+      setMetadataString(dcNS, QStringLiteral("title"), _meta_title);
+      setMetadataString(dcNS, QStringLiteral("creator"), _meta_author);
+      setMetadataString(dcNS, QStringLiteral("description"), _meta_subject);
+      setMetadataString(dcNS, QStringLiteral("subject"), _meta_keywords);
+      setMetadataString(xmpNS, QStringLiteral("CreatorTool"), _meta_creator);
+      setMetadataString(pdfNS, QStringLiteral("Producer"), _meta_producer);
+      setMetadataDatetime(xmpNS, QStringLiteral("CreateDate"), _meta_creationDate);
+      setMetadataDatetime(xmpNS, QStringLiteral("ModifyDate"), _meta_modDate);
+    }
   }
 
   // Get the most often used page size

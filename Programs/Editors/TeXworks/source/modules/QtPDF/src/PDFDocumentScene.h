@@ -18,9 +18,11 @@
 
 #include <QFileSystemWatcher>
 #include <QGraphicsScene>
-#include <QLabel>
-#include <QPushButton>
+#include <QSharedPointer>
 #include <QTimer>
+
+class QLabel;
+class QPushButton;
 
 namespace QtPDF {
 

@@ -21,6 +21,9 @@
 
 #include "PythonScript.h"
 
+// https://docs.python.org/3/c-api/arg.html#strings-and-buffers
+#define PY_SSIZE_T_CLEAN
+
 // Python uses the name "slots", which Qt hijacks. So we temporarily undefine
 // it, then include the python headers, then redefine it
 #undef slots
@@ -376,22 +379,26 @@ PyObject * PythonScript::VariantToPython(const QVariant & v)
 {
 	if (v.isNull()) Py_RETURN_NONE;
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	switch (static_cast<int>(v.type())) {
-		case QVariant::Double:
+#else
+	switch (v.metaType().id()) {
+#endif
+		case QMetaType::Double:
 			return Py_BuildValue("d", v.toDouble());
-		case QVariant::Bool:
+		case QMetaType::Bool:
 			if (v.toBool()) Py_RETURN_TRUE;
 			else Py_RETURN_FALSE;
-		case QVariant::Int:
+		case QMetaType::Int:
 			return Py_BuildValue("i", v.toInt());
-		case QVariant::LongLong:
+		case QMetaType::LongLong:
 			return Py_BuildValue("L", v.toLongLong());
-		case QVariant::UInt:
+		case QMetaType::UInt:
 			return Py_BuildValue("I", v.toUInt());
-		case QVariant::ULongLong:
+		case QMetaType::ULongLong:
 			return Py_BuildValue("K", v.toULongLong());
-		case QVariant::Char:
-		case QVariant::String:
+		case QMetaType::Char:
+		case QMetaType::QString:
 #ifdef Py_UNICODE_WIDE
 			{
 				QVector<uint> tmp = v.toString().toUcs4();
@@ -400,8 +407,8 @@ PyObject * PythonScript::VariantToPython(const QVariant & v)
 #else
 			return Py_BuildValue("u", v.toString().constData());
 #endif
-		case QVariant::List:
-		case QVariant::StringList:
+		case QMetaType::QVariantList:
+		case QMetaType::QStringList:
 		{
 			QVariantList list = v.toList();
 
@@ -412,7 +419,7 @@ PyObject * PythonScript::VariantToPython(const QVariant & v)
 			}
 			return pyList;
 		}
-		case QVariant::Hash:
+		case QMetaType::QVariantHash:
 		{
 			QVariantHash hash = v.toHash();
 
@@ -422,7 +429,7 @@ PyObject * PythonScript::VariantToPython(const QVariant & v)
 			}
 			return pyDict;
 		}
-		case QVariant::Map:
+		case QMetaType::QVariantMap:
 		{
 			QVariantMap map = v.toMap();
 

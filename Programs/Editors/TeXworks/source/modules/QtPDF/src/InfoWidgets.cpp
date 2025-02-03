@@ -14,6 +14,12 @@
 #include "InfoWidgets.h"
 
 #include <QEvent>
+#include <QGroupBox>
+#include <QLabel>
+#include <QListView>
+#include <QTableWidget>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
 #include <QtConcurrent>
 
 #include "PaperSizes.h"

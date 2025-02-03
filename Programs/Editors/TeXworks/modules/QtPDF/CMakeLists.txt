@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2008-2024 Christian Schenk
+## Copyright (C) 2008-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -147,6 +147,7 @@ target_link_libraries(qtpdf-static
         Qt${QT_SERIES}::Core
         Qt${QT_SERIES}::Gui
         Qt${QT_SERIES}::Widgets
+        Qt${QT_SERIES}::Xml
 )
 
 if(QT_SERIES STREQUAL "6")

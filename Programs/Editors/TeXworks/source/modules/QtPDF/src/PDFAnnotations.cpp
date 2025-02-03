@@ -13,7 +13,6 @@
  */
 
 #include "PDFAnnotations.h"
-#include "PDFBackend.h"
 
 namespace QtPDF {
 
@@ -84,8 +83,11 @@ bool Markup::operator==(const AbstractAnnotation & o) const
   if (!AbstractAnnotation::operator==(o)) {
     return false;
   }
-  const Markup & m(dynamic_cast<const Markup &>(o));
+  return (*this == dynamic_cast<const Markup &>(o));
+}
 
+bool Markup::operator==(const Markup & m) const
+{
   if (title() != m.title() || author() != m.author() ||
       richContents() != m.richContents() || creationDate() != m.creationDate() ||
       subject() != m.subject()) {
@@ -126,7 +128,11 @@ bool Link::operator==(const AbstractAnnotation & o) const
   if (!(AbstractAnnotation::operator==(o))) {
     return false;
   }
-  const Link & l(dynamic_cast<const Link&>(o));
+  return (*this == dynamic_cast<const Link&>(o));
+}
+
+bool Link::operator==(const Link & l) const
+{
   if (highlightingMode() != l.highlightingMode() || quadPoints() != l.quadPoints()) {
     return false;
   }
@@ -141,7 +147,10 @@ bool Popup::operator==(const AbstractAnnotation & o) const
   if (!(AbstractAnnotation::operator==(o))) {
     return false;
   }
-  const Popup & p(dynamic_cast<const Popup&>(o));
+  return (*this == dynamic_cast<const Popup&>(o));
+}
+
+bool Popup::operator==(const Popup & p) const {
   return (isOpen() == p.isOpen() && title() == p.title());
   // Don't compare _parent values. _parent just modifies where some data (e.g.
   // _contents) is taken from (the _parent or the popup itself) but does not

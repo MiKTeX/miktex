@@ -9,7 +9,7 @@
 # If there is a (capture group) in the regex, this is the fragment that will be used
 # as the actual tag text; if there is no group, the entire match will be used.
 
-# Patterns for LaTeX sectioning commands:
+# Patterns for LaTeX/ConTeXt sectioning commands:
 1    ^%?\s*\\part\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
 2    ^%?\s*\\chapter\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
 3    ^%?\s*\\section\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
@@ -33,3 +33,8 @@
 # Tags with level = 0 are special bookmarks that are separate from the hierarchy
 # and collected in a separate flat list.
 0	^%:\s*(.+)
+# ConTeXt:
+0	^\s*\\environment\s+([\S]+)
+0	^\s*\\component\s+([\S]+)
+0	^\s*\\project\s+([\S]+)
+0	^\s*\\product\s+([\S]+)

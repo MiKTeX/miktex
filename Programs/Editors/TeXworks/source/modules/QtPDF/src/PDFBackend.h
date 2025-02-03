@@ -22,14 +22,8 @@
 #include "PDFTransitions.h"
 
 #include <QAbstractItemModel>
-#include <QEvent>
-#include <QFileInfo>
 #include <QImage>
-#include <QMutex>
 #include <QReadLocker>
-#include <QStack>
-#include <QThread>
-#include <QWaitCondition>
 #include <QWeakPointer>
 
 namespace QtPDF {

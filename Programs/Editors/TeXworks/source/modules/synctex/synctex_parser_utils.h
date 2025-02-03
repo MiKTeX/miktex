@@ -1,11 +1,11 @@
 /* 
- Copyright (c) 2008-2017 jerome DOT laurens AT u-bourgogne DOT fr
+ Copyright (c) 2008-2024 jerome DOT laurens AT u-bourgogne DOT fr
  
  This file is part of the __SyncTeX__ package.
  
- [//]: # (Latest Revision: Fri Jul 14 16:20:41 UTC 2017)
- [//]: # (Version: 1.21)
- 
+ Version: see synctex_version.h
+ Latest Revision: Thu Mar 21 14:12:58 UTC 2024
+
  See `synctex_parser_readme.md` for more details
  
  ## License
@@ -161,6 +161,20 @@ const char * _synctex_get_io_mode_name(synctex_io_mode_t io_mode);
 
 synctex_bool_t synctex_ignore_leading_dot_slash_in_path(const char ** name);
     
+synctex_bool_t synctex_ignore_leading_dot_slash_in_path(const char ** name);
+int synctex_parse_int(char * ptr, char ** endptr);
+
+typedef enum {
+	synctex_parse_int_policy_request = -1,
+	synctex_parse_int_policy_C = 0,
+	synctex_parse_int_policy_raw1 = 1,
+	synctex_parse_int_policy_raw2 = 2,
+} synctex_parse_int_policy_t;
+
+synctex_parse_int_policy_t synctex_parse_int_policy(synctex_parse_int_policy_t policy);
+
+int synctex_parse_int(char * ptr, char ** endptr);
+
 #ifdef __cplusplus
 }
 #endif

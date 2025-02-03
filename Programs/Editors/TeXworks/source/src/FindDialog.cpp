@@ -140,6 +140,9 @@ void FindDialog::init(QTextEdit *document)
 	}
 	recentSearches->setMenu(recentItemsMenu);
 	searchText->installEventFilter(new RecentStringsKeyFilter(this, recentStrings));
+	// (At least) On Win11, the primary button receives focus by default. We
+	// specifically want the focus on the search box, though
+	searchText->setFocus();
 }
 
 void FindDialog::setSearchText()
@@ -304,6 +307,9 @@ void ReplaceDialog::init(QTextEdit *document)
 	}
 	recentReplacements->setMenu(recentItemsMenu);
 	replaceText->installEventFilter(new RecentStringsKeyFilter(this, recentStrings));
+	// (At least) On Win11, the primary button receives focus by default. We
+	// specifically want the focus on the search box, though
+	searchText->setFocus();
 }
 
 void ReplaceDialog::setSearchText()

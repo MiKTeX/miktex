@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2024  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,8 +18,24 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+#ifndef IniConfig_H
+#define IniConfig_H
 
-#define VER_MAJOR			0
-#define VER_MINOR			7
-#define VER_BUGFIX			0
-#define TEXWORKS_VERSION	"0.7"
+#include <QSettings>
+
+namespace Tw {
+
+namespace Utils {
+
+class IniConfig : public QSettings
+{
+	Q_OBJECT
+public:
+	IniConfig(const QString & filename, QObject * parent = nullptr) : QSettings(filename, QSettings::IniFormat, parent) { }
+};
+
+} // namespace Utils
+
+} // namespace Tw
+
+#endif // !defined(IniConfig_H)
