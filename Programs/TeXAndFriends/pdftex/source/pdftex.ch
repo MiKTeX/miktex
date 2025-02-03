@@ -14,17 +14,14 @@
 %
 % You should have received a copy of the GNU General Public License along with
 % this program.  If not, see <http://www.gnu.org/licenses/>.
-%
-@x [0.0] l.83 - WEAVE: we want the whole file
+
+@x tex.ch l.60 - tell weave we want the whole file
 \let\maybe=\iffalse
 @y 83
 \let\maybe=\iftrue
 @z
 
-% Change file to assist in creating the web2c-specific change file.
-% This one resolves inconsistencies between tex.ch and tex.ech.
-
-@x [1] m.2 l.188 - banner
+@x tex.ch l.76 - pdftex banner
 @d banner==TeX_banner
 @d banner_k==TeX_banner_k
 @y
@@ -32,7 +29,7 @@
 @d banner_k==pdfTeX_banner
 @z
 
-@x l.1891 - have print_ignored_error respect --file-line-error
+@x pdftex.web l.1891 - have print_ignored_error respect --file-line-error
   print_nl("ignored error: "); print(#);
 @y
   if file_line_error_style_p then print_file_line
@@ -40,14 +37,15 @@
   print("ignored error: "); print(#);
 @z
 
-@x [16.215] l.28025 - restore e-TeX last_node_type removed in tex.ch
+% See also tex.ch l.1204, etex.ch l.2226. Not sure what's going on here.
+@x pdftex.web l.28025 - restore e-TeX last_node_type removed in tex.ch
 last_glue:=max_halfword; last_penalty:=0; last_kern:=0;
 @y
 last_glue:=max_halfword; last_penalty:=0; last_kern:=0;
 last_node_type:=-1;
 @z
 
-@x
+@x tex.ch l.1228 - table sizes [see also pdftex.web l.5194]
 @d frozen_null_font=frozen_control_sequence+11
   {permanent `\.{\\nullfont}'}
 @y
@@ -55,7 +53,7 @@ last_node_type:=-1;
   {permanent `\.{\\nullfont}'}
 @z
 
-@x [17.236] l.4960 - first web2c, then e-TeX additional integer parameters
+@x tex.ch l.1274 - web2c, then e-TeX, then pdftex integer parameters
 @d int_pars=web2c_int_pars {total number of integer parameters}
 @#
 @d etex_int_base=tex_int_pars {base for \eTeX's integer parameters}
@@ -64,13 +62,13 @@ last_node_type:=-1;
 @z
 
 % start of tex.pch
-@x (MLTeX) l. 12945
+@x (MLTeX) l.12945
       begin i := char_tag(char_info(f)(c));
 @y
       begin i := char_tag(orig_char_info(f)(c));
 @z
 
-@x (MLTeX) l. 14640
+@x (MLTeX) l.14640
 @d is_valid_char(#)==((font_bc[f] <= #) and (# <= font_ec[f]) and
                       char_exists(char_info(f)(#)))
 @y
@@ -78,7 +76,7 @@ last_node_type:=-1;
                       char_exists(orig_char_info(f)(#)))
 @z
 
-@x (MLTeX) l. 14678
+@x (MLTeX) l.14678
 function get_charwidth(f: internal_font_number; c: eight_bits): scaled;
 begin
     if is_valid_char(c) then
@@ -129,13 +127,13 @@ end;
 @z
 
 
-@x (MLTeX) l. 17413
+@x (MLTeX) l.17413
 label reswitch, move_past, fin_rule, next_p;
 @y
 label reswitch, move_past, fin_rule, next_p, found, continue;
 @z
 
-@x (MLTeX) l. 17462
+@x (MLTeX) l.17462
   if is_valid_char(c) then
       output_one_char(c)
   else
@@ -153,7 +151,7 @@ continue:
 @z
 
 % this @x code is modified from tex.web by tex.ch.
-@x [49.1259] omit block if pdf_font_step[f] is nonzero; preserve indentation
+@x tex.ch l.3447 - omit block if pdf_font_step[f] nonzero; preserve indentation
     begin if s>0 then
       begin if s=font_size[f] then goto common_ending;
       end
@@ -178,7 +176,7 @@ continue:
   end
 @z
 
-@x (WEB2C!)
+@x tex.ch l.3989 - more things to dump
 param_base:=xmalloc_array(integer, font_max);
 
 undump_things(font_check[null_font], font_ptr+1-null_font);
@@ -245,7 +243,7 @@ make_pdftex_banner;
 undump_things(font_check[null_font], font_ptr+1-null_font);
 @z
 
-@x [51.1]
+@x tex.ch l.4196 - more bounds to set
   setup_bound_var (0)('hash_extra')(hash_extra);
   setup_bound_var (10000)('expand_depth')(expand_depth);
 
@@ -255,7 +253,7 @@ undump_things(font_check[null_font], font_ptr+1-null_font);
   setup_bound_var (72)('pk_dpi')(pk_dpi);
 @z
 
-@x [51.2]
+@x tex.ch l.4229 - more constants to check
   const_chk (hash_extra);
   if error_line > ssup_error_line then error_line := ssup_error_line;
 @y
@@ -267,7 +265,7 @@ undump_things(font_check[null_font], font_ptr+1-null_font);
   if error_line > ssup_error_line then error_line := ssup_error_line;
 @z
 
-@x [51.1332] l.24203 (ca.) texarray
+@x tex.ch l.4238 - more arrays to xmalloc
   line_stack:=xmalloc_array (integer, max_in_open);
 @y
   line_stack:=xmalloc_array (integer, max_in_open);
@@ -276,7 +274,7 @@ undump_things(font_check[null_font], font_ptr+1-null_font);
   if_stack:=xmalloc_array (pointer, max_in_open);
 @z
 
-@x [51.3]
+@x tex.ch l.4245 - still more arrays to xmalloc
   hyph_link :=xmalloc_array (hyph_pointer, hyph_size);
 @y
   hyph_link :=xmalloc_array (hyph_pointer, hyph_size);
@@ -289,7 +287,7 @@ undump_things(font_check[null_font], font_ptr+1-null_font);
   pdf_os_objoff:=xmalloc_array (integer, pdf_os_max_objs);
 @z
 
-@x [51.1337] l.24371 (ca.) texarray
+@x tex.ch l.4356 - more hyphenation initializations
   trie_root:=0; trie_c[0]:=si(0); trie_ptr:=0;
 @y
   trie_root:=0; trie_c[0]:=si(0); trie_ptr:=0;
@@ -297,7 +295,7 @@ undump_things(font_check[null_font], font_ptr+1-null_font);
 @z
 
 
-@x (WEB2C!)
+@x tex.ch l.4381 - more arrays to xmallox
   param_base:=xmalloc_array(integer, font_max);
 
   font_ptr:=null_font; fmem_ptr:=7;
@@ -364,8 +362,7 @@ font_ptr:=null_font; fmem_ptr:=7;
 make_pdftex_banner;
 @z
 
-% i, j, q, and r are unused by TeX but required for pdfTeX
-@x [53.1348] (do_extension)
+@x tex.ch l.4438 (do_extension) - i, j, q, r unused by TeX, needed by pdfTeX
 var k:integer; {all-purpose integers}
 @!p:pointer; {all-purpose pointers}
 @y
@@ -373,33 +370,33 @@ var i,@!j,@!k:integer; {all-purpose integers}
 @!p,@!q,@!r:pointer; {all-purpose pointers}
 @z
 
-@x [53a.1379] l.??? -etex command line switch
+@x etex.ch l.3182 -etex command line xswitch
 @!init if (buffer[loc]="*")and(format_ident=" (INITEX)") then
 @y
 @!init if (etex_p or(buffer[loc]="*"))and(format_ident=" (INITEX)") then
 @z
 
-@x [53a.1379] l.??? -etex command line switch
+@x etex.ch l.3185 -etex command line switch
   incr(loc); eTeX_mode:=1; {enter extended mode}
 @y
   if (buffer[loc]="*") then incr(loc);
   eTeX_mode:=1; {enter extended mode}
 @z
 
-@x [53a.1383] l.??? -etex command line switch
+@x etex.ch l.3224 -etex command line switch
 @!eTeX_mode: 0..1; {identifies compatibility and extended mode}
 @y
 @!eTeX_mode: 0..1; {identifies compatibility and extended mode}
 @!etex_p: boolean; {was the -etex option specified}
 @z
 
-@x [53a.1391] l.??? texarray
+@x etex.ch l.3302 - use pointer for array
 @!eof_seen : array[1..max_in_open] of boolean; {has eof been seen?}
 @y
 @!eof_seen : ^boolean; {has eof been seen?}
 @z
 
-@x [53a.1506] l.??? texarray
+@x etex.ch l.4842 - use pointers for arrays
 @!grp_stack : array[0..max_in_open] of save_pointer; {initial |cur_boundary|}
 @!if_stack : array[0..max_in_open] of pointer; {initial |cond_ptr|}
 @y
@@ -407,12 +404,12 @@ var i,@!j,@!k:integer; {all-purpose integers}
 @!if_stack : ^pointer; {initial |cond_ptr|}
 @z
 
-@x [53a.1587] l.??? texarray
+@x etex.ch l.6244 - hyphenation initializations done elsewhere
 hyph_root:=0; hyph_start:=0;
 @y
 @z
 
-@x [54/web2c.???] l.??? needed earlier
+@x tex.ch l.4858 - effective_char function needed earlier
 replacement, but always existing character |font_bc[f]|.
 @^inner loop@>
 
@@ -426,7 +423,7 @@ replacement, but always existing character |font_bc[f]|.
 function effective_char(@!err_p:boolean;
 @z
 
-@x
+@x tex.ch l.4958 - pdftex character substitutions
 @ The global variables for the code to substitute a virtual character
 @y
 @ \pdfTeX's |pdf_hlist_out| uses a similar, but slightly modified code
@@ -443,7 +440,7 @@ found: @<Print character substitution tracing log@>;
 @ The global variables for the code to substitute a virtual character
 @z
 
-@x
+@x tex.ch l.5071 - more pdftex substitution
 @ Dumping ML\TeX-related material.  This is just the flag in the
 @y
 @ \pdfTeX's |pdf_hlist_out| uses a similar, but slightly modified code
