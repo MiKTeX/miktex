@@ -174,8 +174,8 @@ set(texworks_sources
     source/src/utils/WindowManager.cpp
     source/src/utils/WindowManager.h
 
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-texworks-version.h
     GitRev.h
-    miktex-texworks-version.h
     miktex/miktex-texworks.cpp
     miktex/miktex-texworks.hpp
 )

@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2006-2024 Christian Schenk
+## Copyright (C) 2006-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -34,7 +34,7 @@ endif()
 
 # CMP0071: Let AUTOMOC and AUTOUIC process GENERATED files.
 list(APPEND cmake_policies_new
-    CMP0071
+#    CMP0071
 )
 
 foreach(p ${cmake_policies_new})
@@ -1141,7 +1141,7 @@ if(USE_SYSTEM_BOOST)
         set(Boost_USE_MULTITHREADED ON)
         set(Boost_USE_STATIC_RUNTIME OFF)
     endif()
-    find_package(Boost REQUIRED locale)
+    find_package(Boost CONFIG REQUIRED locale)
 endif()
 
 if(USE_SYSTEM_BZIP2)

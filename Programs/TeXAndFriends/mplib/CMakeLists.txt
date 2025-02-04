@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2010-2024 Christian Schenk
+## Copyright (C) 2010-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -459,7 +459,7 @@ if(MIKTEX_NATIVE_WINDOWS)
         windows/miktex-metapost.rc.in
         ${CMAKE_CURRENT_BINARY_DIR}/windows/miktex-metapost.rc
     )
-    list(APPEND metapost_sources windows/miktex-metapost.rc)
+    list(APPEND metapost_sources ${CMAKE_CURRENT_BINARY_DIR}/windows/miktex-metapost.rc)
 endif()
 
 add_library(${metapost_dll_name} SHARED ${metapost_sources})
@@ -580,8 +580,8 @@ if(MIKTEX_NATIVE_WINDOWS)
         ${CMAKE_CURRENT_BINARY_DIR}/windows/miktex-mpost.rc
     )
     list(APPEND mpost_sources
+        ${CMAKE_CURRENT_BINARY_DIR}/windows/miktex-mpost.rc
         ${MIKTEX_COMMON_MANIFEST}
-        windows/miktex-mpost.rc
     )
 endif()
 

@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2006-2023 Christian Schenk
+## Copyright (C) 2006-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -28,7 +28,7 @@ configure_file(
 )
 
 set(epstopdf_sources
-    miktex-epstopdf-version.h
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-epstopdf-version.h
     miktex-epstopdf.cpp
 )
 
@@ -38,8 +38,8 @@ if(MIKTEX_NATIVE_WINDOWS)
         ${CMAKE_CURRENT_BINARY_DIR}/windows/miktex-epstopdf.rc
     )
     list(APPEND epstopdf_sources
+        ${CMAKE_CURRENT_BINARY_DIR}/windows/miktex-epstopdf.rc
         ${MIKTEX_COMMON_MANIFEST}
-        windows/miktex-epstopdf.rc
     )
 endif()
 

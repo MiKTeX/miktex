@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2015-2024 Christian Schenk
+## Copyright (C) 2015-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -31,8 +31,8 @@ configure_file(
 )
 
 set(kpsewhich_sources
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-kpsewhich-version.h
     ${MIKTEX_LIBRARY_WRAPPER}
-    miktex-kpsewhich-version.h
     source/kpsewhich.c
 )
 
@@ -42,8 +42,8 @@ if(MIKTEX_NATIVE_WINDOWS)
         ${CMAKE_CURRENT_BINARY_DIR}/miktex-kpsewhich.rc
     )
     list(APPEND kpsewhich_sources
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-kpsewhich.rc
         ${MIKTEX_COMMON_MANIFEST}
-        windows/miktex-kpsewhich.rc
     )
 endif()
 
