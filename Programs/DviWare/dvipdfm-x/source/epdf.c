@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2025 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -119,6 +119,7 @@ pdf_include_page (pdf_ximage        *ximage,
   xform_info info;
   pdf_obj *contents = NULL, *catalog;
   pdf_obj *page = NULL, *resources = NULL, *markinfo = NULL;
+  pdf_obj *group = NULL;
 
   pf = pdf_open(ident, image_file);
   if (!pf)
@@ -151,6 +152,10 @@ pdf_include_page (pdf_ximage        *ximage,
     pdf_release_obj(tmp);
   }
 
+  /*
+   * Handle page's Group
+   */
+  group = pdf_deref_obj(pdf_lookup_dict(page, "Group"));
   /*
    * Handle page content stream.
    */
@@ -193,6 +198,9 @@ pdf_include_page (pdf_ximage        *ximage,
     pdf_add_dict(contents_dict, pdf_new_name("Resources"),
                  pdf_import_object(resources));
     pdf_release_obj(resources);
+
+    if (group)
+      pdf_add_dict(contents_dict, pdf_new_name("Group"), group);
   }
 
   pdf_close(pf);
@@ -210,6 +218,8 @@ pdf_include_page (pdf_ximage        *ximage,
     pdf_release_obj(markinfo);
   if (page)
     pdf_release_obj(page);
+  if (group)
+    pdf_release_obj(group);
   if (contents)
     pdf_release_obj(contents);
 

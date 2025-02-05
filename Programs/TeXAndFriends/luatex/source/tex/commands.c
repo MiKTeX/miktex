@@ -180,6 +180,7 @@ void initialize_commands(void)
     primitive_luatex("mathdefaultsmode", assign_int_cmd, int_base + math_defaults_mode_code, int_base);
     primitive_luatex("discretionaryligaturemode", assign_int_cmd, int_base + discretionary_ligature_mode_code, int_base);
     primitive_etex("partokencontext", assign_int_cmd, int_base + partoken_context_code, int_base);
+    primitive_luatex("mathemptydisplaymode", assign_int_cmd, int_base + math_empty_display_mode_code, int_base);
 
     /*tex
 

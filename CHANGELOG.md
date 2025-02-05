@@ -5,13 +5,13 @@
 ### Upgraded programs
 
 * chktex 1.7.9
-* dvipdfmx 20250202
+* dvipdfmx 20250205
 * dvips 2024.1
 * dvisvgm 3.4.3
 * hitex 2.1
 * luatex 1.21.0
 * pdftex 1.40.27
-* texworks 0.6.10
+* texworks 0.6.1020250205
 * upmendex 1.10
 * xetex 0.999997
 

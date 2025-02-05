@@ -1084,6 +1084,18 @@ static boolean math_and_text_reversed_p(void)
 
 */
 
+static int only_dirs(halfword n)
+{
+    while (n) {
+        if (type(n) == local_par_node || type(n) == dir_node) {
+            n = vlink(n);
+        } else {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void enter_display_math(void)
 {
     /*tex new or partial |pre_display_size| */
@@ -1101,19 +1113,21 @@ void enter_display_math(void)
         \.{\$\${ }\$\$}
 
     */
-    if (head == tail ||
-        (vlink(head) == tail &&
-         type(tail) == local_par_node && vlink(tail) == null)) {
-        if (vlink(head) == tail) {
-            /*tex
+    if (head == tail) {
+        pop_nest();
+        w = -max_dimen;
+    } else if ((vlink(head) == tail &&
+               type(tail) == local_par_node && vlink(tail) == null) ||
+               (math_empty_display_mode_par == 1 && only_dirs(vlink(head)))) {
+        /*tex
 
-                |resume_after_display| inserts a |local_par_node|, but if there
-                is another display immediately following, we have to get rid of
-                that node.
+            We ignore |null| paragraphs, that is those that only have a local par node,
+            for example because |resume_after_display| inserts a |local_par_node|.
+            If |\mathdisplayemptymode=1| paragraphs caontaining only local par node
+            and possibly a few dir nodes are ignored as well.
 
-            */
-            flush_node(tail);
-        }
+        */
+        flush_node_list(vlink(head));
         pop_nest();
         w = -max_dimen;
     } else {
@@ -2510,7 +2524,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
                 if (type(p) == glue_node)
                     d = 0;
     }
-    tail_append(new_penalty(pre_display_penalty_par,after_display_penalty));
+    tail_append(new_penalty(pre_display_penalty_par,before_display_penalty));
 
     /* tex
        By default the short skip detection is not adapted to r2l typesetting and that
@@ -2561,54 +2575,32 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     if (eqno_w != 0) {
         r = new_kern(line_w - eq_w - eqno_w - d);
         if (l) {
-            if (swap_dir) {
-                if (math_direction_par==dir_TLT) {
-                    /*tex TRT + TLT + \eqno: (swap_dir=true,  math_direction_par=TLT, l=true) */
-                    s = new_kern(width(r) + eqno_w);
-                } else {
-                    /*tex TLT + TRT + \eqno: (swap_dir=true,  math_direction_par=TRT, l=true) */
-                    s = new_kern(d);
-                }
-                try_couple_nodes(eqno_box,r);
-                try_couple_nodes(r,eq_box);
-                try_couple_nodes(eq_box,s);
+            if (math_direction_par==dir_TLT) {
+                /*tex TRT + TLT + \eqno: (swap_dir=true, math_direction_par=TLT, l=true) */
+                /*tex TLT + TLT + \leqno: (swap_dir=false, math_direction_par=TLT, l=true) */
+                s = new_kern(width(r) + eqno_w);
             } else {
-                if (math_direction_par==dir_TLT) {
-                    /*tex TLT + TLT + \leqno: (swap_dir=false, math_direction_par=TLT, l=true) */
-                    s = new_kern(width(r) + eqno_w);
-                } else {
-                    /*tex TRT + TRT + \leqno: (swap_dir=false, math_direction_par=TRT, l=true) */
-                    s = new_kern(d);
-                }
-                try_couple_nodes(eqno_box,r);
-                try_couple_nodes(r,eq_box);
-                try_couple_nodes(eq_box,s);
+                /*tex TLT + TRT + \eqno: (swap_dir=true, math_direction_par=TRT, l=true) */
+                /*tex TRT + TRT + \leqno: (swap_dir=false, math_direction_par=TRT, l=true) */
+                s = new_kern(d);
             }
+            try_couple_nodes(eqno_box,r);
+            try_couple_nodes(r,eq_box);
+            try_couple_nodes(eq_box,s);
             eq_box = eqno_box;
         } else {
-            if (swap_dir) {
-                if (math_direction_par==dir_TLT) {
-                    /*tex TRT + TLT + \leqno: (swap_dir=true,  math_direction_par=TLT, l=false) */
-                    s = new_kern(d);
-                } else {
-                    /*tex TLT + TRT + \leqno: (swap_dir=true,  math_direction_par=TRT, l=false) */
-                    s = new_kern(width(r) + eqno_w);
-                }
-                try_couple_nodes(s,eq_box);
-                try_couple_nodes(eq_box,r);
-                try_couple_nodes(r,eqno_box);
+            if (math_direction_par==dir_TLT) {
+                /*tex TRT + TLT + \leqno: (swap_dir=true,  math_direction_par=TLT, l=false) */
+                /*tex TLT + TLT + \eqno: (swap_dir=false, math_direction_par=TLT, l=false) */
+                s = new_kern(d);
             } else {
-                if (math_direction_par==dir_TLT) {
-                    /*tex TLT + TLT + \eqno: (swap_dir=false, math_direction_par=TLT, l=false) */
-                    s = new_kern(d);
-                } else {
-                    /*tex TRT + TRT + \eqno: (swap_dir=false, math_direction_par=TRT, l=false) */
-                    s = new_kern(width(r) + eqno_w);
-                }
-                try_couple_nodes(s,eq_box);
-                try_couple_nodes(eq_box,r);
-                try_couple_nodes(r,eqno_box);
+                /*tex TLT + TRT + \leqno: (swap_dir=true,  math_direction_par=TRT, l=false) */
+                /*tex TRT + TRT + \eqno: (swap_dir=false, math_direction_par=TRT, l=false) */
+                s = new_kern(width(r) + eqno_w);
             }
+            try_couple_nodes(s,eq_box);
+            try_couple_nodes(eq_box,r);
+            try_couple_nodes(r,eqno_box);
             eq_box = s;
         }
         eq_box = hpack(eq_box, 0, additional, -1);

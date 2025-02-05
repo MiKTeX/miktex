@@ -1964,7 +1964,7 @@ void end_graf(int line_break_context)
         if (head == tail) {
             pop_nest();
         } else if (only_dirs(vlink(head))) {
-            flush_node(vlink(head));
+            flush_node_list(vlink(head));
             pop_nest();
         } else {
             line_break(false, line_break_context);

@@ -318,7 +318,9 @@ the |number_regs| \.{\\dimen} registers.
 
 #  define ignore_primitive_error_code 125 				/*ignore some primitive/engine errors*/
 
-#  define math_option_code 126
+#  define math_empty_display_mode_code 126
+
+#  define math_option_code 127
 
 
 #  define mathoption_int_base_code (math_option_code+1)                 /* one reserve */
@@ -829,6 +831,8 @@ extern halfword last_cs_name;
 #define partoken_context_code_par          int_par(partoken_context_code)
 
 #define show_stream_par                    int_par(show_stream_code)
+
+#define math_empty_display_mode_par        int_par(math_empty_display_mode_code)
 
 /* */
 
