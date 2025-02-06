@@ -79,6 +79,9 @@ extern "C" {
 #ifdef _WIN32
 /* MS compiler has predefined _WIN32, so assume Windows target  */
 #include <windows.h>
+#undef WINAPI
+#define WINAPI
+#define EXPORTED
 #else
 /* not the MS compiler, so try Metrowerks' platform macros */
 #ifndef __APPLE__
@@ -93,9 +96,6 @@ extern "C" {
 #define CALLBACK
 #endif
 
-#if defined(MIKTEX)
-#  define EXPORTED
-#endif
 /* this seems to be needed for a gcc-mingw32 build to work... */
 #ifndef EXPORTED
 #ifdef _WIN32

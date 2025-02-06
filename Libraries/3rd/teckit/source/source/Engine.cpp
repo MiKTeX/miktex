@@ -51,12 +51,6 @@ Description:
 #	define NOSERVICE
 #	define NOMCX
 #	include <windows.h>
-
-	BOOL WINAPI
-	DllMain(HINSTANCE /*hInst*/, DWORD /*wDataSeg*/, LPVOID /*lpReserved*/)
-	{
-		return true;
-	}
 #endif
 
 #include "Engine.h"
