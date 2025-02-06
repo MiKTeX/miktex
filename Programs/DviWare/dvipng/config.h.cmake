@@ -87,9 +87,6 @@
 /* Define to 1 if you have the `z' library (-lz). */
 #cmakedefine HAVE_LIBZ 1
 
-/* Define to 1 if you have the <memory.h> header file. */
-#cmakedefine HAVE_MEMORY_H 1
-
 /* Define to 1 if you have the `memset' function. */
 #cmakedefine HAVE_MEMSET 1
 
@@ -114,6 +111,9 @@
 /* Define to 1 if you have the <stdint.h> header file. */
 #cmakedefine HAVE_STDINT_H 1
 
+/* Define to 1 if you have the <stdio.h> header file. */
+#cmakedefine HAVE_STDIO_H 1
+
 /* Define to 1 if you have the <stdlib.h> header file. */
 #cmakedefine HAVE_STDLIB_H 1
 
@@ -125,6 +125,9 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #cmakedefine HAVE_STRING_H 1
+
+/* Define to 1 if you have the `strncasecmp' function. */
+#cmakedefine HAVE_STRNCASECMP 1
 
 /* Define to 1 if you have the `strrchr' function. */
 #cmakedefine HAVE_STRRCHR 1
@@ -149,6 +152,9 @@
 
 /* Define to 1 if you have <sys/wait.h> that is POSIX.1 compatible. */
 #cmakedefine HAVE_SYS_WAIT_H 1
+
+/* Define to 1 if you have the `texlive_gs_init' function. */
+#cmakedefine HAVE_TEXLIVE_GS_INIT 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
@@ -189,11 +195,10 @@
 /* Define to the version of this package. */
 #cmakedefine PACKAGE_VERSION "${PACKAGE_VERSION}"
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #cmakedefine STDC_HEADERS 1
-
-/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
-#cmakedefine TIME_WITH_SYS_TIME 1
 
 /* Define as 1 to get execution time output. */
 #cmakedefine TIMING 1
@@ -204,7 +209,7 @@
 /* Define to `long long' if <inttypes.h> does not define it. */
 #cmakedefine int64_t
 
-/* Define to `int' if <sys/types.h> does not define. */
+/* Define as a signed integer type capable of holding a process identifier. */
 #cmakedefine pid_t
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */

@@ -6,6 +6,7 @@
 
 * chktex 1.7.9
 * dvipdfmx 20250205
+* dvipng 1.18
 * dvips 2024.1
 * dvisvgm 3.4.3
 * hitex 2.1

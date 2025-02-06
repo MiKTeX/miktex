@@ -18,7 +18,7 @@
   License along with this program. If not, see
   <http://www.gnu.org/licenses/>.
 
-  Copyright (C) 2002-2015, 2019 Jan-�ke Larsson
+  Copyright (C) 2002-2015, 2019 Jan-Åke Larsson
 
 ************************************************************************/
 
@@ -500,7 +500,7 @@ bool DecodeArgs(int argc, char ** argv)
 			  puts(miktexBanner);
 		  }
 #else
-		  puts(KPSEVERSION);
+	  puts (KPSEVERSION);
 #endif
 #endif
 #ifdef HAVE_FT2

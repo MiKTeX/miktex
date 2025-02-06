@@ -18,7 +18,7 @@
   License along with this program. If not, see
   <http://www.gnu.org/licenses/>.
 
-  Copyright (C) 2002-2015 Jan-Åke Larsson
+  Copyright (C) 2002-2015, 2021, 2025 Jan-Åke Larsson
 
 ************************************************************************/
 
@@ -97,8 +97,6 @@ static void PSCodeInit(struct pscode *entry, char *special)
 #endif
 }
 
-
-
 void ClearPSHeaders(void)
 {
   struct pscode *temp=psheaderp;
@@ -151,6 +149,32 @@ static void writepscode(FILE* psstream,struct pscode* pscodep)
   }
 }
 
+static bool psisnotjustcomments(struct pscode* pscodep)
+{
+  while (pscodep!=NULL) {
+    if (pscodep->code!=NULL) {
+      const char* pos=pscodep->code;
+      while (*pos!='\0') {
+	while (*pos==' ' || *pos=='\t' || *pos=='\n' || *pos=='\r') pos++; /* skip whitespace */
+	if (*pos=='%') {
+	  while(*pos!='\0' && *pos!='\r' && *pos!='\n') pos++; /* skip comment */
+	} else if (*pos=='/' && *(pos+1)=='*') {
+	  pos+=2;
+	  while(*pos!='\0' && *pos!='*' && *(pos+1)!='/') pos++; /* skip comment */
+	} else if (*pos!='\0')
+	  return(true);
+      }
+    }
+    if (pscodep->filename!=NULL)
+      return(true);
+    if (pscodep->fmmap.data!=NULL)
+      return(true);
+    if (pscodep->postcode!=NULL) 
+      return(true);
+    pscodep=pscodep->next;
+  }
+  return(false);
+}
 
 static gdImagePtr
 ps2png(struct pscode* pscodep, const char *device, int hresolution, int vresolution,
@@ -450,7 +474,7 @@ void SetSpecial(char *start, char *end, int32_t hh, int32_t vv)
     char* psname = special+7;
     int llx=0,lly=0,urx=0,ury=0,rwi=0,rhi=0;
     bool clip=false;
-    int hresolution,vresolution;
+    int hresolution=0,vresolution=0;
     int pngheight,pngwidth;
 
     /* Remove quotation marks around filename. If no quotation marks,
@@ -489,8 +513,8 @@ void SetSpecial(char *start, char *end, int32_t hh, int32_t vv)
 
     /* Calculate resolution, and use our base resolution as a fallback. */
     /* The factor 10 is magic, the dvips graphicx driver needs this.    */
-    hresolution = ((dpi*rwi+urx-llx-1)/(urx - llx)+9)/10;
-    vresolution = ((dpi*rhi+ury-lly-1)/(ury - lly)+9)/10;
+    if (urx != llx) hresolution = ((dpi*rwi+urx-llx-1)/(urx - llx)+9)/10;
+    if (ury != lly) vresolution = ((dpi*rhi+ury-lly-1)/(ury - lly)+9)/10;
     if (vresolution==0) vresolution = hresolution;
     if (hresolution==0) hresolution = vresolution;
     if (hresolution==0) hresolution = vresolution = dpi;
@@ -498,9 +522,9 @@ void SetSpecial(char *start, char *end, int32_t hh, int32_t vv)
     /* Convert from postscript 72 dpi resolution to our given resolution */
     pngwidth  = (dpi*rwi+719)/720; /* +719: round up */
     pngheight = (dpi*rhi+719)/720;
-    if (pngwidth==0)
+    if (pngwidth==0 && ury != lly)
       pngwidth  = ((dpi*rhi*(urx-llx)+ury-lly-1)/(ury-lly)+719)/720;
-    if (pngheight==0)
+    if (pngheight==0 && urx != llx)
       pngheight = ((dpi*rwi*(ury-lly)+urx-llx-1)/(urx-llx)+719)/720;
     if (pngheight==0) {
       pngwidth  = (dpi*(urx-llx)+71)/72;
@@ -515,6 +539,13 @@ void SetSpecial(char *start, char *end, int32_t hh, int32_t vv)
 
       PSCodeInit(&image, NULL);
       image.filename=kpse_find_file(psname,kpse_pict_format,0);
+      if (image.filename == NULL) {
+        Warning("Image file %s cannot be found, image will be left blank",
+		psname);
+	page_flags |= PAGE_GAVE_WARN;
+	free(buffer);
+	return;
+      }
       if (MmapFile(image.filename,&(image.fmmap)) || image.fmmap.size==0) {
 	Warning("Image file %s unusable, image will be left blank",
 		image.filename);
@@ -739,6 +770,25 @@ void SetSpecial(char *start, char *end, int32_t hh, int32_t vv)
     return;
   }
 
+  if (strncmp(special,"papersize=",10)==0) { /* papersize spec, ignored */
+    free(buffer);
+    return;
+  }
+
+  if (special[0]=='!' || strncmp(special,"header=",7)==0) { /* PS header */
+    newpsheader(special);
+    free(buffer);
+    return;
+  }
+
+  if (strncmp(special,"src:",4)==0) { /* source special */
+    if ( page_imagep != NULL )
+      Message(BE_NONQUIET," at (%ld,%ld) source \\special{%s}",
+	      hh, vv, special);
+    free(buffer);
+    return;
+  }
+
   if (special[0]=='"' || strncmp(special,"ps:",3)==0) { /* Raw PostScript */
     if (option_flags & NO_RAW_PS) {
       Warning("Raw PostScript rendering disallowed by --norawps" );
@@ -821,36 +871,38 @@ void SetSpecial(char *start, char *end, int32_t hh, int32_t vv)
       }
       PSCodeInit(tmp,special);
       /* Now, render image */
-      if (option_flags & NO_GHOSTSCRIPT)
-	Warning("GhostScript calls disallowed by --nogs" );
-      else {
-	/* Use alpha blending, and render transparent postscript
-	   images. The alpha blending works correctly only from
-	   libgd 2.0.12 upwards */
+      if (psisnotjustcomments(pscodep)) {
+	if (option_flags & NO_GHOSTSCRIPT)
+	  Warning("GhostScript calls disallowed by --nogs" );
+	else {
+	  /* Use alpha blending, and render transparent postscript
+	    images. The alpha blending works correctly only from
+	    libgd 2.0.12 upwards */
 #ifdef HAVE_GDIMAGEPNGEX
-	if (page_imagep->trueColor) {
-	  /* Render across the whole image */
-	  psimage = ps2png(pscodep, "-sDEVICE=pngalpha",
-			   dpi,dpi,
-			   -(hh+1)*72/dpi,
-			   -(gdImageSY(page_imagep)-vv-1)*72/dpi,
-			   (gdImageSX(page_imagep)-hh)*72/dpi,
-			   (vv+1)*72/dpi,
-			   255,255,255);
-	  if (psimage!=NULL) {
-	    gdImageAlphaBlending(page_imagep,1);
-	    gdImageCopy(page_imagep, psimage,
-			0,0,0,0,
-			gdImageSX(psimage),gdImageSY(psimage));
-	    gdImageAlphaBlending(page_imagep,0);
-	    gdImageDestroy(psimage);
+	  if (page_imagep->trueColor) {
+	    /* Render across the whole image */
+	    psimage = ps2png(pscodep, "-sDEVICE=pngalpha",
+			    dpi,dpi,
+			    -(hh+1)*72/dpi,
+			    -(gdImageSY(page_imagep)-vv-1)*72/dpi,
+			    (gdImageSX(page_imagep)-hh)*72/dpi,
+			    (vv+1)*72/dpi,
+			    255,255,255);
+	    if (psimage!=NULL) {
+	      gdImageAlphaBlending(page_imagep,1);
+	      gdImageCopy(page_imagep, psimage,
+			  0,0,0,0,
+			  gdImageSX(psimage),gdImageSY(psimage));
+	      gdImageAlphaBlending(page_imagep,0);
+	      gdImageDestroy(psimage);
+	    } else
+	      Warning("No image output from inclusion of raw PostScript");
 	  } else
-	    Warning("No image output from inclusion of raw PostScript");
-	} else
-	  Warning("Palette output, cannot include raw PostScript");
+	    Warning("Palette output, cannot include raw PostScript");
 #else
-	Warning("Using libgd < 2.0.12, unable to include raw PostScript");
+	  Warning("Using libgd < 2.0.12, unable to include raw PostScript");
 #endif
+	}
       }
       while(pscodep->next != NULL) {
 	tmp=pscodep->next;
@@ -872,24 +924,6 @@ void SetSpecial(char *start, char *end, int32_t hh, int32_t vv)
     return;
   }
 
-  if (strncmp(special,"papersize=",10)==0) { /* papersize spec, ignored */
-    free(buffer);
-    return;
-  }
-
-  if (special[0]=='!' || strncmp(special,"header=",7)==0) { /* PS header */
-    newpsheader(special);
-    free(buffer);
-    return;
-  }
-
-  if (strncmp(special,"src:",4)==0) { /* source special */
-    if ( page_imagep != NULL )
-      Message(BE_NONQUIET," at (%ld,%ld) source \\special{%s}",
-	      hh, vv, special);
-    free(buffer);
-    return;
-  }
   if ( page_imagep != NULL ) {
     Warning("at (%ld,%ld) unimplemented \\special{%s}",
 	    hh, vv, special);

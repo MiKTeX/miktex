@@ -18,7 +18,7 @@
   License along with this program. If not, see
   <http://www.gnu.org/licenses/>.
 
-  Copyright (C) 2002-2015, 2019 Jan-Åke Larsson
+  Copyright (C) 2002-2015, 2019, 2025 Jan-Åke Larsson
 
 ************************************************************************/
 
@@ -87,15 +87,17 @@ static void DVIInit(struct dvi_data* dvi)
   dvi->den = UNumRead(pre+6, 4);
   DEBUG_PRINT(DEBUG_DVI,(" %d/%d",dvi->num,dvi->den));
   dvi->mag = UNumRead(pre+10, 4); /*FIXME, see font.c*/
-  DEBUG_PRINT(DEBUG_DVI,(" %d",dvi->mag));
+  DEBUG_PRINT(DEBUG_DVI,(" %u",dvi->mag));
   if ( usermag > 0 && usermag != dvi->mag ) {
-    Warning("DVI magnification of %d over-ridden by user (%ld)",
+    Warning("DVI magnification of %lu over-ridden by user (%lu)",
 	    (long)dvi->mag, usermag );
     dvi->mag = usermag;
   }
   dvi->conv = (1.0/(((double)dvi->num / (double)dvi->den) *
 		    ((double)dvi->mag / 1000.0) *
 		    ((double)dpi*shrinkfactor/254000.0)))+0.5;
+  if ( dvi->conv==0 )
+    Fatal("DVI magnification %u too large, override this by using the -x option",dvi->mag);
   DEBUG_PRINT(DEBUG_DVI,(" (%d)",dvi->conv));
   k = UNumRead(pre+14,1);
   DEBUG_PRINT(DEBUG_DVI,(" '%.*s'",k,pre+15));

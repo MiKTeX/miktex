@@ -152,7 +152,7 @@ int main(int argc, char ** argv)
   ClearEncoding();
   ClearSubfont();
   if (libfreetype!=NULL && FT_Done_FreeType(libfreetype))
-    Fatal("an error occured during freetype destruction");
+    Fatal("an error occurred during freetype destruction");
   libfreetype = NULL;
 #endif
 

@@ -150,7 +150,7 @@ void WriteImage(char *pngname, int pagenum)
       sprintf(freeme,pngname,pagenum);
       pngname = freeme;
     } else {
-      Fatal("unacceptible format spec in output file name");
+      Fatal("unacceptable format spec in output file name");
     }
   }
 #ifdef HAVE_GDIMAGEGIF
