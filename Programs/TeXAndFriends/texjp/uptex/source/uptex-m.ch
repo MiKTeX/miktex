@@ -797,7 +797,10 @@ if cat=other_kchar then decr(k); {now |k| points to first nonletter}
 @y
 until not((cat=letter)or(cat=kanji)or(cat=kana)or(cat=hangul)or(cat=modifier))or(k>limit);
 {@@<If an expanded...@@>;}
-if not((cat=letter)or(cat=kanji)or(cat=kana)or(cat=hangul)or(cat=modifier)) then decr(k);
+if not((cat=letter)or(cat=kanji)or(cat=kana)or(cat=hangul)or(cat=modifier)) then begin
+  if (cat=mac_param)and(buffer2[k-1])and(multilenbuffchar(cur_chr)>1) then k:=k-multilenbuffchar(cur_chr)
+  else decr(k);
+  end;
 if cat=other_kchar then k:=k-multilenbuffchar(cur_chr)+1; {now |k| points to first nonletter}
 @z
 
@@ -898,6 +901,12 @@ if cat=other_kchar then k:=k-multilenbuffchar(cur_chr)+1; {now |k| points to fir
   else if (check_echar_range(cur_chr)=1) then
       cur_tok:=(cur_cmd*max_cjk_val)+cur_chr
   else cur_tok:=(cur_cmd*max_char_val)+cur_chr
+@z
+
+@x
+if (info(r)>match_token+255)or(info(r)<match_token) then s:=null
+@y
+if (info(r)>=match_token+max_latin_val)or(info(r)<match_token) then s:=null
 @z
 
 @x
