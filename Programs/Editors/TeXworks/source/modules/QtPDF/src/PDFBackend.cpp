@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2023  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2024  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free

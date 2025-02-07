@@ -2684,20 +2684,21 @@ void TeXDocumentWindow::copyToFind()
 {
 	if (textEdit->textCursor().hasSelection()) {
 		QString searchText = textEdit->textCursor().selectedText();
-		searchText.replace(QChar(0x2029), QChar::fromLatin1('\n'));
+		searchText.replace(QChar::ParagraphSeparator, QChar::LineFeed); // 0x2029 -> \n
+
 		Tw::Settings settings;
 		// Note: To search for multi-line strings, we currently need regex
 		// enabled (since we only have a single search line). If it was not
 		// enabled, we also need to ensure that the replaceText is escaped
 		// properly
-		bool isMultiLine = searchText.contains(QChar::fromLatin1('\n'));
+		const bool isMultiLine = searchText.contains(QChar::LineFeed);
 		if (isMultiLine && !settings.value(QString::fromLatin1("searchRegex")).toBool()) {
 			settings.setValue(QString::fromLatin1("searchRegex"), true);
 			settings.setValue(QString::fromLatin1("replaceText"), QRegularExpression::escape(settings.value(QString::fromLatin1("replaceText")).toString()));
 		}
 		if (settings.value(QString::fromLatin1("searchRegex")).toBool()) {
 			if (isMultiLine)
-				settings.setValue(QString::fromLatin1("searchText"), QRegularExpression::escape(searchText).replace(QChar::fromLatin1('\n'), QLatin1String("\\n")));
+				settings.setValue(QString::fromLatin1("searchText"), QRegularExpression::escape(searchText).replace(QStringLiteral("\\\n"), QStringLiteral("\\n")));
 			else
 				settings.setValue(QString::fromLatin1("searchText"), QRegularExpression::escape(searchText));
 		}

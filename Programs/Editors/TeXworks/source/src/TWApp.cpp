@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2024  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2025  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -305,7 +305,7 @@ TWApp::CommandLineData TWApp::processCommandLine()
 Copyright (C) %1  %2\n\
 License GPLv2+: GNU GPL (version 2 or later) <http://gnu.org/licenses/gpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
-There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLatin1("2007-2024"), QString::fromUtf8("Stefan Löffler, Jonathan Kew, Charlie Sharpsteen"));
+There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLatin1("2007-2025"), QString::fromUtf8("Stefan Löffler, Jonathan Kew, Charlie Sharpsteen"));
 			strm.flush();
 		}
 		if ((i = clp.getNextSwitch(QString::fromLatin1("help"))) >= 0) {
@@ -504,7 +504,7 @@ void TWApp::about()
 {
 	QString aboutText = tr("<p>%1 is a simple environment for editing, typesetting, and previewing TeX documents.</p>").arg(applicationName());
 	aboutText += QLatin1String("<small>");
-	aboutText += QLatin1String("<p>&#xA9; 2007-2024  Stefan L&#xF6;ffler, Jonathan Kew, Charlie Sharpsteen");
+	aboutText += QLatin1String("<p>&#xA9; 2007-2025  Stefan L&#xF6;ffler, Jonathan Kew, Charlie Sharpsteen");
 #if defined(MIKTEX)
 	aboutText += tr("<br>Version %1 (%2)").arg(Tw::Utils::VersionInfo::versionString(), QString::fromUtf8(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str()));
 #else
