@@ -122,24 +122,20 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="116"/>
-        <source>Check and modify MiKTeX configuration settings</source>
-        <translation>检查和修改 MikTeX 配置设置</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.ui" line="119"/>
-        <source>Settings</source>
-        <translation>设置</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.ui" line="144"/>
         <source>Check for MiKTeX updates</source>
         <translation>检查 MiKTeX 更新</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="147"/>
-        <location filename="../mainwindow.ui" line="701"/>
+        <location filename="../mainwindow.ui" line="119"/>
+        <location filename="../mainwindow.ui" line="729"/>
         <source>Updates</source>
         <translation>更新</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="144"/>
+        <location filename="../mainwindow.ui" line="147"/>
+        <source>Documentation</source>
+        <translation>文档</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="172"/>
@@ -164,7 +160,17 @@
         <translation type="unfinished">清除</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="266"/>
+        <location filename="../mainwindow.ui" line="259"/>
+        <source>Check and modify MiKTeX configuration settings</source>
+        <translation>检查和修改 MiKTeX 配置设置</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="262"/>
+        <source>Settings</source>
+        <translation>设置</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="294"/>
         <source>Start the TeXworks front-end</source>
         <translation type="unfinished">启动 TexWorks 前端</translation>
     </message>
