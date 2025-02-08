@@ -861,8 +861,8 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
 	  };
 	  snprintf(err, 255, "Font scaled to 2048pt or higher");
 	  tex_error(err, errhelp);
+	  z = sw ;
 	}
-	z = sw ;
 	arith_error = saved_arith_error;
     }
     set_font_size(f, z);

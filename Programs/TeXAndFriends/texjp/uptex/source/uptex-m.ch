@@ -703,8 +703,8 @@ hangul_code(mid_kanji):
 @x
   begin c:=buffer[loc+1]; @+if c<@'200 then {yes we have an expanded char}
 @y
-  begin if (cur_chr=buffer[loc+1]) and (cur_chr=buffer[loc+2]) and
-           ((loc+6)<=limit) then
+  begin if (isinternalUPTEX) and ((loc+6)<=limit) and
+           (cur_chr=buffer[loc+1]) and (cur_chr=buffer[loc+2]) then
      begin c:=buffer[loc+3]; cc:=buffer[loc+4];
        cd:=buffer[loc+5]; ce:=buffer[loc+6];
        if is_hex(c) and is_hex(cc) and is_hex(cd) and is_hex(ce) then
@@ -798,10 +798,9 @@ if cat=other_kchar then decr(k); {now |k| points to first nonletter}
 until not((cat=letter)or(cat=kanji)or(cat=kana)or(cat=hangul)or(cat=modifier))or(k>limit);
 {@@<If an expanded...@@>;}
 if not((cat=letter)or(cat=kanji)or(cat=kana)or(cat=hangul)or(cat=modifier)) then begin
-  if (cat=mac_param)and(buffer2[k-1])and(multilenbuffchar(cur_chr)>1) then k:=k-multilenbuffchar(cur_chr)
+  if (buffer2[k-1]) then k:=k-multilenbuffchar(cur_chr)
   else decr(k);
-  end;
-if cat=other_kchar then k:=k-multilenbuffchar(cur_chr)+1; {now |k| points to first nonletter}
+  end; {now |k| points to first nonletter}
 @z
 
 @x
