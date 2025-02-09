@@ -25,8 +25,8 @@
 @d print_ignored_err(#)==begin if interaction=error_stop_mode then
   wake_up_terminal;
   if file_line_error_style_p then print_file_line
-  else print_nl("! ");
-  print_nl("ignored error: "); print(#);
+  else print_nl("");
+  print("ignored error: "); print(#);
   end
 @z
 
