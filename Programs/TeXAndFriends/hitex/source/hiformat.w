@@ -156,7 +156,7 @@ ISBN-13: 979-854992684-4\par
 First printing: August 2019\par
 Second edition: August 2021\par
 \medskip
-Last commit: Wed Oct 30 14:00:17 2024
+Last commit: Tue Feb 4 19:26:26 2025
 \par
 }
 }
@@ -5022,12 +5022,16 @@ pixels and hence the aspect ratio of the image can be determined.
 It is not uncommon, however, that the resolution in such a case is given
 as dots per inch. So we decide to assume the latter.
 
+If there is resolution can not be determined, we assume a resolution
+of 72dpi and negate width and height to inform the calling procedure
+of this arbitrary choice.
+
 
 @<auxiliar image functions@>=
 static bool get_PNG_info(FILE *f, char *fn, double *a, Dimen *w, Dimen *h)
 { int pos, size;
-  double wpx,hpx;
-  double xppu,yppu;
+  double wpx,hpx; /* width and height in pixel */
+  double xppu,yppu; /* pixel per unit in x and y direction */
   int unit;
   GET_IMG_BUF(24);
   if (!Match4(0, 0x89, 'P', 'N', 'G') ||
@@ -5078,71 +5082,78 @@ static bool get_PNG_info(FILE *f, char *fn, double *a, Dimen *w, Dimen *h)
 For photographs, the JPEG File Interchange Format (JFIF) is more
 appropriate.  JPEG files come with all sorts of file extensions like
 {\tt .jpg}, {\tt .jpeg}, or {\tt .jfif}.  We check the file siganture:
-it starts with the the SOI (Start of Image) marker |0xFF|, |0xD8|
-followed by the JIFI-Tag. The JIFI-Tag starts with the segment marker
+it starts with the the SOI (Start of Image) marker |0xFF|, |0xD8|.
+
+Most likely it will be followed by the JIFI-Tag.
+The JIFI-Tag starts with the segment marker
 APP0 (|0xFF|, |0xE0|) followed by the 2 byte segment size, followed by
 the ASCII codes `J', `F', `I', `F' followed by a zero byte.  Next is a
 two byte version number which we do not read.  Before the resolution
 proper there is a resolution unit indicator byte (0 = no units, 1 =
 dots per inch, 2 = dots per cm) and then comes the horizontal and
-vertical resolution both as 16 Bit big-endian integers.  To find the
-actual width and height, we have to search for a start of frame marker
+vertical resolution both as 16 Bit big-endian integers.
+
+Instead of the JIFI-Tag, there might as well be a Exif-Tag
+which starts with  the segment marker
+APP1 (|0xFF|, |0xE1|) followed by the 2 byte segment size.
+Currently this tag is not decoded.
+
+To find the actual width and height,
+we have to search for a start of frame marker
 (|0xFF|, |0xC0|+$n$ with $0\le n\le 15$). Which is followed by the 2
 byte segment size, the 1 byte sample precission, the 2 byte height and
-the 2 byte width. Because here, in contrast to the PNG file format,
-the dots per inch can be specified explicitly, we will indeed treat
-the undefined unit as such.
+the 2 byte width.
+
+If the resolution was given explicitely in the JIFI-Tag,
+we use it. If there was no such tag or the uint was undefined,
+we proceed as we did for the PNG file.
 
 
 @<auxiliar image functions@>=
 static bool get_JPG_info(FILE *f, char *fn,  double *a, Dimen *w, Dimen *h)
 { int pos, size;
   double wpx,hpx;
-  double xppu,yppu;
+  double xppu=72.0,yppu=72.0;
   int unit;
   GET_IMG_BUF(18);
 
-  if (!Match4(0, 0xFF,0xD8, 0xFF, 0xE0)) return false;
-  size=BigEndian16(4);
-  if (!Match4(6,'J', 'F', 'I', 'F')) return false;
-  if (img_buf[10] != 0) return false; 
-  unit=img_buf[13];
-  xppu=(double)BigEndian16(14);
-  yppu=(double)BigEndian16(16);
-  pos=4+size;
+  if (!Match2(0, 0xFF,0xD8)) /* SOI Start of Image */
+    return false;
+  pos=2;
   while (true)
-  { if (fseek(f,pos,SEEK_SET)!=0) return false;
+  { if (fseek(f,pos,SEEK_SET)!=0)
+      return false;
     img_buf_size=0;
-    GET_IMG_BUF(10);
+    GET_IMG_BUF(16);
     if (img_buf[0] != 0xFF) return false; /* Not the start of a segment */
-    if ( (img_buf[1]&0xF0) == 0xC0) /* Start of Frame */
-    { hpx =(double)BigEndian16(5);  
-      wpx =(double)BigEndian16(7);
-      if (unit==0)
-      { *a = (wpx/xppu)/(hpx/yppu);
-        *w=-floor(0.5+ONE*72.27*wpx/xppu);
-	*h=-floor(0.5+ONE*72.27*hpx/yppu);
-        return true;
-      }
-      else if (unit==1)
-      { *w = floor(0.5+ONE*72.27*wpx/xppu);
-        *h = floor(0.5+ONE*72.27*hpx/yppu);
-        *a = (wpx/xppu)/(hpx/yppu);
-        return true;
-      }
+    if ( img_buf[1] == 0xE0 && 
+         Match4(4,'J', 'F', 'I', 'F')) /* APP0 JFIF Tag */
+    { unit=img_buf[11];
+      xppu=(double)BigEndian16(12);
+      yppu=(double)BigEndian16(14);
+      if (unit==1)  
+      ; /* allready in dpi */
       else if (unit==2)
-      { *w = floor(0.5+ONE*(72.27/2.54)*wpx/xppu);
-        *h = floor(0.5+ONE*(72.27/2.54)*hpx/yppu);
-        *a = (wpx/xppu)/(hpx/yppu);
-        return true;
+      { xppu=xppu*2.54; /* convert dot per cm to dpi */
+        yppu=yppu*2.54;
       }
       else
-        return false;
+      { yppu=72.0*yppu/xppu; /* assume 72dpi */
+        xppu=72.0;
+      }
     }
-    else
-    { size=  BigEndian16(2);
-      pos=pos+2+size;
+    else if (img_buf[1] == 0xC0 || img_buf[1] == 0xC2) /* SOF Start of Frame */
+    { hpx =(double)BigEndian16(5);  
+      wpx =(double)BigEndian16(7);
+      *w = floor(0.5+ONE*72.27*wpx/xppu);
+      *h = floor(0.5+ONE*72.27*hpx/yppu);
+      *a = (wpx/xppu)/(hpx/yppu);
+      return true;
     }
+    else if (img_buf[1] == 0xD9) /* EOI End of Image */
+      return false;
+    size=  BigEndian16(2);
+    pos=pos+2+size;
   }
   return false;
 }
