@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2022-2023 Christian Schenk
+## Copyright (C) 2022-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -84,6 +84,8 @@ endif()
 
 add_executable(himktables ${himktables_sources})
 
+set_property(TARGET himktables PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
 target_link_libraries(himktables
     ${app_dll_name}
     ${core_dll_name}
@@ -116,6 +118,8 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 add_executable(${MIKTEX_PREFIX}hitex ${hitex_sources})
+
+set_property(TARGET ${MIKTEX_PREFIX}hitex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_link_libraries(${MIKTEX_PREFIX}hitex
     ${app_dll_name}
@@ -161,6 +165,8 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 add_executable(${MIKTEX_PREFIX}histretch ${histretch_sources})
+
+set_property(TARGET ${MIKTEX_PREFIX}histretch PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_link_libraries(${MIKTEX_PREFIX}histretch
     ${app_dll_name}
@@ -209,6 +215,8 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 add_executable(${MIKTEX_PREFIX}hishrink ${hishrink_sources})
+
+set_property(TARGET ${MIKTEX_PREFIX}hishrink PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_link_libraries(${MIKTEX_PREFIX}hishrink
     ${app_dll_name}

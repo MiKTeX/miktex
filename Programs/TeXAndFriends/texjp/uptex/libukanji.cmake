@@ -1,6 +1,6 @@
 ## libukanji.cmake
 ##
-## Copyright (C) 2021-2022 Christian Schenk
+## Copyright (C) 2021-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -31,12 +31,13 @@ target_link_libraries(texjp-ukanji
         ${w2cemu_dll_name}
 )
 
+set_property(TARGET texjp-ukanji PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
 if(USE_SYSTEM_ZLIB)
     target_link_libraries(texjp-ukanji PUBLIC MiKTeX::Imported::ZLIB)
 else()
     target_link_libraries(texjp-ukanji PUBLIC ${zlib_dll_name})
 endif()
-
 
 target_link_libraries(texjp-ukanji
     PRIVATE
