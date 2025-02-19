@@ -3,6 +3,7 @@
 #include "mendex.h"
 #include <kpathsea/expand.h>
 #include <kpathsea/pathsearch.h>
+#include <kpathsea/tex-file.h>
 
 #include "kp.h"
 
@@ -45,4 +46,15 @@ const char *KP_find_file(KpathseaSupportInfo *info, const char *name)
     free(suff_name);
   }
   return ret ? ret : name;
+}
+
+const char *KP_find_ist_file(const char *name)
+{
+  char *ret = kpse_find_file(name, kpse_ist_format, 1);
+  return ret ? ret : name;
+}
+
+const char *KP_find_dict_file(const char *name)
+{
+  return KP_find_file(&kp_dict, name);
 }

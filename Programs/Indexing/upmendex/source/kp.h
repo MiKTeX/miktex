@@ -11,4 +11,6 @@ extern KpathseaSupportInfo kp_ist, kp_dict;
 
 extern void KP_entry_filetype(KpathseaSupportInfo *);
 extern const char *KP_find_file(KpathseaSupportInfo *, const char *);
+extern const char *KP_find_ist_file(const char *);
+extern const char *KP_find_dict_file(const char *);
 #endif /* ! KSUPPORT_H_INCLUDED */

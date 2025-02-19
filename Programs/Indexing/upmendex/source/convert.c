@@ -68,7 +68,7 @@ int dicread(const char *filename)
 	FILE *fp;
 
 	if (filename!=NULL) {
-		filename = KP_find_file(&kp_dict,filename);
+		filename = KP_find_dict_file(filename);
 		if(kpse_in_name_ok(filename))
 			fp=fopen(filename,"rb");
 		else
@@ -95,7 +95,7 @@ int dicread(const char *filename)
 ENV:
 	envfile=kpse_var_value("INDEXDEFAULTDICTIONARY");
 	if ((envfile!=NULL)&&(strlen(envfile)!=0)) {
-		envfile = KP_find_file(&kp_dict,envfile);
+		envfile = KP_find_dict_file(envfile);
 		if(kpse_in_name_ok(envfile))
 			fp=fopen(envfile,"rb");
 		else

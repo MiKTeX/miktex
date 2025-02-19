@@ -13,7 +13,7 @@
 * luatex 1.21.0
 * pdftex 1.40.27
 * texworks 0.6.10
-* upmendex 1.10
+* upmendex 1.11
 * xetex 0.999997
 
 ## 24.12 - 2024-12-23
