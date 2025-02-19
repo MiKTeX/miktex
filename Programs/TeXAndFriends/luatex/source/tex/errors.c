@@ -941,16 +941,22 @@ suppressed it.
 If |tracing_lost_chars_par| (i.e. \.{\\tracinglostchar})  is  greater than 2,
 it's considered as an error.
 
+=0 : nothing 
+=1 : warning only to log file
+=2 : warning + force terminal 
+=3 : error                      
+=4 : warning (+ force terminal) : per request latex team
+>4 : error                      : per request latex team
+
 */
 
 void char_warning(internal_font_number f, int c)
 {
-    /*tex saved value of |tracing_online| */
-    int old_setting;
-    /* index to current digit; we assume that $0\L n<16^{22}$ */
-    int k;
     if (tracing_lost_chars_par > 0) {
-        old_setting = tracing_online_par;
+        /*tex saved value of |tracing_online| */
+        int old_setting = tracing_online_par;
+        /* index to current digit; we assume that $0\L n<16^{22}$ */
+        int k;
         if (tracing_lost_chars_par > 1)
             tracing_online_par = 1;
         begin_diagnostic();
@@ -976,7 +982,9 @@ void char_warning(internal_font_number f, int c)
         end_diagnostic(false);
         tracing_online_par = old_setting;
     }
-    if (tracing_lost_chars_par > 2) {
+    if (tracing_lost_chars_par == 3) {
+       error();
+    } else if (tracing_lost_chars_par > 4) {
        error();
     }
 }

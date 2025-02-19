@@ -389,9 +389,7 @@ void luainterpreter(void)
     luaopen_pdf(L);
     luaopen_pdfe(L);
     luaopen_pdfscanner(L);
-    if (!lua_only) {
-        luaopen_img(L);
-    }
+    luaopen_img(L);
     lua_createtable(L, 0, 0);
     lua_setglobal(L, "texconfig");
     Luas = L;

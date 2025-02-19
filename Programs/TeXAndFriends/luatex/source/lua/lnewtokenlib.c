@@ -336,6 +336,46 @@ inline static int run_put_next(lua_State * L)
     return 0;
 }
 
+inline static int unchecked_put_next(lua_State * L)
+{
+    int n = lua_gettop(L);
+    int i = 1;
+    halfword h = null;
+    halfword t = null;
+    halfword x = null;
+    lua_token *p ;
+    switch (n) {
+        case 0:
+            return 0;
+        case 1:
+            break;
+        default:
+            normal_error("token lib","only one table permitted in put_next");
+            return 0;
+    }
+    if (lua_type(L,1) == LUA_TTABLE) {
+        for (i = 1;; i++) {
+            lua_rawgeti(L, 1, i);
+            p = lua_touserdata(L, -1);
+            if (p == NULL) {
+                break;
+            }
+            fast_get_avail(x);
+            token_info(x) = token_info(p->token);
+            if (h == null) {
+                h = x;
+            } else {
+                token_link(t) = x;
+            }
+            t = x;
+            lua_pop(L, 1);
+        }
+    } 
+    begin_token_list(h,0);
+    lua_settop(L,n);
+    return 0;
+}
+
 static int run_scan_keyword(lua_State * L)
 {
     saved_tex_scanner texstate;
@@ -1409,6 +1449,7 @@ static const struct luaL_Reg tokenlib[] = {
     { "scan_list", run_scan_list },
     /* writers */
     { "put_next", run_put_next },
+    { "unchecked_put_next", unchecked_put_next },
     { "expand", run_expand },
     /* getters */
     { "get_command", lua_tokenlib_get_command },

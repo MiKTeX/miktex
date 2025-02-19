@@ -887,6 +887,11 @@ static int luatex_kpse_clua_find(lua_State * L)
 {
     const char *filename;
     const char *name;
+    if (!clua_loader_function) {
+        /*tex library not found in this path */
+        lua_pushliteral(L, "\n\t[C searcher requires unrestricted shell escape]");
+        return 1;
+    }
     if (safer_option) {
         /*tex library not found in this path */
         lua_pushliteral(L, "\n\t[C searcher disabled in safer mode]");
@@ -1418,6 +1423,9 @@ void lua_initialize(int ac, char **av)
     /* the lua debug library is enabled if shell escape permits everything */
     if (shellenabledp && restrictedshell != 1) {
       luadebug_option = 1 ;      
+    } else {
+        luaL_unref(Luas, LUA_REGISTRYINDEX, clua_loader_function);
+        clua_loader_function = 0;
     }
     /*tex Here we load luatex-core.lua which takes care of some protection on demand. */
     if (load_luatex_core_lua(Luas)) {

@@ -125,7 +125,7 @@ struct jit;
 
 /* See ffi.c: replace luaopen_ffi with a stub    */
 /* if FFI_ENABLE_LUATEX_INTERFACE is not defined */
-#if (defined ARCH_X86 || defined ARCH_X64) && (defined OS_CE || defined OS_WIN || defined OS_LINUX || defined OS_BSD || defined OS_POSIX || defined OS_OSX) || ( defined ARCH_ARM64 && (defined OS_LINUX ||defined OS_POSIX ))
+#if (defined ARCH_X86 || defined ARCH_X64) && (defined OS_CE || defined OS_WIN || defined OS_LINUX || defined OS_BSD || defined OS_POSIX || defined OS_OSX) || ( defined ARCH_ARM64 && (defined OS_LINUX ||defined OS_POSIX || defined OS_OSX))
 #define FFI_ENABLE_LUATEX_INTERFACE
 #endif 
 /* for the moment */

@@ -402,7 +402,7 @@ static char **do_flatten_command(lua_State * L, char **runcmd)
     *runcmd = NULL;
 
     for (j = 1;; j++) {
-        lua_rawgeti(L, -1, j);
+        lua_rawgeti(L, 1, j);
         if (lua_isnil(L, -1)) {
             lua_pop(L, 1);
             break;
@@ -414,7 +414,7 @@ static char **do_flatten_command(lua_State * L, char **runcmd)
     cmdline = malloc(sizeof(char *) * (unsigned) (j + 1));
     for (i = 1; i <= (unsigned) j; i++) {
         cmdline[i] = NULL;
-        lua_rawgeti(L, -1, (int) i);
+        lua_rawgeti(L, 1, (int) i);
         if (lua_isnil(L, -1) || (s = lua_tostring(L, -1)) == NULL) {
             lua_pop(L, 1);
             if (i == 1) {
@@ -430,7 +430,7 @@ static char **do_flatten_command(lua_State * L, char **runcmd)
     }
     cmdline[i] = NULL;
 
-    lua_rawgeti(L, -1, 0);
+    lua_rawgeti(L, 1, 0);
     if (lua_isnil(L, -1) || (s = lua_tostring(L, -1)) == NULL) {
 #ifdef _WIN32
 #if defined(MIKTEX)
@@ -544,8 +544,8 @@ static int os_spawn(lua_State * L)
     char **cmdline = NULL;
     char **envblock = NULL;
     int i;
-
-    if (lua_gettop(L) != 1) {
+    int top = lua_gettop(L);
+    if (top != 1 && top != 2) {
         lua_pushnil(L);
         lua_pushliteral(L, "invalid arguments passed");
         return 2;
@@ -560,6 +560,32 @@ static int os_spawn(lua_State * L)
         cmdline = do_split_command(maincmd, &runcmd);
     } else if (lua_type(L, 1) == LUA_TTABLE) {
         cmdline = do_flatten_command(L, &runcmd);
+    }
+    /* Allow setting the environment */
+    if (restrictedshell == 0 && top == 2 && lua_istable(L, 2)) {
+        const char *key, *val;
+        char *value;
+        int size = 0;
+        lua_pushnil(L);
+        while (lua_next(L, 2) != 0) {
+            if (lua_type(L, -2) == LUA_TSTRING &&
+                lua_type(L, -1) == LUA_TSTRING) {
+                key = lua_tostring(L, -2);
+                val = lua_tostring(L, -1);
+                value = xmalloc((unsigned) (strlen(key) + strlen(val) + 2));
+                sprintf(value, "%s=%s", key, val);
+                envblock = xreallocarray(envblock, char*, size + 1);
+                envblock[size] = value;
+                size++;
+            }
+            lua_pop(L, 1);
+        }
+        if (envblock) {
+            envblock[size++] = NULL;
+        } else {
+            envblock = xmalloc(sizeof(char *));
+            envblock[0] = NULL;
+        }
     }
     /* If restrictedshell == 0, any command is allowed. */
     /* this is a little different from \write18/ os.execute processing

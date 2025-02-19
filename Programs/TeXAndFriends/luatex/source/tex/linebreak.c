@@ -958,6 +958,9 @@ static void add_to_widths(halfword s, int line_break_dir, int adjust_spacing, sc
 {
     while (s != null) {
         if (is_char_node(s)) {
+if (tracing_lost_chars_par > 3 && ! char_exists(font(s), character(s))) {
+    char_warning(font(s), character(s));
+}
             widths[1] += pack_width(line_break_dir, dir_TRT, s, true);
             if ((adjust_spacing > 1) && check_expand_pars(font(s))) {
                 set_prev_char_p(s);
@@ -1004,6 +1007,9 @@ static void sub_from_widths(halfword s, int line_break_dir, int adjust_spacing, 
     while (s != null) {
         /*tex Subtract the width of node |s| from |break_width|; */
         if (is_char_node(s)) {
+if (tracing_lost_chars_par > 3 && ! char_exists(font(s), character(s))) {
+    char_warning(font(s), character(s));
+}
             widths[1] -= pack_width(line_break_dir, dir_TRT, s, true);
             if ((adjust_spacing > 1) && check_expand_pars(font(s))) {
                 set_prev_char_p(s);
@@ -2135,6 +2141,9 @@ void ext_do_line_break(
                     |vlink(cur_p)=null| when |cur_p| is a character node.
 
                 */
+if (tracing_lost_chars_par > 3 && ! char_exists(font(cur_p), character(cur_p))) {
+    char_warning(font(cur_p), character(cur_p));
+}
                 active_width[1] += pack_width(line_break_dir, dir_TRT, cur_p, true);
                 if ((adjust_spacing > 1) && check_expand_pars(font(cur_p))) {
                     set_prev_char_p(cur_p);
