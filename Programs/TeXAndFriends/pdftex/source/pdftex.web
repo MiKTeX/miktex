@@ -15991,6 +15991,7 @@ DVI}
 @!pdf_draftmode_value: integer;
 @!pdf_cur_Tm_a: integer; {|a| value of the current text matrix, i.e., the current
                           horizontal scaling factor}
+@!pdf_last_f: internal_font_number; {last font in PDF output page; this can differ from |pdf_f|}
 @!pdf_last_fs: internal_font_number; {last font size in PDF output page}
 @!pdf_dummy_font: internal_font_number; {font used to insert artificial interword spaces}
 
@@ -16042,17 +16043,21 @@ begin
     end;
 end;
 
-procedure pdf_set_textmatrix(v, v_out: scaled; f: internal_font_number);
-{set the next starting point to |cur_h|, |cur_v|}
+function get_font_auto_expand_ratio(f: internal_font_number): integer;
+{return |pdf_font_expand_ratio[f]| if f is auto-expanded, 0 otherwise}
+begin
+    if pdf_font_auto_expand[f] then
+        get_font_auto_expand_ratio := pdf_font_expand_ratio[f]
+    else
+        get_font_auto_expand_ratio := 0;
+end;
+
+procedure pdf_set_text_pos(v, v_out: scaled; f: internal_font_number);
+{set the next starting point for text to |cur_h|, |cur_v|}
 var pdf_new_Tm_a: integer; {|a| value of the new text matrix}
 begin
     pdf_out(" ");
-    if f = pdf_f then
-        pdf_new_Tm_a := pdf_cur_Tm_a
-    else if not pdf_font_auto_expand[f] then
-        pdf_new_Tm_a := 0
-    else
-        pdf_new_Tm_a := pdf_font_expand_ratio[f];
+    pdf_new_Tm_a := get_font_auto_expand_ratio(f);
     if (pdf_new_Tm_a <> 0) or
         ((pdf_new_Tm_a = 0) and (pdf_cur_Tm_a <> 0)) then begin
         pdf_print_real(1000 + pdf_new_Tm_a, 3);
@@ -16161,6 +16166,7 @@ label found, found1;
 var p: pointer;
     k: internal_font_number;
 begin
+    pdf_f := f;
     if not font_used[f] then
         pdf_init_font(f);
     set_ff(f); {set |ff| to the tfm number of the font sharing the font object
@@ -16176,7 +16182,7 @@ begin
     end;
     pdf_append_list(f)(pdf_font_list); {|f| not found in |pdf_font_list|, append it now}
 found:
-    if (k = pdf_f) and (font_size[f] = pdf_last_fs) then
+    if (k = pdf_last_f) and (font_size[f] = pdf_last_fs) then
         return;
     pdf_print("/F");
     pdf_print_int(k);
@@ -16184,7 +16190,7 @@ found:
     pdf_out(" ");
     pdf_print_real(divide_scaled(font_size[f], one_hundred_bp, 6), 4);
     pdf_print(" Tf");
-    pdf_f := k;
+    pdf_last_f := k;
     pdf_last_fs := font_size[f];
 end;
 
@@ -16194,6 +16200,7 @@ begin
     pdf_print_ln("BT");
     pdf_doing_text := true;
     pdf_f := null_font;
+    pdf_last_f := null_font;
     pdf_last_fs := 0;
     pdf_doing_string := false;
     pdf_cur_Tm_a := 0;
@@ -16218,17 +16225,21 @@ end;
 
 procedure pdf_begin_string(f: internal_font_number); {begin to draw a string}
 var s_out, v, v_out: scaled;
-    save_pdf_delta_h: scaled;
     s: integer;
     must_end_string: boolean;  {must we end the current string?}
     must_insert_space: boolean;  {must we insert an interword space?}
-    move_by_tm: boolean;  {movement must be set using Tm operator}
-
+    must_set_text_pos: boolean;  {move must be set using Tm or Td operator}
+    move_looks_like_interword_space: boolean; {move could be a space}
 begin
+    must_insert_space := false;
+    must_end_string := false;
+
     if not pdf_doing_text then
         pdf_begin_text;
-   if (not gen_faked_interword_space and pdf_f <> f)
-      or (gen_faked_interword_space and not (font_used[f] and font_used[pdf_f]))
+
+    {delay font switch if we must insert interword space}
+    if (not gen_faked_interword_space and pdf_f <> f)
+        or (gen_faked_interword_space and not (font_used[f] and font_used[pdf_f]))
     then begin
         pdf_end_string;
         pdf_set_font(f);
@@ -16261,17 +16272,21 @@ begin
         v_out := 0;
     end;
 
-    must_insert_space := false;
-    must_end_string := false;
-    move_by_tm := (v <> 0) or (abs(s) >= @'100000);
+    must_set_text_pos := (v <> 0)
+        or (abs(s) >= @'100000)
+        or (get_font_auto_expand_ratio(f) <> pdf_cur_Tm_a)
+        or get_font_auto_expand_ratio(f) <> get_font_auto_expand_ratio(pdf_f);
 
-    if move_by_tm then begin
+    if must_set_text_pos then begin
         must_end_string := true;
     end;
 
+    move_looks_like_interword_space := (space(f) > one_bp)
+        and (s_out > space(f) - space_shrink(f) - one_bp div 10)
+        and (v = 0);
+
     if gen_faked_interword_space
-        and (not move_by_tm)
-        and (s_out > space(f) - space_shrink(f) - 65536)
+        and move_looks_like_interword_space
     then begin
         must_insert_space := true;
     end;
@@ -16280,8 +16295,7 @@ begin
         {insert a real space char from the font when possible}
         if pdf_font_has_space_char[f] and pdf_doing_string then begin
             pdf_out(" ");
-            save_pdf_delta_h := pdf_delta_h;
-            adv_char_width(f, 32, 3); { to get |adv_char_width_s| and |adv_char_width_s_out|}
+            adv_char_width(f, 32, 4); { to get |adv_char_width_s| and |adv_char_width_s_out|}
             s := s - adv_char_width_s;
             s_out := s_out - adv_char_width_s_out;
             pdf_mark_char(f, 32);
@@ -16294,11 +16308,17 @@ begin
         pdf_end_string;
         {insert a space char from the dummy font if needed}
         if (must_insert_space) and (not pdf_font_has_space_char[f]) then begin
-            pdf_insert_interword_space; {this will change |pdf_f|}
-            pdf_set_font(f);
+            pdf_insert_interword_space; {this will change the current font}
         end;
-        pdf_set_textmatrix(v, v_out, f);
+        pdf_set_font(f);
+        pdf_set_text_pos(v, v_out, f);
         s := 0;
+    end;
+
+    {do font switch here after interword space could have been inserted}
+    if gen_faked_interword_space and (pdf_f <> f) then begin
+        pdf_end_string;
+        pdf_set_font(f);
     end;
 
     if not pdf_doing_string then begin
@@ -16326,6 +16346,7 @@ begin
     pdf_read_dummy_font;
     pdf_begin_string(pdf_dummy_font);
     pdf_print(" ");
+    adv_char_width(pdf_dummy_font, 32, 4);
     pdf_end_string_nl;
 
     gen_faked_interword_space := s;
@@ -27663,7 +27684,7 @@ else  begin q:=glue_ptr(p);
         ("shrinkable glue, e.g., `\vss' or `\vskip 0pt minus 1fil'.")@/
         ("Such glue doesn't belong there; but you can safely proceed,")@/
         ("since the offensive shrinkability has been made finite.");
-      error; 
+      error;
     end;
     r:=new_spec(q); shrink_order(r):=normal; delete_glue_ref(q);
     glue_ptr(p):=r; q:=r;
@@ -34451,7 +34472,11 @@ begin
     end;
     if (x <= 0) or (y <= 0) or (xr < 0) or (yr < 0) then
         pdf_error("ext1", "invalid image dimensions");
-    if (x / one_inch >= xr) or (y / one_inch >= yr) then begin
+    if (xr = 0) and (yr = 0) then begin
+        {If both resolutions are zero, that suggests that the resolution data
+         is missing, so we should never issue a warning.}
+    end
+    else if (x / one_inch >= xr) or (y / one_inch >= yr) then begin
         {It's better to warn and ignore too-small resolutions given in
          the image file, usually 1dpi x 1dpi, to avoid arithmetic overflow.}
         xr := 0;
