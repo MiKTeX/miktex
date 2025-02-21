@@ -219,7 +219,10 @@ void WindowManager::updateWindowMenu(QWidget *window, QMenu *menu) /* static */
 			selWin->setCheckable(true);
 			selWin->setChecked(true);
 		}
-		QObject::connect(selWin, &SelWinAction::triggered, pdfDoc, &PDFDocumentWindow::selectWindow);
+		// Don't use a direct connection as triggered has a boolean argument
+		// (checked) which would get forwarded to selectWindow's "activate",
+		// which doesn't make sense.
+		QObject::connect(selWin, &SelWinAction::triggered, pdfDoc, [pdfDoc]() { pdfDoc->selectWindow(); });
 		menu->addAction(selWin);
 	}
 }
