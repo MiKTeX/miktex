@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file contains miscellaneous support functions.
  *
- * Copyright (C) 2015-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2015-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -110,7 +110,6 @@ static kpathsea kpse = NULL;
 void gregorio_support_init(const char *const program USED_FOR_KPSE,
         const char *const argv0 USED_FOR_KPSE)
 {
-    gregorio_set_error_out(stderr);
     gregorio_set_verbosity_mode(VERBOSITY_ERROR);
     gregorio_struct_init();
 #ifdef USE_KPSE

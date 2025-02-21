@@ -2,10 +2,10 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file contains functions for logging messages, warnings, and errors.
  *
- * Copyright (C) 2009-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2009-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
- * 
+ *
  * Gregorio is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -28,7 +28,6 @@
 #include "messages.h"
 #include "support.h"
 
-static FILE *error_out;
 static gregorio_verbosity verbosity_mode = 0;
 static bool debug_messages = false;
 static bool deprecation_is_warning = true;
@@ -37,11 +36,6 @@ static int return_value = 0;
 int gregorio_get_return_value(void)
 {
     return return_value;
-}
-
-void gregorio_set_error_out(FILE *const f)
-{
-    error_out = f;
 }
 
 void gregorio_set_verbosity_mode(const gregorio_verbosity verbosity)
@@ -108,7 +102,7 @@ void gregorio_messagef(const char *function_name,
     }
 
     /* if these assertions fail, the program is not using this code correctly */
-    assert(error_out);
+    assert(stderr);
     assert(verbosity_mode);
 
     if (verbosity < verbosity_mode) {
@@ -124,21 +118,21 @@ void gregorio_messagef(const char *function_name,
         /* if line number is specified, function_name must be specified */
         assert(function_name);
         if (function_name) {
-            fprintf(error_out, "%d: in function `%s': %s", line_number,
+            fprintf(stderr, "%d: in function `%s': %s", line_number,
                     function_name, verbosity_str);
         }
     } else {
         if (function_name) {
-            fprintf(error_out, "in function `%s': %s", function_name,
+            fprintf(stderr, "in function `%s': %s", function_name,
                     verbosity_str);
         } else {
-            fprintf(error_out, "%s", verbosity_str);
+            fprintf(stderr, "%s", verbosity_str);
         }
     }
     va_start(args, format);
-    vfprintf(error_out, format, args);
+    vfprintf(stderr, format, args);
     va_end(args);
-    fprintf(error_out, "\n");
+    fprintf(stderr, "\n");
 
     switch (verbosity) {
     case VERBOSITY_DEPRECATION:

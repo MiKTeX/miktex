@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file implements the Gregorio data structures.
  *
- * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -356,7 +356,7 @@ static __inline void change_note_texverb(gregorio_note *note, char *str)
     }
 }
 
-void gregorio_add_texverb_to_note(gregorio_note *current_note, char *str)
+void gregorio_add_texverb_to_note(gregorio_note *const current_note, char *str)
 {
     size_t len;
     char *res;
@@ -376,12 +376,26 @@ void gregorio_add_texverb_to_note(gregorio_note *current_note, char *str)
     }
 }
 
-void gregorio_add_cs_to_note(gregorio_note *const*const current_note,
+void gregorio_add_cs_to_note(gregorio_note *const current_note,
         char *const str, const bool nabc)
 {
-    if (*current_note) {
-        (*current_note)->choral_sign = str;
-        (*current_note)->choral_sign_is_nabc = nabc;
+    if (current_note) {
+        if (current_note->choral_sign) {
+            free(current_note->choral_sign);
+        }
+        current_note->choral_sign = str;
+        current_note->choral_sign_is_nabc = nabc;
+    }
+}
+
+void gregorio_add_shape_hint_to_note(gregorio_note *const current_note,
+        char *const str)
+{
+    if (current_note) {
+        if (current_note->shape_hint) {
+            free(current_note->shape_hint);
+        }
+        current_note->shape_hint = str;
     }
 }
 
@@ -708,6 +722,7 @@ static __inline void free_one_note(gregorio_note *note)
     }
     free_one_texverb(note->texverb);
     free(note->choral_sign);
+    free(note->shape_hint);
     free(note);
 }
 
@@ -1286,10 +1301,13 @@ static __inline signed char next_pitch_from_glyph(const gregorio_glyph *glyph,
                     switch (note->u.note.shape) {
                     case S_FLAT:
                     case S_FLAT_PAREN:
+                    case S_FLAT_SOFT:
                     case S_SHARP:
                     case S_SHARP_PAREN:
+                    case S_SHARP_SOFT:
                     case S_NATURAL:
                     case S_NATURAL_PAREN:
+                    case S_NATURAL_SOFT:
                         if (note->u.note.pitch >= LOWEST_PITCH &&
                                 note->u.note.pitch <= MAX_PITCH) {
                             alterations[note->u.note.pitch] =

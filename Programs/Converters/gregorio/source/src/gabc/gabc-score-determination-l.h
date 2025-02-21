@@ -713,7 +713,7 @@ extern int yylex (void);
 #undef yyTABLES_NAME
 #endif
 
-#line 429 "gabc/gabc-score-determination.l"
+#line 415 "gabc/gabc-score-determination.l"
 
 
 #line 719 "gabc/gabc-score-determination-l.h"

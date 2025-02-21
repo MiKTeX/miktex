@@ -4,29 +4,29 @@
  * This file implements the score parser.
  *
  * Gregorio score determination from gabc.
- * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option)
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
- * 
- * You should have received a copy of the GNU General Public License along with 
+ *
+ * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
- * 
+ *
  * This file is certainly not the most easy to understand, it is a bison file.
  * See the bison manual on gnu.org for further details.
- * 
+ *
  */
 
 #include "config.h"
@@ -63,8 +63,19 @@
 #include "gabc-score-determination.h"
 #include "gabc-score-determination-l.h"
 
-/* workaround for bison issue passing pointer to a "local" variable */
-#define STYLE_BITS &styles
+/* SB_IGNORE used to ignore a style that don't stay open between syllables */
+#define GABC_STYLE_BITS(A,E,X,L) \
+    A(SB_IGNORE, 0x00) \
+    A(SB_ITALIC, 0x01) \
+    A(SB_BOLD, 0x02) \
+    A(SB_TT, 0x04) \
+    A(SB_SMALL_CAPS, 0x08) \
+    A(SB_UNDERLINED, 0x10) \
+    A(SB_COLORED, 0x20) \
+    X(SB_ELISION, 0x40)
+ENUM(gabc_style_bits, GABC_STYLE_BITS);
+
+ENUM_TO_STRING(gabc_style_bits, GABC_STYLE_BITS)
 
 /* forward declaration of the flex/bison process function */
 static int gabc_score_determination_parse(void);
@@ -74,10 +85,10 @@ static int gabc_score_determination_parse(void);
 /* int gabc_score_determination_debug=1; */
 
 /*
- * 
+ *
  * We will need some variables and functions through the entire file, we
  * declare them there:
- * 
+ *
  */
 
 /* the score that we will determine and return */
@@ -107,6 +118,7 @@ static bool got_language;
 static bool got_staff_lines;
 static bool started_first_word;
 static struct sha1_ctx digester;
+/* used to track styles that stay open across syllables */
 static gabc_style_bits styles;
 static bool generate_point_and_click;
 static bool clear_syllable_text;
@@ -144,7 +156,7 @@ static void gabc_score_determination_error(const char *error_str)
 }
 
 /*
- * The function that will initialize the variables. 
+ * The function that will initialize the variables.
  */
 
 static void initialize_variables(bool point_and_click)
@@ -182,8 +194,8 @@ static void initialize_variables(bool point_and_click)
 }
 
 /*
- * function that frees the variables that need it, for when we have finished to 
- * determine the score 
+ * function that frees the variables that need it, for when we have finished to
+ * determine the score
  */
 
 static void free_variables(void)
@@ -196,8 +208,8 @@ static void free_variables(void)
 }
 
 /*
- * Function called when we have reached the end of the definitions, it tries to 
- * make the voice_infos coherent. 
+ * Function called when we have reached the end of the definitions, it tries to
+ * make the voice_infos coherent.
  */
 static void end_definitions(void)
 {
@@ -220,15 +232,15 @@ static void end_definitions(void)
 
 /*
  * Here starts the code for the determinations of the notes. The notes are not
- * precisely determined here, we separate the text describing the notes of each 
- * voice, and we call determine_elements_from_string to really determine them. 
+ * precisely determined here, we separate the text describing the notes of each
+ * voice, and we call determine_elements_from_string to really determine them.
  */
 static char position = WORD_BEGINNING;
 static gregorio_syllable *current_syllable = NULL;
 static char *abovelinestext = NULL;
 
 /*
- * Function called each time we find a space, it updates the current position. 
+ * Function called each time we find a space, it updates the current position.
  */
 static void update_position_with_space(void)
 {
@@ -243,7 +255,7 @@ static void update_position_with_space(void)
 /*
  * When we encounter a translation center ending, we call this function that
  * sets translation_type = TR_WITH_CENTER_BEGINNING on previous syllable with
- * translation 
+ * translation
  */
 static void gregorio_set_translation_center_beginning(
         gregorio_syllable *current_syllable)
@@ -315,26 +327,73 @@ static void rebuild_score_characters(void)
 }
 
 /*
- * 
- * The two functions called when lex returns a style, we simply add it. All the 
+ *
+ * The two functions called when lex returns a style, we simply add it. All the
  * complex things will be done by the function after...
- * 
+ *
  */
 
-static void add_style(unsigned char style)
+static void add_style(grestyle_style style, gabc_style_bits bit);
+
+static void maybe_insert_open_styles(void)
 {
+    if (!current_character) {
+        /* insert open styles, leaving out ELISION on purpose */
+        if (styles & SB_ITALIC) {
+            gregorio_begin_style(&current_character, ST_ITALIC);
+        }
+        if (styles & SB_BOLD) {
+            gregorio_begin_style(&current_character, ST_BOLD);
+        }
+        if (styles & SB_TT) {
+            gregorio_begin_style(&current_character, ST_TT);
+        }
+        if (styles & SB_SMALL_CAPS) {
+            gregorio_begin_style(&current_character, ST_SMALL_CAPS);
+        }
+        if (styles & SB_UNDERLINED) {
+            gregorio_begin_style(&current_character, ST_UNDERLINED);
+        }
+        if (styles & SB_COLORED) {
+            gregorio_begin_style(&current_character, ST_COLORED);
+        }
+    }
+}
+
+static void add_style(grestyle_style style, gabc_style_bits bit)
+{
+    maybe_insert_open_styles();
+    if (bit) {
+        if (styles & bit) {
+            gregorio_messagef("add_style", VERBOSITY_ERROR, 0,
+                    _("style already started: %s"),
+                    gabc_style_bits_to_string(bit));
+        } else {
+            styles ^= bit;
+        }
+    }
     gregorio_begin_style(&current_character, style);
 }
 
-static void end_style(unsigned char style)
+static void end_style(grestyle_style style, gabc_style_bits bit)
 {
+    maybe_insert_open_styles();
+    if (bit) {
+        if (styles & bit) {
+            styles ^= bit;
+        } else {
+            gregorio_messagef("end_style", VERBOSITY_ERROR, 0,
+                    _("style not started: %s"),
+                    gabc_style_bits_to_string(bit));
+        }
+    }
     gregorio_end_style(&current_character, style);
 }
 
 static __inline void save_text(void)
 {
     if (has_protrusion) {
-        end_style(ST_PROTRUSION);
+        end_style(ST_PROTRUSION, SB_IGNORE);
     }
     ready_characters();
     first_text_character = current_character;
@@ -360,33 +419,13 @@ static void end_translation(void)
 
 /*
  * add_text is the function called when lex returns a char *. In
- * this function we convert it into grewchar, and then we add the corresponding 
- * gregorio_characters in the list of gregorio_characters. 
+ * this function we convert it into grewchar, and then we add the corresponding
+ * gregorio_characters in the list of gregorio_characters.
  */
 
 static void add_text(char *mbcharacters)
 {
-    if (!current_character) {
-        /* insert open styles, leaving out ELISION on purpose */
-        if (styles & SB_I) {
-            add_style(ST_ITALIC);
-        }
-        if (styles & SB_B) {
-            add_style(ST_BOLD);
-        }
-        if (styles & SB_TT) {
-            add_style(ST_TT);
-        }
-        if (styles & SB_SC) {
-            add_style(ST_SMALL_CAPS);
-        }
-        if (styles & SB_UL) {
-            add_style(ST_UNDERLINED);
-        }
-        if (styles & SB_C) {
-            add_style(ST_COLORED);
-        }
-    }
+    maybe_insert_open_styles();
     if (current_character) {
         current_character->next_character = gregorio_build_char_list_from_buf(
                 mbcharacters);
@@ -411,14 +450,14 @@ static void add_protrusion(char *factor)
         if (center_is_determined == CENTER_HALF_DETERMINED) {
             gregorio_message("closing open syllable center before protrusion",
                     "det_score", VERBOSITY_WARNING, 0);
-            end_style(ST_FORCED_CENTER);
+            end_style(ST_FORCED_CENTER, SB_IGNORE);
             center_is_determined = CENTER_FULLY_DETERMINED;
         }
 
-        add_style(ST_PROTRUSION_FACTOR);
+        add_style(ST_PROTRUSION_FACTOR, SB_IGNORE);
         add_text(factor);
-        end_style(ST_PROTRUSION_FACTOR);
-        add_style(ST_PROTRUSION);
+        end_style(ST_PROTRUSION_FACTOR, SB_IGNORE);
+        add_style(ST_PROTRUSION, SB_IGNORE);
         has_protrusion = true;
     }
 }
@@ -428,8 +467,8 @@ static void add_auto_protrusion(char *protrusion)
     if (has_protrusion) {
         add_text(protrusion);
     } else {
-        add_style(ST_PROTRUSION_FACTOR);
-        add_style(ST_VERBATIM);
+        add_style(ST_PROTRUSION_FACTOR, SB_IGNORE);
+        add_style(ST_VERBATIM, SB_IGNORE);
         add_text(gregorio_strdup("\\GreProtrusionFactor{"));
 
         switch (*protrusion) {
@@ -455,12 +494,12 @@ static void add_auto_protrusion(char *protrusion)
         }
 
         add_text(gregorio_strdup("}"));
-        end_style(ST_VERBATIM);
-        end_style(ST_PROTRUSION_FACTOR);
+        end_style(ST_VERBATIM, SB_IGNORE);
+        end_style(ST_PROTRUSION_FACTOR, SB_IGNORE);
 
-        add_style(ST_PROTRUSION);
+        add_style(ST_PROTRUSION, SB_IGNORE);
         add_text(protrusion);
-        end_style(ST_PROTRUSION);
+        end_style(ST_PROTRUSION, SB_IGNORE);
 
         has_protrusion = true;
     }
@@ -568,7 +607,7 @@ void gabc_digest(const void *const buf, const size_t size)
 /*
  * The "main" function. It is the function that is called when we have to read
  * a gabc file. It takes a file descriptor, that is to say a file that is
- * aleady open. It returns a valid gregorio_score 
+ * aleady open. It returns a valid gregorio_score
  */
 
 gregorio_score *gabc_read_score(FILE *f_in, bool point_and_click)
@@ -661,8 +700,6 @@ static char *concatenate(char *first, char *const second) {
     @$.last_offset = 0;
     @$.generate_point_and_click = generate_point_and_click;
 }
-
-%lex-param { gabc_style_bits *STYLE_BITS }
 
 %token NAME AUTHOR GABC_COPYRIGHT SCORE_COPYRIGHT
 %token LANGUAGE STAFF_LINES ORISCUS_ORIENTATION
@@ -859,61 +896,61 @@ closing_bracket_with_space:
 
 style_beginning:
     I_BEGIN {
-        add_style(ST_ITALIC);
+        add_style(ST_ITALIC, SB_ITALIC);
     }
     | TT_BEGIN {
-        add_style(ST_TT);
+        add_style(ST_TT, SB_TT);
     }
     | UL_BEGIN {
-        add_style(ST_UNDERLINED);
+        add_style(ST_UNDERLINED, SB_UNDERLINED);
     }
     | C_BEGIN {
-        add_style(ST_COLORED);
+        add_style(ST_COLORED, SB_COLORED);
     }
     | B_BEGIN {
-        add_style(ST_BOLD);
+        add_style(ST_BOLD, SB_BOLD);
     }
     | SC_BEGIN {
-        add_style(ST_SMALL_CAPS);
+        add_style(ST_SMALL_CAPS, SB_SMALL_CAPS);
     }
     | VERB_BEGIN {
-        add_style(ST_VERBATIM);
+        add_style(ST_VERBATIM, SB_IGNORE);
     }
     | SP_BEGIN {
-        add_style(ST_SPECIAL_CHAR);
+        add_style(ST_SPECIAL_CHAR, SB_IGNORE);
     }
     ;
 
 style_end:
     I_END {
-        end_style(ST_ITALIC);
+        end_style(ST_ITALIC, SB_ITALIC);
     }
     | TT_END {
-        end_style(ST_TT);
+        end_style(ST_TT, SB_TT);
     }
     | UL_END {
-        end_style(ST_UNDERLINED);
+        end_style(ST_UNDERLINED, SB_UNDERLINED);
     }
     | C_END {
-        end_style(ST_COLORED);
+        end_style(ST_COLORED, SB_COLORED);
     }
     | B_END {
-        end_style(ST_BOLD);
+        end_style(ST_BOLD, SB_BOLD);
     }
     | SC_END {
-        end_style(ST_SMALL_CAPS);
+        end_style(ST_SMALL_CAPS, SB_SMALL_CAPS);
     }
     | VERB_END {
-        end_style(ST_VERBATIM);
+        end_style(ST_VERBATIM, SB_IGNORE);
     }
     | SP_END {
-        end_style(ST_SPECIAL_CHAR);
+        end_style(ST_SPECIAL_CHAR, SB_IGNORE);
     }
     ;
 
 special_style_beginning:
     ELISION_BEGIN {
-        add_style(ST_ELISION);
+        add_style(ST_ELISION, SB_ELISION);
     }
     | CENTER_BEGIN {
         if (center_is_determined) {
@@ -925,7 +962,7 @@ special_style_beginning:
                     "center not allowed after protrusion; ignored",
                     "det_score", VERBOSITY_WARNING, 0);
         } else {
-            add_style(ST_FORCED_CENTER);
+            add_style(ST_FORCED_CENTER, SB_IGNORE);
             center_is_determined = CENTER_HALF_DETERMINED;
         }
     }
@@ -933,11 +970,11 @@ special_style_beginning:
 
 special_style_end:
     ELISION_END {
-        end_style(ST_ELISION);
+        end_style(ST_ELISION, SB_ELISION);
     }
     | CENTER_END {
         if (center_is_determined == CENTER_HALF_DETERMINED) {
-            end_style(ST_FORCED_CENTER);
+            end_style(ST_FORCED_CENTER, SB_IGNORE);
             center_is_determined = CENTER_FULLY_DETERMINED;
         } else {
             gregorio_message(
@@ -1052,16 +1089,16 @@ syllable_with_notes:
         close_syllable(&@1);
     }
     | HYPHEN OPENING_BRACKET notes {
-        add_style(ST_VERBATIM);
+        add_style(ST_VERBATIM, SB_IGNORE);
         add_text(gregorio_strdup("\\GreForceHyphen"));
-        end_style(ST_VERBATIM);
+        end_style(ST_VERBATIM, SB_IGNORE);
         save_text();
         close_syllable(&@1);
     }
     | text HYPHEN OPENING_BRACKET notes {
-        add_style(ST_VERBATIM);
+        add_style(ST_VERBATIM, SB_IGNORE);
         add_text(gregorio_strdup("\\GreForceHyphen"));
-        end_style(ST_VERBATIM);
+        end_style(ST_VERBATIM, SB_IGNORE);
         save_text();
         close_syllable(&@1);
     }
@@ -1080,16 +1117,16 @@ syllable_with_notes:
         close_syllable(&@1);
     }
     | HYPHEN translation OPENING_BRACKET notes {
-        add_style(ST_VERBATIM);
+        add_style(ST_VERBATIM, SB_IGNORE);
         add_text(gregorio_strdup("\\GreForceHyphen"));
-        end_style(ST_VERBATIM);
+        end_style(ST_VERBATIM, SB_IGNORE);
         save_text();
         close_syllable(&@1);
     }
     | text HYPHEN translation OPENING_BRACKET notes {
-        add_style(ST_VERBATIM);
+        add_style(ST_VERBATIM, SB_IGNORE);
         add_text(gregorio_strdup("\\GreForceHyphen"));
-        end_style(ST_VERBATIM);
+        end_style(ST_VERBATIM, SB_IGNORE);
         save_text();
         close_syllable(&@1);
     }

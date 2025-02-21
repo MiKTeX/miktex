@@ -3,7 +3,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file implements the note parser.
  *
- * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -778,6 +778,7 @@ void gabc_det_notes_finish(void)
 %x overledger overledger2
 %x underledger underledger2
 %x endledger
+%x shapehint
 
 %%
 <INITIAL>\% {
@@ -1021,11 +1022,11 @@ void gabc_det_notes_finish(void)
         gregorio_add_texverb_to_note(current_note, gabc_unescape(tempstr));
     }
 <choralsign>(\$.|[^\]])+ {
-        gregorio_add_cs_to_note(&current_note,
+        gregorio_add_cs_to_note(current_note,
                 gabc_unescape(gabc_notes_determination_text), false);
     }
 <choralnabc>(\$.|[^\]])+ {
-        gregorio_add_cs_to_note(&current_note,
+        gregorio_add_cs_to_note(current_note,
                 gabc_unescape(gabc_notes_determination_text), true);
     }
 <texverbnote>(\$.|[^\]])+ {
@@ -1109,7 +1110,14 @@ void gabc_det_notes_finish(void)
         add_variable_ledger(SO_UNDER, gabc_notes_determination_text);
         BEGIN(endledger);
     }
-<texverbnote,texverbglyph,texverbelement,choralsign,choralnabc,alt,overcurlyaccentusbrace,overcurlybrace,overbrace,underbrace,space,nbspace,endledger>\] {
+<INITIAL>\[shape: {
+        BEGIN(shapehint);
+    }
+<shapehint>(\$.|[^\]])+ {
+        gregorio_add_shape_hint_to_note(current_note,
+                gabc_unescape(gabc_notes_determination_text));
+    }
+<texverbnote,texverbglyph,texverbelement,choralsign,choralnabc,alt,overcurlyaccentusbrace,overcurlybrace,overbrace,underbrace,space,nbspace,endledger,shapehint>\] {
         BEGIN(INITIAL);
     }
 <INITIAL>\[[ou]slur:[012];[^,]+,[^\]]+\] {
@@ -1294,6 +1302,10 @@ x\? {
         gregorio_change_shape(current_note, S_FLAT_PAREN,
                 legacy_oriscus_orientation);
     }
+X   {
+        gregorio_change_shape(current_note, S_FLAT_SOFT,
+                legacy_oriscus_orientation);
+    }
 #   {
         gregorio_change_shape(current_note, S_SHARP,
                 legacy_oriscus_orientation);
@@ -1302,12 +1314,20 @@ x\? {
         gregorio_change_shape(current_note, S_SHARP_PAREN,
                 legacy_oriscus_orientation);
     }
+## {
+        gregorio_change_shape(current_note, S_SHARP_SOFT,
+                legacy_oriscus_orientation);
+    }
 y   {
         gregorio_change_shape(current_note, S_NATURAL,
                 legacy_oriscus_orientation);
     }
 y\? {
         gregorio_change_shape(current_note, S_NATURAL_PAREN,
+                legacy_oriscus_orientation);
+    }
+Y   {
+        gregorio_change_shape(current_note, S_NATURAL_SOFT,
                 legacy_oriscus_orientation);
     }
 !?\/0 {

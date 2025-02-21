@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file contains functions for writing GregorioTeX from Gregorio structures.
  *
- * Copyright (C) 2008-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2008-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -90,6 +90,7 @@ SHAPE(DescendensOriscusScapusOpenqueue);
 SHAPE(DescendensPunctumInclinatum);
 SHAPE(Flat);
 SHAPE(FlatParen);
+SHAPE(FlatSoft);
 SHAPE(Flexus);
 SHAPE(FlexusLongqueue);
 SHAPE(FlexusNobar);
@@ -106,6 +107,7 @@ SHAPE(Linea);
 SHAPE(LineaPunctum);
 SHAPE(Natural);
 SHAPE(NaturalParen);
+SHAPE(NaturalSoft);
 SHAPE(OriscusDeminutus);
 SHAPE(Pes);
 SHAPE(PesAscendensOriscus);
@@ -145,6 +147,7 @@ SHAPE(SalicusLongqueue);
 SHAPE(Scandicus);
 SHAPE(Sharp);
 SHAPE(SharpParen);
+SHAPE(SharpSoft);
 SHAPE(Stropha);
 SHAPE(StrophaAucta);
 SHAPE(StrophaAuctaLongtail);
@@ -236,6 +239,39 @@ static queuetype queuetype_of(const gregorio_note *const note) {
 
 static grestyle_style gregoriotex_ignore_style = ST_NO_STYLE;
 static grestyle_style gregoriotex_next_ignore_style = ST_NO_STYLE;
+
+static bool glyph_hint(const gregorio_glyph *const glyph,
+        const char *const hint) {
+    const char *const shape_hints = gregorio_glyph_last_note(glyph)->shape_hint;
+    if (shape_hints == NULL) {
+        /* no hints */
+        return false;
+    } else {
+        const char *const found = strstr(shape_hints, hint);
+        if (found == NULL) {
+            /* no match */
+            return false;
+        } else {
+            const char suffix = found[strlen(hint)];
+            if (suffix == '\0' || suffix == ',') {
+                /* one must be true or it's not a match */
+                if (found == shape_hints) {
+                    /* found it at the start of shape_hints */
+                    return true;
+                } else {
+                    /*
+                     * we're somewhere after the start, so it's ok to get the
+                     * character before; a comma before the start of the found
+                     * string is the only remaining way it can be a match
+                     */
+                    return (*(found - 1) == ',');
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+}
 
 /*
  * The different liquescentiae are:
@@ -340,15 +376,22 @@ static const char *compute_glyph_name(const gregorio_glyph *const glyph,
 
     fuse_to_next_note = glyph->u.notes.fuse_to_next_glyph;
 
+    /*
+     * Note: due to the way auto fusion is computed, a virga inside auto fusion
+     * will have glyph type G_PUNCTUM and note shape S_VIRGA here.  However, a
+     * fused virga outside auto fusion will have glyph type G_VIRGA.
+     */
     switch (glyph->u.notes.glyph_type) {
     case G_PODATUS:
     case G_PUNCTUM:
     case G_FLEXA:
+    case G_VIRGA:
         /* directionally head-fusible */
         if (fuse_from_previous_note < 0) {
             if (glyph->u.notes.first_note->u.note.shape != S_QUILISMA
                 && glyph->u.notes.first_note->u.note.shape
-                != S_QUILISMA_QUADRATUM) {
+                != S_QUILISMA_QUADRATUM
+                && glyph->u.notes.first_note->u.note.shape != S_VIRGA) {
                 if (fuse_from_previous_note < -1) {
                     fuse_head = FUSE_Lower;
                 } else if (glyph->u.notes.first_note->u.note.shape
@@ -386,17 +429,19 @@ static const char *compute_glyph_name(const gregorio_glyph *const glyph,
         /* else fall through */
     case G_VIRGA_REVERSA:
     case G_PUNCTUM:
-        /* tail-fusible */
-        if (fuse_to_next_note < 0) {
-            fuse_tail = FUSE_Down;
-            fuse_ambitus = -fuse_to_next_note;
-        } else if (fuse_to_next_note > 0) {
-            fuse_tail = FUSE_Up;
-            fuse_ambitus = fuse_to_next_note;
-        }
+        if (glyph->u.notes.first_note->u.note.shape != S_VIRGA) {
+            /* tail-fusible */
+            if (fuse_to_next_note < 0) {
+                fuse_tail = FUSE_Down;
+                fuse_ambitus = -fuse_to_next_note;
+            } else if (fuse_to_next_note > 0) {
+                fuse_tail = FUSE_Up;
+                fuse_ambitus = fuse_to_next_note;
+            }
 
-        if (*fuse_tail && liquescentia == LIQ_Nothing) {
-            liquescentia = "";
+            if (*fuse_tail && liquescentia == LIQ_Nothing) {
+                liquescentia = "";
+            }
         }
         break;
 
@@ -450,7 +495,10 @@ static const char *compute_glyph_name(const gregorio_glyph *const glyph,
                     shape = SHAPE_DescendensOriscusLineTL;
                 }
             }
-            fuse_head = "";
+            if (shape != SHAPE_Virga && shape != SHAPE_VirgaLongqueue &&
+                    shape != SHAPE_VirgaOpenqueue) {
+                fuse_head = "";
+            }
         }
         gregorio_snprintf(buf, BUFSIZE, "%s%s%s%s%s", fuse_head, shape,
                 tex_ambitus[fuse_ambitus], liquescentia, fuse_tail);
@@ -487,6 +535,17 @@ static const char *compute_glyph_name(const gregorio_glyph *const glyph,
         /* the salicus queue is at the end of the glyph, and it doesn't exist
          * for the liquescent forms */
         shape = SHAPE_Salicus;
+    }
+    if (!fuse_to_next_note && (shape == SHAPE_Flexus
+            || shape == SHAPE_FlexusLongqueue
+            || shape == SHAPE_FlexusOpenqueue
+            || shape == SHAPE_FlexusNobar)
+            && liquescentia == LIQ_Nothing
+            && glyph_hint(glyph, "stroke")) {
+        /* "fake" fusion to get the shape we want */
+        fuse_ambitus = 1;
+        liquescentia = "";
+        fuse_tail = FUSE_Up;
     }
     current_note = current_note->next;
     if (!current_note->next) {
@@ -626,15 +685,20 @@ static const char *determine_note_glyph_name(const gregorio_note *const note,
     case S_LINEA_PUNCTUM:
         return SHAPE_LineaPunctum;
     case S_VIRGA:
+        return fusible_queued_shape(note, glyph, SHAPE_Virga,
+                SHAPE_VirgaLongqueue, SHAPE_VirgaOpenqueue);
+        /*
         switch (queuetype_of(note)) {
         case Q_ON_SPACE_ABOVE_BOTTOM_LINE:
-            return SHAPE_Virga;
+            return compute_glyph_name(glyph, SHAPE_Virga, LG_NONE, true);
         case Q_ON_SPACE_BELOW_BOTTOM_LINE:
         case Q_ON_BOTTOM_LINE:
-            return SHAPE_VirgaOpenqueue;
+            return compute_glyph_name(glyph, SHAPE_VirgaOpenqueue, LG_NONE,
+                    true);
         case Q_ON_LINE_ABOVE_BOTTOM_LINE:
-            return SHAPE_VirgaLongqueue;
-        } /* all cases return, so this line is not hit; LCOV_EXCL_LINE */
+            return compute_glyph_name(glyph, SHAPE_VirgaLongqueue, LG_NONE,
+                    true);
+        }*/ /* all cases return, so this line is not hit; LCOV_EXCL_LINE */
         /* LCOV_EXCL_START */
         gregorio_fail2(determine_note_glyph_name, "unknown queuetype: %d",
                 queuetype_of(note));
@@ -728,14 +792,20 @@ static const char *determine_note_glyph_name(const gregorio_note *const note,
         return SHAPE_Flat;
     case S_FLAT_PAREN:
         return SHAPE_FlatParen;
+    case S_FLAT_SOFT:
+        return SHAPE_FlatSoft;
     case S_SHARP:
         return SHAPE_Sharp;
     case S_SHARP_PAREN:
         return SHAPE_SharpParen;
+    case S_SHARP_SOFT:
+        return SHAPE_SharpSoft;
     case S_NATURAL:
         return SHAPE_Natural;
     case S_NATURAL_PAREN:
         return SHAPE_NaturalParen;
+    case S_NATURAL_SOFT:
+        return SHAPE_NaturalSoft;
     default:
         /* not reachable unless there's a programming error */
         /* LCOV_EXCL_START */
@@ -2548,14 +2618,20 @@ static __inline const char *alteration_name(
         return "Flat";
     case S_FLAT_PAREN:
         return "FlatParen";
+    case S_FLAT_SOFT:
+        return "FlatSoft";
     case S_SHARP:
         return "Sharp";
     case S_SHARP_PAREN:
         return "SharpParen";
+    case S_SHARP_SOFT:
+        return "SharpSoft";
     case S_NATURAL:
         return "Natural";
     case S_NATURAL_PAREN:
         return "NaturalParen";
+    case S_NATURAL_SOFT:
+        return "NaturalSoft";
     default:
         return "";
     }
@@ -2628,10 +2704,13 @@ static void write_note(FILE *f, gregorio_note *note,
     switch (note->u.note.shape) {
     case S_FLAT:
     case S_FLAT_PAREN:
+    case S_FLAT_SOFT:
     case S_NATURAL:
     case S_NATURAL_PAREN:
+    case S_NATURAL_SOFT:
     case S_SHARP:
     case S_SHARP_PAREN:
+    case S_SHARP_SOFT:
         fprintf(f, "\\Gre%s{%d}{0}", alteration_name(note->u.note.shape),
                 pitch_value(note->u.note.pitch));
         break;
@@ -2722,17 +2801,26 @@ static void syllable_first_type(gregorio_syllable *syllable,
                             case S_FLAT_PAREN:
                                 *alteration = ALT_FLAT_PAREN;
                                 break;
+                            case S_FLAT_SOFT:
+                                *alteration = ALT_FLAT_SOFT;
+                                break;
                             case S_NATURAL:
                                 *alteration = ALT_NATURAL;
                                 break;
                             case S_NATURAL_PAREN:
                                 *alteration = ALT_NATURAL_PAREN;
                                 break;
+                            case S_NATURAL_SOFT:
+                                *alteration = ALT_NATURAL_SOFT;
+                                break;
                             case S_SHARP:
                                 *alteration = ALT_SHARP;
                                 break;
                             case S_SHARP_PAREN:
                                 *alteration = ALT_SHARP_PAREN;
+                                break;
+                            case S_SHARP_SOFT:
+                                *alteration = ALT_SHARP_SOFT;
                                 break;
                             default:
                                 /* not reachable unless there's a programming error */
@@ -3847,6 +3935,81 @@ static bool is_before_linebreak(const gregorio_syllable *syllable,
     return false;
 }
 
+static void write_default_end_of_element(FILE *f,
+        const gregorio_element *const element,
+        const unsigned int note_unit_count) {
+    const gregorio_element *next_element;
+    const gregorio_glyph *last_glyph;
+    const gregorio_note *last_note, *next_note;
+    signed char last_pitch = NO_PITCH;
+    int break_flag = 0;
+
+    /* This is only used in write_syllable, so element is assumed to be:
+     * 1. not NULL
+     * 2. of type GRE_ELEMENT
+     */
+    if (element->next) {
+        next_element = element->next;
+        if (next_element->type == GRE_ALT) {
+            next_element = next_element->next;
+        }
+        if (next_element && next_element->type == GRE_ELEMENT) {
+            for (last_glyph = element->u.first_glyph; last_glyph->next;
+                    last_glyph = last_glyph->next) {
+                /* iterate to find the last glyph */
+            }
+            if (last_glyph->type == GRE_GLYPH) {
+                last_note = gregorio_glyph_last_note(last_glyph);
+                assert(last_note != NULL);
+                if (last_note->type == GRE_NOTE)
+                    switch(last_note->u.note.shape) {
+                    case S_FLAT:
+                    case S_FLAT_PAREN:
+                    case S_FLAT_SOFT:
+                    case S_SHARP:
+                    case S_SHARP_PAREN:
+                    case S_SHARP_SOFT:
+                    case S_NATURAL:
+                    case S_NATURAL_PAREN:
+                    case S_NATURAL_SOFT:
+                        break;
+                    default:
+                        last_pitch = last_note->u.note.pitch;
+                        break;
+                }
+            }
+            if (last_pitch != NO_PITCH && next_element->u.first_glyph
+                    && next_element->u.first_glyph->type == GRE_GLYPH) {
+                next_note = next_element->u.first_glyph->u.notes.first_note;
+                if (next_note->type == GRE_NOTE) {
+                    switch(next_note->u.note.shape) {
+                    case S_FLAT:
+                    case S_FLAT_PAREN:
+                    case S_FLAT_SOFT:
+                    case S_SHARP:
+                    case S_SHARP_PAREN:
+                    case S_SHARP_SOFT:
+                    case S_NATURAL:
+                    case S_NATURAL_PAREN:
+                    case S_NATURAL_SOFT:
+                        break;
+                    default:
+                        if (next_note->u.note.pitch != NO_PITCH &&
+                                next_note->u.note.pitch - last_pitch == 0) {
+                            /* at a unison */
+                            break_flag = 2;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            fprintf(f, "\\GreEndOfElement{0}{%d}{%u}%%\n", break_flag,
+                    note_unit_count);
+        }
+    }
+}
+
 /*
  * Arguments are relatively obvious. The most obscure is certainly first_of_disc
  * which is 0 all the time, except in the case of a "clef change syllable". In
@@ -4204,19 +4367,12 @@ static void write_syllable(FILE *f, gregorio_syllable *syllable,
                 break;
 
             default:
-                /* here current_element->type is GRE_ELEMENT */
+                /* here element->type is GRE_ELEMENT */
                 assert(element->type == GRE_ELEMENT);
                 handle_last_of_voice(f, syllable, element, *last_of_voice);
                 note_unit_count += write_element(f, syllable, element, status,
                         score);
-                if (element->next && (element->next->type == GRE_ELEMENT
-                                || (element->next->next
-                                        && element->next->type == GRE_ALT
-                                        && element->next->next->type ==
-                                        GRE_ELEMENT))) {
-                    fprintf(f, "\\GreEndOfElement{0}{0}{%u}%%\n",
-                            note_unit_count);
-                }
+                write_default_end_of_element(f, element, note_unit_count);
                 break;
             }
         }

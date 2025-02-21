@@ -3,21 +3,21 @@
  * This file implements the score parser.
  *
  * Gregorio score determination from gabc utilities.
- * Copyright (C) 2016-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2016-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option)
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
- * 
- * You should have received a copy of the GNU General Public License along with 
+ *
+ * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -662,8 +662,8 @@ char *gabc_unescape(const char *const string)
 {
     /*
      * in this context, unescape means to discard any special meaning of a
-     * character that follows a backslash.  Thus backslash-{something} is
-     * reduced to {something}
+     * character that follows a dollar sign.  Thus $-{something} is reduced
+     * to {something}
      */
     char *result, *to;
     const char *from = string;

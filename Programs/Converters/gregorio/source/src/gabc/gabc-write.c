@@ -2,23 +2,23 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file provides functions for writing gabc from Gregorio structures.
  *
- * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option)
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
- * 
- * You should have received a copy of the GNU General Public License along with 
+ *
+ * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * This is a simple and easyly understandable output module. If you want to
  * write a module, you can consider it as a model.
  */
@@ -64,7 +64,7 @@ static __inline void unsupported(const char *fn, const int line,
 /* LCOV_EXCL_STOP */
 
 /*
- * Output one attribute, allowing for multi-line values 
+ * Output one attribute, allowing for multi-line values
  */
 static void gabc_write_str_attribute(FILE *f, const char *name,
         const char *attr)
@@ -75,13 +75,13 @@ static void gabc_write_str_attribute(FILE *f, const char *name,
 }
 
 /*
- * 
+ *
  * Then we start the functions made to write the text of the syllable. See
  * comments on struct.h and struct-utils.c to understand more deeply.
- * 
+ *
  * This first function will be called each time we will encounter a
  * gregorio_character which is the beginning of a style.
- * 
+ *
  */
 
 static void gabc_write_begin(FILE *f, grestyle_style style)
@@ -133,9 +133,9 @@ static void gabc_write_begin(FILE *f, grestyle_style style)
 }
 
 /*
- * 
+ *
  * This function is about the same but for ends of styles.
- * 
+ *
  */
 
 static void gabc_write_end(FILE *f, grestyle_style style)
@@ -189,11 +189,11 @@ static void gabc_write_end(FILE *f, grestyle_style style)
 }
 
 /*
- * 
+ *
  * The function called when we will encounter a character. There may be other
- * representations of the character (for example for Omega), so it is necessary 
+ * representations of the character (for example for Omega), so it is necessary
  * to have such a function defined in each module.
- * 
+ *
  */
 
 static void gabc_print_char(FILE *f, const grewchar to_print)
@@ -263,11 +263,11 @@ static void gabc_print_string(FILE *f, const char *first_char)
 }
 
 /*
- * 
+ *
  * This function writes the special chars. As the specials chars are
- * represented simply in gabc, this function is very simple, but for TeX output 
+ * represented simply in gabc, this function is very simple, but for TeX output
  * modules, this may be.. a little more difficult.
- * 
+ *
  */
 static void gabc_write_special_char(FILE *f, const grewchar *first_char)
 {
@@ -277,10 +277,10 @@ static void gabc_write_special_char(FILE *f, const grewchar *first_char)
 }
 
 /*
- * 
+ *
  * This functions writes verbatim output... but as the previous one it is very
  * simple.
- * 
+ *
  */
 static void gabc_write_verb(FILE *f, const grewchar *first_char)
 {
@@ -295,10 +295,10 @@ static void gabc_write_verb(FILE *f, const grewchar *first_char)
 }
 
 /*
- * 
+ *
  * Quite important: the function that writes the liquescentia. It is called at
  * the end of the function that writes one glyph.
- * 
+ *
  */
 
 static void gabc_write_end_liquescentia(FILE *f, char liquescentia)
@@ -317,9 +317,9 @@ static void gabc_write_end_liquescentia(FILE *f, char liquescentia)
 }
 
 /*
- * 
+ *
  * The function that writes a key change... quite simple.
- * 
+ *
  */
 
 static void gabc_write_clef(FILE *f, gregorio_clef_info clef)
@@ -333,9 +333,9 @@ static void gabc_write_clef(FILE *f, gregorio_clef_info clef)
 }
 
 /*
- * 
+ *
  * The function that writes spaces, called when we encounter one.
- * 
+ *
  */
 
 static void gabc_write_space(FILE *f, gregorio_space type, char *factor,
@@ -382,9 +382,9 @@ static void gabc_write_space(FILE *f, gregorio_space type, char *factor,
 }
 
 /*
- * 
+ *
  * A function to write a bar.
- * 
+ *
  */
 
 static void gabc_write_bar(FILE *f, gregorio_bar type)
@@ -583,9 +583,9 @@ typedef struct glyph_context {
 } glyph_context;
 
 /*
- * 
+ *
  * The function that writes one gregorio_note.
- * 
+ *
  */
 
 static void gabc_write_gregorio_note(FILE *f, gregorio_note *note,
@@ -631,17 +631,26 @@ static void gabc_write_gregorio_note(FILE *f, gregorio_note *note,
     case S_FLAT_PAREN:
         fprintf(f, "%cx?", pitch_letter(note->u.note.pitch));
         break;
+    case S_FLAT_SOFT:
+        fprintf(f, "%cX", pitch_letter(note->u.note.pitch));
+        break;
     case S_NATURAL:
         fprintf(f, "%cy", pitch_letter(note->u.note.pitch));
         break;
     case S_NATURAL_PAREN:
         fprintf(f, "%cy?", pitch_letter(note->u.note.pitch));
         break;
+    case S_NATURAL_SOFT:
+        fprintf(f, "%cY", pitch_letter(note->u.note.pitch));
+        break;
     case S_SHARP:
         fprintf(f, "%c#", pitch_letter(note->u.note.pitch));
         break;
     case S_SHARP_PAREN:
         fprintf(f, "%c#?", pitch_letter(note->u.note.pitch));
+        break;
+    case S_SHARP_SOFT:
+        fprintf(f, "%c#*", pitch_letter(note->u.note.pitch));
         break;
     case S_VIRGA:
         fprintf(f, "%cv", pitch_letter(note->u.note.pitch));
@@ -777,6 +786,12 @@ static void gabc_write_gregorio_note(FILE *f, gregorio_note *note,
         fprintf(f, "[nv:");
         gabc_print_string(f, gregorio_texverb(note->texverb));
         fprintf(f, "]");
+    }
+    if (note->choral_sign) {
+        fprintf(f, "[cs:%s]", note->choral_sign);
+    }
+    if (note->shape_hint) {
+        fprintf(f, "[shape:%s]", note->shape_hint);
     }
 }
 
@@ -916,11 +931,11 @@ static __inline void close_hepisema_adjustment(FILE *const f,
 }
 
 /*
- * 
+ *
  * The function that writes one glyph. If it is really a glyph (meaning not a
  * space or an alteration), we just do like always, a loop on the notes and a
  * call to the function that writes one note on each of them.
- * 
+ *
  */
 
 static void gabc_write_gregorio_glyph(FILE *f, gregorio_glyph *glyph,
@@ -1018,12 +1033,12 @@ static void gabc_write_gregorio_glyph(FILE *f, gregorio_glyph *glyph,
 }
 
 /*
- * 
- * To write an element, first we check the type of the element (if it is a bar, 
+ *
+ * To write an element, first we check the type of the element (if it is a bar,
  * etc.), and if it is really an element, we make a loop on the list of glyphs
  * inside the neume, and for each of them we call the function that will write
  * one glyph.
- * 
+ *
  */
 
 static void gabc_write_gregorio_element(FILE *f, gregorio_element *element,
@@ -1115,11 +1130,11 @@ static void gabc_write_gregorio_element(FILE *f, gregorio_element *element,
 }
 
 /*
- * 
+ *
  * Here is defined the function that will write the list of gregorio_elements.
  * It is very simple: it makes a loop in which it calls a function that writes
  * one element.
- * 
+ *
  */
 
 static bool gabc_write_gregorio_elements(FILE *f, gregorio_element *element,
@@ -1146,9 +1161,9 @@ static bool gabc_write_gregorio_elements(FILE *f, gregorio_element *element,
 }
 
 /*
- * 
+ *
  * Here it goes, we are writing a gregorio_syllable.
- * 
+ *
  */
 
 static void gabc_write_gregorio_syllable(FILE *f, gregorio_syllable *syllable,
@@ -1208,10 +1223,10 @@ static void gabc_write_gregorio_syllable(FILE *f, gregorio_syllable *syllable,
 }
 
 /*
- * 
+ *
  * This is the top function, the one called when we want to write a
  * gregorio_score in gabc.
- * 
+ *
  */
 
 void gabc_write_score(FILE *f, gregorio_score *score)

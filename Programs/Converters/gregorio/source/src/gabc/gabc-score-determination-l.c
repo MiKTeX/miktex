@@ -1017,7 +1017,7 @@ char *yytext;
  * This file implements the score lexer.
  *
  * Gregorio score determination in gabc input.
- * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -1050,23 +1050,9 @@ char *yytext;
 
 static bool eof_found = false;
 
-#define START_STYLE(STYLE) \
-    if (*styles & SB_ ## STYLE) { \
-        gregorio_messagef("gabc_score_determination_lex", VERBOSITY_ERROR, 0, \
-                _("style already started: %s"), gabc_score_determination_text); \
-    } else { \
-        *styles ^= SB_ ## STYLE; \
-        return STYLE ## _BEGIN; \
-    }
+#define START_STYLE(STYLE) return STYLE ## _BEGIN
 
-#define END_STYLE(STYLE) \
-    if (*styles & SB_ ## STYLE) { \
-        *styles ^= SB_ ## STYLE; \
-        return STYLE ## _END; \
-    } else { \
-        gregorio_messagef("gabc_score_determination_lex", VERBOSITY_ERROR, 0, \
-                _("style not started: %s"), gabc_score_determination_text); \
-    }
+#define END_STYLE(STYLE) return STYLE ## _END
 
 #define RETURN_CHARACTERS \
     gabc_score_determination_lval.text = \
@@ -1112,13 +1098,13 @@ static bool eof_found = false;
 #define YY_USER_ACTION gabc_update_location(&gabc_score_determination_lloc, \
         gabc_score_determination_text, gabc_score_determination_leng);
 
-#line 1115 "gabc/gabc-score-determination-l.c"
+#line 1101 "gabc/gabc-score-determination-l.c"
 
 /* The expression for attribute below is rather messy because we allow
 for (a) single-line values, ending with a semicolon at end of line or a
 double semicolon, (b) multi-line values, which end at a double
 semicolon. */
-#line 1121 "gabc/gabc-score-determination-l.c"
+#line 1107 "gabc/gabc-score-determination-l.c"
 
 #define INITIAL 0
 #define attribute 1
@@ -1350,9 +1336,9 @@ YY_DECL
 		}
 
 	{
-#line 136 "gabc/gabc-score-determination.l"
+#line 122 "gabc/gabc-score-determination.l"
 
-#line 1355 "gabc/gabc-score-determination-l.c"
+#line 1341 "gabc/gabc-score-determination-l.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1412,7 +1398,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 137 "gabc/gabc-score-determination.l"
+#line 123 "gabc/gabc-score-determination.l"
 {
         /* BOM written by a lot of windows softwares when they write UTF-8 */
     }
@@ -1420,14 +1406,14 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 140 "gabc/gabc-score-determination.l"
+#line 126 "gabc/gabc-score-determination.l"
 {
         /* ignoring empty lines */
     }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 143 "gabc/gabc-score-determination.l"
+#line 129 "gabc/gabc-score-determination.l"
 {
         BEGIN(inicomments);
     }
@@ -1435,21 +1421,21 @@ YY_RULE_SETUP
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 146 "gabc/gabc-score-determination.l"
+#line 132 "gabc/gabc-score-determination.l"
 {
         BEGIN(INITIAL);
     }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 149 "gabc/gabc-score-determination.l"
+#line 135 "gabc/gabc-score-determination.l"
 {
         /* ignored */
     }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 152 "gabc/gabc-score-determination.l"
+#line 138 "gabc/gabc-score-determination.l"
 {
         BEGIN(attribute);
         return COLON;
@@ -1458,7 +1444,7 @@ YY_RULE_SETUP
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 156 "gabc/gabc-score-determination.l"
+#line 142 "gabc/gabc-score-determination.l"
 {
          BEGIN(INITIAL);
          return SEMICOLON;
@@ -1467,7 +1453,7 @@ YY_RULE_SETUP
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 160 "gabc/gabc-score-determination.l"
+#line 146 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1476,7 +1462,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 165 "gabc/gabc-score-determination.l"
+#line 151 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1485,7 +1471,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 170 "gabc/gabc-score-determination.l"
+#line 156 "gabc/gabc-score-determination.l"
 {
          gabc_score_determination_lval.character = gabc_score_determination_text[5];
          return DEF_MACRO;
@@ -1493,7 +1479,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 174 "gabc/gabc-score-determination.l"
+#line 160 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1502,7 +1488,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 179 "gabc/gabc-score-determination.l"
+#line 165 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1511,7 +1497,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 184 "gabc/gabc-score-determination.l"
+#line 170 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1520,7 +1506,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 189 "gabc/gabc-score-determination.l"
+#line 175 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1529,7 +1515,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 194 "gabc/gabc-score-determination.l"
+#line 180 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1538,7 +1524,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 199 "gabc/gabc-score-determination.l"
+#line 185 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1547,7 +1533,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 204 "gabc/gabc-score-determination.l"
+#line 190 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1556,7 +1542,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 209 "gabc/gabc-score-determination.l"
+#line 195 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1565,7 +1551,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 214 "gabc/gabc-score-determination.l"
+#line 200 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1574,7 +1560,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 219 "gabc/gabc-score-determination.l"
+#line 205 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1583,7 +1569,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 224 "gabc/gabc-score-determination.l"
+#line 210 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1592,7 +1578,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 229 "gabc/gabc-score-determination.l"
+#line 215 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1601,7 +1587,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 234 "gabc/gabc-score-determination.l"
+#line 220 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1611,7 +1597,7 @@ YY_RULE_SETUP
 case 24:
 /* rule 24 can match eol */
 YY_RULE_SETUP
-#line 239 "gabc/gabc-score-determination.l"
+#line 225 "gabc/gabc-score-determination.l"
 {
        BEGIN(score);
        return END_OF_DEFINITIONS;
@@ -1619,7 +1605,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 243 "gabc/gabc-score-determination.l"
+#line 229 "gabc/gabc-score-determination.l"
 {
         gregorio_messagef("det_score", VERBOSITY_ERROR, 0,
                 _("unrecognized character: \"%c\" in definition part"),
@@ -1629,28 +1615,28 @@ YY_RULE_SETUP
 case 26:
 /* rule 26 can match eol */
 YY_RULE_SETUP
-#line 248 "gabc/gabc-score-determination.l"
+#line 234 "gabc/gabc-score-determination.l"
 {
         RETURN_SPACE;
     }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 251 "gabc/gabc-score-determination.l"
+#line 237 "gabc/gabc-score-determination.l"
 {
         RETURN_CHARACTERS;
     }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 254 "gabc/gabc-score-determination.l"
+#line 240 "gabc/gabc-score-determination.l"
 {
         return HYPHEN;
     }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 257 "gabc/gabc-score-determination.l"
+#line 243 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1659,119 +1645,119 @@ YY_RULE_SETUP
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 262 "gabc/gabc-score-determination.l"
+#line 248 "gabc/gabc-score-determination.l"
 {
         return NLBA_B;
     }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 265 "gabc/gabc-score-determination.l"
+#line 251 "gabc/gabc-score-determination.l"
 {
         return NLBA_E;
     }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 268 "gabc/gabc-score-determination.l"
+#line 254 "gabc/gabc-score-determination.l"
 {
         START_STYLE(I);
     }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 271 "gabc/gabc-score-determination.l"
+#line 257 "gabc/gabc-score-determination.l"
 {
         END_STYLE(I);
     }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 274 "gabc/gabc-score-determination.l"
+#line 260 "gabc/gabc-score-determination.l"
 {
         START_STYLE(TT);
     }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 277 "gabc/gabc-score-determination.l"
+#line 263 "gabc/gabc-score-determination.l"
 {
         END_STYLE(TT);
     }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 280 "gabc/gabc-score-determination.l"
+#line 266 "gabc/gabc-score-determination.l"
 {
         START_STYLE(UL);
     }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 283 "gabc/gabc-score-determination.l"
+#line 269 "gabc/gabc-score-determination.l"
 {
         END_STYLE(UL);
     }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 286 "gabc/gabc-score-determination.l"
+#line 272 "gabc/gabc-score-determination.l"
 {
         START_STYLE(C);
     }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 289 "gabc/gabc-score-determination.l"
+#line 275 "gabc/gabc-score-determination.l"
 {
         END_STYLE(C);
     }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 292 "gabc/gabc-score-determination.l"
+#line 278 "gabc/gabc-score-determination.l"
 {
         START_STYLE(B);
     }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 295 "gabc/gabc-score-determination.l"
+#line 281 "gabc/gabc-score-determination.l"
 {
         END_STYLE(B);
     }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 298 "gabc/gabc-score-determination.l"
+#line 284 "gabc/gabc-score-determination.l"
 {
         START_STYLE(SC);
     }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 301 "gabc/gabc-score-determination.l"
+#line 287 "gabc/gabc-score-determination.l"
 {
         END_STYLE(SC);
     }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 304 "gabc/gabc-score-determination.l"
+#line 290 "gabc/gabc-score-determination.l"
 {
         START_STYLE(ELISION);
     }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 307 "gabc/gabc-score-determination.l"
+#line 293 "gabc/gabc-score-determination.l"
 {
         END_STYLE(ELISION);
     }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 310 "gabc/gabc-score-determination.l"
+#line 296 "gabc/gabc-score-determination.l"
 {
         BEGIN(sp);
         return SP_BEGIN;
@@ -1779,7 +1765,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 314 "gabc/gabc-score-determination.l"
+#line 300 "gabc/gabc-score-determination.l"
 {
         BEGIN(score);
         return SP_END;
@@ -1788,21 +1774,21 @@ YY_RULE_SETUP
 case 48:
 /* rule 48 can match eol */
 YY_RULE_SETUP
-#line 318 "gabc/gabc-score-determination.l"
+#line 304 "gabc/gabc-score-determination.l"
 {
         RETURN_SPACE;
     }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 321 "gabc/gabc-score-determination.l"
+#line 307 "gabc/gabc-score-determination.l"
 {
         RETURN_CHARACTERS;
     }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 324 "gabc/gabc-score-determination.l"
+#line 310 "gabc/gabc-score-determination.l"
 {
         BEGIN(comments);
     }
@@ -1810,21 +1796,21 @@ YY_RULE_SETUP
 case 51:
 /* rule 51 can match eol */
 YY_RULE_SETUP
-#line 327 "gabc/gabc-score-determination.l"
+#line 313 "gabc/gabc-score-determination.l"
 {
         BEGIN(score);
     }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 330 "gabc/gabc-score-determination.l"
+#line 316 "gabc/gabc-score-determination.l"
 {
         /* ignored */
     }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 333 "gabc/gabc-score-determination.l"
+#line 319 "gabc/gabc-score-determination.l"
 {
         BEGIN(verb);
         return VERB_BEGIN;
@@ -1832,7 +1818,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 337 "gabc/gabc-score-determination.l"
+#line 323 "gabc/gabc-score-determination.l"
 {
         BEGIN(score);
         return VERB_END;
@@ -1841,35 +1827,35 @@ YY_RULE_SETUP
 case 55:
 /* rule 55 can match eol */
 YY_RULE_SETUP
-#line 341 "gabc/gabc-score-determination.l"
+#line 327 "gabc/gabc-score-determination.l"
 {
         RETURN_CHARACTERS;
     }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 344 "gabc/gabc-score-determination.l"
+#line 330 "gabc/gabc-score-determination.l"
 {
         RETURN_CHARACTERS;
     }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 347 "gabc/gabc-score-determination.l"
+#line 333 "gabc/gabc-score-determination.l"
 {
         return CENTER_BEGIN;
     }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 350 "gabc/gabc-score-determination.l"
+#line 336 "gabc/gabc-score-determination.l"
 {
         return CENTER_END;
     }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 353 "gabc/gabc-score-determination.l"
+#line 339 "gabc/gabc-score-determination.l"
 {
         BEGIN(alt);
         return ALT_BEGIN;
@@ -1877,7 +1863,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 357 "gabc/gabc-score-determination.l"
+#line 343 "gabc/gabc-score-determination.l"
 {
         BEGIN(score);
         return ALT_END;
@@ -1885,35 +1871,35 @@ YY_RULE_SETUP
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 361 "gabc/gabc-score-determination.l"
+#line 347 "gabc/gabc-score-determination.l"
 {
         return EUOUAE_B;
     }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 364 "gabc/gabc-score-determination.l"
+#line 350 "gabc/gabc-score-determination.l"
 {
         return EUOUAE_E;
     }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 367 "gabc/gabc-score-determination.l"
+#line 353 "gabc/gabc-score-determination.l"
 {
         return TRANSLATION_CENTER_END;
     }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 370 "gabc/gabc-score-determination.l"
+#line 356 "gabc/gabc-score-determination.l"
 {
         return TRANSLATION_BEGIN;
     }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 373 "gabc/gabc-score-determination.l"
+#line 359 "gabc/gabc-score-determination.l"
 {
         return TRANSLATION_END;
     }
@@ -1921,7 +1907,7 @@ YY_RULE_SETUP
 case 66:
 /* rule 66 can match eol */
 YY_RULE_SETUP
-#line 376 "gabc/gabc-score-determination.l"
+#line 362 "gabc/gabc-score-determination.l"
 {
         return CLEAR;
     }
@@ -1929,7 +1915,7 @@ YY_RULE_SETUP
 case 67:
 /* rule 67 can match eol */
 YY_RULE_SETUP
-#line 379 "gabc/gabc-score-determination.l"
+#line 365 "gabc/gabc-score-determination.l"
 {
         return PROTRUSION;
     }
@@ -1937,7 +1923,7 @@ YY_RULE_SETUP
 case 68:
 /* rule 68 can match eol */
 YY_RULE_SETUP
-#line 382 "gabc/gabc-score-determination.l"
+#line 368 "gabc/gabc-score-determination.l"
 {
         BEGIN(protrusion_value);
         return PROTRUSION;
@@ -1945,7 +1931,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 386 "gabc/gabc-score-determination.l"
+#line 372 "gabc/gabc-score-determination.l"
 {
         BEGIN(protrusion_end);
         gabc_score_determination_lval.text =
@@ -1956,7 +1942,7 @@ YY_RULE_SETUP
 case 70:
 /* rule 70 can match eol */
 YY_RULE_SETUP
-#line 392 "gabc/gabc-score-determination.l"
+#line 378 "gabc/gabc-score-determination.l"
 {
         BEGIN(score);
         return PROTRUSION_END;
@@ -1964,7 +1950,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 396 "gabc/gabc-score-determination.l"
+#line 382 "gabc/gabc-score-determination.l"
 {
         BEGIN(notes);
         return OPENING_BRACKET;
@@ -1973,7 +1959,7 @@ YY_RULE_SETUP
 case 72:
 /* rule 72 can match eol */
 YY_RULE_SETUP
-#line 400 "gabc/gabc-score-determination.l"
+#line 386 "gabc/gabc-score-determination.l"
 {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
@@ -1982,14 +1968,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 405 "gabc/gabc-score-determination.l"
+#line 391 "gabc/gabc-score-determination.l"
 {
         return NABC_CUT;
     }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 408 "gabc/gabc-score-determination.l"
+#line 394 "gabc/gabc-score-determination.l"
 {
         BEGIN(score);
         return CLOSING_BRACKET;
@@ -1998,7 +1984,7 @@ YY_RULE_SETUP
 case 75:
 /* rule 75 can match eol */
 YY_RULE_SETUP
-#line 412 "gabc/gabc-score-determination.l"
+#line 398 "gabc/gabc-score-determination.l"
 {
         BEGIN(score);
         return CLOSING_BRACKET_WITH_SPACE;
@@ -2015,7 +2001,7 @@ case YY_STATE_EOF(inicomments):
 case YY_STATE_EOF(alt):
 case YY_STATE_EOF(protrusion_value):
 case YY_STATE_EOF(protrusion_end):
-#line 416 "gabc/gabc-score-determination.l"
+#line 402 "gabc/gabc-score-determination.l"
 {
         if (!eof_found) {
             eof_found = true;
@@ -2028,7 +2014,7 @@ case YY_STATE_EOF(protrusion_end):
 case 76:
 /* rule 76 can match eol */
 YY_RULE_SETUP
-#line 424 "gabc/gabc-score-determination.l"
+#line 410 "gabc/gabc-score-determination.l"
 {
         gregorio_messagef("gabc_score_determination_lex", VERBOSITY_ERROR, 0,
                 _("unrecognized character: \"%c\""),
@@ -2037,10 +2023,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 429 "gabc/gabc-score-determination.l"
+#line 415 "gabc/gabc-score-determination.l"
 ECHO;
 	YY_BREAK
-#line 2043 "gabc/gabc-score-determination-l.c"
+#line 2029 "gabc/gabc-score-determination-l.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -3017,7 +3003,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 429 "gabc/gabc-score-determination.l"
+#line 415 "gabc/gabc-score-determination.l"
 
 
 

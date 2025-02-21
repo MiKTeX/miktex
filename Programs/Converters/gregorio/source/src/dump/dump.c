@@ -2,22 +2,22 @@
  * Gregorio is a program that translates gabc files to GregorioTeX.
  * This file provides functions to dump out Gregorio structures.
  *
- * Copyright (C) 2007-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2007-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option)
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
- * 
- * You should have received a copy of the GNU General Public License along with 
- * this program.  If not, see <http://www.gnu.org/licenses/>. 
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
@@ -424,8 +424,12 @@ void dump_write_score(FILE *f, gregorio_score *score)
                                         gregorio_texverb(note->texverb));
                             }
                             if (note->choral_sign) {
-                                fprintf(f, "         Choral Sign            \"%s\"\n",
+                                fprintf(f, "         choral sign            \"%s\"\n",
                                         note->choral_sign);
+                            }
+                            if (note->shape_hint) {
+                                fprintf(f, "         shape hint             \"%s\"\n",
+                                        note->shape_hint);
                             }
                             if (note->signs) {
                                 fprintf(f, "         signs                  %d (%s)\n",

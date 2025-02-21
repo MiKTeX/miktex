@@ -4,7 +4,7 @@
  * This file implements the score lexer.
  *
  * Gregorio score determination in gabc input.
- * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -37,23 +37,9 @@
 
 static bool eof_found = false;
 
-#define START_STYLE(STYLE) \
-    if (*styles & SB_ ## STYLE) { \
-        gregorio_messagef("gabc_score_determination_lex", VERBOSITY_ERROR, 0, \
-                _("style already started: %s"), gabc_score_determination_text); \
-    } else { \
-        *styles ^= SB_ ## STYLE; \
-        return STYLE ## _BEGIN; \
-    }
+#define START_STYLE(STYLE) return STYLE ## _BEGIN
 
-#define END_STYLE(STYLE) \
-    if (*styles & SB_ ## STYLE) { \
-        *styles ^= SB_ ## STYLE; \
-        return STYLE ## _END; \
-    } else { \
-        gregorio_messagef("gabc_score_determination_lex", VERBOSITY_ERROR, 0, \
-                _("style not started: %s"), gabc_score_determination_text); \
-    }
+#define END_STYLE(STYLE) return STYLE ## _END
 
 #define RETURN_CHARACTERS \
     gabc_score_determination_lval.text = \

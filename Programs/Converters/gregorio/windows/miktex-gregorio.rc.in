@@ -1,0 +1,19 @@
+/**
+ * @file miktex-gregorio.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 2017-2025 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#include "miktex-gregorio-version.h"
+
+#define VER_FILEDESCRIPTION_STR "@MIKTEX_COMP_DESCRIPTION@"
+#define VER_INTERNALNAME_STR "gregorio"
+#define VER_ORIGINALFILENAME_STR "miktex-gregorio.exe"
+
+#include "miktex/win/version.rc"

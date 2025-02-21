@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This header defines the Gregorio data structures and functions.
  *
- * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -123,10 +123,13 @@ ENUM(gregorio_clef, GREGORIO_CLEF);
     E(S_LINEA_PUNCTUM) \
     E(S_FLAT) \
     E(S_FLAT_PAREN) \
+    E(S_FLAT_SOFT) \
     E(S_SHARP) \
     E(S_SHARP_PAREN) \
+    E(S_SHARP_SOFT) \
     E(S_NATURAL) \
     E(S_NATURAL_PAREN) \
+    E(S_NATURAL_SOFT) \
     /* special shapes that must not appear in the final form of the score :
      * quadratum is the shape of the first note of a punctum quadratum
      * and quilisma quadratum is the shape of the first note of a pes
@@ -456,6 +459,7 @@ typedef struct gregorio_note {
     /* choral sign is a letter that appears next to a note in some choral
      * scores we put it as char* because sometimes two letters appear */
     char *choral_sign;
+    char *shape_hint;
     union {
         /* note is used for GRE_NOTE */
         struct {
@@ -892,8 +896,9 @@ void gregorio_start_autofuse(gregorio_note **current_note,
 void gregorio_end_autofuse(gregorio_note **current_note,
         const gregorio_scanner_location *loc);
 void gregorio_add_texverb_to_note(gregorio_note *current_note, char *str);
-void gregorio_add_cs_to_note(gregorio_note *const*current_note, char *str,
+void gregorio_add_cs_to_note(gregorio_note *current_note, char *str,
         bool nabc);
+void gregorio_add_shape_hint_to_note(gregorio_note *current_note, char *str);
 void gregorio_add_misc_element(gregorio_element **current_element,
         gregorio_type type, gregorio_misc_element_info *info,
         unsigned short texverb);

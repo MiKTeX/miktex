@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file implements the command line interface of Gregorio.
  *
- * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -21,7 +21,7 @@
  */
 
 static const char *copyright =
-"Copyright (C) 2006-2021 Gregorio Project authors (see CONTRIBUTORS.md)";
+"Copyright (C) 2006-2025 Gregorio Project authors (see CONTRIBUTORS.md)";
 
 #include "config.h"
 #include <stdio.h>
@@ -331,7 +331,8 @@ int main(int argc, char **argv)
     bool debug = false;
     bool must_print_short_usage = false;
     int option_index = 0;
-    static struct option long_options[] = {
+    static const char *const options = "o:SF:l:f:shOLVvWDpd";
+    static const struct option long_options[] = {
         {"output-file", 1, 0, 'o'},
         {"stdout", 0, 0, 'S'},
         {"output-format", 1, 0, 'F'},
@@ -350,16 +351,41 @@ int main(int argc, char **argv)
     gregorio_score *score = NULL;
 
     gregorio_support_init("gregorio", argv[0]);
-
-    if (argc == 1) {
-        fprintf(stderr, "%s: missing file operand.\n", argv[0]);
-        print_short_usage(argv[0]);
-        gregorio_exit(0);
-    }
     setlocale(LC_CTYPE, "C");
 
-    while (1) {
-        c = getopt_long(argc, argv, "o:SF:l:f:shOLVvWDpd",
+    /* need to look for the -l option up front */
+    for (;;) {
+        c = getopt_long(argc, argv, options,
+                        long_options, &option_index);
+        if (c == -1)
+            break;
+
+        if (c == 'l') {
+            if (error_file_name) {
+                fprintf(stderr,
+                        "warning: several error files declared, %s taken\n",
+                        error_file_name);
+                must_print_short_usage = true;
+            } else {
+                error_file_name = optarg;
+            }
+        }
+    } /* end of for */
+
+    if (error_file_name) {
+        gregorio_check_file_access(write, error_file_name, ERROR,
+                gregorio_exit(1));
+        error_file = freopen(error_file_name, "a", stderr);
+        if (!error_file) {
+            fprintf(stderr, "error: can't open file %s for writing\n",
+                    error_file_name);
+            gregorio_exit(1);
+        }
+    }
+
+    optind = 1;
+    for (;;) {
+        c = getopt_long(argc, argv, options,
                         long_options, &option_index);
         if (c == -1)
             break;
@@ -420,18 +446,9 @@ int main(int argc, char **argv)
             }
             break;
         case 'l':
-            if (error_file_name) {
-                fprintf(stderr,
-                        "warning: several error files declared, %s taken\n",
-                        error_file_name);
-                must_print_short_usage = true;
-                break;
-            }
-            error_file_name = optarg;
             break;
         case 'f':
             if (input_format) {
-                gregorio_set_error_out(error_file);
                 fprintf(stderr,
                         "warning: several output formats declared, first taken\n");
                 must_print_short_usage = true;
@@ -527,7 +544,7 @@ int main(int argc, char **argv)
             break;
             /* LCOV_EXCL_STOP */
         }
-    } /* end of while */
+    } /* end of for */
     if (optind == argc) {
         if (!input_file) { /* input not undefined (could be stdin) */
             fprintf(stderr, "%s: missing file operand.\n", argv[0]);
@@ -636,21 +653,6 @@ int main(int argc, char **argv)
             point_and_click_filename = encode_point_and_click_filename(
                     input_file_name);
         }
-    }
-
-    if (!error_file_name) {
-        error_file = stderr;
-        gregorio_set_error_out(error_file);
-    } else {
-        gregorio_check_file_access(write, error_file_name, ERROR,
-                gregorio_exit(1));
-        error_file = fopen(error_file_name, "wb");
-        if (!error_file) {
-            fprintf(stderr, "error: can't open file %s for writing\n",
-                    error_file_name);
-            gregorio_exit(1);
-        }
-        gregorio_set_error_out(error_file);
     }
 
     if (!verb_mode) {

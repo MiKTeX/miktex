@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX.
  * This file contains functions that deal with lyrics and styles.
  *
- * Copyright (C) 2008-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2008-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -317,8 +317,8 @@ static void free_styles(det_style **first_style)
 
 
 /*
- * inline function that will be used for verbatim and special-characters in the 
- * 
+ * inline function that will be used for verbatim and special-characters in the
+ *
  * next function, it calls function with a grewchar * which is the verbatim or
  * special-character. It places current_character to the character next to the
  * end of the verbatim or special_char charachters.
@@ -376,7 +376,7 @@ static __inline void verb_or_sp(const gregorio_character **ptr_character,
  * does not test at all the gregorio_character list, if it is wrong, then the
  * ouput will be wrong. It is very simple to understand, even if it is a bit
  * long.
- * 
+ *
  * @warning The difficulty comes when we have to write the first syllable text,
  * without the first letter.
  * The behaviour can have some bugs in this case if the first syllable has some
@@ -586,53 +586,53 @@ void gregorio_write_first_letter_alignment_text(
 
 /*
  * Here starts the code of the handling of text and styles.
- * 
- * This part is not the easiest, in fact is is the most complicated. The reason 
+ *
+ * This part is not the easiest, in fact is is the most complicated. The reason
  * is that I want to make something coherent in memory (easy to interprete),
- * and to let the user type whatever he wants. This part was originally written 
+ * and to let the user type whatever he wants. This part was originally written
  * for gabc, that's why it's always talking about it. But it could as well be
  * used by other read plugins, to put things in order.
- * 
+ *
  * Basically all the following lines of code are made for the last function,
- * that will take a "user-written" gregorio_character list into a xml-compliant 
+ * that will take a "user-written" gregorio_character list into a xml-compliant
  * and tex-compliant list. It's more complicated than it seems...
- * 
+ *
  * Functionalities: For example if the user types tt<i>ttt<b>ttt</i>tt I want
  * it to be represented as tt<i>ttt<b>ttt</b></i><b>tt</b>. The fabulous thing
  * is that it is xml-compliant. This part also determines the middle, for
  * example pot will be interpreted as p{o}t. When I did that I also thought
  * about TeX styles that needed things like {p}{o}{t}, so when the user types
  * <i>pot</i>, it is interpreted as <i>p</i>{<i>o</i>}<i>t</i>.
- * 
+ *
  * Internal structure: To do so we have a structure, det_style, that will help
  * us : it is a stack (double chained list) of the styles that we have seen
  * until now. When we encounter a <i>, we push the i style on the stack. If we
  * encounter a </i> we suppress the i style from the stack. Let's take a more
  * complex example: if we encounter <i><b></i>, the stack will be first null,
- * then i then bi, and there we want to end i, but it is not the first style of 
+ * then i then bi, and there we want to end i, but it is not the first style of
  * the stack, so we close all the styles that we encounter before we encounter
  * i (remember, this is for xml-compliance), so we insert a </b> before the
  * </i>. But that's not all, we also write a <b> after the </i>, so that the b
  * style continues. There our stack is just b. For center, we just close all
  * the styles in the stack, insert a { and reopen all the styles in the stack.
- * 
+ *
  * The structure used for character, styles, etc. is described in
  * include/struct.h
- * 
+ *
  * The functionment in this file is quite simple : we add all the characters
  * that we see, even if they are incoherent, in the gregorio_character list,
  * and then we call a very complex function that will build a stack of the
  * style, determine the middle, make all xml-compliant, mow the lawn, etc.
- * 
+ *
  * This code is *really* spaghetti, but I think it's a necessary pain.
- * 
+ *
  */
 
 /*
- * 
+ *
  * This function inserts a style before current_character, updating the double
  * chained list.
- * 
+ *
  */
 
 static void insert_style_before(unsigned char type,
@@ -652,11 +652,11 @@ static void insert_style_before(unsigned char type,
 }
 
 /*
- * 
+ *
  * This function puts a style after current_character, and updates
  * current_character to the gregorio_character it created. It updates the
  * double chained list. It does not touche to the det_styles list.
- * 
+ *
  */
 
 static void insert_style_after(unsigned char type, unsigned char style,
@@ -695,10 +695,10 @@ static void insert_char_after(grewchar c,
 #endif
 
 /*
- * 
+ *
  * This function suppresses the character, updates the double chained
  * list, and returns the character after, if there is one.
- * 
+ *
  */
 
 static __inline gregorio_character *suppress_character(
@@ -721,12 +721,12 @@ static __inline gregorio_character *suppress_character(
 }
 
 /*
- * 
+ *
  * Then start the inline functions for the big function. the first one is the
  * function we call when we close a style. The magic thing is that is will
  * prevent things like a<i></i>{<i>b</b>: when the user types a<i>b</i>, if the
  * middle is between a and b (...), it will interpret it as a{<i>b</i>.
- * 
+ *
  */
 
 static __inline void close_style(gregorio_character *current_character,
@@ -755,10 +755,10 @@ static __inline void close_style(gregorio_character *current_character,
 }
 
 /*
- * 
+ *
  * next the function called when we have determined that we must end the center
  * here : it closes all styles, adds a } and then reopens all styles.
- * 
+ *
  */
 
 /* type is ST_CENTER or ST_FORCED_CENTER */
@@ -791,7 +791,7 @@ static __inline void end_center(grestyle_style type,
 }
 
 /*
- * about the same, but adding a { 
+ * about the same, but adding a {
  */
 
 static __inline void begin_center(grestyle_style type,
@@ -825,16 +825,16 @@ static __inline void begin_center(grestyle_style type,
 /*
  * THE big function. Very long, using a lot of long macros, etc. I hope you
  * really want to understand it, 'cause it won't be easy.
- * 
+ *
  * current character is a pointer to a gregorio_character. The
  * gregorio_character double-chained list it is in will be totally reorganized
  * so that it is xml compliant, and the function will update it to the first
  * character of this brand new list.
- * 
+ *
  * center_is_determined has the values present in characters.h.
- * 
+ *
  * Another difficulty is the fact that we must consider characters in verbatim
- * and special character styles like only one block, we can't say the center is 
+ * and special character styles like only one block, we can't say the center is
  * in the middle of a verbatim block.
  */
 
@@ -847,7 +847,7 @@ void gregorio_rebuild_characters(gregorio_character **const param_character,
     det_style *first_style = NULL;
     /* determining the type of centering (forced or not) */
     grestyle_style center_type = ST_NO_STYLE;
-    int start = -1, end = -1, index = -1; 
+    int start = -1, end = -1, index = -1;
     bool in_elision = false;
     det_style *current_style;
     /* so, here we start: we go to the first_character */
@@ -869,7 +869,7 @@ void gregorio_rebuild_characters(gregorio_character **const param_character,
         }
     }
     /* first we see if there is already a center determined */
-    if (center_is_determined == 0) {
+    if (center_is_determined == CENTER_NOT_DETERMINED) {
         center_type = ST_CENTER;
         determine_center(current_character, &start, &end);
     } else {
@@ -1118,9 +1118,9 @@ void gregorio_rebuild_characters(gregorio_character **const param_character,
 }
 
 /**
- * @brief This function will determine the behaviour of gregorio when it comes to the recognition of the initial. 
- * 
- * Basically it will take a gregorio_character list and return the same list, but with a style added : ST_INITIAL. This style will incidate the initial. The center will be placed at the second letter, unless there is a FORCED_CENTER somewhere. 
+ * @brief This function will determine the behaviour of gregorio when it comes to the recognition of the initial.
+ *
+ * Basically it will take a gregorio_character list and return the same list, but with a style added : ST_INITIAL. This style will incidate the initial. The center will be placed at the second letter, unless there is a FORCED_CENTER somewhere.
  * Finally all will be xml-compliant and tex-compliant when we call gregorio_rebuild_characters.
  *
  * If we note <> for the initial and {} for the center, here is what we want:
@@ -1209,7 +1209,8 @@ void gregorio_rebuild_first_syllable(gregorio_character **param_character,
             break;
         }
         if (current_character->is_character) {
-            if (separate_initial && current_character->previous_character) {
+            if (separate_initial && current_character->previous_character
+                                 && current_character->next_character) {
                 /* we need to move the initial to the front */
                 current_character->previous_character->next_character =
                         current_character->next_character;

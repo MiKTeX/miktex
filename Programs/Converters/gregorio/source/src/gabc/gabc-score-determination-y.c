@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 3.7.5.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
@@ -16,7 +16,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -46,10 +46,10 @@
    USER NAME SPACE" below.  */
 
 /* Identify Bison output, and Bison version.  */
-#define YYBISON 30705
+#define YYBISON 30802
 
 /* Bison version string.  */
-#define YYBISON_VERSION "3.7.5"
+#define YYBISON_VERSION "3.8.2"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -82,29 +82,29 @@
  * This file implements the score parser.
  *
  * Gregorio score determination from gabc.
- * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2025 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option)
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
- * 
- * You should have received a copy of the GNU General Public License along with 
+ *
+ * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
- * 
+ *
  * This file is certainly not the most easy to understand, it is a bison file.
  * See the bison manual on gnu.org for further details.
- * 
+ *
  */
 
 #include "config.h"
@@ -141,8 +141,19 @@
 #include "gabc-score-determination.h"
 #include "gabc-score-determination-l.h"
 
-/* workaround for bison issue passing pointer to a "local" variable */
-#define STYLE_BITS &styles
+/* SB_IGNORE used to ignore a style that don't stay open between syllables */
+#define GABC_STYLE_BITS(A,E,X,L) \
+    A(SB_IGNORE, 0x00) \
+    A(SB_ITALIC, 0x01) \
+    A(SB_BOLD, 0x02) \
+    A(SB_TT, 0x04) \
+    A(SB_SMALL_CAPS, 0x08) \
+    A(SB_UNDERLINED, 0x10) \
+    A(SB_COLORED, 0x20) \
+    X(SB_ELISION, 0x40)
+ENUM(gabc_style_bits, GABC_STYLE_BITS);
+
+ENUM_TO_STRING(gabc_style_bits, GABC_STYLE_BITS)
 
 /* forward declaration of the flex/bison process function */
 static int gabc_score_determination_parse(void);
@@ -152,10 +163,10 @@ static int gabc_score_determination_parse(void);
 /* int gabc_score_determination_debug=1; */
 
 /*
- * 
+ *
  * We will need some variables and functions through the entire file, we
  * declare them there:
- * 
+ *
  */
 
 /* the score that we will determine and return */
@@ -185,6 +196,7 @@ static bool got_language;
 static bool got_staff_lines;
 static bool started_first_word;
 static struct sha1_ctx digester;
+/* used to track styles that stay open across syllables */
 static gabc_style_bits styles;
 static bool generate_point_and_click;
 static bool clear_syllable_text;
@@ -222,7 +234,7 @@ static void gabc_score_determination_error(const char *error_str)
 }
 
 /*
- * The function that will initialize the variables. 
+ * The function that will initialize the variables.
  */
 
 static void initialize_variables(bool point_and_click)
@@ -260,8 +272,8 @@ static void initialize_variables(bool point_and_click)
 }
 
 /*
- * function that frees the variables that need it, for when we have finished to 
- * determine the score 
+ * function that frees the variables that need it, for when we have finished to
+ * determine the score
  */
 
 static void free_variables(void)
@@ -274,8 +286,8 @@ static void free_variables(void)
 }
 
 /*
- * Function called when we have reached the end of the definitions, it tries to 
- * make the voice_infos coherent. 
+ * Function called when we have reached the end of the definitions, it tries to
+ * make the voice_infos coherent.
  */
 static void end_definitions(void)
 {
@@ -298,15 +310,15 @@ static void end_definitions(void)
 
 /*
  * Here starts the code for the determinations of the notes. The notes are not
- * precisely determined here, we separate the text describing the notes of each 
- * voice, and we call determine_elements_from_string to really determine them. 
+ * precisely determined here, we separate the text describing the notes of each
+ * voice, and we call determine_elements_from_string to really determine them.
  */
 static char position = WORD_BEGINNING;
 static gregorio_syllable *current_syllable = NULL;
 static char *abovelinestext = NULL;
 
 /*
- * Function called each time we find a space, it updates the current position. 
+ * Function called each time we find a space, it updates the current position.
  */
 static void update_position_with_space(void)
 {
@@ -321,7 +333,7 @@ static void update_position_with_space(void)
 /*
  * When we encounter a translation center ending, we call this function that
  * sets translation_type = TR_WITH_CENTER_BEGINNING on previous syllable with
- * translation 
+ * translation
  */
 static void gregorio_set_translation_center_beginning(
         gregorio_syllable *current_syllable)
@@ -393,26 +405,73 @@ static void rebuild_score_characters(void)
 }
 
 /*
- * 
- * The two functions called when lex returns a style, we simply add it. All the 
+ *
+ * The two functions called when lex returns a style, we simply add it. All the
  * complex things will be done by the function after...
- * 
+ *
  */
 
-static void add_style(unsigned char style)
+static void add_style(grestyle_style style, gabc_style_bits bit);
+
+static void maybe_insert_open_styles(void)
 {
+    if (!current_character) {
+        /* insert open styles, leaving out ELISION on purpose */
+        if (styles & SB_ITALIC) {
+            gregorio_begin_style(&current_character, ST_ITALIC);
+        }
+        if (styles & SB_BOLD) {
+            gregorio_begin_style(&current_character, ST_BOLD);
+        }
+        if (styles & SB_TT) {
+            gregorio_begin_style(&current_character, ST_TT);
+        }
+        if (styles & SB_SMALL_CAPS) {
+            gregorio_begin_style(&current_character, ST_SMALL_CAPS);
+        }
+        if (styles & SB_UNDERLINED) {
+            gregorio_begin_style(&current_character, ST_UNDERLINED);
+        }
+        if (styles & SB_COLORED) {
+            gregorio_begin_style(&current_character, ST_COLORED);
+        }
+    }
+}
+
+static void add_style(grestyle_style style, gabc_style_bits bit)
+{
+    maybe_insert_open_styles();
+    if (bit) {
+        if (styles & bit) {
+            gregorio_messagef("add_style", VERBOSITY_ERROR, 0,
+                    _("style already started: %s"),
+                    gabc_style_bits_to_string(bit));
+        } else {
+            styles ^= bit;
+        }
+    }
     gregorio_begin_style(&current_character, style);
 }
 
-static void end_style(unsigned char style)
+static void end_style(grestyle_style style, gabc_style_bits bit)
 {
+    maybe_insert_open_styles();
+    if (bit) {
+        if (styles & bit) {
+            styles ^= bit;
+        } else {
+            gregorio_messagef("end_style", VERBOSITY_ERROR, 0,
+                    _("style not started: %s"),
+                    gabc_style_bits_to_string(bit));
+        }
+    }
     gregorio_end_style(&current_character, style);
 }
 
 static __inline void save_text(void)
 {
     if (has_protrusion) {
-        end_style(ST_PROTRUSION);
+        end_style(ST_PROTRUSION, SB_IGNORE);
     }
     ready_characters();
     first_text_character = current_character;
@@ -438,33 +497,13 @@ static void end_translation(void)
 
 /*
  * add_text is the function called when lex returns a char *. In
- * this function we convert it into grewchar, and then we add the corresponding 
- * gregorio_characters in the list of gregorio_characters. 
+ * this function we convert it into grewchar, and then we add the corresponding
+ * gregorio_characters in the list of gregorio_characters.
  */
 
 static void add_text(char *mbcharacters)
 {
-    if (!current_character) {
-        /* insert open styles, leaving out ELISION on purpose */
-        if (styles & SB_I) {
-            add_style(ST_ITALIC);
-        }
-        if (styles & SB_B) {
-            add_style(ST_BOLD);
-        }
-        if (styles & SB_TT) {
-            add_style(ST_TT);
-        }
-        if (styles & SB_SC) {
-            add_style(ST_SMALL_CAPS);
-        }
-        if (styles & SB_UL) {
-            add_style(ST_UNDERLINED);
-        }
-        if (styles & SB_C) {
-            add_style(ST_COLORED);
-        }
-    }
+    maybe_insert_open_styles();
     if (current_character) {
         current_character->next_character = gregorio_build_char_list_from_buf(
                 mbcharacters);
@@ -489,14 +528,14 @@ static void add_protrusion(char *factor)
         if (center_is_determined == CENTER_HALF_DETERMINED) {
             gregorio_message("closing open syllable center before protrusion",
                     "det_score", VERBOSITY_WARNING, 0);
-            end_style(ST_FORCED_CENTER);
+            end_style(ST_FORCED_CENTER, SB_IGNORE);
             center_is_determined = CENTER_FULLY_DETERMINED;
         }
 
-        add_style(ST_PROTRUSION_FACTOR);
+        add_style(ST_PROTRUSION_FACTOR, SB_IGNORE);
         add_text(factor);
-        end_style(ST_PROTRUSION_FACTOR);
-        add_style(ST_PROTRUSION);
+        end_style(ST_PROTRUSION_FACTOR, SB_IGNORE);
+        add_style(ST_PROTRUSION, SB_IGNORE);
         has_protrusion = true;
     }
 }
@@ -506,8 +545,8 @@ static void add_auto_protrusion(char *protrusion)
     if (has_protrusion) {
         add_text(protrusion);
     } else {
-        add_style(ST_PROTRUSION_FACTOR);
-        add_style(ST_VERBATIM);
+        add_style(ST_PROTRUSION_FACTOR, SB_IGNORE);
+        add_style(ST_VERBATIM, SB_IGNORE);
         add_text(gregorio_strdup("\\GreProtrusionFactor{"));
 
         switch (*protrusion) {
@@ -533,12 +572,12 @@ static void add_auto_protrusion(char *protrusion)
         }
 
         add_text(gregorio_strdup("}"));
-        end_style(ST_VERBATIM);
-        end_style(ST_PROTRUSION_FACTOR);
+        end_style(ST_VERBATIM, SB_IGNORE);
+        end_style(ST_PROTRUSION_FACTOR, SB_IGNORE);
 
-        add_style(ST_PROTRUSION);
+        add_style(ST_PROTRUSION, SB_IGNORE);
         add_text(protrusion);
-        end_style(ST_PROTRUSION);
+        end_style(ST_PROTRUSION, SB_IGNORE);
 
         has_protrusion = true;
     }
@@ -646,7 +685,7 @@ void gabc_digest(const void *const buf, const size_t size)
 /*
  * The "main" function. It is the function that is called when we have to read
  * a gabc file. It takes a file descriptor, that is to say a file that is
- * aleady open. It returns a valid gregorio_score 
+ * aleady open. It returns a valid gregorio_score
  */
 
 gregorio_score *gabc_read_score(FILE *f_in, bool point_and_click)
@@ -729,7 +768,7 @@ static char *concatenate(char *first, char *const second) {
     return first;
 }
 
-#line 733 "gabc/gabc-score-determination-y.c"
+#line 772 "gabc/gabc-score-determination-y.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -1005,12 +1044,18 @@ typedef int yy_state_fast_t;
 # define YY_USE(E) /* empty */
 #endif
 
-#if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
-# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN                            \
+#if defined __GNUC__ && ! defined __ICC && 406 <= __GNUC__ * 100 + __GNUC_MINOR__
+# if __GNUC__ * 100 + __GNUC_MINOR__ < 407
+#  define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN                           \
+    _Pragma ("GCC diagnostic push")                                     \
+    _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")
+# else
+#  define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN                           \
     _Pragma ("GCC diagnostic push")                                     \
     _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")              \
     _Pragma ("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+# endif
 # define YY_IGNORE_MAYBE_UNINITIALIZED_END      \
     _Pragma ("GCC diagnostic pop")
 #else
@@ -1233,20 +1278,20 @@ static const yytype_int8 yytranslate[] =
 };
 
 #if YYDEBUG
-  /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
+/* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   700,   700,   704,   709,   710,   714,   717,   723,   726,
-     732,   737,   746,   752,   757,   762,   767,   772,   777,   785,
-     793,   802,   807,   811,   816,   817,   821,   826,   832,   843,
-     847,   855,   856,   857,   861,   864,   867,   870,   873,   876,
-     879,   882,   888,   891,   894,   897,   900,   903,   906,   909,
-     915,   918,   935,   938,   951,   954,   960,   963,   969,   972,
-     978,   979,   982,   983,   984,   985,   986,   987,   988,   991,
-     992,   995,  1001,  1002,  1006,  1009,  1010,  1011,  1014,  1020,
-    1021,  1025,  1031,  1034,  1037,  1044,  1050,  1054,  1061,  1068,
-    1073,  1078,  1082,  1089,  1096,  1101,  1109,  1112,  1118,  1119,
-    1122,  1123
+       0,   737,   737,   741,   746,   747,   751,   754,   760,   763,
+     769,   774,   783,   789,   794,   799,   804,   809,   814,   822,
+     830,   839,   844,   848,   853,   854,   858,   863,   869,   880,
+     884,   892,   893,   894,   898,   901,   904,   907,   910,   913,
+     916,   919,   925,   928,   931,   934,   937,   940,   943,   946,
+     952,   955,   972,   975,   988,   991,   997,  1000,  1006,  1009,
+    1015,  1016,  1019,  1020,  1021,  1022,  1023,  1024,  1025,  1028,
+    1029,  1032,  1038,  1039,  1043,  1046,  1047,  1048,  1051,  1057,
+    1058,  1062,  1068,  1071,  1074,  1081,  1087,  1091,  1098,  1105,
+    1110,  1115,  1119,  1126,  1133,  1138,  1146,  1149,  1155,  1156,
+    1159,  1160
 };
 #endif
 
@@ -1291,21 +1336,6 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#ifdef YYPRINT
-/* YYTOKNUM[NUM] -- (External) token number corresponding to the
-   (internal) symbol number NUM (which must be that of a token).  */
-static const yytype_int16 yytoknum[] =
-{
-       0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
-     275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
-     285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
-     295,   296,   297,   298,   299,   300,   301,   302,   303,   304,
-     305,   306,   307,   308,   309,   310,   311,   312,   313,   314,
-     315,   316,   317
-};
-#endif
-
 #define YYPACT_NINF (-85)
 
 #define yypact_value_is_default(Yyn) \
@@ -1316,8 +1346,8 @@ static const yytype_int16 yytoknum[] =
 #define yytable_value_is_error(Yyn) \
   0
 
-  /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
-     STATE-NUM.  */
+/* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
+   STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
      -85,    11,   -85,    69,   -85,    66,     0,     0,     0,     0,
@@ -1337,9 +1367,9 @@ static const yytype_int16 yypact[] =
      -11,   -85,   -11,   -11,   -11
 };
 
-  /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
-     Performed when YYTABLE does not specify something else to do.  Zero
-     means the default is an error.  */
+/* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
+   Performed when YYTABLE does not specify something else to do.  Zero
+   means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
        4,     0,   100,     0,     1,     2,     0,     0,     0,     0,
@@ -1359,7 +1389,7 @@ static const yytype_int8 yydefact[] =
       90,    24,    91,    93,    95
 };
 
-  /* YYPGOTO[NTERM-NUM].  */
+/* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
      -85,   -85,   -85,   -85,   -85,   227,   -85,   -84,   -85,   -60,
@@ -1367,7 +1397,7 @@ static const yytype_int16 yypgoto[] =
      -85,   -85,   -23,   -85,   -85,   -85,   -85,   -85
 };
 
-  /* YYDEFGOTO[NTERM-NUM].  */
+/* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
        0,     1,     2,     3,   108,    71,    21,    87,   114,   115,
@@ -1375,9 +1405,9 @@ static const yytype_int8 yydefgoto[] =
      104,    64,    65,    66,    67,    68,    69,     5
 };
 
-  /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
-     positive, shift that token.  If negative, reduce the rule whose
-     number is the opposite.  If YYTABLE_NINF, syntax error.  */
+/* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
+   positive, shift that token.  If negative, reduce the rule whose
+   number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
       86,   109,   101,   102,    85,    90,   118,   132,   113,   122,
@@ -1436,8 +1466,8 @@ static const yytype_int16 yycheck[] =
       13,    14,    15,    16,    17,    18,    62,    20
 };
 
-  /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
-     symbol of state STATE-NUM.  */
+/* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
+   state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
        0,    64,    65,    66,     0,    90,     3,     4,     5,     6,
@@ -1457,7 +1487,7 @@ static const yytype_int8 yystos[] =
       70,    24,    70,    70,    70
 };
 
-  /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
+/* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
        0,    63,    64,    65,    66,    66,    67,    67,    68,    68,
@@ -1473,7 +1503,7 @@ static const yytype_int8 yyr1[] =
       90,    90
 };
 
-  /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
+/* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     2,     2,     0,     2,     1,     2,     3,     2,
@@ -1498,6 +1528,7 @@ enum { YYENOMEM = -2 };
 #define YYACCEPT        goto yyacceptlab
 #define YYABORT         goto yyabortlab
 #define YYERROR         goto yyerrorlab
+#define YYNOMEM         goto yyexhaustedlab
 
 
 #define YYRECOVERING()  (!!yyerrstatus)
@@ -1565,12 +1596,19 @@ do {                                            \
 } while (0)
 
 
-/* YY_LOCATION_PRINT -- Print the location on the stream.
+/* YYLOCATION_PRINT -- Print the location on the stream.
    This macro was not mandated originally: define only if we know
    we won't break user code: when these are the locations we know.  */
 
-# ifndef YY_LOCATION_PRINT
-#  if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+# ifndef YYLOCATION_PRINT
+
+#  if defined YY_LOCATION_PRINT
+
+   /* Temporary convenience wrapper in case some people defined the
+      undocumented and private YY_LOCATION_PRINT macros.  */
+#   define YYLOCATION_PRINT(File, Loc)  YY_LOCATION_PRINT(File, *(Loc))
+
+#  elif defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
 
 /* Print *YYLOCP on YYO.  Private, do not rely on its existence. */
 
@@ -1598,15 +1636,23 @@ yy_location_print_ (FILE *yyo, YYLTYPE const * const yylocp)
         res += YYFPRINTF (yyo, "-%d", end_col);
     }
   return res;
- }
+}
 
-#   define YY_LOCATION_PRINT(File, Loc)          \
-  yy_location_print_ (File, &(Loc))
+#   define YYLOCATION_PRINT  yy_location_print_
+
+    /* Temporary convenience wrapper in case some people defined the
+       undocumented and private YY_LOCATION_PRINT macros.  */
+#   define YY_LOCATION_PRINT(File, Loc)  YYLOCATION_PRINT(File, &(Loc))
 
 #  else
-#   define YY_LOCATION_PRINT(File, Loc) ((void) 0)
+
+#   define YYLOCATION_PRINT(File, Loc) ((void) 0)
+    /* Temporary convenience wrapper in case some people defined the
+       undocumented and private YY_LOCATION_PRINT macros.  */
+#   define YY_LOCATION_PRINT  YYLOCATION_PRINT
+
 #  endif
-# endif /* !defined YY_LOCATION_PRINT */
+# endif /* !defined YYLOCATION_PRINT */
 
 
 # define YY_SYMBOL_PRINT(Title, Kind, Value, Location)                    \
@@ -1634,10 +1680,6 @@ yy_symbol_value_print (FILE *yyo,
   YY_USE (yylocationp);
   if (!yyvaluep)
     return;
-# ifdef YYPRINT
-  if (yykind < YYNTOKENS)
-    YYPRINT (yyo, yytoknum[yykind], *yyvaluep);
-# endif
   YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   YY_USE (yykind);
   YY_IGNORE_MAYBE_UNINITIALIZED_END
@@ -1655,7 +1697,7 @@ yy_symbol_print (FILE *yyo,
   YYFPRINTF (yyo, "%s %s (",
              yykind < YYNTOKENS ? "token" : "nterm", yysymbol_name (yykind));
 
-  YY_LOCATION_PRINT (yyo, *yylocationp);
+  YYLOCATION_PRINT (yyo, yylocationp);
   YYFPRINTF (yyo, ": ");
   yy_symbol_value_print (yyo, yykind, yyvaluep, yylocationp);
   YYFPRINTF (yyo, ")");
@@ -1842,8 +1884,9 @@ yyparse (void)
 
   yychar = YYEMPTY; /* Cause a token to be read.  */
 
+
 /* User initialization code.  */
-#line 655 "gabc/gabc-score-determination.y"
+#line 694 "gabc/gabc-score-determination.y"
 {
     yylloc.first_line = 1;
     yylloc.first_column = 0;
@@ -1854,7 +1897,7 @@ yyparse (void)
     yylloc.generate_point_and_click = generate_point_and_click;
 }
 
-#line 1858 "gabc/gabc-score-determination-y.c"
+#line 1901 "gabc/gabc-score-determination-y.c"
 
   yylsp[0] = yylloc;
   goto yysetstate;
@@ -1882,7 +1925,7 @@ yysetstate:
 
   if (yyss + yystacksize - 1 <= yyssp)
 #if !defined yyoverflow && !defined YYSTACK_RELOCATE
-    goto yyexhaustedlab;
+    YYNOMEM;
 #else
     {
       /* Get the current used size of the three stacks, in elements.  */
@@ -1913,7 +1956,7 @@ yysetstate:
 # else /* defined YYSTACK_RELOCATE */
       /* Extend the stack our own way.  */
       if (YYMAXDEPTH <= yystacksize)
-        goto yyexhaustedlab;
+        YYNOMEM;
       yystacksize *= 2;
       if (YYMAXDEPTH < yystacksize)
         yystacksize = YYMAXDEPTH;
@@ -1924,7 +1967,7 @@ yysetstate:
           YY_CAST (union yyalloc *,
                    YYSTACK_ALLOC (YY_CAST (YYSIZE_T, YYSTACK_BYTES (yystacksize))));
         if (! yyptr)
-          goto yyexhaustedlab;
+          YYNOMEM;
         YYSTACK_RELOCATE (yyss_alloc, yyss);
         YYSTACK_RELOCATE (yyvs_alloc, yyvs);
         YYSTACK_RELOCATE (yyls_alloc, yyls);
@@ -1947,6 +1990,7 @@ yysetstate:
         YYABORT;
     }
 #endif /* !defined yyoverflow && !defined YYSTACK_RELOCATE */
+
 
   if (yystate == YYFINAL)
     YYACCEPT;
@@ -1972,7 +2016,7 @@ yybackup:
   if (yychar == YYEMPTY)
     {
       YYDPRINTF ((stderr, "Reading a token\n"));
-      yychar = yylex (STYLE_BITS);
+      yychar = yylex ();
     }
 
   if (yychar <= YYEOF)
@@ -2064,57 +2108,57 @@ yyreduce:
   switch (yyn)
     {
   case 3: /* all_definitions: definitions END_OF_DEFINITIONS  */
-#line 704 "gabc/gabc-score-determination.y"
+#line 741 "gabc/gabc-score-determination.y"
                                    {
         end_definitions();
     }
-#line 2072 "gabc/gabc-score-determination-y.c"
+#line 2116 "gabc/gabc-score-determination-y.c"
     break;
 
   case 6: /* attribute_value: ATTRIBUTE  */
-#line 714 "gabc/gabc-score-determination.y"
+#line 751 "gabc/gabc-score-determination.y"
               {
         yyval.text = yyvsp[0].text;
     }
-#line 2080 "gabc/gabc-score-determination-y.c"
+#line 2124 "gabc/gabc-score-determination-y.c"
     break;
 
   case 7: /* attribute_value: attribute_value ATTRIBUTE  */
-#line 717 "gabc/gabc-score-determination.y"
+#line 754 "gabc/gabc-score-determination.y"
                                 {
         yyval.text = concatenate(yyvsp[-1].text, yyvsp[0].text);
     }
-#line 2088 "gabc/gabc-score-determination-y.c"
+#line 2132 "gabc/gabc-score-determination-y.c"
     break;
 
   case 8: /* attribute: COLON attribute_value SEMICOLON  */
-#line 723 "gabc/gabc-score-determination.y"
+#line 760 "gabc/gabc-score-determination.y"
                                     {
         yyval.text = yyvsp[-1].text;
     }
-#line 2096 "gabc/gabc-score-determination-y.c"
+#line 2140 "gabc/gabc-score-determination-y.c"
     break;
 
   case 9: /* attribute: COLON SEMICOLON  */
-#line 726 "gabc/gabc-score-determination.y"
+#line 763 "gabc/gabc-score-determination.y"
                       {
         yyval.text = NULL;
     }
-#line 2104 "gabc/gabc-score-determination-y.c"
+#line 2148 "gabc/gabc-score-determination-y.c"
     break;
 
   case 10: /* definition: DEF_MACRO attribute  */
-#line 732 "gabc/gabc-score-determination.y"
+#line 769 "gabc/gabc-score-determination.y"
                         {
         /* these definitions are not passed through */
         free(macros[yyvsp[-1].character - '0']);
         macros[yyvsp[-1].character - '0'] = yyvsp[0].text;
     }
-#line 2114 "gabc/gabc-score-determination-y.c"
+#line 2158 "gabc/gabc-score-determination-y.c"
     break;
 
   case 11: /* definition: NAME attribute  */
-#line 737 "gabc/gabc-score-determination.y"
+#line 774 "gabc/gabc-score-determination.y"
                      {
         if (yyvsp[0].text == NULL) {
             gregorio_message("name can't be empty","det_score",
@@ -2124,72 +2168,72 @@ yyreduce:
         gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
         score->name = yyvsp[0].text;
     }
-#line 2128 "gabc/gabc-score-determination-y.c"
+#line 2172 "gabc/gabc-score-determination-y.c"
     break;
 
   case 12: /* definition: LANGUAGE attribute  */
-#line 746 "gabc/gabc-score-determination.y"
+#line 783 "gabc/gabc-score-determination.y"
                          {
         check_multiple("language", got_language);
         gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
         gregorio_set_centering_language(yyvsp[0].text);
         got_language = true;
     }
-#line 2139 "gabc/gabc-score-determination-y.c"
+#line 2183 "gabc/gabc-score-determination-y.c"
     break;
 
   case 13: /* definition: GABC_COPYRIGHT attribute  */
-#line 752 "gabc/gabc-score-determination.y"
+#line 789 "gabc/gabc-score-determination.y"
                                {
         check_multiple("gabc-copyright", score->gabc_copyright != NULL);
         gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
         score->gabc_copyright = yyvsp[0].text;
     }
-#line 2149 "gabc/gabc-score-determination-y.c"
+#line 2193 "gabc/gabc-score-determination-y.c"
     break;
 
   case 14: /* definition: SCORE_COPYRIGHT attribute  */
-#line 757 "gabc/gabc-score-determination.y"
+#line 794 "gabc/gabc-score-determination.y"
                                 {
         check_multiple("score_copyright", score->score_copyright != NULL);
         gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
         score->score_copyright = yyvsp[0].text;
     }
-#line 2159 "gabc/gabc-score-determination-y.c"
+#line 2203 "gabc/gabc-score-determination-y.c"
     break;
 
   case 15: /* definition: MODE attribute  */
-#line 762 "gabc/gabc-score-determination.y"
+#line 799 "gabc/gabc-score-determination.y"
                      {
         check_multiple("mode", score->mode != 0);
         gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
         score->mode = yyvsp[0].text;
     }
-#line 2169 "gabc/gabc-score-determination-y.c"
+#line 2213 "gabc/gabc-score-determination-y.c"
     break;
 
   case 16: /* definition: MODE_MODIFIER attribute  */
-#line 767 "gabc/gabc-score-determination.y"
+#line 804 "gabc/gabc-score-determination.y"
                               {
         check_multiple("mode-modifier", score->mode_modifier != NULL);
         gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
         score->mode_modifier = yyvsp[0].text;
     }
-#line 2179 "gabc/gabc-score-determination-y.c"
+#line 2223 "gabc/gabc-score-determination-y.c"
     break;
 
   case 17: /* definition: MODE_DIFFERENTIA attribute  */
-#line 772 "gabc/gabc-score-determination.y"
+#line 809 "gabc/gabc-score-determination.y"
                                  {
         check_multiple("mode-differentia", score->mode_differentia != NULL);
         gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
         score->mode_differentia = yyvsp[0].text;
     }
-#line 2189 "gabc/gabc-score-determination-y.c"
+#line 2233 "gabc/gabc-score-determination-y.c"
     break;
 
   case 18: /* definition: STAFF_LINES attribute  */
-#line 777 "gabc/gabc-score-determination.y"
+#line 814 "gabc/gabc-score-determination.y"
                             {
         check_multiple("staff-lines", got_staff_lines);
         if (yyvsp[0].text) {
@@ -2198,11 +2242,11 @@ yyreduce:
             got_staff_lines = true;
         }
     }
-#line 2202 "gabc/gabc-score-determination-y.c"
+#line 2246 "gabc/gabc-score-determination-y.c"
     break;
 
   case 19: /* definition: NABC_LINES attribute  */
-#line 785 "gabc/gabc-score-determination.y"
+#line 822 "gabc/gabc-score-determination.y"
                            {
         check_multiple("nabc lines", score->nabc_lines != 0);
         if (yyvsp[0].text) {
@@ -2211,11 +2255,11 @@ yyreduce:
             score->nabc_lines=nabc_lines;
         }
     }
-#line 2215 "gabc/gabc-score-determination-y.c"
+#line 2259 "gabc/gabc-score-determination-y.c"
     break;
 
   case 20: /* definition: ANNOTATION attribute  */
-#line 793 "gabc/gabc-score-determination.y"
+#line 830 "gabc/gabc-score-determination.y"
                            {
         if (score->annotation [MAX_ANNOTATIONS - 1]) {
             gregorio_messagef("det_score", VERBOSITY_WARNING, 0,
@@ -2225,59 +2269,59 @@ yyreduce:
         gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
         gregorio_set_score_annotation(score, yyvsp[0].text);
     }
-#line 2229 "gabc/gabc-score-determination-y.c"
+#line 2273 "gabc/gabc-score-determination-y.c"
     break;
 
   case 21: /* definition: AUTHOR attribute  */
-#line 802 "gabc/gabc-score-determination.y"
+#line 839 "gabc/gabc-score-determination.y"
                        {
         check_multiple("author", score->author != NULL);
         gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
         score->author = yyvsp[0].text;
     }
-#line 2239 "gabc/gabc-score-determination-y.c"
+#line 2283 "gabc/gabc-score-determination-y.c"
     break;
 
   case 22: /* definition: ORISCUS_ORIENTATION attribute  */
-#line 807 "gabc/gabc-score-determination.y"
+#line 844 "gabc/gabc-score-determination.y"
                                     {
         gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
         score->legacy_oriscus_orientation = (strcmp(yyvsp[0].text, "legacy") == 0);
     }
-#line 2248 "gabc/gabc-score-determination-y.c"
+#line 2292 "gabc/gabc-score-determination-y.c"
     break;
 
   case 23: /* definition: OTHER_HEADER attribute  */
-#line 811 "gabc/gabc-score-determination.y"
+#line 848 "gabc/gabc-score-determination.y"
                              {
         gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
     }
-#line 2256 "gabc/gabc-score-determination-y.c"
+#line 2300 "gabc/gabc-score-determination-y.c"
     break;
 
   case 26: /* note: NOTES CLOSING_BRACKET  */
-#line 821 "gabc/gabc-score-determination.y"
+#line 858 "gabc/gabc-score-determination.y"
                           {
         gabc_y_add_notes(yyvsp[-1].text, (yylsp[-1]));
         free(yyvsp[-1].text);
         nabc_state=0;
     }
-#line 2266 "gabc/gabc-score-determination-y.c"
+#line 2310 "gabc/gabc-score-determination-y.c"
     break;
 
   case 27: /* note: NOTES closing_bracket_with_space  */
-#line 826 "gabc/gabc-score-determination.y"
+#line 863 "gabc/gabc-score-determination.y"
                                        {
         gabc_y_add_notes(yyvsp[-1].text, (yylsp[-1]));
         free(yyvsp[-1].text);
         nabc_state=0;
         update_position_with_space();
     }
-#line 2277 "gabc/gabc-score-determination-y.c"
+#line 2321 "gabc/gabc-score-determination-y.c"
     break;
 
   case 28: /* note: NOTES NABC_CUT  */
-#line 832 "gabc/gabc-score-determination.y"
+#line 869 "gabc/gabc-score-determination.y"
                      {
         if (!nabc_lines) {
             gregorio_message(_("You used character \"|\" in gabc without "
@@ -2289,166 +2333,166 @@ yyreduce:
         free(yyvsp[-1].text);
         nabc_state = (nabc_state + 1) % (nabc_lines+1);
     }
-#line 2293 "gabc/gabc-score-determination-y.c"
+#line 2337 "gabc/gabc-score-determination-y.c"
     break;
 
   case 29: /* note: CLOSING_BRACKET  */
-#line 843 "gabc/gabc-score-determination.y"
+#line 880 "gabc/gabc-score-determination.y"
                       {
         elements[voice]=NULL;
         nabc_state=0;
     }
-#line 2302 "gabc/gabc-score-determination-y.c"
+#line 2346 "gabc/gabc-score-determination-y.c"
     break;
 
   case 30: /* note: closing_bracket_with_space  */
-#line 847 "gabc/gabc-score-determination.y"
+#line 884 "gabc/gabc-score-determination.y"
                                  {
         elements[voice]=NULL;
         nabc_state=0;
         update_position_with_space();
     }
-#line 2312 "gabc/gabc-score-determination-y.c"
+#line 2356 "gabc/gabc-score-determination-y.c"
     break;
 
   case 34: /* style_beginning: I_BEGIN  */
-#line 861 "gabc/gabc-score-determination.y"
+#line 898 "gabc/gabc-score-determination.y"
             {
-        add_style(ST_ITALIC);
+        add_style(ST_ITALIC, SB_ITALIC);
     }
-#line 2320 "gabc/gabc-score-determination-y.c"
+#line 2364 "gabc/gabc-score-determination-y.c"
     break;
 
   case 35: /* style_beginning: TT_BEGIN  */
-#line 864 "gabc/gabc-score-determination.y"
+#line 901 "gabc/gabc-score-determination.y"
                {
-        add_style(ST_TT);
+        add_style(ST_TT, SB_TT);
     }
-#line 2328 "gabc/gabc-score-determination-y.c"
+#line 2372 "gabc/gabc-score-determination-y.c"
     break;
 
   case 36: /* style_beginning: UL_BEGIN  */
-#line 867 "gabc/gabc-score-determination.y"
+#line 904 "gabc/gabc-score-determination.y"
                {
-        add_style(ST_UNDERLINED);
+        add_style(ST_UNDERLINED, SB_UNDERLINED);
     }
-#line 2336 "gabc/gabc-score-determination-y.c"
+#line 2380 "gabc/gabc-score-determination-y.c"
     break;
 
   case 37: /* style_beginning: C_BEGIN  */
-#line 870 "gabc/gabc-score-determination.y"
+#line 907 "gabc/gabc-score-determination.y"
               {
-        add_style(ST_COLORED);
+        add_style(ST_COLORED, SB_COLORED);
     }
-#line 2344 "gabc/gabc-score-determination-y.c"
+#line 2388 "gabc/gabc-score-determination-y.c"
     break;
 
   case 38: /* style_beginning: B_BEGIN  */
-#line 873 "gabc/gabc-score-determination.y"
+#line 910 "gabc/gabc-score-determination.y"
               {
-        add_style(ST_BOLD);
+        add_style(ST_BOLD, SB_BOLD);
     }
-#line 2352 "gabc/gabc-score-determination-y.c"
+#line 2396 "gabc/gabc-score-determination-y.c"
     break;
 
   case 39: /* style_beginning: SC_BEGIN  */
-#line 876 "gabc/gabc-score-determination.y"
+#line 913 "gabc/gabc-score-determination.y"
                {
-        add_style(ST_SMALL_CAPS);
+        add_style(ST_SMALL_CAPS, SB_SMALL_CAPS);
     }
-#line 2360 "gabc/gabc-score-determination-y.c"
+#line 2404 "gabc/gabc-score-determination-y.c"
     break;
 
   case 40: /* style_beginning: VERB_BEGIN  */
-#line 879 "gabc/gabc-score-determination.y"
+#line 916 "gabc/gabc-score-determination.y"
                  {
-        add_style(ST_VERBATIM);
+        add_style(ST_VERBATIM, SB_IGNORE);
     }
-#line 2368 "gabc/gabc-score-determination-y.c"
+#line 2412 "gabc/gabc-score-determination-y.c"
     break;
 
   case 41: /* style_beginning: SP_BEGIN  */
-#line 882 "gabc/gabc-score-determination.y"
+#line 919 "gabc/gabc-score-determination.y"
                {
-        add_style(ST_SPECIAL_CHAR);
+        add_style(ST_SPECIAL_CHAR, SB_IGNORE);
     }
-#line 2376 "gabc/gabc-score-determination-y.c"
+#line 2420 "gabc/gabc-score-determination-y.c"
     break;
 
   case 42: /* style_end: I_END  */
-#line 888 "gabc/gabc-score-determination.y"
+#line 925 "gabc/gabc-score-determination.y"
           {
-        end_style(ST_ITALIC);
+        end_style(ST_ITALIC, SB_ITALIC);
     }
-#line 2384 "gabc/gabc-score-determination-y.c"
+#line 2428 "gabc/gabc-score-determination-y.c"
     break;
 
   case 43: /* style_end: TT_END  */
-#line 891 "gabc/gabc-score-determination.y"
+#line 928 "gabc/gabc-score-determination.y"
              {
-        end_style(ST_TT);
+        end_style(ST_TT, SB_TT);
     }
-#line 2392 "gabc/gabc-score-determination-y.c"
+#line 2436 "gabc/gabc-score-determination-y.c"
     break;
 
   case 44: /* style_end: UL_END  */
-#line 894 "gabc/gabc-score-determination.y"
+#line 931 "gabc/gabc-score-determination.y"
              {
-        end_style(ST_UNDERLINED);
+        end_style(ST_UNDERLINED, SB_UNDERLINED);
     }
-#line 2400 "gabc/gabc-score-determination-y.c"
+#line 2444 "gabc/gabc-score-determination-y.c"
     break;
 
   case 45: /* style_end: C_END  */
-#line 897 "gabc/gabc-score-determination.y"
+#line 934 "gabc/gabc-score-determination.y"
             {
-        end_style(ST_COLORED);
+        end_style(ST_COLORED, SB_COLORED);
     }
-#line 2408 "gabc/gabc-score-determination-y.c"
+#line 2452 "gabc/gabc-score-determination-y.c"
     break;
 
   case 46: /* style_end: B_END  */
-#line 900 "gabc/gabc-score-determination.y"
+#line 937 "gabc/gabc-score-determination.y"
             {
-        end_style(ST_BOLD);
+        end_style(ST_BOLD, SB_BOLD);
     }
-#line 2416 "gabc/gabc-score-determination-y.c"
+#line 2460 "gabc/gabc-score-determination-y.c"
     break;
 
   case 47: /* style_end: SC_END  */
-#line 903 "gabc/gabc-score-determination.y"
+#line 940 "gabc/gabc-score-determination.y"
              {
-        end_style(ST_SMALL_CAPS);
+        end_style(ST_SMALL_CAPS, SB_SMALL_CAPS);
     }
-#line 2424 "gabc/gabc-score-determination-y.c"
+#line 2468 "gabc/gabc-score-determination-y.c"
     break;
 
   case 48: /* style_end: VERB_END  */
-#line 906 "gabc/gabc-score-determination.y"
+#line 943 "gabc/gabc-score-determination.y"
                {
-        end_style(ST_VERBATIM);
+        end_style(ST_VERBATIM, SB_IGNORE);
     }
-#line 2432 "gabc/gabc-score-determination-y.c"
+#line 2476 "gabc/gabc-score-determination-y.c"
     break;
 
   case 49: /* style_end: SP_END  */
-#line 909 "gabc/gabc-score-determination.y"
+#line 946 "gabc/gabc-score-determination.y"
              {
-        end_style(ST_SPECIAL_CHAR);
+        end_style(ST_SPECIAL_CHAR, SB_IGNORE);
     }
-#line 2440 "gabc/gabc-score-determination-y.c"
+#line 2484 "gabc/gabc-score-determination-y.c"
     break;
 
   case 50: /* special_style_beginning: ELISION_BEGIN  */
-#line 915 "gabc/gabc-score-determination.y"
+#line 952 "gabc/gabc-score-determination.y"
                   {
-        add_style(ST_ELISION);
+        add_style(ST_ELISION, SB_ELISION);
     }
-#line 2448 "gabc/gabc-score-determination-y.c"
+#line 2492 "gabc/gabc-score-determination-y.c"
     break;
 
   case 51: /* special_style_beginning: CENTER_BEGIN  */
-#line 918 "gabc/gabc-score-determination.y"
+#line 955 "gabc/gabc-score-determination.y"
                    {
         if (center_is_determined) {
             gregorio_message(
@@ -2459,26 +2503,26 @@ yyreduce:
                     "center not allowed after protrusion; ignored",
                     "det_score", VERBOSITY_WARNING, 0);
         } else {
-            add_style(ST_FORCED_CENTER);
+            add_style(ST_FORCED_CENTER, SB_IGNORE);
             center_is_determined = CENTER_HALF_DETERMINED;
         }
     }
-#line 2467 "gabc/gabc-score-determination-y.c"
+#line 2511 "gabc/gabc-score-determination-y.c"
     break;
 
   case 52: /* special_style_end: ELISION_END  */
-#line 935 "gabc/gabc-score-determination.y"
+#line 972 "gabc/gabc-score-determination.y"
                 {
-        end_style(ST_ELISION);
+        end_style(ST_ELISION, SB_ELISION);
     }
-#line 2475 "gabc/gabc-score-determination-y.c"
+#line 2519 "gabc/gabc-score-determination-y.c"
     break;
 
   case 53: /* special_style_end: CENTER_END  */
-#line 938 "gabc/gabc-score-determination.y"
+#line 975 "gabc/gabc-score-determination.y"
                  {
         if (center_is_determined == CENTER_HALF_DETERMINED) {
-            end_style(ST_FORCED_CENTER);
+            end_style(ST_FORCED_CENTER, SB_IGNORE);
             center_is_determined = CENTER_FULLY_DETERMINED;
         } else {
             gregorio_message(
@@ -2486,278 +2530,278 @@ yyreduce:
                     "det_score", VERBOSITY_WARNING, 0);
         }
     }
-#line 2490 "gabc/gabc-score-determination-y.c"
+#line 2534 "gabc/gabc-score-determination-y.c"
     break;
 
   case 54: /* euouae: EUOUAE_B  */
-#line 951 "gabc/gabc-score-determination.y"
+#line 988 "gabc/gabc-score-determination.y"
              {
         euouae = EUOUAE_BEGINNING;
     }
-#line 2498 "gabc/gabc-score-determination-y.c"
+#line 2542 "gabc/gabc-score-determination-y.c"
     break;
 
   case 55: /* euouae: EUOUAE_E  */
-#line 954 "gabc/gabc-score-determination.y"
+#line 991 "gabc/gabc-score-determination.y"
                {
         euouae = EUOUAE_END;
     }
-#line 2506 "gabc/gabc-score-determination-y.c"
+#line 2550 "gabc/gabc-score-determination-y.c"
     break;
 
   case 56: /* linebreak_area: NLBA_B  */
-#line 960 "gabc/gabc-score-determination.y"
+#line 997 "gabc/gabc-score-determination.y"
            {
         no_linebreak_area = NLBA_BEGINNING;
     }
-#line 2514 "gabc/gabc-score-determination-y.c"
+#line 2558 "gabc/gabc-score-determination-y.c"
     break;
 
   case 57: /* linebreak_area: NLBA_E  */
-#line 963 "gabc/gabc-score-determination.y"
+#line 1000 "gabc/gabc-score-determination.y"
              {
         no_linebreak_area = NLBA_END;
     }
-#line 2522 "gabc/gabc-score-determination-y.c"
+#line 2566 "gabc/gabc-score-determination-y.c"
     break;
 
   case 58: /* protrusion: PROTRUSION PROTRUSION_VALUE PROTRUSION_END  */
-#line 969 "gabc/gabc-score-determination.y"
+#line 1006 "gabc/gabc-score-determination.y"
                                                {
         add_protrusion(yyvsp[-1].text);
     }
-#line 2530 "gabc/gabc-score-determination-y.c"
+#line 2574 "gabc/gabc-score-determination-y.c"
     break;
 
   case 59: /* protrusion: PROTRUSION  */
-#line 972 "gabc/gabc-score-determination.y"
+#line 1009 "gabc/gabc-score-determination.y"
                  {
         add_protrusion(gregorio_strdup("d")); /* d = default */
     }
-#line 2538 "gabc/gabc-score-determination-y.c"
+#line 2582 "gabc/gabc-score-determination-y.c"
     break;
 
   case 61: /* character: CHARACTERS  */
-#line 979 "gabc/gabc-score-determination.y"
+#line 1016 "gabc/gabc-score-determination.y"
                  {
         add_text(yyvsp[0].text);
     }
-#line 2546 "gabc/gabc-score-determination-y.c"
+#line 2590 "gabc/gabc-score-determination-y.c"
     break;
 
   case 68: /* character: CLEAR  */
-#line 988 "gabc/gabc-score-determination.y"
+#line 1025 "gabc/gabc-score-determination.y"
             {
         clear_syllable_text = true;
     }
-#line 2554 "gabc/gabc-score-determination-y.c"
+#line 2598 "gabc/gabc-score-determination-y.c"
     break;
 
   case 70: /* character: HYPHEN  */
-#line 992 "gabc/gabc-score-determination.y"
+#line 1029 "gabc/gabc-score-determination.y"
              {
         add_text(gregorio_strdup("-"));
     }
-#line 2562 "gabc/gabc-score-determination-y.c"
+#line 2606 "gabc/gabc-score-determination-y.c"
     break;
 
   case 71: /* character: PROTRUDING_PUNCTUATION  */
-#line 995 "gabc/gabc-score-determination.y"
+#line 1032 "gabc/gabc-score-determination.y"
                              {
         add_text(yyvsp[0].text);
     }
-#line 2570 "gabc/gabc-score-determination-y.c"
+#line 2614 "gabc/gabc-score-determination-y.c"
     break;
 
   case 74: /* translation_character: CHARACTERS  */
-#line 1006 "gabc/gabc-score-determination.y"
+#line 1043 "gabc/gabc-score-determination.y"
                {
         add_text(yyvsp[0].text);
     }
-#line 2578 "gabc/gabc-score-determination-y.c"
+#line 2622 "gabc/gabc-score-determination-y.c"
     break;
 
   case 77: /* translation_character: HYPHEN  */
-#line 1011 "gabc/gabc-score-determination.y"
+#line 1048 "gabc/gabc-score-determination.y"
              {
         add_text(gregorio_strdup("-"));
     }
-#line 2586 "gabc/gabc-score-determination-y.c"
+#line 2630 "gabc/gabc-score-determination-y.c"
     break;
 
   case 78: /* translation_character: PROTRUDING_PUNCTUATION  */
-#line 1014 "gabc/gabc-score-determination.y"
+#line 1051 "gabc/gabc-score-determination.y"
                              {
         add_text(yyvsp[0].text);
     }
-#line 2594 "gabc/gabc-score-determination-y.c"
+#line 2638 "gabc/gabc-score-determination-y.c"
     break;
 
   case 81: /* translation_beginning: TRANSLATION_BEGIN  */
-#line 1025 "gabc/gabc-score-determination.y"
+#line 1062 "gabc/gabc-score-determination.y"
                       {
         start_translation(TR_NORMAL);
     }
-#line 2602 "gabc/gabc-score-determination-y.c"
+#line 2646 "gabc/gabc-score-determination-y.c"
     break;
 
   case 82: /* translation: translation_beginning TRANSLATION_END  */
-#line 1031 "gabc/gabc-score-determination.y"
+#line 1068 "gabc/gabc-score-determination.y"
                                           {
         end_translation();
     }
-#line 2610 "gabc/gabc-score-determination-y.c"
+#line 2654 "gabc/gabc-score-determination-y.c"
     break;
 
   case 83: /* translation: translation_beginning translation_text TRANSLATION_END  */
-#line 1034 "gabc/gabc-score-determination.y"
+#line 1071 "gabc/gabc-score-determination.y"
                                                              {
         end_translation();
     }
-#line 2618 "gabc/gabc-score-determination-y.c"
+#line 2662 "gabc/gabc-score-determination-y.c"
     break;
 
   case 84: /* translation: TRANSLATION_CENTER_END  */
-#line 1037 "gabc/gabc-score-determination.y"
+#line 1074 "gabc/gabc-score-determination.y"
                              {
         start_translation(TR_WITH_CENTER_END);
         end_translation();
     }
-#line 2627 "gabc/gabc-score-determination-y.c"
+#line 2671 "gabc/gabc-score-determination-y.c"
     break;
 
   case 85: /* above_line_text: ALT_BEGIN CHARACTERS ALT_END  */
-#line 1044 "gabc/gabc-score-determination.y"
+#line 1081 "gabc/gabc-score-determination.y"
                                  {
         abovelinestext = yyvsp[-1].text;
     }
-#line 2635 "gabc/gabc-score-determination-y.c"
+#line 2679 "gabc/gabc-score-determination-y.c"
     break;
 
   case 86: /* syllable_with_notes: text OPENING_BRACKET notes  */
-#line 1050 "gabc/gabc-score-determination.y"
+#line 1087 "gabc/gabc-score-determination.y"
                                {
         save_text();
         close_syllable(&(yylsp[-2]));
     }
-#line 2644 "gabc/gabc-score-determination-y.c"
+#line 2688 "gabc/gabc-score-determination-y.c"
     break;
 
   case 87: /* syllable_with_notes: HYPHEN OPENING_BRACKET notes  */
-#line 1054 "gabc/gabc-score-determination.y"
+#line 1091 "gabc/gabc-score-determination.y"
                                    {
-        add_style(ST_VERBATIM);
+        add_style(ST_VERBATIM, SB_IGNORE);
         add_text(gregorio_strdup("\\GreForceHyphen"));
-        end_style(ST_VERBATIM);
+        end_style(ST_VERBATIM, SB_IGNORE);
         save_text();
         close_syllable(&(yylsp[-2]));
     }
-#line 2656 "gabc/gabc-score-determination-y.c"
+#line 2700 "gabc/gabc-score-determination-y.c"
     break;
 
   case 88: /* syllable_with_notes: text HYPHEN OPENING_BRACKET notes  */
-#line 1061 "gabc/gabc-score-determination.y"
+#line 1098 "gabc/gabc-score-determination.y"
                                         {
-        add_style(ST_VERBATIM);
+        add_style(ST_VERBATIM, SB_IGNORE);
         add_text(gregorio_strdup("\\GreForceHyphen"));
-        end_style(ST_VERBATIM);
+        end_style(ST_VERBATIM, SB_IGNORE);
         save_text();
         close_syllable(&(yylsp[-3]));
     }
-#line 2668 "gabc/gabc-score-determination-y.c"
+#line 2712 "gabc/gabc-score-determination-y.c"
     break;
 
   case 89: /* syllable_with_notes: PROTRUDING_PUNCTUATION OPENING_BRACKET notes  */
-#line 1068 "gabc/gabc-score-determination.y"
+#line 1105 "gabc/gabc-score-determination.y"
                                                    {
         add_auto_protrusion(yyvsp[-2].text);
         save_text();
         close_syllable(&(yylsp[-2]));
     }
-#line 2678 "gabc/gabc-score-determination-y.c"
+#line 2722 "gabc/gabc-score-determination-y.c"
     break;
 
   case 90: /* syllable_with_notes: text PROTRUDING_PUNCTUATION OPENING_BRACKET notes  */
-#line 1073 "gabc/gabc-score-determination.y"
+#line 1110 "gabc/gabc-score-determination.y"
                                                         {
         add_auto_protrusion(yyvsp[-2].text);
         save_text();
         close_syllable(&(yylsp[-3]));
     }
-#line 2688 "gabc/gabc-score-determination-y.c"
+#line 2732 "gabc/gabc-score-determination-y.c"
     break;
 
   case 91: /* syllable_with_notes: text translation OPENING_BRACKET notes  */
-#line 1078 "gabc/gabc-score-determination.y"
+#line 1115 "gabc/gabc-score-determination.y"
                                              {
         save_text();
         close_syllable(&(yylsp[-3]));
     }
-#line 2697 "gabc/gabc-score-determination-y.c"
+#line 2741 "gabc/gabc-score-determination-y.c"
     break;
 
   case 92: /* syllable_with_notes: HYPHEN translation OPENING_BRACKET notes  */
-#line 1082 "gabc/gabc-score-determination.y"
+#line 1119 "gabc/gabc-score-determination.y"
                                                {
-        add_style(ST_VERBATIM);
+        add_style(ST_VERBATIM, SB_IGNORE);
         add_text(gregorio_strdup("\\GreForceHyphen"));
-        end_style(ST_VERBATIM);
+        end_style(ST_VERBATIM, SB_IGNORE);
         save_text();
         close_syllable(&(yylsp[-3]));
     }
-#line 2709 "gabc/gabc-score-determination-y.c"
+#line 2753 "gabc/gabc-score-determination-y.c"
     break;
 
   case 93: /* syllable_with_notes: text HYPHEN translation OPENING_BRACKET notes  */
-#line 1089 "gabc/gabc-score-determination.y"
+#line 1126 "gabc/gabc-score-determination.y"
                                                     {
-        add_style(ST_VERBATIM);
+        add_style(ST_VERBATIM, SB_IGNORE);
         add_text(gregorio_strdup("\\GreForceHyphen"));
-        end_style(ST_VERBATIM);
+        end_style(ST_VERBATIM, SB_IGNORE);
         save_text();
         close_syllable(&(yylsp[-4]));
     }
-#line 2721 "gabc/gabc-score-determination-y.c"
+#line 2765 "gabc/gabc-score-determination-y.c"
     break;
 
   case 94: /* syllable_with_notes: PROTRUDING_PUNCTUATION translation OPENING_BRACKET notes  */
-#line 1096 "gabc/gabc-score-determination.y"
+#line 1133 "gabc/gabc-score-determination.y"
                                                                {
         add_auto_protrusion(yyvsp[-3].text);
         save_text();
         close_syllable(&(yylsp[-3]));
     }
-#line 2731 "gabc/gabc-score-determination-y.c"
+#line 2775 "gabc/gabc-score-determination-y.c"
     break;
 
   case 95: /* syllable_with_notes: text PROTRUDING_PUNCTUATION translation OPENING_BRACKET notes  */
-#line 1101 "gabc/gabc-score-determination.y"
+#line 1138 "gabc/gabc-score-determination.y"
                                                                     {
         add_auto_protrusion(yyvsp[-3].text);
         save_text();
         close_syllable(&(yylsp[-4]));
     }
-#line 2741 "gabc/gabc-score-determination-y.c"
+#line 2785 "gabc/gabc-score-determination-y.c"
     break;
 
   case 96: /* notes_without_word: OPENING_BRACKET notes  */
-#line 1109 "gabc/gabc-score-determination.y"
+#line 1146 "gabc/gabc-score-determination.y"
                           {
         close_syllable(NULL);
     }
-#line 2749 "gabc/gabc-score-determination-y.c"
+#line 2793 "gabc/gabc-score-determination-y.c"
     break;
 
   case 97: /* notes_without_word: translation OPENING_BRACKET notes  */
-#line 1112 "gabc/gabc-score-determination.y"
+#line 1149 "gabc/gabc-score-determination.y"
                                         {
         close_syllable(NULL);
     }
-#line 2757 "gabc/gabc-score-determination-y.c"
+#line 2801 "gabc/gabc-score-determination-y.c"
     break;
 
 
-#line 2761 "gabc/gabc-score-determination-y.c"
+#line 2805 "gabc/gabc-score-determination-y.c"
 
       default: break;
     }
@@ -2841,6 +2885,7 @@ yyerrorlab:
      label yyerrorlab therefore never appears in user code.  */
   if (0)
     YYERROR;
+  ++yynerrs;
 
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYERROR.  */
@@ -2904,7 +2949,7 @@ yyerrlab1:
 `-------------------------------------*/
 yyacceptlab:
   yyresult = 0;
-  goto yyreturn;
+  goto yyreturnlab;
 
 
 /*-----------------------------------.
@@ -2912,24 +2957,22 @@ yyacceptlab:
 `-----------------------------------*/
 yyabortlab:
   yyresult = 1;
-  goto yyreturn;
+  goto yyreturnlab;
 
 
-#if !defined yyoverflow
-/*-------------------------------------------------.
-| yyexhaustedlab -- memory exhaustion comes here.  |
-`-------------------------------------------------*/
+/*-----------------------------------------------------------.
+| yyexhaustedlab -- YYNOMEM (memory exhaustion) comes here.  |
+`-----------------------------------------------------------*/
 yyexhaustedlab:
   yyerror (YY_("memory exhausted"));
   yyresult = 2;
-  goto yyreturn;
-#endif
+  goto yyreturnlab;
 
 
-/*-------------------------------------------------------.
-| yyreturn -- parsing is finished, clean up and return.  |
-`-------------------------------------------------------*/
-yyreturn:
+/*----------------------------------------------------------.
+| yyreturnlab -- parsing is finished, clean up and return.  |
+`----------------------------------------------------------*/
+yyreturnlab:
   if (yychar != YYEMPTY)
     {
       /* Make sure we have latest lookahead translation.  See comments at

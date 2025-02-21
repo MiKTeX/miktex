@@ -9,6 +9,7 @@
 * dvipng 1.18
 * dvips 2024.1
 * dvisvgm 3.4.3
+* gregorio 6.1.0-beta2
 * hitex 2.1
 * luatex 1.21.0
 * pdftex 1.40.27
