@@ -188,12 +188,7 @@ void protoenv::addArrayOps(array *a)
 
 void protoenv::addRecordOps(record *r)
 {
-  trans::addRecordOps(ve, r);
-}
-
-void protoenv::addFunctionOps(function *f)
-{
-  trans::addFunctionOps(ve, f);
+  trans::addRecordOps(r);
 }
 
 env::env(genv &ge)
@@ -214,13 +209,15 @@ record *env::getModule(symbol id, string filename)
   return ge.getModule(id, filename);
 }
 
-record *env::getTemplatedModule(symbol id,
-                                string filename,
-                                string index,
-                                mem::vector<absyntax::namedTyEntry*>* args)
+record *env::getTemplatedModule(string filename,
+                                mem::vector<absyntax::namedTy*>* args)
 {
-  return ge.getTemplatedModule(id, filename, index, args);
+  return ge.getTemplatedModule(filename, args);
 }
 
+record *env::getLoadedModule(symbol id)
+{
+  return ge.getLoadedModule(id);
+}
 
 }

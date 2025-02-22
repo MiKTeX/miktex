@@ -19,14 +19,7 @@ using std::ostream;
 struct handled_error : std::exception {}; // Exception to process next file.
 struct interrupted : std::exception {};   // Exception to interrupt execution.
 struct quit : std::exception {};          // Exception to quit current operation.
-#if defined(MIKTEX)
-struct eof_exception :
-    std::exception
-{
-};
-#else
-struct eof : std::exception {};           // Exception to exit interactive mode.
-#endif
+struct EofException : std::exception {};           // Exception to exit interactive mode.
 
 class fileinfo : public gc {
   string filename;
@@ -181,6 +174,9 @@ class errorstream {
 public:
   static bool interrupt; // Is there a pending interrupt?
 
+  using traceback_t = mem::list<position> ;
+  traceback_t traceback;
+
   errorstream(ostream& out = cerr)
     : out(out), anyErrors(false), anyWarnings(false), floating(false),
       anyStatusErrors(false) {}
@@ -229,7 +225,7 @@ public:
 
   // Reporting errors to the stream may be incomplete.  This draws the
   // appropriate newlines or file excerpts that may be needed at the end.
-  void sync();
+  void sync(bool reportTraceback=false);
 
   void cont();
 

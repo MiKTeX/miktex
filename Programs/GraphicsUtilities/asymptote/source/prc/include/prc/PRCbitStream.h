@@ -22,6 +22,8 @@
 #ifndef __PRC_BIT_STREAM_H
 #define __PRC_BIT_STREAM_H
 
+#include "PRCuniversalendianness.h"
+
 #ifdef _MSC_VER
 #include <stdio.h>
 #if _MSC_VER >= 1600

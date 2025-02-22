@@ -9,21 +9,22 @@
  * General parameters to unregister a capability.
  */
 
-struct Unregistration {
-        /**
+struct Unregistration
+{
+    /**
          * The id used to unregister the request or notification. Usually an id
          * provided during the register request.
          */
 
-        std::string id;
+    std::string id;
 
-        /**
+    /**
          * The method / capability to unregister for.
          */
 
-        std::string method;
+    std::string method;
 
-        MAKE_SWAP_METHOD(Unregistration, id, method);
+    MAKE_SWAP_METHOD(Unregistration, id, method);
 };
 MAKE_REFLECT_STRUCT(Unregistration, id, method);
 /**
@@ -32,10 +33,12 @@ MAKE_REFLECT_STRUCT(Unregistration, id, method);
  */
 struct UnregistrationParams
 {
-        std::vector<Unregistration> unregisterations;
-        MAKE_SWAP_METHOD(UnregistrationParams, unregisterations);
+    std::vector<Unregistration> unregisterations;
+    MAKE_SWAP_METHOD(UnregistrationParams, unregisterations);
 };
 
 MAKE_REFLECT_STRUCT(UnregistrationParams, unregisterations);
 
-DEFINE_REQUEST_RESPONSE_TYPE(Req_ClientUnregisterCapability, UnregistrationParams,JsonNull, "client/unregisterCapability");
+DEFINE_REQUEST_RESPONSE_TYPE(
+    Req_ClientUnregisterCapability, UnregistrationParams, JsonNull, "client/unregisterCapability"
+);

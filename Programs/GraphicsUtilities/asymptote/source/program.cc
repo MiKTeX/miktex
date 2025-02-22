@@ -74,11 +74,11 @@ ostream& operator<< (ostream& out, const item& i)
     out << "string, value = " << get<string>(i);
   else if (i.type() == typeid(callable))
     out << *(get<callable *>(i));
-  else if (i.type() == typeid(frame)) {
+  else if (i.type() == typeid(vmFrame)) {
     out << "frame";
 #  ifdef DEBUG_FRAME
     {
-      frame *f = get<frame *>(i);
+      vmFrame *f = get<vmFrame *>(i);
       if (f)
         out << " " << f->getName();
       else

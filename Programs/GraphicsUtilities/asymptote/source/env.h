@@ -19,7 +19,7 @@ class record;
 }
 
 namespace absyntax {
-class namedTyEntry;
+class namedTy;
 }
 
 namespace trans {
@@ -30,6 +30,7 @@ using types::function;
 using types::record;
 
 class genv;
+class coenv;
 
 // Keeps track of the name bindings of variables and types.  This is used for
 // the fields of a record, whereas the derived class env is used for
@@ -139,20 +140,27 @@ public:
     ve.add(source.ve, qualifier, c);
   }
 
+  struct Added : public gc {
+    tyEntry *typeAdded;
+    mem::vector<varEntry*> varsAdded;
+    bool empty() { return !typeAdded && varsAdded.empty(); }
+  };
+
   // Add variables and types of name src from another environment under the
   // name dest in this environment.
-  bool add(symbol src, symbol dest,
+  Added *add(symbol src, symbol dest,
            protoenv &source, varEntry *qualifier, coder &c)
   {
-    bool teAdd=te.add(src, dest, source.te, qualifier, c);
-    bool veAdd=ve.add(src, dest, source.ve, qualifier, c);
-    return teAdd || veAdd;
+    Added *retv = new Added();
+    retv->typeAdded=te.add(src, dest, source.te, qualifier, c);
+    bool varAdded=ve.add(src, dest, source.ve, qualifier, c, &retv->varsAdded);
+    assert(varAdded == (retv->varsAdded.size() > 0));
+    return retv;
   }
 
   // Add the standard functions for a new type.
   void addArrayOps(types::array *t);
   void addRecordOps(types::record *r);
-  void addFunctionOps(types::function *f);
 
   void list(record *r=0)
   {
@@ -185,11 +193,9 @@ public:
   ~env();
 
   record *getModule(symbol id, string filename);
-  record *getTemplatedModule(symbol id,
-                             string filename,
-                             string index,
-                             mem::vector<absyntax::namedTyEntry*> *args
-                            );
+  record *getTemplatedModule(string filename,
+                             mem::vector<absyntax::namedTy*> *args);
+  record *getLoadedModule(symbol id);
 };
 
 } // namespace trans

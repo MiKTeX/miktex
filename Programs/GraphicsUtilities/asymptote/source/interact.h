@@ -9,6 +9,25 @@
 
 #include "common.h"
 
+#ifdef HAVE_LIBCURSES
+#ifdef HAVE_LIBREADLINE
+#include <readline/readline.h>
+#include <readline/history.h>
+#else
+#ifdef HAVE_LIBEDIT
+// Work around incorrect declaration in NetBSD readline.h v1.33
+#define rl_completion_entry_function rl_completion_entry_function_declaration
+#ifdef HAVE_EDITLINE_READLINE_H
+#include <editline/readline.h>
+#else
+#include <readline/readline.h>
+#endif
+#undef rl_completion_entry_function
+extern "C" rl_compentry_func_t *rl_completion_entry_function;
+#endif
+#endif
+#endif
+
 void interruptHandler(int);
 
 namespace interact {

@@ -5,21 +5,16 @@
 #include "LibLsp/JsonRpc/lsResponseMessage.h"
 #include "LibLsp/JsonRpc/RequestInMessage.h"
 
-
-
-
-
-
 /**
  * The capabilities the language server provides.
  */
-  struct InitializeResult {
+struct InitializeResult
+{
     lsServerCapabilities capabilities;
-        MAKE_SWAP_METHOD(InitializeResult, capabilities);
-  };
+    MAKE_SWAP_METHOD(InitializeResult, capabilities);
+};
 
 MAKE_REFLECT_STRUCT(InitializeResult, capabilities);
-
 
 /**
  * The initialize request is sent as the first request from the client to

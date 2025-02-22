@@ -13,6 +13,6 @@
  * Registration Options: TextDocumentRegistrationOptions
  */
 
-DEFINE_REQUEST_RESPONSE_TYPE(td_highlight, lsTextDocumentPositionParams,
-        std::vector<lsDocumentHighlight>, "textDocument/documentHighlight");
-
+DEFINE_REQUEST_RESPONSE_TYPE(
+    td_highlight, lsTextDocumentPositionParams, std::vector<lsDocumentHighlight>, "textDocument/documentHighlight"
+);

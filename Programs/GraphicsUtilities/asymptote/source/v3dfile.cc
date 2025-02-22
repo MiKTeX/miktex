@@ -316,24 +316,17 @@ void gzv3dfile::close()
 {
   if(!destroyed) {
     finalize();
+
+    std::vector<uint8_t> const resultingData = memxdrfile.createCopyOfCurrentData();
+
     memxdrfile.close();
     gzFile file=gzopen(name.c_str(), "wb9");
-    gzwrite(file,data(),length());
+    gzwrite(file, resultingData.data(), resultingData.size());
     gzclose(file);
     if(settings::verbose > 0)
       cout << "Wrote " << name << endl;
     destroyed=true;
   }
-}
-
-char const* gzv3dfile::data() const
-{
-  return memxdrfile.stream();
-}
-
-size_t const& gzv3dfile::length() const
-{
-  return memxdrfile.getLength();
 }
 
 uint32_t LightHeader::getWordSize(bool singleprecision) const

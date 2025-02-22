@@ -30,12 +30,11 @@
 #include <iostream>
 #include <cstdlib>
 #include <cerrno>
-#if !defined(MIKTEX_WINDOWS)
-#include <sys/wait.h>
-#endif
 #include <sys/types.h>
 
-#define GC_PTHREAD_SIGMASK_NEEDED
+#if !defined(_WIN32)
+#include <sys/wait.h>
+#endif
 
 #include "common.h"
 #if defined(MIKTEX)
@@ -46,19 +45,27 @@
 #include <sigsegv.h>
 #endif
 
+#define GC_PTHREAD_SIGMASK_NEEDED
+
+#ifdef HAVE_LSP
+#include "lspserv.h"
+#endif
+
+#include "exithandlers.h"
 #include "errormsg.h"
 #include "fpu.h"
 #include "settings.h"
 #include "locate.h"
 #include "interact.h"
 #include "fileio.h"
+#include "stack.h"
 
 #ifdef HAVE_LIBFFTW3
 #include "fftw++.h"
 #endif
 
-#ifdef HAVE_LSP
-#include "lspserv.h"
+#if defined(_WIN32)
+#include <combaseapi.h>
 #endif
 
 #include "stack.h"
@@ -112,35 +119,10 @@ void setsignal(void (*handler)(int))
                                 mystack,sizeof (mystack));
   sigsegv_install_handler(&sigsegv_handler);
 #endif
-#if !defined(MIKTEX_WINDOWS)
+#if !defined(_WIN32)
   Signal(SIGBUS,handler);
+#endif
   Signal(SIGFPE,handler);
-#endif
-}
-
-void signalHandler(int)
-{
-  // Print the position and trust the shell to print an error message.
-  em.runtime(vm::getPos());
-
-#if !defined(MIKTEX_WINDOWS)
-  Signal(SIGBUS,SIG_DFL);
-  Signal(SIGFPE,SIG_DFL);
-#endif
-}
-
-void interruptHandler(int)
-{
-#ifdef HAVE_LIBFFTW3
-  fftwpp::saveWisdom();
-#endif
-  em.Interrupt(true);
-}
-
-bool hangup=false;
-void hangup_handler(int sig)
-{
-  hangup=true;
 }
 
 struct Args
@@ -150,11 +132,6 @@ struct Args
   Args(int argc, char **argv) : argc(argc), argv(argv) {}
 };
 
-int returnCode()
-{
-  return em.processStatus() || interact::interactive ? 0 : 1;
-}
-
 void *asymain(void *A)
 {
   setsignal(signalHandler);
@@ -162,6 +139,11 @@ void *asymain(void *A)
   fpu_trap(trap());
 #ifdef HAVE_LIBFFTW3
   fftwpp::wisdomName=".wisdom";
+#endif
+
+#if defined(_WIN32)
+  // see https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shellexecuteexa
+  CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 #endif
 
   if(interactive) {
@@ -198,9 +180,9 @@ void *asymain(void *A)
     int n=numArgs();
     if(n == 0) {
       int inpipe=intcast(settings::getSetting<Int>("inpipe"));
-      if(inpipe >= 0) {
-#if !defined(MIKTEX_WINDOWS)
-        // TODO
+      bool hasInpipe=inpipe >= 0;
+      if(hasInpipe) {
+#if !defined(_WIN32)
         Signal(SIGHUP,hangup_handler);
 #endif
         camp::openpipeout();
@@ -241,8 +223,8 @@ void *asymain(void *A)
 #endif
 
   if(getSetting<bool>("wait")) {
-#if defined(MIKTEX_WINDOWS)
-    // MIKTEX-TODO
+#if defined(_WIN32)
+#pragma message("TODO: wait option not implement yet")
 #else
     int status;
     while(wait(&status) > 0);
@@ -267,28 +249,6 @@ void *asymain(void *A)
 #endif
   exit(returnCode());
 }
-#if defined(MIKTEX)
-void BackgroundThread(void* ptr)
-{
-  try
-  {
-    asymain(ptr);
-  }
-  catch (const std::exception& /*ex*/)
-  {
-    // MIKTEX-TODO
-  }
-  catch (int /*code*/)
-  {
-    // MIKTEX-TODO
-  }
-}
-#endif
-
-void exitHandler(int)
-{
-  exit(returnCode());
-}
 
 #if defined(MIKTEX)
 int main(int argc, char** argv)
@@ -307,8 +267,13 @@ int main(int argc, char *argv[])
   }
 #endif
 #ifdef HAVE_LIBGSL
+#if defined(_WIN32)
+  _putenv("GSL_RNG_SEED=");
+  _putenv("GSL_RNG_TYPE=");
+#else
   unsetenv("GSL_RNG_SEED");
   unsetenv("GSL_RNG_TYPE");
+#endif
 #endif
   setsignal(signalHandler);
 
@@ -320,7 +285,12 @@ int main(int argc, char *argv[])
 
   Args args(argc,argv);
 #ifdef HAVE_GL
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(_WIN32)
+
+#if defined(_WIN32)
+#pragma message("TODO: Check if (1) we need detach-based gl renderer")
+#endif
+
   bool usethreads=true;
 #else
   bool usethreads=view();
@@ -331,14 +301,36 @@ int main(int argc, char *argv[])
   if(gl::glthread) {
     pthread_t thread;
     try {
-      if(pthread_create(&thread,NULL,asymain,&args) == 0) {
+#if defined(_WIN32)
+      auto asymainPtr = [](void* args) -> void*
+      {
+#if defined(USEGC)
+        GC_stack_base gsb {};
+        GC_get_stack_base(&gsb);
+        GC_register_my_thread(&gsb);
+#endif
+        auto* ret = asymain(args);
+
+#if defined(USEGC)
+        GC_unregister_my_thread();
+#endif
+        return reinterpret_cast<void*>(ret);
+      };
+#else
+      auto* asymainPtr = asymain;
+#endif
+      if(pthread_create(&thread,NULL,asymainPtr,&args) == 0) {
         gl::mainthread=pthread_self();
+#if !defined(_WIN32)
         sigset_t set;
         sigemptyset(&set);
         sigaddset(&set, SIGCHLD);
         pthread_sigmask(SIG_BLOCK, &set, NULL);
+#endif
         for(;;) {
+#if !defined(_WIN32)
           Signal(SIGURG,exitHandler);
+#endif
           camp::glrenderWrapper();
           gl::initialize=true;
         }
@@ -368,13 +360,3 @@ int main(int argc, char *argv[])
   return 0;
 #endif
 }
-
-#ifdef USEGC
-GC_API void GC_CALL GC_throw_bad_alloc() {
-  std::bad_alloc();
-}
-#endif
-#if defined(MIKTEX)
-#include "types.h"
-const types::signature::OPEN_t types::signature::OPEN;
-#endif

@@ -1,28 +1,25 @@
 #pragma once
 
-
 #include "LibLsp/JsonRpc/RequestInMessage.h"
 #include "LibLsp/JsonRpc/lsResponseMessage.h"
 
 #include "LibLsp/lsp/symbol.h"
 #include "LibLsp/lsp/lsTextDocumentIdentifier.h"
- /**
+/**
   * The document symbol request is sent from the client to the server to list all symbols found in a given text document.
   */
-struct lsDocumentSymbolParams {
-  lsTextDocumentIdentifier textDocument;
-  MAKE_SWAP_METHOD(lsDocumentSymbolParams, textDocument)
+struct lsDocumentSymbolParams
+{
+    lsTextDocumentIdentifier textDocument;
+    MAKE_SWAP_METHOD(lsDocumentSymbolParams, textDocument)
 };
 MAKE_REFLECT_STRUCT(lsDocumentSymbolParams, textDocument);
 
-
-
-struct  TextDocumentDocumentSymbol{
-        typedef  std::pair< optional<lsSymbolInformation>  , optional<lsDocumentSymbol> > Either;
+struct TextDocumentDocumentSymbol
+{
+    typedef std::pair<optional<lsSymbolInformation>, optional<lsDocumentSymbol>> Either;
 };
 void Reflect(Reader& visitor, TextDocumentDocumentSymbol::Either& value);
-
-
 
 /**
  * The document symbol request is sent from the client to the server to list all
@@ -47,9 +44,6 @@ void Reflect(Reader& visitor, TextDocumentDocumentSymbol::Either& value);
 //      std::vector<TextDocumentDocumentSymbol::Either> );
 //
 
-DEFINE_REQUEST_RESPONSE_TYPE(td_symbol,
-        lsDocumentSymbolParams,
-        std::vector< lsDocumentSymbol >,"textDocument/documentSymbol" );
-
-
-
+DEFINE_REQUEST_RESPONSE_TYPE(
+    td_symbol, lsDocumentSymbolParams, std::vector<lsDocumentSymbol>, "textDocument/documentSymbol"
+);

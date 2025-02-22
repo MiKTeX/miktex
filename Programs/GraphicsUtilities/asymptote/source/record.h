@@ -52,6 +52,10 @@ public:
     return name;
   }
 
+  symbol getTemplateIndex() {
+    return getName(); // May change in the future.
+  }
+
   bool isReference() {
     return true;
   }

@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "LibLsp/JsonRpc/RequestInMessage.h"
 #include "LibLsp/JsonRpc/lsResponseMessage.h"
 
@@ -14,8 +13,3 @@
  * information for a given completion item.
  */
 DEFINE_REQUEST_RESPONSE_TYPE(completionItem_resolve, lsCompletionItem, lsCompletionItem, "completionItem/resolve");
-
-
-
-
-

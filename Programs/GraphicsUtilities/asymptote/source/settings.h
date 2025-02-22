@@ -51,10 +51,6 @@ void wait(std::condition_variable& cond, std::mutex& mutex);
 }
 
 namespace settings {
-extern const char PROGRAM[];
-extern const char VERSION[];
-extern const char BUGREPORT[];
-
 extern char *argv0;
 
 void Warn(const string& s);
@@ -87,7 +83,11 @@ inline T getSetting(string name)
   return vm::get<T>(Setting(name));
 }
 
+// Global settings accessible as variables
+
 extern Int verbose;
+extern bool debug;
+extern bool xasy;
 extern bool compact;
 extern bool gray;
 extern bool bw;
@@ -106,10 +106,9 @@ char *getArg(int n);
 
 Int getScroll();
 
-#if defined(MIKTEX_WINDOWS)
-typedef int mode_t;
-#endif
+#if !defined(_MSC_VER)
 extern mode_t mask;
+#endif
 
 bool xe(const string& texengine);
 bool lua(const string& texengine);

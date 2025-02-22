@@ -7,9 +7,7 @@
  * running it.
  *****/
 
-#ifndef PROCESS_H
-#define PROCESS_H
-
+#pragma once
 
 #include "common.h"
 #include "stm.h"
@@ -19,7 +17,7 @@
 #include "pen.h"
 #include "dec.h"
 #include "transform.h"
-#include "parser.h"
+#include "asyparser.h"
 
 #ifdef HAVE_LIBTIRPC
 #include "xstream.h"
@@ -208,5 +206,3 @@ public:
 };
 
 processDataStruct &processData();
-
-#endif

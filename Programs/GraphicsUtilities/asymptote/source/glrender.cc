@@ -16,8 +16,14 @@
 #include <stdlib.h>
 #include <fstream>
 #include <cstring>
+#include <cmath>
+#include <chrono>
+#include <thread>
+
+#if !defined(_WIN32)
 #include <sys/time.h>
 #include <unistd.h>
+#endif
 
 #include "common.h"
 #include "locate.h"
@@ -68,10 +74,6 @@ pthread_t mainthread;
 #include "shaders.h"
 #include "GLTextures.h"
 #include "EXRFiles.h"
-
-#ifdef HAVE_LIBOPENIMAGEIO
-#include <OpenImageIO/imageio.h>
-#endif
 
 using settings::locateFile;
 using utils::stopWatch;
@@ -239,6 +241,7 @@ double ymin,ymax;
 double Xmin,Xmax;
 double Ymin,Ymax;
 double Zmin,Zmax;
+bool haveScene;
 
 pair Shift;
 pair Margin;
@@ -382,8 +385,10 @@ void ortho(GLdouble left, GLdouble right, GLdouble bottom,
 void setProjection()
 {
   setDimensions(Width,Height,X,Y);
-  if(orthographic) ortho(xmin,xmax,ymin,ymax,-Zmax,-Zmin);
-  else frustum(xmin,xmax,ymin,ymax,-Zmax,-Zmin);
+  if(haveScene) {
+    if(orthographic) ortho(xmin,xmax,ymin,ymax,-Zmax,-Zmin);
+    else frustum(xmin,xmax,ymin,ymax,-Zmax,-Zmin);
+  }
 }
 
 void updateModelViewData()
@@ -447,6 +452,7 @@ void home(bool webgl=false)
 }
 
 double T[16];
+double Tup[16];
 
 #ifdef HAVE_GL
 
@@ -489,7 +495,11 @@ GLTexture3<float,GL_FLOAT> fromEXR3(
     std::copy(fil3.getData(),fil3.getData()+imSize,std::back_inserter(data));
   }
 
-  return GLTexture3<float,GL_FLOAT> {data.data(),std::tuple<int,int,int>(wi,ht,count),textureNumber,fmt};
+  return GLTexture3<float,GL_FLOAT> {
+          data.data(),
+          std::tuple<int,int,int>(wi,ht,static_cast<int>(count)),textureNumber,
+          fmt
+  };
 }
 
 void initIBL()
@@ -596,7 +606,7 @@ void initComputeShaders()
   shaderParams.push_back(s.str().c_str());
   s2 << "BLOCKSIZE " << gl::blockSize << "u" << endl;
   shaderParams.push_back(s2.str().c_str());
-  GLuint rc=compileAndLinkShader(shaders,shaderParams,true,false,true);
+  GLuint rc=compileAndLinkShader(shaders,shaderParams,true,false,true,true);
   if(rc == 0) {
     GPUindexing=false; // Compute shaders are unavailable.
     if(settings::verbose > 2)
@@ -690,7 +700,8 @@ void initShaders()
   if(GPUcompress)
     shaderParams.push_back("GPUCOMPRESS");
   shaders[1]=ShaderfileModePair(count.c_str(),GL_FRAGMENT_SHADER);
-  camp::countShader=compileAndLinkShader(shaders,shaderParams,true);
+  camp::countShader=compileAndLinkShader(shaders,shaderParams,
+                                         true,false,false,true);
   if(camp::countShader)
     shaderParams.push_back("HAVE_SSBO");
 #else
@@ -725,8 +736,8 @@ void initShaders()
 
   shaderParams.push_back("NORMAL");
   if(interlock) shaderParams.push_back("HAVE_INTERLOCK");
-  camp::materialShader[0]=compileAndLinkShader(shaders,shaderParams,ssbo,
-                                               interlock);
+  camp::materialShader[0]=compileAndLinkShader(shaders,shaderParams,
+                                               ssbo,interlock,false,true);
   if(interlock && !camp::materialShader[0]) {
     shaderParams.pop_back();
     interlock=false;
@@ -871,6 +882,8 @@ void drawscene(int Width, int Height)
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  if(xmin >= xmax || ymin >= ymax || Zmin >= Zmax) return;
+
   triple m(xmin,ymin,Zmin);
   triple M(xmax,ymax,Zmax);
   double perspective=orthographic ? 0.0 : 1.0/Zmax;
@@ -922,33 +935,44 @@ void Export()
       trImageBuffer(tr,GL_RGB,GL_UNSIGNED_BYTE,data);
 
       setDimensions(fullWidth,fullHeight,X/Width*fullWidth,Y/Width*fullWidth);
-      (orthographic ? trOrtho : trFrustum)(tr,xmin,xmax,ymin,ymax,-Zmax,-Zmin);
 
       size_t count=0;
-      do {
-        trBeginTile(tr);
-        remesh=true;
+      if(haveScene) {
+        (orthographic ? trOrtho : trFrustum)(tr,xmin,xmax,ymin,ymax,-Zmax,-Zmin);
+        do {
+          trBeginTile(tr);
+          remesh=true;
+          drawscene(fullWidth,fullHeight);
+          gl::lastshader=-1;
+          ++count;
+        } while (trEndTile(tr));
+      } else {// clear screen and return
         drawscene(fullWidth,fullHeight);
-        gl::lastshader=-1;
-        ++count;
-      } while (trEndTile(tr));
+      }
+
       if(settings::verbose > 1)
         cout << count << " tile" << (count != 1 ? "s" : "") << " drawn" << endl;
       trDelete(tr);
 
       picture pic;
-      double w=oWidth;
-      double h=oHeight;
-      double Aspect=((double) fullWidth)/fullHeight;
-      if(w > h*Aspect) w=(int) (h*Aspect+0.5);
-      else h=(int) (w/Aspect+0.5);
-      // Render an antialiased image.
-      drawRawImage *Image=new drawRawImage(data,fullWidth,fullHeight,
-                                           transform(0.0,0.0,w,0.0,0.0,h),
-                                           antialias);
-      pic.append(Image);
+      drawRawImage *Image=NULL;
+      if(haveScene) {
+        double w=oWidth;
+        double h=oHeight;
+        double Aspect=((double) fullWidth)/fullHeight;
+        if(w > h*Aspect) w=(int) (h*Aspect+0.5);
+        else h=(int) (w/Aspect+0.5);
+        // Render an antialiased image.
+
+        Image=new drawRawImage(data,fullWidth,fullHeight,
+                               transform(0.0,0.0,w,0.0,0.0,h),
+                               antialias);
+        pic.append(Image);
+      }
+
       pic.shipout(NULL,Prefix,Format,false,ViewExport);
-      delete Image;
+      if(Image)
+        delete Image;
       delete[] data;
     }
   } catch(handled_error const&) {
@@ -1219,16 +1243,7 @@ void nextframe()
   double seconds=frameTimer.seconds(true);
   delay -= seconds;
   if(delay > 0) {
-    timespec req;
-    timespec rem;
-    req.tv_sec=(unsigned int) delay;
-    req.tv_nsec=(unsigned int) (1.0e9*(delay-req.tv_sec));
-#if defined(MIKTEX_WINDOWS)
-    _sleep(req.tv_sec + req.tv_nsec/1000000);
-#else
-    while(nanosleep(&req,&rem) < 0 && errno == EINTR)
-      req=rem;
-#endif
+    std::this_thread::sleep_for(std::chrono::duration<double>(delay));
   }
   if(Step) Animate=false;
 }
@@ -1272,9 +1287,7 @@ void display()
     queueExport=false;
   }
   if(!glthread) {
-#if defined(MIKTEX_WINDOWS)
-    // MIKTEX-UNEXPECTED
-#else
+#if !defined(_WIN32)
     if(Oldpid != 0 && waitpid(Oldpid,NULL,WNOHANG) != Oldpid) {
       kill(Oldpid,SIGHUP);
       Oldpid=0;
@@ -1344,9 +1357,7 @@ void reshape(int width, int height)
     static bool initialize=true;
     if(initialize) {
       initialize=false;
-#if defined(MIKTEX) && !defined(HAVE_PTHREAD)
-      MiKTeX::Aymptote::sigusr1 = &MiKTeX::Aymptote::updateRequested;
-#else
+#if !defined(_WIN32)
       Signal(SIGUSR1,updateHandler);
 #endif
     }
@@ -1703,7 +1714,9 @@ void showCamera()
     cout << "," << endl << indent << "angle=" << P.angle;
   if(P.viewportshift != pair(0.0,0.0))
     cout << "," << endl << indent << "viewportshift=" << P.viewportshift*Zoom;
-  if(!orthographic)
+  if(orthographic)
+    cout << ",center=false";
+  else
     cout << "," << endl << indent << "autoadjust=false";
   cout << ");" << endl;
 }
@@ -1824,7 +1837,7 @@ projection camera(bool user)
         double R3=Rotate[j4+3];
         double T4ij=T[i4+j];
         sumCamera += T4ij*(R3-cx*R0-cy*R1-cz*R2);
-        sumUp += T4ij*R1;
+        sumUp += Tup[i4+j]*R1;
         sumTarget += T4ij*(R3-cx*R0-cy*R1);
       }
       vCamera[i]=sumCamera;
@@ -1870,6 +1883,10 @@ void init()
   glutInit(&argc,argv);
   fpu_trap(settings::trap());
 
+
+#ifdef FREEGLUT
+  glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE,GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+#endif
   screenWidth=glutGet(GLUT_SCREEN_WIDTH);
   screenHeight=glutGet(GLUT_SCREEN_HEIGHT);
 #endif
@@ -1943,42 +1960,38 @@ bool NVIDIA()
 #endif /* HAVE_GL */
 
 // angle=0 means orthographic.
-void glrender(const string& prefix, const picture *pic, const string& format,
-              double width, double height, double angle, double zoom,
-              const triple& m, const triple& M, const pair& shift,
-              const pair& margin, double *t,
-              double *background, size_t nlightsin, triple *lights,
-              double *diffuse, double *specular, bool view, int oldpid)
+void glrender(GLRenderArgs const& args, int oldpid)
 {
   Iconify=getSetting<bool>("iconify");
 
-  if(zoom == 0.0) zoom=1.0;
+  auto zoomVal=std::fpclassify(args.zoom) == FP_NORMAL ? args.zoom : 1.0;
 
-  Prefix=prefix;
-  Picture=pic;
-  Format=format;
+  Prefix=args.prefix;
+  Picture=args.pic;
+  Format=args.format;
 
-  nlights0=nlights=nlightsin;
+  nlights0=nlights=args.nlights;
 
-  Lights=lights;
-  Diffuse=diffuse;
-  Specular=specular;
-  View=view;
-  Angle=angle*radians;
-  Zoom0=zoom;
+  Lights=args.lights;
+  Diffuse=args.diffuse;
+  Specular=args.specular;
+  View=args.view;
+  Angle=args.angle*radians;
+  Zoom0=zoomVal;
   Oldpid=oldpid;
-  Shift=shift/zoom;
-  Margin=margin;
+  Shift=args.shift/zoomVal;
+  Margin=args.margin;
   for(size_t i=0; i < 4; ++i)
-    Background[i]=background[i];
+    Background[i]=args.background[i];
 
-  Xmin=m.getx();
-  Xmax=M.getx();
-  Ymin=m.gety();
-  Ymax=M.gety();
-  Zmin=m.getz();
-  Zmax=M.getz();
+  Xmin=args.m.getx();
+  Xmax=args.M.getx();
+  Ymin=args.m.gety();
+  Ymax=args.M.gety();
+  Zmin=args.m.getz();
+  Zmax=args.M.getz();
 
+  haveScene=Xmin < Xmax && Ymin < Ymax && Zmin < Zmax;
   orthographic=Angle == 0.0;
   H=orthographic ? 0.0 : -tan(0.5*Angle)*Zmax;
 
@@ -1991,8 +2004,8 @@ void glrender(const string& prefix, const picture *pic, const string& format,
   if(maxTileWidth <= 0) maxTileWidth=1024;
   if(maxTileHeight <= 0) maxTileHeight=768;
 
-  bool v3d=format == "v3d";
-  bool webgl=format == "html";
+  bool v3d=args.format == "v3d";
+  bool webgl=args.format == "html";
   bool format3d=webgl || v3d;
 
 #ifdef HAVE_GL
@@ -2024,7 +2037,10 @@ void glrender(const string& prefix, const picture *pic, const string& format,
 #endif
 
   for(int i=0; i < 16; ++i)
-    T[i]=t[i];
+    T[i]=args.t[i];
+
+  for(int i=0; i < 16; ++i)
+    Tup[i]=args.tup[i];
 
   static bool initialized=false;
 
@@ -2041,9 +2057,9 @@ void glrender(const string& prefix, const picture *pic, const string& format,
       if(antialias) expand *= 2.0;
     }
 
-    oWidth=width;
-    oHeight=height;
-    Aspect=width/height;
+    oWidth=args.width;
+    oHeight=args.height;
+    Aspect=args.width/args.height;
 
     // Force a hard viewport limit to work around direct rendering bugs.
     // Alternatively, one can use -glOptions=-indirect (with a performance
@@ -2061,8 +2077,8 @@ void glrender(const string& prefix, const picture *pic, const string& format,
     if(screenHeight <= 0) screenHeight=maxHeight;
     else screenHeight=min(screenHeight,maxHeight);
 
-    fullWidth=(int) ceil(expand*width);
-    fullHeight=(int) ceil(expand*height);
+    fullWidth=(int) ceil(expand*args.width);
+    fullHeight=(int) ceil(expand*args.height);
 
     if(format3d) {
       Width=fullWidth;
@@ -2119,7 +2135,7 @@ void glrender(const string& prefix, const picture *pic, const string& format,
 
 #ifndef HAVE_LIBOSMESA
 
-#if defined(MIKTEX) || defined(HAVE_PTHREAD)
+#ifdef HAVE_PTHREAD
   if(glthread && initializedView) {
     if(View) {
 #ifdef __MSDOS__ // Signals are unreliable in MSWindows
@@ -2163,7 +2179,7 @@ void glrender(const string& prefix, const picture *pic, const string& format,
         glutSetOption(GLUT_MULTISAMPLE,multisample);
 #endif
 #endif
-      string title=string(settings::PROGRAM)+": "+prefix;
+      string title=string(PACKAGE_NAME)+": "+args.prefix;
       fpu_trap(false); // Work around FE_INVALID
       window=glutCreateWindow(title.c_str());
       fpu_trap(settings::trap());
@@ -2252,7 +2268,7 @@ void glrender(const string& prefix, const picture *pic, const string& format,
     setBuffers();
   }
 
-  glClearColor(background[0],background[1],background[2],background[3]);
+  glClearColor(args.background[0],args.background[1],args.background[2],args.background[3]);
 
 #ifdef HAVE_LIBGLUT
 #ifndef HAVE_LIBOSMESA
@@ -2303,13 +2319,17 @@ void glrender(const string& prefix, const picture *pic, const string& format,
 #endif
 
     glutMainLoop();
+    cout << endl;
+    exitHandler(0);
 #endif // HAVE_LIBGLUT
   } else {
     if(glthread) {
       if(havewindow) {
         readyAfterExport=true;
 #ifdef HAVE_PTHREAD
+#if !defined(_WIN32)
         pthread_kill(mainthread,SIGUSR1);
+#endif
 #elif defined(MIKTEX)
         *MiKTeX::Aymptote::sigusr1 = true;
 #endif
@@ -2319,7 +2339,9 @@ void glrender(const string& prefix, const picture *pic, const string& format,
 #if defined(MIKTEX) && !defined(HAVE_PTHREAD)
         MiKTeX::Aymptote::sigusr1 = &MiKTeX::Aymptote::exportRequested;
 #else
+#if !defined(_WIN32)
         Signal(SIGUSR1,exportHandler);
+#endif
 #endif
         exportHandler();
       }
@@ -2825,7 +2847,8 @@ void drawBuffers()
   drawTriangle();
 
   if(transparent) {
-    gl::copied=true;
+    if(camp::ssbo)
+      gl::copied=true;
     if(interlock) resizeFragmentBuffer();
     drawTransparent();
   }

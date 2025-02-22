@@ -2,7 +2,7 @@
  * coder.h
  * Andy Hammerlindl 2004/11/06
  *
- * Handles encoding of syntax into programs.  It's methods are called by
+ * Handles encoding of syntax into programs.  Its methods are called by
  * abstract syntax objects during translation to construct the virtual machine
  * code.
  *****/
@@ -149,8 +149,13 @@ public:
     assert(s != DEFAULT_STATIC && s != DEFAULT_DYNAMIC);
 
     /* Non-default static overrules. */
-    if (sord != EXPLICIT_STATIC)
+    if (s == AUTOUNRAVEL || sord == AUTOUNRAVEL) {
+      sord = AUTOUNRAVEL;
+    } else if (s == EXPLICIT_STATIC || sord == EXPLICIT_STATIC) {
+      sord = EXPLICIT_STATIC;
+    } else {
       sord = s;
+    }
 
     sord_stack.push(sord);
   }
@@ -161,6 +166,7 @@ public:
     switch(sord) {
       case DEFAULT_STATIC:
       case EXPLICIT_STATIC:
+      case AUTOUNRAVEL:
         return true;
       case DEFAULT_DYNAMIC:
       case EXPLICIT_DYNAMIC:
@@ -169,6 +175,11 @@ public:
         assert(False);
         return false;
     }
+  }
+
+  bool isAutoUnravel()
+  {
+    return sord == AUTOUNRAVEL;
   }
 
 
@@ -221,8 +232,9 @@ public:
   frame *getFrame()
   {
     if (isStatic() && !isTopLevel()) {
-      assert(parent->getFrame());
-      return parent->getFrame();
+      frame *result = parent->getFrame();
+      assert(result);
+      return result;
     }
     else
       return level;
@@ -310,6 +322,10 @@ public:
     return encode(recordLevel);
   }
 
+  // Puts the frame corresponding to the parent of 'ent' on the stack. Triggers
+  // an error if 'ent' does not correspond to a record (a.k.a. asy struct) type.
+  bool encodeParent(position pos, trans::tyEntry *ent);
+
   // An access that encodes the frame corresponding to "this".
   access *thisLocation()
   {
@@ -390,7 +406,6 @@ public:
   // Turn a no-op into a jump to bypass incorrect code.
   void encodePatch(label from, label to);
 
-public:
   void encodePushFrame() {
     pushframeLabels.push(program->end());
     encode(inst::pushframe, (Int)0);

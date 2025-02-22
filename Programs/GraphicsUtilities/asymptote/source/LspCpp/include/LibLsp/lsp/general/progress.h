@@ -6,11 +6,11 @@
 //This mechanism can be used to report any kind of progress including work done
 //progress(usually used to report progress in the user interface using a progress bar)
 //and partial result progress to support streaming of results.
-struct  ProgressParams
+struct ProgressParams
 {
-        std::pair<optional<std::string> , optional<int> > token;
-        lsp::Any value;
-        MAKE_SWAP_METHOD(ProgressParams, token, value)
+    std::pair<optional<std::string>, optional<int>> token;
+    lsp::Any value;
+    MAKE_SWAP_METHOD(ProgressParams, token, value)
 };
 MAKE_REFLECT_STRUCT(ProgressParams, token, value)
 DEFINE_NOTIFICATION_TYPE(Notify_Progress, ProgressParams, "$/progress");

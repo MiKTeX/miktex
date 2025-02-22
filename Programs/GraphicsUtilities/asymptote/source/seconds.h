@@ -2,7 +2,8 @@
 #define __seconds_h__ 1
 
 #include <chrono>
-#if !defined(MIKTEX_WINDOWS)
+
+#if !defined(_WIN32)
 #include <sys/resource.h>
 #endif
 

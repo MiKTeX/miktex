@@ -401,7 +401,8 @@ ImpDatum *callDatum(ImpDatum *callee, ImpArguments *args)
   types::ty *t = callex.getType(e);
   if (t->isError()) {
     // Run for errors.
-    runExp(&callex); em.sync();
+    runExp(&callex);
+    em.sync(true);
     return datumError("invalid call");
   }
 

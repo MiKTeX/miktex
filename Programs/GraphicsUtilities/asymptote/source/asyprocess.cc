@@ -10,6 +10,7 @@
 #include "types.h"
 #include "errormsg.h"
 #include "genv.h"
+#include "coenv.h"
 #include "stm.h"
 #include "settings.h"
 #include "vm.h"
@@ -23,7 +24,7 @@
 #include "runtime.h"
 #include "texfile.h"
 
-#include "process.h"
+#include "asyprocess.h"
 
 namespace camp {
 pen& defaultpen() {
@@ -101,6 +102,7 @@ public:
   penv() : _ge(0), _pd() {
     // Push the processData first, as it needs to be on the stack before genv
     // is initialized.
+    _pd.topPos = nullPos;
     processDataStack.push(&_pd);
     _ge = new genv;
   }
@@ -279,7 +281,8 @@ void itree::doList() {
   if (tree) {
     penv pe;
     record *r=tree->transAsFile(pe.ge(), symbol::trans(getName()));
-    r->e.list(r);
+    if(r)
+      r->e.list(r);
   }
 }
 
@@ -289,7 +292,7 @@ void itree::run(coenv &e, istack &s, transMode tm) {
     for(mem::list<runnable *>::iterator r=tree->stms.begin();
         r != tree->stms.end(); ++r) {
       processData().fileName=(*r)->getPos().filename();
-      if(!em.errors() || getSetting<bool>("debug"))
+      if(!em.errors() || debug)
         runRunnable(*r,e,s,tm);
     }
   }
@@ -303,7 +306,7 @@ void itree::doExec(transMode tm) {
 
 void printGreeting(bool interactive) {
   if(!getSetting<bool>("quiet")) {
-    cout << "Welcome to " << PROGRAM << " version " << REVISION;
+    cout << "Welcome to " << PACKAGE_NAME << " version " << REVISION;
     if(interactive)
       cout << " (to view the manual, type help)";
     cout << endl;
@@ -649,7 +652,7 @@ class iprompt : public icore {
 #define ADDCOMMAND(name, func)                  \
     commands[#name]=&iprompt::func
 
-    // keywords.pl looks for ADDCOMMAND to identify special commands in the
+    // keywords.py looks for ADDCOMMAND to identify special commands in the
     // auto-completion.
     ADDCOMMAND(quit,exit);
     ADDCOMMAND(q,q);
@@ -701,7 +704,7 @@ class iprompt : public icore {
   // detecting it in multiline mode).
   string getline(bool continuation) {
     string prompt;
-    if(!getSetting<bool>("xasy"))
+    if(!settings::xasy)
       prompt=getSetting<string>(continuation ? "prompt2" : "prompt");
     string line=interact::simpleline(prompt);
 
@@ -730,11 +733,7 @@ class iprompt : public icore {
 
   // Continue taking input until a termination command is received from xasy.
   block *parseXasyLine(string line) {
-#ifdef __MSDOS__
-    const string EOT="\x04\r\n";
-#else
     const string EOT="\x04\n";
-#endif
     string s;
     while((s=getline(true)) != EOT)
       line += s;
@@ -748,7 +747,7 @@ class iprompt : public icore {
 
         icode i(code);
         i.run(e,s,TRANS_INTERACTIVE);
-      } else if(getSetting<bool>("xasy")) {
+      } else if(settings::xasy) {
         block *code=parseXasyLine(line);
 
         icode i(code);
@@ -830,11 +829,7 @@ public:
       } catch(interrupted&) {
         em.Interrupt(false);
         restart=true;
-#if defined(MIKTEX)
-      } catch(eof_exception&) {
-#else
-      } catch(eof&) {
-#endif
+      } catch(EofException&) {
         restart=false;
       }
     } while(restart);

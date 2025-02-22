@@ -130,7 +130,9 @@ void psfile::close()
   if(out) {
     out->flush();
     if(!filename.empty()) {
-#ifdef __MSDOS__
+#if defined(_MSC_VER)
+
+#else
       chmod(filename.c_str(),~settings::mask & 0777);
 #endif
       if(!out->good())
@@ -160,8 +162,7 @@ void psfile::prologue(const bbox& box)
 {
   header(true);
   BoundingBox(box);
-  *out << "%%Creator: " << settings::PROGRAM << " " << settings::VERSION
-       << REVISION <<  newl;
+  *out << "%%Creator: " << PACKAGE_NAME << " " << REVISION <<  newl;
 
   time_t t; time(&t);
   struct tm *tt = localtime(&t);

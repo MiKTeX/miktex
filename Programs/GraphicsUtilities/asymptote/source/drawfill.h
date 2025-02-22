@@ -184,7 +184,7 @@ public:
     : drawElement(key), drawShade(src,stroke,pentype,key), pens(pens),
       vertices(vertices), edges(edges) {}
 
-  bool svgpng() {return settings::getSetting<bool>("xasy") || !settings::getSetting<bool>("svgemulation") || pdf();}
+  bool svgpng() {return settings::xasy || !settings::getSetting<bool>("svgemulation") || pdf();}
 
   void palette(psfile *out) {
     out->gsave();

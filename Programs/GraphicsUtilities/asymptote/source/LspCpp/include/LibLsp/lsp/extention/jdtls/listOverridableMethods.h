@@ -6,12 +6,6 @@
 #include "LibLsp/lsp/CodeActionParams.h"
 #include "OverridableMethod.h"
 
-
-
-
-
-DEFINE_REQUEST_RESPONSE_TYPE(java_listOverridableMethods, lsCodeActionParams, OverridableMethodsResponse, "java/listOverridableMethods");
-
-
-
-
+DEFINE_REQUEST_RESPONSE_TYPE(
+    java_listOverridableMethods, lsCodeActionParams, OverridableMethodsResponse, "java/listOverridableMethods"
+);

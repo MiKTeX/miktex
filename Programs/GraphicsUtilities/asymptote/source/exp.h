@@ -887,13 +887,13 @@ public:
 };
 
 class castExp : public exp {
-  ty *target;
+  astType *target;
   exp *castee;
 
   types::ty *tryCast(coenv &e, types::ty *t, types::ty *s,
                      symbol csym);
 public:
-  castExp(position pos, ty *target, exp *castee)
+  castExp(position pos, astType *target, exp *castee)
     : exp(pos), target(target), castee(castee) {}
 
   void prettyprint(ostream &out, Int indent) override;

@@ -1,15 +1,16 @@
 #pragma once
 
-
 #include "LibLsp/JsonRpc/RequestInMessage.h"
 #include "LibLsp/JsonRpc/lsResponseMessage.h"
 
 #include "LibLsp/lsp/lsWorkspaceEdit.h"
 #include "LibLsp/lsp/lsTextDocumentIdentifier.h"
 
-namespace TextDocumentRename  {
+namespace TextDocumentRename
+{
 
-  struct Params {
+struct Params
+{
     // The document to format.
     lsTextDocumentIdentifier textDocument;
 
@@ -20,17 +21,11 @@ namespace TextDocumentRename  {
     // request must return a [ResponseError](#ResponseError) with an
     // appropriate message set.
     std::string newName;
-        MAKE_SWAP_METHOD(Params,
-                textDocument,
-                position,
-                newName);
-  };
-
+    MAKE_SWAP_METHOD(Params, textDocument, position, newName);
 };
-MAKE_REFLECT_STRUCT(TextDocumentRename::Params,
-                    textDocument,
-                    position,
-                    newName);
+
+}; // namespace TextDocumentRename
+MAKE_REFLECT_STRUCT(TextDocumentRename::Params, textDocument, position, newName);
 /**
  * The rename request is sent from the client to the server to do a
  * workspace wide rename of a symbol.
@@ -38,4 +33,3 @@ MAKE_REFLECT_STRUCT(TextDocumentRename::Params,
  * Registration Options: TextDocumentRegistrationOptions
  */
 DEFINE_REQUEST_RESPONSE_TYPE(td_rename, TextDocumentRename::Params, lsWorkspaceEdit, "textDocument/rename");
-

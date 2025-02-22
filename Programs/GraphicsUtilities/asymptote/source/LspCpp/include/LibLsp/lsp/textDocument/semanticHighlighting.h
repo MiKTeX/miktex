@@ -9,20 +9,21 @@
  * Represents a semantic highlighting information that has to be applied on a specific line of the text document.
  */
 
-struct SemanticHighlightingInformation {
-        /**
+struct SemanticHighlightingInformation
+{
+    /**
          * The zero-based line position in the text document.
          */
-        int line = 0;
+    int line = 0;
 
-        /**
+    /**
          * A base64 encoded string representing every single highlighted ranges in the line with its start position, length
          * and the "lookup table" index of of the semantic highlighting <a href="https://manual.macromates.com/en/language_grammars">
          * TextMate scopes</a>. If the {@code tokens} is empty or not defined, then no highlighted positions are available for the line.
          */
-         std::string tokens;
+    std::string tokens;
 
-         MAKE_SWAP_METHOD(SemanticHighlightingInformation, line, tokens)
+    MAKE_SWAP_METHOD(SemanticHighlightingInformation, line, tokens)
 };
 
 MAKE_REFLECT_STRUCT(SemanticHighlightingInformation, line, tokens);
@@ -31,21 +32,21 @@ MAKE_REFLECT_STRUCT(SemanticHighlightingInformation, line, tokens);
  * Parameters for the semantic highlighting (server-side) push notification.
  */
 
-struct SemanticHighlightingParams {
-        /**
+struct SemanticHighlightingParams
+{
+    /**
          * The text document that has to be decorated with the semantic highlighting information.
          */
 
-         lsVersionedTextDocumentIdentifier textDocument;
+    lsVersionedTextDocumentIdentifier textDocument;
 
-        /**
+    /**
          * An array of semantic highlighting information.
          */
 
-         std::vector<SemanticHighlightingInformation> lines;
+    std::vector<SemanticHighlightingInformation> lines;
 
-         MAKE_SWAP_METHOD(SemanticHighlightingParams, textDocument, lines)
-
+    MAKE_SWAP_METHOD(SemanticHighlightingParams, textDocument, lines)
 };
 MAKE_REFLECT_STRUCT(SemanticHighlightingParams, textDocument, lines);
 /**

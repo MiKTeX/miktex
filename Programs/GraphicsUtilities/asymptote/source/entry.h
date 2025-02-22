@@ -104,6 +104,10 @@ public:
   // (Non-destructively) merges two varEntries, creating a qualified varEntry.
   varEntry(varEntry &qv, varEntry &v);
 
+  // Copies the original varEntry and adds a new permission constraint.
+  varEntry(varEntry &base, permission perm, record *r)
+    : entry(base, perm, r), t(base.t), location(base.location) {}
+
   ty *getType()
   { return t; }
 
@@ -165,8 +169,8 @@ inline tyEntry *qualifyTyEntry(varEntry *qv, tyEntry *ent) {
 
 // The type environment.
 class tenv : public sym::table<tyEntry *> {
-  bool add(symbol dest, names_t::value_type &x, varEntry *qualifier,
-           coder &c);
+  tyEntry *add(symbol dest, names_t::value_type &x, varEntry *qualifier,
+               coder &c);
 public:
   // Add the entries in one environment to another, if qualifier is
   // non-null, it is a record and the source environment is its types.  The
@@ -175,16 +179,18 @@ public:
 
   // Adds entries of the name src in source as the name dest, returning true if
   // any were added.
-  bool add(symbol src, symbol dest,
-           tenv& source, varEntry *qualifier, coder &c);
+  tyEntry *add(symbol src, symbol dest,
+               tenv& source, varEntry *qualifier, coder &c);
 };
 
 
 // For speed reasons, many asserts are only tested when DEBUG_CACHE is set.
-#ifdef DEBUG_CACHE
-#define DEBUG_CACHE_ASSERT(x) assert(x)
-#else
-#define DEBUG_CACHE_ASSERT(x) (void)(x)
+#ifndef DEBUG_CACHE_ASSERT
+#  ifdef DEBUG_CACHE
+#    define DEBUG_CACHE_ASSERT(x) assert(x)
+#  else
+#    define DEBUG_CACHE_ASSERT(x) (void)(x)
+#  endif
 #endif
 
 // The hash table which is at the core of the variable environment venv.
@@ -348,6 +354,19 @@ public:
   }
 };
 
+struct SigHash {
+  size_t operator()(const mem::pair<symbol, ty *>& p) const;
+};
+
+struct SigEquiv {
+  bool operator()(const mem::pair<symbol, ty *>& p1,
+                  const mem::pair<symbol, ty *>& p2) const;
+};
+
+enum class AutounravelPriority {
+  OFFER,
+  FORCE,
+};
 
 // venv implemented with a hash table.
 class venv {
@@ -366,6 +385,14 @@ class venv {
   };
   typedef mem::stack<addition> addstack;
   addstack additions;
+
+  // A list of variables that need to be unraveled whenever the containing
+  // record (if any) becomes available.
+  mem::list<mem::pair<symbol, varEntry *>> autoUnravels;
+  mem::unordered_map<mem::pair<symbol, ty*>,
+                     std::nullptr_t,
+                     SigHash,
+                     SigEquiv> nonShadowableAutoUnravels;
 
   // A scope can be recorded by the size of the addition stack at the time the
   // scope began.
@@ -395,7 +422,7 @@ class venv {
     void replaceType(ty *new_t, ty *old_t);
 
 #if DEBUG_CACHE
-    void popType(ty *tnew);
+    void popType(astType *tnew);
 #else
     void popType();
 #endif
@@ -457,7 +484,8 @@ public:
   // Add all unshadowed variables from source of the name src as variables
   // named dest.  Returns true if at least one was added.
   bool add(symbol src, symbol dest,
-           venv& source, varEntry *qualifier, coder &c);
+           venv& source, varEntry *qualifier, coder &c,
+           mem::vector<varEntry *> *addedVec=nullptr);
 
   // Look for a function that exactly matches the type given.
   varEntry *lookByType(symbol name, ty *t) {
@@ -493,6 +521,16 @@ public:
 
   // Adds to l, all names prefixed by start.
   void completions(mem::list<symbol>& l, string start);
+
+  void registerAutoUnravel(
+    symbol name,
+    varEntry *v,
+    AutounravelPriority priority=AutounravelPriority::FORCE
+  );
+
+  const mem::list<mem::pair<symbol, varEntry *>>& getAutoUnravels() {
+    return autoUnravels;
+  }
 };
 
 } // namespace trans

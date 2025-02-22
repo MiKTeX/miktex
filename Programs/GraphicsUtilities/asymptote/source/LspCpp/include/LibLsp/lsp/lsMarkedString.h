@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-
 // MarkedString can be used to render human readable text. It is either a
 // markdown string or a code-block that provides a language and a code snippet.
 // The language identifier is sematically equal to the optional language
@@ -19,27 +18,29 @@
 //
 // Note that markdown strings will be sanitized - that means html will be
 // escaped.
-struct lsMarkedString {
-        optional<std::string> language;
-        std::string value;
+struct lsMarkedString
+{
+    optional<std::string> language;
+    std::string value;
 };
 
-struct MarkupContent {
-        /**
+struct MarkupContent
+{
+    /**
          * The type of the Markup.
          */
 
-         std::string kind;
+    std::string kind;
 
-        /**
+    /**
          * The content itself.
          */
 
-         std::string value;
+    std::string value;
 
-         MAKE_SWAP_METHOD(MarkupContent, kind, value);
+    MAKE_SWAP_METHOD(MarkupContent, kind, value);
 };
-MAKE_REFLECT_STRUCT(MarkupContent,kind,value);
+MAKE_REFLECT_STRUCT(MarkupContent, kind, value);
 
 void Reflect(Writer& visitor, lsMarkedString& value);
 void Reflect(Reader& visitor, lsMarkedString& value);

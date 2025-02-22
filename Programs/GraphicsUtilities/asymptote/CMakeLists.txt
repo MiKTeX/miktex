@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2017-2023 Christian Schenk
+## Copyright (C) 2017-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -31,6 +31,7 @@ endif()
 include_directories(BEFORE
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/backports/optional/include
     ${CMAKE_CURRENT_SOURCE_DIR}/source/LspCpp/include
     ${CMAKE_CURRENT_SOURCE_DIR}/symbol-headers
 )
@@ -50,17 +51,17 @@ if(MIKTEX_NATIVE_WINDOWS AND FALSE)
 endif()
 
 #set(HAVE_LIBFFTW3 TRUE)
+
 set(HAVE_GNU_GETOPT_H TRUE)
 set(HAVE_LIBCURL TRUE)
 set(HAVE_LIBGL TRUE)
 set(HAVE_LIBGLM TRUE)
 set(HAVE_LIBGLUT TRUE)
-set(HAVE_TGAMMA TRUE) 
+set(HAVE_TGAMMA TRUE)
 set(HAVE_UNORDERED_MAP TRUE)
 set(PACKAGE_BUGREPORT "")
 set(PACKAGE_NAME "miktex-asy")
 set(PACKAGE_VERSION "${MIKTEX_COMP_ORIG_VERSION_STR}")
-set(RETSIGTYPE void)
 
 configure_file(
     config.h.cmake
@@ -142,8 +143,9 @@ set(core_sources
     source/access.cc
     source/application.cc
     source/array.cc
+    source/asyparser.cc
+    source/asyprocess.cc
     source/callable.cc
-    source/camp.tab.cc
     source/coder.cc
     source/coenv.cc
     source/constructor.cc
@@ -152,6 +154,7 @@ set(core_sources
     source/env.cc
     source/envcompleter.cc
     source/errormsg.cc
+    source/exithandlers.cc
     source/exp.cc
     source/fftw++asy.cc
     source/fileio.cc
@@ -161,15 +164,17 @@ set(core_sources
     source/impdatum.cc
     source/interact.cc
     source/jsfile.cc
-    source/lex.yy.cc
     source/locate.cc
+    source/lspdec.cc
+    source/lspexp.cc
+    source/lspfundec.cc
     source/lspserv.cc
+    source/lspstm.cc
+    source/memory.cc
     source/name.cc
     source/newexp.cc
     source/parallel.cc
-    source/parser.cc
     source/predicates.cc
-    source/process.cc
     source/program.cc
     source/record.cc
     source/refaccess.cc
@@ -179,17 +184,17 @@ set(core_sources
     source/stm.cc
     source/symbol.cc
     source/symbolmaps.cc
-    source/tinyexr.cc
     source/tr.cc
     source/v3dfile.cc
     source/varinit.cc
     source/virtualfieldaccess.cc
+    source/win32helpers.cc
+    source/win32pipestream.cc
+    source/win32xdr.cc
+    source/xstream.cc
 )
 
 set(core_headers
-    source/Delaunay.h
-    source/EXRFiles.h
-    source/GLTextures.h
     source/abs3doutfile.h
     source/absyn.h
     source/access.h
@@ -198,6 +203,8 @@ set(core_headers
     source/application.h
     source/array.h
     source/arrayop.h
+    source/asyparser.h
+    source/asyprocess.h
     source/bbox.h
     source/bbox3.h
     source/beziercurve.h
@@ -211,6 +218,7 @@ set(core_headers
     source/coenv.h
     source/common.h
     source/dec.h
+    source/Delaunay.h
     source/drawclipbegin.h
     source/drawclipend.h
     source/drawelement.h
@@ -230,6 +238,7 @@ set(core_headers
     source/envcompleter.h
     source/errormsg.h
     source/exp.h
+    source/EXRFiles.h
     source/fftw++.h
     source/fileio.h
     source/flatguide.h
@@ -238,6 +247,7 @@ set(core_headers
     source/fundec.h
     source/genv.h
     source/glrender.h
+    source/GLTextures.h
     source/guide.h
     source/guideflags.h
     source/inst.h
@@ -259,7 +269,6 @@ set(core_headers
     source/opcodes.h
     source/pair.h
     source/parallel.h
-    source/parser.h
     source/path.h
     source/path3.h
     source/pen.h
@@ -269,7 +278,6 @@ set(core_headers
     source/prcfile.h
     source/predicates.h
     source/primitives.h
-    source/process.h
     source/profiler.h
     source/program.h
     source/psfile.h
@@ -352,12 +360,11 @@ set(asy_sources
     ${core_sources}
     ${miktex_sources}
     ${symbol_headers}
-    source/glew.c
     source/main.cc
     source/revision.cc
 )
 
-set_source_files_properties(source/glew.c
+set_source_files_properties(source/backports/glew/glew.c
     PROPERTIES
         COMPILE_DEFINITIONS "GLEW_NO_GLU"
         INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/source"

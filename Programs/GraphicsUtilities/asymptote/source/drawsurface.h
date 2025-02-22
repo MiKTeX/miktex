@@ -642,9 +642,9 @@ public:
         for(size_t i=0; i < nN; i++)
           N[i]=s->N[i];
       } else {
-        double T[]={t[0],t[1],t[2],
-                    t[4],t[5],t[6],
-                    t[8],t[9],t[10]};
+        double T[]={t[0],t[4],t[8],
+                    t[1],t[5],t[9],
+                    t[2],t[6],t[10]};
         run::inverse(T,3);
         for(size_t i=0; i < nN; i++)
           N[i]=unit(Transform3(s->N[i],T));

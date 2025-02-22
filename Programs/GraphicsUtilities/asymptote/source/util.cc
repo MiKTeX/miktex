@@ -19,17 +19,29 @@
 #include <cfloat>
 #include <sstream>
 #include <cerrno>
-#if !defined(MIKTEX_WINDOWS)
-#include <sys/wait.h>
-#include <sys/param.h>
-#endif
+#include <cstdlib>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <cstring>
 #include <algorithm>
+
+
+#if !defined(_WIN32)
+#include <sys/wait.h>
+#include <sys/param.h>
+#include <unistd.h>
 #include <dirent.h>
+#else
+#include <Windows.h>
+#include <Shlwapi.h>
+#include <Shellapi.h>
+#include <direct.h>
+#include "win32helpers.h"
+
+#define getcwd _getcwd
+#define chdir _chdir
+#endif
 
 #include "util.h"
 #include "settings.h"
@@ -76,6 +88,106 @@ string demangle(const char* s)
 }
 #endif
 
+// windows specific unnamed spaces
+#if defined(_WIN32)
+namespace w32 = camp::w32;
+
+namespace
+{
+/** @brief System, but for Windows.
+ *         Any handle placed in outHandle must be properly closed */
+int SystemWin32(const mem::vector<string>& command, int quiet, bool wait,
+                const char* hint, const char* application, int* ppid);
+}
+
+namespace
+{
+int SystemWin32(const mem::vector<string>& command, int quiet, bool wait,
+                const char* hint, const char* application, int* ppid)
+{
+  cout.flush();
+  if (command.empty())
+  {
+    camp::reportError("Command cannot be empty");
+    return -1;
+  }
+  string cmdlineStr=camp::w32::buildWindowsCmd(command);
+
+  STARTUPINFOA startInfo={};
+  startInfo.cb=sizeof(startInfo);
+  startInfo.dwFlags=STARTF_USESTDHANDLES;
+
+  SECURITY_ATTRIBUTES sa;
+  sa.nLength= sizeof(sa);
+  sa.lpSecurityDescriptor=nullptr;
+  sa.bInheritHandle=true;
+
+  PROCESS_INFORMATION procInfo= {};
+
+  // windows' "/dev/null" file (a.k.a. "NUL")
+  {
+    w32::HandleRaiiWrapper const nulFileHandle=CreateFileA(
+      "NUL", GENERIC_WRITE, FILE_SHARE_WRITE | FILE_SHARE_READ,
+      &sa,
+      CREATE_ALWAYS,
+      FILE_ATTRIBUTE_NORMAL,
+      nullptr);
+
+    // set quiet info
+    startInfo.hStdInput= GetStdHandle(STD_INPUT_HANDLE);
+    startInfo.hStdOutput= quiet >= 1 ? nulFileHandle.getHandle() : GetStdHandle(STD_OUTPUT_HANDLE);
+    startInfo.hStdError= quiet >= 2 ? nulFileHandle.getHandle() : GetStdHandle(STD_ERROR_HANDLE);
+
+    ostringstream errorMessage;
+    errorMessage << "Cannot open " << application << "\n";
+    string const errorMessageOut=errorMessage.str();
+    w32::checkResult(CreateProcessA(
+                       nullptr,
+                       cmdlineStr.data(),
+                       nullptr, nullptr, true,
+                       0,
+                       nullptr, nullptr,
+                       &startInfo,
+                       &procInfo),
+                     errorMessageOut.c_str());
+  }
+  if (ppid)
+  {
+    *ppid=static_cast<int>(procInfo.dwProcessId);
+  }
+
+  w32::HandleRaiiWrapper const procHandle(procInfo.hProcess);
+  w32::HandleRaiiWrapper const threadHandle(procInfo.hThread);
+
+
+  if (!wait)
+  {
+    return 0;
+  }
+
+  DWORD retcode=-1;
+  // else, wait
+  switch (WaitForSingleObject(procHandle.getHandle(), INFINITE))
+  {
+    case WAIT_OBJECT_0: {
+      w32::checkResult(GetExitCodeProcess(
+        procHandle.getHandle(), &retcode
+      ),"Cannot get exit code of process");
+      break;
+    }
+    case WAIT_ABANDONED:// also impossible, we are waiting for a process
+    case WAIT_TIMEOUT:  // impossible, since we set timeout to infinite
+    case WAIT_FAILED:
+    default:
+      camp::reportError("Waiting for process failed");
+      break;
+  }
+  return static_cast<int>(retcode);
+}
+}
+
+#endif
+
 char *Strdup(string s)
 {
   size_t size=s.size()+1;
@@ -105,12 +217,14 @@ string stripDir(string name)
 #if defined(MIKTEX)
   return MiKTeX::Util::PathName(name.c_str()).GetFileName().GetData();
 #else
-  size_t p;
-#ifdef __MSDOS__
-  p=name.rfind('\\');
-  if(p < string::npos) name.erase(0,p+1);
+#if defined(_WIN32)
+  char constexpr separator= '\\';
+  std::replace(name.begin(), name.end(), '/', separator);
+#else
+  char constexpr separator= '/';
 #endif
-  p=name.rfind('/');
+
+  size_t p=name.rfind(separator);
   if(p < string::npos) name.erase(0,p+1);
   return name;
 #endif
@@ -121,20 +235,18 @@ string stripFile(string name)
 #if defined(MIKTEX)
   return MiKTeX::Util::PathName(name.c_str()).GetDirectoryName().GetData();
 #else
-  size_t p;
-  bool dir=false;
-#ifdef __MSDOS__
-  p=name.rfind('\\');
-  if(p < string::npos) {
-    dir=true;
-    while(p > 0 && name[p-1] == '\\') --p;
-    name.erase(p+1);
-  }
+#if defined(_WIN32)
+  char constexpr separator = '\\';
+  std::replace(name.begin(), name.end(), '/', separator);
+#else
+  char constexpr separator= '/';
 #endif
-  p=name.rfind('/');
+
+  bool dir=false;
+  size_t p=name.rfind(separator);
   if(p < string::npos) {
     dir=true;
-    while(p > 0 && name[p-1] == '/') --p;
+    while(p > 0 && name[p-1] == separator) --p;
     name.erase(p+1);
   }
 
@@ -166,13 +278,49 @@ void spaceToUnderscore(string& s)
     s[p]='_';
 }
 
+string escapeCharacters(string const& inText, std::unordered_set<char> const& charactersToEscape)
+{
+  mem::vector<char> retBuffer;
+  retBuffer.reserve(inText.length() + 1);
+
+  for (const char textChar : inText)
+  {
+    if (charactersToEscape.find(textChar) != charactersToEscape.end())
+    {
+      retBuffer.emplace_back('\\');
+    }
+    retBuffer.emplace_back(textChar);
+  }
+  retBuffer.emplace_back(0);
+
+  return retBuffer.data();
+}
+
 string Getenv(const char *name, bool msdos)
 {
+#if defined(_WIN32) && !defined(MIKTEX)
+  size_t envSize=0;
+  getenv_s(&envSize,nullptr,0,name);
+  if (envSize == 0)
+  {
+    return "";
+  }
+
+  mem::vector<char> resultingData(envSize);
+  if (getenv_s(&envSize, resultingData.data(), resultingData.size(), name) != 0)
+  {
+    camp::reportError("Cannot retrieve environment variable");
+  }
+
+  return resultingData.data();
+
+#else
   char *s=getenv(name);
   if(!s) return "";
   string S=string(s);
   if(msdos) backslashToSlash(S);
   return S;
+#endif
 }
 
 void readDisabled()
@@ -227,16 +375,15 @@ string auxname(string filename, string suffix)
 
 sighandler_t Signal(int signum, sighandler_t handler)
 {
-#if defined(MIKTEX_WINDOWS)
-  // MIKTEX-TODO
-  return signal(signum, handler);
-#else
+#if !defined(_WIN32)
   struct sigaction action,oldaction;
   action.sa_handler=handler;
   sigemptyset(&action.sa_mask);
   action.sa_flags=0;
   return sigaction(signum,&action,&oldaction) == 0 ? oldaction.sa_handler :
     SIG_ERR;
+#else
+  return signal(signum, handler);
 #endif
 }
 
@@ -325,6 +472,9 @@ int System(const mem::vector<string> &command, int quiet, bool wait,
   process->WaitForExit();
   return process->get_ExitCode();
 #else
+#if _WIN32
+    return SystemWin32(command, quiet, wait, hint, application, ppid);
+#else
   int status;
 
   cout.flush(); // Flush stdout to avoid duplicate output.
@@ -334,10 +484,6 @@ int System(const mem::vector<string> &command, int quiet, bool wait,
   int pid=fork();
   if(pid == -1)
     camp::reportError("Cannot fork process");
-
-#ifdef __MSDOS__
-  wait=true;
-#endif
 
   if(pid == 0) {
     if(interact::interactive) signal(SIGINT,SIG_IGN);
@@ -390,6 +536,7 @@ int System(const mem::vector<string> &command, int quiet, bool wait,
       }
     }
   }
+#endif
 #endif
 }
 
@@ -471,6 +618,38 @@ void push_command(mem::vector<string>& a, const string& s)
 }
 
 void popupHelp() {
+#if defined(_WIN32) && !defined(MIKTEX)
+  auto const pdfviewer= getSetting<string>("pdfviewer");
+  string const docPath= docdir + dirsep + "asymptote.pdf";
+  if (!pdfviewer.empty())
+  {
+    mem::vector<string> cmd;
+    push_command(cmd, pdfviewer);
+
+    if (auto const viewerOpts= getSetting<string>("pdfviewerOptions"); !viewerOpts.empty())
+    {
+      istringstream viewerOptStream(viewerOpts);
+      string tmp;
+      while (viewerOptStream >> tmp)
+      {
+        if (!tmp.empty())
+        {
+          cmd.push_back(tmp);
+        }
+      }
+    }
+    cmd.push_back(docPath);
+    System(cmd, 0, false, "pdfviewer", "your PDF viewer");
+  }
+  else
+  {
+    // pdf viewer not given, let windows decide which program to use
+    camp::w32::checkShellExecuteResult(
+            reinterpret_cast<INT_PTR>(ShellExecuteA(nullptr, "open", docPath.c_str(), nullptr, nullptr, SW_SHOWNORMAL)),
+            false
+    );
+  }
+#else
   // If the popped-up help is already running, pid stores the pid of the viewer.
   static int pid=0;
 
@@ -493,6 +672,7 @@ void popupHelp() {
     cmd.push_back(docdir+dirsep+"asymptote.pdf");
     status=System(cmd,0,false,"pdfviewer","your PDF viewer",&pid);
   }
+#endif
 }
 
 const char *intrange="integer argument is outside valid range";
@@ -524,4 +704,13 @@ Int Intcast(unsignedInt n)
   if(n > (unsignedInt) Int_MAX)
     vm::error(intrange);
   return (Int) n;
+}
+
+bool fileExists(string const& path)
+{
+#if defined(_WIN32) && !defined(MIKTEX)
+  return PathFileExistsA(path.c_str());
+#else
+  return access(path.c_str(), R_OK) == 0;
+#endif
 }

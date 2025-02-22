@@ -22,7 +22,7 @@ void reportError(const string& desc)
 {
   em.runtime(vm::getPos());
   em << desc;
-  em.sync();
+  em.sync(true);
   throw handled_error();
 }
 
@@ -31,14 +31,14 @@ void reportWarning(const string& desc)
 {
   em.warning(vm::getPos());
   em << desc;
-  em.sync();
+  em.sync(true);
 }
 
 void reportFatal(const string& desc)
 {
   em.fatal(vm::getPos());
   em << desc;
-  em.sync();
+  em.sync(true);
   em.statusError();
   try {
     throw quit();

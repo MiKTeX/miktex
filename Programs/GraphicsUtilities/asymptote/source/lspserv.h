@@ -1,6 +1,4 @@
 #pragma once
-#include "common.h"
-#include "symbolmaps.h"
 
 #include "LibLsp/lsp/ProtocolJsonHandler.h"
 #include "LibLsp/lsp/AbsolutePath.h"
@@ -23,12 +21,16 @@
 #include "LibLsp/lsp/textDocument/did_change.h"
 #include "LibLsp/lsp/textDocument/did_save.h"
 #include "LibLsp/lsp/textDocument/did_close.h"
+#include "LibLsp/JsonRpc/stream.h"
+
+
+#include "common.h"
+#include "symbolmaps.h"
 
 //everything else
 #include <functional>
 #include <cctype>
 #include <unordered_map>
-#include "LibLsp/JsonRpc/stream.h"
 
 namespace absyntax
 {
@@ -81,8 +83,11 @@ namespace AsymptoteLsp
   TextDocumentHover::Either fromMarkedStr(std::vector<std::string> const& stringList,
                                           std::string const& language="asymptote");
 
+#if defined(LINUX_SYSTEM)
+  // these functions have no use for apple or windows builds
   std::string wslDos2Unix(std::string const& dosPath);
   std::string wslUnix2Dos(std::string const& unixPath);
+#endif
   std::string getDocIdentifierRawPath(lsTextDocumentIdentifier const&);
 
   typedef std::unordered_map<std::string, std::unique_ptr<SymbolContext>> SymContextFilemap;

@@ -12,64 +12,56 @@
 
 #include "lsPosition.h"
 
-
 namespace lsp
 {
-
 
 // Returns true if |value| starts/ends with |start| or |ending|.
 bool StartsWith(std::string value, std::string start);
 bool EndsWith(std::string value, std::string ending);
-bool AnyStartsWith(const std::vector<std::string>& values,
-                   const std::string& start);
-bool StartsWithAny(const std::string& value,
-                   const std::vector<std::string>& startings);
-bool EndsWithAny(const std::string& value,
-                 const std::vector<std::string>& endings);
-bool FindAnyPartial(const std::string& value,
-                    const std::vector<std::string>& values);
+bool AnyStartsWith(std::vector<std::string> const& values, std::string const& start);
+bool StartsWithAny(std::string const& value, std::vector<std::string> const& startings);
+bool EndsWithAny(std::string const& value, std::vector<std::string> const& endings);
+bool FindAnyPartial(std::string const& value, std::vector<std::string> const& values);
 // Returns the dirname of |path|, i.e. "foo/bar.cc" => "foo/", "foo" => "./",
 // "/foo" => "/". The result always ends in '/'.
 std::string GetDirName(std::string path);
 // Returns the basename of |path|, ie, "foo/bar.cc" => "bar.cc".
-std::string GetBaseName(const std::string& path);
+std::string GetBaseName(std::string const& path);
 // Returns |path| without the filetype, ie, "foo/bar.cc" => "foo/bar".
-std::string StripFileType(const std::string& path);
+std::string StripFileType(std::string const& path);
 
-std::string ReplaceAll(const std::string& source,
-                       const std::string& from,
-                       const std::string& to);
+std::string ReplaceAll(std::string const& source, std::string const& from, std::string const& to);
 
-std::vector<std::string> SplitString(const std::string& str,
-                                     const std::string& delimiter);
+std::vector<std::string> SplitString(std::string const& str, std::string const& delimiter);
 
-template <typename TValues, typename TMap>
-std::string StringJoinMap(const TValues& values,
-                          const TMap& map,
-                          const std::string& sep = ", ") {
-  std::string result;
-  bool first = true;
-  for (auto& entry : values) {
-    if (!first)
-      result += sep;
-    first = false;
-    result += map(entry);
-  }
-  return result;
+template<typename TValues, typename TMap>
+std::string StringJoinMap(TValues const& values, TMap const& map, std::string const& sep = ", ")
+{
+    std::string result;
+    bool first = true;
+    for (auto& entry : values)
+    {
+        if (!first)
+        {
+            result += sep;
+        }
+        first = false;
+        result += map(entry);
+    }
+    return result;
 }
 
-template <typename TValues>
-std::string StringJoin(const TValues& values, const std::string& sep = ", ") {
-  return StringJoinMap(values, [](const std::string& entry) { return entry; },
-                       sep);
+template<typename TValues>
+std::string StringJoin(TValues const& values, std::string const& sep = ", ")
+{
+    return StringJoinMap(values, [](std::string const& entry) { return entry; }, sep);
 }
 
-template <typename TCollection, typename TValue>
-bool ContainsValue(const TCollection& collection, const TValue& value) {
-  return std::find(std::begin(collection), std::end(collection), value) !=
-         std::end(collection);
+template<typename TCollection, typename TValue>
+bool ContainsValue(TCollection const& collection, TValue const& value)
+{
+    return std::find(std::begin(collection), std::end(collection), value) != std::end(collection);
 }
-
 
 // Ensures that |path| ends in a slash.
 void EnsureEndsInSlash(std::string& path);
@@ -79,16 +71,16 @@ void EnsureEndsInSlash(std::string& path);
 std::string EscapeFileName(std::string path);
 
 // FIXME: Move ReadContent into ICacheManager?
-bool FileExists(const std::string& filename);
-optional<std::string> ReadContent(const AbsolutePath& filename);
-std::vector<std::string> ReadLinesWithEnding(const AbsolutePath& filename);
+bool FileExists(std::string const& filename);
+optional<std::string> ReadContent(AbsolutePath const& filename);
+std::vector<std::string> ReadLinesWithEnding(AbsolutePath const& filename);
 
-bool WriteToFile(const std::string& filename, const std::string& content);
+bool WriteToFile(std::string const& filename, std::string const& content);
 
-
-template <typename T, typename Fn>
-void RemoveIf(std::vector<T>* vec, Fn predicate) {
-  vec->erase(std::remove_if(vec->begin(), vec->end(), predicate), vec->end());
+template<typename T, typename Fn>
+void RemoveIf(std::vector<T>* vec, Fn predicate)
+{
+    vec->erase(std::remove_if(vec->begin(), vec->end(), predicate), vec->end());
 }
 
 std::string FormatMicroseconds(long long microseconds);
@@ -97,45 +89,35 @@ std::string FormatMicroseconds(long long microseconds);
 std::string UpdateToRnNewlines(std::string output);
 
 // Utility methods to check if |path| is absolute.
-bool IsAbsolutePath(const std::string& path);
-bool IsUnixAbsolutePath(const std::string& path);
-bool IsWindowsAbsolutePath(const std::string& path);
+bool IsAbsolutePath(std::string const& path);
+bool IsUnixAbsolutePath(std::string const& path);
+bool IsWindowsAbsolutePath(std::string const& path);
 
-bool IsDirectory(const std::string& path);
+bool IsDirectory(std::string const& path);
 
 // string <-> wstring conversion (UTF-16), e.g. for use with Window's wide APIs.
- std::string ws2s(std::wstring const& wstr);
- std::wstring s2ws(std::string const& str);
+std::string ws2s(std::wstring const& wstr);
+std::wstring s2ws(std::string const& str);
 
-AbsolutePath NormalizePath(const std::string& path,
-                            bool ensure_exists = true,
-                            bool force_lower_on_windows = true);
+AbsolutePath NormalizePath(std::string const& path, bool ensure_exists = true, bool force_lower_on_windows = true);
 
-
-int GetOffsetForPosition(lsPosition position, const std::string& content);
+int GetOffsetForPosition(lsPosition position, std::string const& content);
 
 // Finds the position for an |offset| in |content|.
-lsPosition GetPositionForOffset(int offset, const std::string& content);
+lsPosition GetPositionForOffset(int offset, std::string const& content);
 
 // Utility method to find a position for the given character.
-lsPosition CharPos(const std::string& search,
-    char character,
-    int character_offset = 0);
+lsPosition CharPos(std::string const& search, char character, int character_offset = 0);
 
+void scanDirsNoRecursive(std::wstring const& rootPath, std::vector<std::wstring>& ret);
 
- void scanDirsNoRecursive(const std::wstring& rootPath, std::vector<std::wstring>& ret);
+void scanFilesUseRecursive(std::wstring const& rootPath, std::vector<std::wstring>& ret, std::wstring strSuf = L"");
 
- void scanFilesUseRecursive(const std::wstring& rootPath, std::vector<std::wstring>& ret,
-    std::wstring strSuf = L"");
+void scanFileNamesUseRecursive(std::wstring const& rootPath, std::vector<std::wstring>& ret, std::wstring strSuf = L"");
+void scanFileNamesUseRecursive(std::string const& rootPath, std::vector<std::string>& ret, std::string strSuf = "");
 
- void scanFileNamesUseRecursive(const std::wstring& rootPath, std::vector<std::wstring>& ret,
-    std::wstring strSuf = L"");
- void scanFileNamesUseRecursive(const std::string& rootPath, std::vector<std::string>& ret,
-    std::string strSuf = "");
+void scanFilesUseRecursive(std::string const& rootPath, std::vector<std::string>& ret, std::string strSuf = "");
 
- void scanFilesUseRecursive(const std::string& rootPath, std::vector<std::string>& ret,
-    std::string strSuf = "");
+void scanDirsUseRecursive(std::wstring const& rootPath, std::vector<std::wstring>& ret);
 
- void scanDirsUseRecursive(const std::wstring& rootPath, std::vector<std::wstring>& ret);
-
-}
+} // namespace lsp

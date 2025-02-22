@@ -1,11 +1,12 @@
 #pragma once
 
 #include "LibLsp/JsonRpc/MessageJsonHandler.h"
-namespace lsp {
-        class ProtocolJsonHandler : public MessageJsonHandler
-        {
-        public:
-                ProtocolJsonHandler();
-        };
+namespace lsp
+{
+class ProtocolJsonHandler : public MessageJsonHandler
+{
+public:
+    ProtocolJsonHandler();
+};
 
-}
+} // namespace lsp

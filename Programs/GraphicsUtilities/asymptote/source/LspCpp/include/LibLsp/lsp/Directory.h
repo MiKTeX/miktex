@@ -3,11 +3,12 @@
 
 struct AbsolutePath;
 
-struct Directory {
-        explicit Directory(const AbsolutePath& path);
+struct Directory
+{
+    explicit Directory(AbsolutePath const& path);
 
-        bool operator==(const Directory& rhs) const;
-        bool operator!=(const Directory& rhs) const;
+    bool operator==(Directory const& rhs) const;
+    bool operator!=(Directory const& rhs) const;
 
-        std::string path;
+    std::string path;
 };

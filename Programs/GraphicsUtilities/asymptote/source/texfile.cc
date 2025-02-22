@@ -489,9 +489,8 @@ void svgtexfile::properties(const pen& p)
   const LineType *lastlinetype=lastpen.linetype();
 
   if(!(linetype->pattern == lastlinetype->pattern)) {
-    bool xasy=getSetting<bool>("xasy");
     auto qtfix=[&](double x) {
-      return xasy ? max(x,1.0e-6) : x;
+      return settings::xasy ? max(x,1.0e-6) : x;
     };
     size_t n=linetype->pattern.size();
     if(n > 0) {

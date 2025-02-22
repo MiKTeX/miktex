@@ -91,27 +91,25 @@ extern int yydebug;
     QUOTE = 292,                   /* QUOTE  */
     STRUCT = 293,                  /* STRUCT  */
     TYPEDEF = 294,                 /* TYPEDEF  */
-    NEW = 295,                     /* NEW  */
-    IF = 296,                      /* IF  */
-    ELSE = 297,                    /* ELSE  */
-    WHILE = 298,                   /* WHILE  */
-    DO = 299,                      /* DO  */
-    FOR = 300,                     /* FOR  */
-    BREAK = 301,                   /* BREAK  */
-    CONTINUE = 302,                /* CONTINUE  */
-    RETURN_ = 303,                 /* RETURN_  */
-#if defined(MIKTEX) && defined(THIS)
-#  undef THIS
-#endif
-    THIS = 304,                    /* THIS  */
-    EXPLICIT = 305,                /* EXPLICIT  */
-    GARBAGE = 306,                 /* GARBAGE  */
-    LIT = 307,                     /* LIT  */
-    STRING = 308,                  /* STRING  */
-    PERM = 309,                    /* PERM  */
-    MODIFIER = 310,                /* MODIFIER  */
-    UNARY = 311,                   /* UNARY  */
-    EXP_IN_PARENS_RULE = 312       /* EXP_IN_PARENS_RULE  */
+    USING = 295,                   /* USING  */
+    NEW = 296,                     /* NEW  */
+    IF = 297,                      /* IF  */
+    ELSE = 298,                    /* ELSE  */
+    WHILE = 299,                   /* WHILE  */
+    DO = 300,                      /* DO  */
+    FOR = 301,                     /* FOR  */
+    BREAK = 302,                   /* BREAK  */
+    CONTINUE = 303,                /* CONTINUE  */
+    RETURN_ = 304,                 /* RETURN_  */
+    THIS_TOK = 305,                /* THIS_TOK  */
+    EXPLICIT = 306,                /* EXPLICIT  */
+    GARBAGE = 307,                 /* GARBAGE  */
+    LIT = 308,                     /* LIT  */
+    STRING = 309,                  /* STRING  */
+    PERM = 310,                    /* PERM  */
+    MODIFIER = 311,                /* MODIFIER  */
+    UNARY = 312,                   /* UNARY  */
+    EXP_IN_PARENS_RULE = 313       /* EXP_IN_PARENS_RULE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -140,7 +138,7 @@ union YYSTYPE
   absyntax::arglist *alist;
   absyntax::slice *slice;
   absyntax::dimensions *dim;
-  absyntax::ty  *t;
+  absyntax::astType  *t;
   absyntax::decid *di;
   absyntax::decidlist *dil;
   absyntax::decidstart *dis;
@@ -169,7 +167,7 @@ union YYSTYPE
   absyntax::typeParam *tp;
   absyntax::typeParamList *tps;
 
-#line 170 "camp.tab.h"
+#line 171 "camp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

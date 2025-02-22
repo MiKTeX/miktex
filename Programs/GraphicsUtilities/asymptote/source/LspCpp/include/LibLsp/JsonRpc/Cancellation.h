@@ -6,18 +6,17 @@ using CancelMonitor = std::function<int()>;
 namespace Cancellation
 {
 
-  struct Params {
-          /**
+struct Params
+{
+    /**
            * The request id to cancel.
            */
-          lsRequestId id;
+    lsRequestId id;
 
-          MAKE_SWAP_METHOD(Cancellation::Params, id);
-  };
-
+    MAKE_SWAP_METHOD(Cancellation::Params, id);
 };
+
+}; // namespace Cancellation
 MAKE_REFLECT_STRUCT(Cancellation::Params, id);
 
-DEFINE_NOTIFICATION_TYPE(Notify_Cancellation, Cancellation::Params,"$/cancelRequest");
-
-
+DEFINE_NOTIFICATION_TYPE(Notify_Cancellation, Cancellation::Params, "$/cancelRequest");

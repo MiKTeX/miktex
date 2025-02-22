@@ -9,16 +9,7 @@
 #include "config.h"
 #endif
 
-#ifdef BYTE_ORDER
-# undef WORDS_BIG_ENDIAN
-# undef WORDS_LITTLE_ENDIAN
-# if BYTE_ORDER == BIG_ENDIAN
-#  define WORDS_BIG_ENDIAN 1
-# endif
-# if BYTE_ORDER == LITTLE_ENDIAN
-#  define WORDS_LITTLE_ENDIAN 1
-# endif
-#endif   
+#include "PRCuniversalendianness.h"
 
 // from Adobe's documentation
 
@@ -118,7 +109,7 @@ extern PRCdword stadwZero[2],stadwNegativeZero[2];
 #define NUMBEROFELEMENTINACOFDOE   (2077)
 
 #ifdef WORDS_BIGENDIAN
-#       define DOUBLEWITHTWODWORDINTREE(upper,lower)    {upper,lower} 
+#       define DOUBLEWITHTWODWORDINTREE(upper,lower)    {upper,lower}
 #else
 #       define DOUBLEWITHTWODWORDINTREE(upper,lower)    {lower,upper}
 #endif

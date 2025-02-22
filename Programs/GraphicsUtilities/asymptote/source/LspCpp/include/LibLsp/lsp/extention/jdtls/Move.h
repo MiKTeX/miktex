@@ -7,8 +7,4 @@
 #include "getMoveDestinations.h"
 #include "getRefactorEdit.h"
 
-
 DEFINE_REQUEST_RESPONSE_TYPE(java_move, MoveParams, RefactorWorkspaceEdit, "java/move");
-
-
-

@@ -15,5 +15,4 @@ private:
 #if defined(LSPCPP_USEGC)
     GC_stack_base gsb;
 #endif
-
 };

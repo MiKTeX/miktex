@@ -15,14 +15,14 @@
 namespace absyntax {
 
 class formal : public absyn {
-  ty *base;
+  astType *base;
   decidstart *start;
   bool Explicit;
   varinit *defval;
   bool keywordOnly;
 
 public:
-  formal(position pos, ty *base, decidstart *start=0, varinit *defval=0,
+  formal(position pos, astType *base, decidstart *start=0, varinit *defval=0,
          bool Explicit= false, bool keywordOnly=false)
     : absyn(pos), base(base), start(start), Explicit(Explicit),
       defval(defval), keywordOnly(keywordOnly) {}
@@ -38,7 +38,7 @@ public:
 
   types::ty *getType(coenv &e, bool tacit=false);
 
-  absyntax::ty *getAbsyntaxType() { return base; }
+  absyntax::astType *getAbsyntaxType() { return base; }
 
   virtual void addOps(coenv &e, record *r);
 
@@ -63,15 +63,21 @@ public:
 };
 
 struct tySymbolPair : public gc {
-  absyntax::ty* ty;
+  absyntax::astType* ty;
   symbol sym;
-  tySymbolPair(absyntax::ty* ty, symbol sym) : ty(ty), sym(sym) {}
+  tySymbolPair(absyntax::astType* ty, symbol sym) : ty(ty), sym(sym) {}
 };
 
 class formals : public absyn {
   //friend class funheader;
-
   mem::list<formal *> fields;
+public:
+  // NOTE: Iterators do NOT include the rest parameter.
+  auto begin() { return fields.begin(); }
+  auto end() { return fields.end(); }
+  auto rbegin() { return fields.rbegin(); }
+  auto rend() { return fields.rend(); }
+private:
   formal *rest;
 
   // If the list of formals contains at least one keyword-only formal.
@@ -141,7 +147,7 @@ public:
 };
 
 class fundef : public exp {
-  ty *result;
+  astType *result;
   formals *params;
   stm *body;
 
@@ -152,7 +158,7 @@ class fundef : public exp {
   friend class fundec;
 
 public:
-  fundef(position pos, ty *result, formals *params, stm *body)
+  fundef(position pos, astType *result, formals *params, stm *body)
     : exp(pos), result(result), params(params), body(body), id() {}
 
   virtual void prettyprint(ostream &out, Int indent) override;
@@ -176,7 +182,7 @@ class fundec : public dec {
   fundef fun;
 
 public:
-  fundec(position pos, ty *result, symbol id, formals *params, stm *body)
+  fundec(position pos, astType *result, symbol id, formals *params, stm *body)
     : dec(pos), id(id), fun(pos, result, params, body)
   { fun.id = id; }
 

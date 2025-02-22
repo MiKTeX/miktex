@@ -10,54 +10,50 @@
 
 #include "triple.h"
 
-// For CYGWIN
-#undef near
-#undef far
-
 namespace camp {
 
 // The box that encloses a path
 struct bbox3 {
   bool empty;
-  double left;
-  double bottom;
-  double near;
-  double right;
-  double top;
-  double far;
+  double leftBound;
+  double bottomBound;
+  double nearBound;
+  double rightBound;
+  double topBound;
+  double farBound;
 
   // Start bbox3 about the origin
   bbox3()
-    : empty(true), left(0.0), bottom(0.0), near(0.0),
-      right(0.0), top(0.0), far(0.0)
+    : empty(true), leftBound(0.0), bottomBound(0.0), nearBound(0.0),
+        rightBound(0.0), topBound(0.0), farBound(0.0)
   {
   }
 
   bbox3(double left, double bottom, double near,
         double right, double top, double far)
-    : empty(false), left(left), bottom(bottom), near(near),
-      right(right), top(top), far(far)
+    : empty(false), leftBound(left), bottomBound(bottom), nearBound(near),
+        rightBound(right), topBound(top), farBound(far)
   {
   }
 
   // Start a bbox3 with a point
   bbox3(double x, double y, double z)
-    : empty(false), left(x), bottom(y), near(z), right(x), top(y), far(z)
+    : empty(false), leftBound(x), bottomBound(y), nearBound(z), rightBound(x), topBound(y), farBound(z)
   {
   }
 
   // Start a bbox3 with a point
   bbox3(const triple& v)
-    : empty(false), left(v.getx()), bottom(v.gety()), near(v.getz()),
-      right(v.getx()), top(v.gety()), far(v.getz())
+    : empty(false), leftBound(v.getx()), bottomBound(v.gety()), nearBound(v.getz()),
+        rightBound(v.getx()), topBound(v.gety()), farBound(v.getz())
   {
   }
 
   // Start a bbox3 with 2 points
   bbox3(const triple& m, const triple& M)
     : empty(false),
-      left(m.getx()), bottom(m.gety()), near(m.getz()),
-      right(M.getx()),    top(M.gety()), far(M.getz())
+        leftBound(m.getx()), bottomBound(m.gety()), nearBound(m.getz()),
+        rightBound(M.getx()), topBound(M.gety()), farBound(M.getz())
   {
   }
 
@@ -70,57 +66,57 @@ struct bbox3 {
   void add(double x, double y, double z)
   {
     if (empty) {
-      left = right = x;
-      top = bottom = y;
-      near = far = z;
+      leftBound= rightBound= x;
+      topBound= bottomBound= y;
+      nearBound= farBound= z;
       empty = false;
     }
     else {
-      if(x < left)
-        left = x;
-      else if(x > right)
-        right = x;
-      if(y < bottom)
-        bottom = y;
-      else if(y > top)
-        top = y;
-      if(z < near)
-        near = z;
-      else if(z > far)
-        far = z;
+      if(x < leftBound)
+        leftBound= x;
+      else if(x > rightBound)
+        rightBound= x;
+      if(y < bottomBound)
+        bottomBound= y;
+      else if(y > topBound)
+        topBound= y;
+      if(z < nearBound)
+        nearBound= z;
+      else if(z > farBound)
+        farBound= z;
     }
   }
 
   // Add a point to a nonempty bbox3
   void addnonempty(double x, double y, double z)
   {
-    if(x < left)
-      left = x;
-    else if(x > right)
-      right = x;
-    if(y < bottom)
-      bottom = y;
-    else if(y > top)
-      top = y;
-    if(z < near)
-      near = z;
-    else if(z > far)
-      far = z;
+    if(x < leftBound)
+      leftBound= x;
+    else if(x > rightBound)
+      rightBound= x;
+    if(y < bottomBound)
+      bottomBound= y;
+    else if(y > topBound)
+      topBound= y;
+    if(z < nearBound)
+      nearBound= z;
+    else if(z > farBound)
+      farBound= z;
   }
 
   // Add (x,y) pair to a nonempty bbox3
   void addnonempty(pair v)
   {
     double x=v.getx();
-    if(x < left)
-      left = x;
-    else if(x > right)
-      right = x;
+    if(x < leftBound)
+      leftBound= x;
+    else if(x > rightBound)
+      rightBound= x;
     double y=v.gety();
-    if(y < bottom)
-      bottom = y;
-    else if(y > top)
-      top = y;
+    if(y < bottomBound)
+      bottomBound= y;
+    else if(y > topBound)
+      topBound= y;
   }
 
   // Add a point to a nonempty bbox3
@@ -134,29 +130,29 @@ struct bbox3 {
   {
     double x = v.getx(), y = v.gety(), z = v.getz();
 
-    if(x < left) {
-      left = x;
-      times.left = t;
+    if(x < leftBound) {
+      leftBound= x;
+      times.leftBound= t;
     }
-    else if(x > right) {
-      right = x;
-      times.right = t;
+    else if(x > rightBound) {
+      rightBound= x;
+      times.rightBound= t;
     }
-    if(y < bottom) {
-      bottom = y;
-      times.bottom = t;
+    if(y < bottomBound) {
+      bottomBound= y;
+      times.bottomBound= t;
     }
-    else if(y > top) {
-      top = y;
-      times.top = t;
+    else if(y > topBound) {
+      topBound= y;
+      times.topBound= t;
     }
-    if(z < near) {
-      near = z;
-      times.near=t;
+    if(z < nearBound) {
+      nearBound= z;
+      times.nearBound=t;
     }
-    else if(z > far) {
-      far = z;
-      times.far=t;
+    else if(z > farBound) {
+      farBound= z;
+      times.farBound=t;
     }
   }
 
@@ -167,19 +163,19 @@ struct bbox3 {
   }
 
   triple Min() const {
-    return triple(left,bottom,near);
+    return triple(leftBound, bottomBound, nearBound);
   }
 
   triple Max() const {
-    return triple(right,top,far);
+    return triple(rightBound, topBound, farBound);
   }
 
   pair Min2() const {
-    return pair(left,bottom);
+    return pair(leftBound, bottomBound);
   }
 
   pair Max2() const {
-    return pair(right,top);
+    return pair(rightBound, topBound);
   }
 
   friend ostream& operator << (ostream& out, const bbox3& b)

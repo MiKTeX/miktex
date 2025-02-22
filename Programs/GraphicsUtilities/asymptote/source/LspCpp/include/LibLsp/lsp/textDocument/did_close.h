@@ -1,24 +1,20 @@
 #pragma once
 
-
-
 #include "LibLsp/JsonRpc/NotificationInMessage.h"
 
+namespace TextDocumentDidClose
+{
 
-
-
-namespace TextDocumentDidClose  {
-
-  struct Params {
+struct Params
+{
     lsTextDocumentIdentifier textDocument;
-        void swap(Params& arg) noexcept
-        {
-                textDocument.swap(arg.textDocument);
-        }
-
-  };
-
+    void swap(Params& arg) noexcept
+    {
+        textDocument.swap(arg.textDocument);
+    }
 };
+
+}; // namespace TextDocumentDidClose
 
 MAKE_REFLECT_STRUCT(TextDocumentDidClose::Params, textDocument);
 

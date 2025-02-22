@@ -16,7 +16,6 @@
 #include "locate.h"
 
 
-
 namespace settings {
 
 namespace fs {
@@ -32,7 +31,7 @@ string extension(string name)
 
 bool exists(string filename)
 {
-  return ::access(filename.c_str(), R_OK) == 0;
+  return fileExists(filename);
 }
 
 } // namespace fs
@@ -70,28 +69,14 @@ string locateFile(string id, bool full, string suffix)
 {
   if(id.empty()) return "";
   file_list_t filenames = mungeFileName(id,suffix);
-  for (file_list_t::iterator leaf = filenames.begin();
-       leaf != filenames.end();
-       ++leaf) {
-#ifdef __MSDOS__
-    size_t p;
-    while ((p=leaf->find('\\')) < string::npos)
-      (*leaf)[p]='/';
-    if ((p=leaf->find(':')) < string::npos && p > 0) {
-      (*leaf)[p]='/';
-      leaf->insert(0,"/cygdrive/");
-    }
-#endif
-
-    if ((*leaf)[0] == '/') {
-      string file = *leaf;
+  for (auto const& leaf : filenames) {
+    if (leaf[0] == '/') { // FIXME: Add windows path check
+      string file = leaf;
       if (fs::exists(file))
         return file;
     } else {
-      for (file_list_t::iterator dir = searchPath.begin();
-           dir != searchPath.end();
-           ++dir) {
-        string file = join(*dir,*leaf,full);
+      for (auto const& dir : searchPath) {
+        string file = join(dir,leaf,full);
         if (fs::exists(file))
           return file;
       }
@@ -101,5 +86,3 @@ string locateFile(string id, bool full, string suffix)
 }
 
 } // namespace settings
-
-

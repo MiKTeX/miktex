@@ -21,15 +21,7 @@
 #ifdef HAVE_GL
 
 #include <csignal>
-
-#define GLEW_NO_GLU
-
-#ifdef __MSDOS__
-#define GLEW_STATIC
-#define _WIN32
-#endif
-
-#include "GL/glew.h"
+#include <GL/glew.h>
 
 #ifdef __APPLE__
 #define GL_SILENCE_DEPRECATION
@@ -44,23 +36,29 @@
 #endif
 
 #ifdef HAVE_LIBOSMESA
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+#ifndef GLAPI
+#define GLAPI
+#endif
+#define GLEW_OSMESA
 #include <GL/osmesa.h>
 #endif
 
 #else
-
-#ifdef __MSDOS__
-#undef _WIN32
-#include <GL/gl.h>
-#include <GL/wglew.h>
-#include <GL/wglext.h>
-#endif
 
 #ifdef HAVE_LIBGLUT
 #include <GL/glut.h>
 #endif
 
 #ifdef HAVE_LIBOSMESA
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+#ifndef GLAPI
+#define GLAPI
+#endif
 #include <GL/osmesa.h>
 #endif
 
@@ -162,12 +160,30 @@ GLuint initHDR();
 
 projection camera(bool user=true);
 
-void glrender(const string& prefix, const camp::picture* pic,
-              const string& format, double width, double height, double angle,
-              double zoom, const camp::triple& m, const camp::triple& M,
-              const camp::pair& shift, const camp::pair& margin, double *t,
-              double *background, size_t nlights, camp::triple *lights,
-              double *diffuse, double *specular, bool view, int oldpid=0);
+struct GLRenderArgs
+{
+  string prefix;
+  camp::picture* pic;
+  string format;
+  double width;
+  double height;
+  double angle;
+  double zoom;
+  camp::triple m;
+  camp::triple M;
+  camp::pair shift;
+  camp::pair margin;
+  double *t;
+  double *tup;
+  double *background;
+  size_t nlights;
+  camp::triple *lights;
+  double *diffuse;
+  double *specular;
+  bool view;
+};
+
+void glrender(GLRenderArgs const& args, int oldpid=0);
 
 extern const double *dprojView;
 extern const double *dView;

@@ -1,11 +1,10 @@
 /*****
- * parser.h
+ * asyparser.h
  * Tom Prince 2004/01/10
  *
  *****/
 
-#ifndef PARSER_H
-#define PARSER_H
+#pragma once
 
 #include "common.h"
 #include "absyn.h"
@@ -34,5 +33,3 @@ bool isURL(const string& filename);
 bool readURL(stringstream& buf, const string& filename);
 
 } // namespace parser
-
-#endif // PARSER_H

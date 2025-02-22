@@ -3,150 +3,147 @@
 #include "lsMarkedString.h"
 #include "lsCommand.h"
 
-
 // The kind of a completion entry.
-enum class lsCompletionItemKind {
-  Text = 1,
-  Method = 2,
-  Function = 3,
-  Constructor = 4,
-  Field = 5,
-  Variable = 6,
-  Class = 7,
-  Interface = 8,
-  Module = 9,
-  Property = 10,
-  Unit = 11,
-  Value = 12,
-  Enum = 13,
-  Keyword = 14,
-  Snippet = 15,
-  Color = 16,
-  File = 17,
-  Reference = 18,
-  Folder = 19,
-  EnumMember = 20,
-  Constant = 21,
-  Struct = 22,
-  Event = 23,
-  Operator = 24,
-  TypeParameter = 25,
+enum class lsCompletionItemKind
+{
+    Text = 1,
+    Method = 2,
+    Function = 3,
+    Constructor = 4,
+    Field = 5,
+    Variable = 6,
+    Class = 7,
+    Interface = 8,
+    Module = 9,
+    Property = 10,
+    Unit = 11,
+    Value = 12,
+    Enum = 13,
+    Keyword = 14,
+    Snippet = 15,
+    Color = 16,
+    File = 17,
+    Reference = 18,
+    Folder = 19,
+    EnumMember = 20,
+    Constant = 21,
+    Struct = 22,
+    Event = 23,
+    Operator = 24,
+    TypeParameter = 25,
 };
 MAKE_REFLECT_TYPE_PROXY(lsCompletionItemKind);
 
-
-
 // Defines whether the insert text in a completion item should be interpreted as
 // plain text or a snippet.
-enum class lsInsertTextFormat {
-  // The primary text to be inserted is treated as a plain string.
-  PlainText = 1,
+enum class lsInsertTextFormat
+{
+    // The primary text to be inserted is treated as a plain string.
+    PlainText = 1,
 
-  // The primary text to be inserted is treated as a snippet.
-  //
-  // A snippet can define tab stops and placeholders with `$1`, `$2`
-  // and `${3:foo}`. `$0` defines the final tab stop, it defaults to
-  // the end of the snippet. Placeholders with equal identifiers are linked,
-  // that is typing in one will update others too.
-  //
-  // See also:
-  // https://github.com/Microsoft/vscode/blob/master/src/vs/editor/contrib/snippet/common/snippet.md
-  Snippet = 2
+    // The primary text to be inserted is treated as a snippet.
+    //
+    // A snippet can define tab stops and placeholders with `$1`, `$2`
+    // and `${3:foo}`. `$0` defines the final tab stop, it defaults to
+    // the end of the snippet. Placeholders with equal identifiers are linked,
+    // that is typing in one will update others too.
+    //
+    // See also:
+    // https://github.com/Microsoft/vscode/blob/master/src/vs/editor/contrib/snippet/common/snippet.md
+    Snippet = 2
 };
 MAKE_REFLECT_TYPE_PROXY(lsInsertTextFormat);
 
 namespace lsp
 {
-        std::string ToString(lsCompletionItemKind);
-        std::string ToString(lsInsertTextFormat);
-}
+std::string ToString(lsCompletionItemKind);
+std::string ToString(lsInsertTextFormat);
+} // namespace lsp
 /**
  * The Completion request is sent from the client to the server to compute completion items at a given cursor position.
  * Completion items are presented in the IntelliSense user class. If computing complete completion items is expensive
  * servers can additional provide a handler for the resolve completion item request. This request is send when a
  * completion item is selected in the user class.
  */
-struct lsCompletionItem {
+struct lsCompletionItem
+{
 
-  // The label of this completion item. By default
-  // also the text that is inserted when selecting
-  // this completion.
-  std::string label;
+    // The label of this completion item. By default
+    // also the text that is inserted when selecting
+    // this completion.
+    std::string label;
 
-  // The kind of this completion item. Based of the kind
-  // an icon is chosen by the editor.
-  optional<lsCompletionItemKind>  kind ;
+    // The kind of this completion item. Based of the kind
+    // an icon is chosen by the editor.
+    optional<lsCompletionItemKind> kind;
 
-  // A human-readable string with additional information
-  // about this item, like type or symbol information.
-  optional < std::string > detail;
+    // A human-readable string with additional information
+    // about this item, like type or symbol information.
+    optional<std::string> detail;
 
-  // A human-readable string that represents a doc-comment.
-  optional< std::pair<optional< std::string> , optional<MarkupContent> > > documentation;
+    // A human-readable string that represents a doc-comment.
+    optional<std::pair<optional<std::string>, optional<MarkupContent>>> documentation;
 
-
-  /**
+    /**
    * Indicates if this item is deprecated.
    */
-  optional< bool >deprecated;
+    optional<bool> deprecated;
 
-
-   /**
+    /**
    * Select this item when showing.
    *
    * *Note* that only one completion item can be selected and that the
    * tool / client decides which item that is. The rule is that the *first
    * item of those that match best is selected.
    */
-  optional< bool > preselect;
+    optional<bool> preselect;
 
+    // Internal information to order candidates.
+    int relevance = 0;
 
-  // Internal information to order candidates.
-  int relevance = 0;
+    // A string that shoud be used when comparing this item
+    // with other items. When `falsy` the label is used.
+    optional<std::string> sortText;
 
-  // A string that shoud be used when comparing this item
-  // with other items. When `falsy` the label is used.
-  optional< std::string > sortText;
+    // A string that should be used when filtering a set of
+    // completion items. When `falsy` the label is used.
+    optional<std::string> filterText;
 
-  // A string that should be used when filtering a set of
-  // completion items. When `falsy` the label is used.
-  optional<std::string> filterText;
+    // A string that should be inserted a document when selecting
+    // this completion. When `falsy` the label is used.
+    optional<std::string> insertText;
 
-  // A string that should be inserted a document when selecting
-  // this completion. When `falsy` the label is used.
-  optional<std::string> insertText;
+    // The format of the insert text. The format applies to both the `insertText`
+    // property and the `newText` property of a provided `textEdit`.
+    optional<lsInsertTextFormat> insertTextFormat;
 
-  // The format of the insert text. The format applies to both the `insertText`
-  // property and the `newText` property of a provided `textEdit`.
-  optional< lsInsertTextFormat> insertTextFormat ;
+    // An edit which is applied to a document when selecting this completion. When
+    // an edit is provided the value of `insertText` is ignored.
+    //
+    // *Note:* The range of the edit must be a single line range and it must
+    // contain the position at which completion has been requested.
+    optional<lsTextEdit> textEdit;
 
-  // An edit which is applied to a document when selecting this completion. When
-  // an edit is provided the value of `insertText` is ignored.
-  //
-  // *Note:* The range of the edit must be a single line range and it must
-  // contain the position at which completion has been requested.
-  optional<lsTextEdit> textEdit;
+    // An optional array of additional text edits that are applied when
+    // selecting this completion. Edits must not overlap with the main edit
+    // nor with themselves.
+    // std::vector<TextEdit> additionalTextEdits;
 
-  // An optional array of additional text edits that are applied when
-  // selecting this completion. Edits must not overlap with the main edit
-  // nor with themselves.
-  // std::vector<TextEdit> additionalTextEdits;
+    // An optional command that is executed *after* inserting this completion.
+    // *Note* that additional modifications to the current document should be
+    // described with the additionalTextEdits-property. Command command;
 
-  // An optional command that is executed *after* inserting this completion.
-  // *Note* that additional modifications to the current document should be
-  // described with the additionalTextEdits-property. Command command;
+    // An data entry field that is preserved on a completion item between
+    // a completion and a completion resolve request.
+    // data ? : any
 
-  // An data entry field that is preserved on a completion item between
-  // a completion and a completion resolve request.
-  // data ? : any
+    // Use this helper to figure out what content the completion item will insert
+    // into the document, as it could live in either |textEdit|, |insertText|, or
+    // |label|.
+    std::string const& InsertedContent() const;
 
-  // Use this helper to figure out what content the completion item will insert
-  // into the document, as it could live in either |textEdit|, |insertText|, or
-  // |label|.
-  const std::string& InsertedContent() const;
-
-  std::string DisplayText();
-  /**
+    std::string DisplayText();
+    /**
  * An optional array of additional text edits that are applied when
  * selecting this completion. Edits must not overlap (including the same insert position)
  * with the main edit nor with themselves.
@@ -155,70 +152,50 @@ struct lsCompletionItem {
  * (for example adding an import statement at the top of the file if the completion item will
  * insert an unqualified type).
  */
-  optional<std::vector<lsTextEdit> >additionalTextEdits;
+    optional<std::vector<lsTextEdit>> additionalTextEdits;
 
-  /**
+    /**
 * An optional set of characters that when pressed while this completion is active will accept it first and
 * then type that character. *Note* that all commit characters should have `length=1` and that superfluous
 * characters will be ignored.
 */
-  optional< std::vector<std::string> > commitCharacters;
+    optional<std::vector<std::string>> commitCharacters;
 
-  /**
+    /**
 * An optional command that is executed *after* inserting this completion. *Note* that
 * additional modifications to the current document should be described with the
 * additionalTextEdits-property.
 */
-  optional<lsCommandWithAny> command;
+    optional<lsCommandWithAny> command;
 
-  /**
+    /**
 * An data entry field that is preserved on a completion item between a completion and a completion resolve request.
 */
-  optional<lsp::Any> data;
-  std::string ToString();
-  MAKE_SWAP_METHOD(lsCompletionItem,
-          label,
-          kind,
-          detail,
-          documentation,
-          sortText,
-          insertText,
-          filterText,
-          insertTextFormat,
-          textEdit,
-          deprecated, preselect, additionalTextEdits, commitCharacters,
-          command, data);
-
+    optional<lsp::Any> data;
+    std::string ToString();
+    MAKE_SWAP_METHOD(
+        lsCompletionItem, label, kind, detail, documentation, sortText, insertText, filterText, insertTextFormat,
+        textEdit, deprecated, preselect, additionalTextEdits, commitCharacters, command, data
+    );
 };
 
+MAKE_REFLECT_STRUCT(
+    lsCompletionItem, label, kind, detail, documentation, sortText, insertText, filterText, insertTextFormat, textEdit,
+    deprecated, preselect, additionalTextEdits, commitCharacters, command, data
+);
 
+struct CompletionList
+{
+    // This list it not complete. Further typing should result in recomputing
+    // this list.
+    bool isIncomplete = false;
+    // The completion items.
+    std::vector<lsCompletionItem> items;
 
-MAKE_REFLECT_STRUCT(lsCompletionItem,
-                    label,
-                    kind,
-                    detail,
-                    documentation,
-                    sortText,
-                    insertText,
-                    filterText,
-                    insertTextFormat,
-                    textEdit,
-                    deprecated, preselect, additionalTextEdits, commitCharacters,
-        command, data);
-
-
-
-struct CompletionList {
-        // This list it not complete. Further typing should result in recomputing
-        // this list.
-        bool isIncomplete = false;
-        // The completion items.
-        std::vector<lsCompletionItem> items;
-
-        void swap(CompletionList& arg) noexcept
-        {
-                items.swap(arg.items);
-                std::swap(isIncomplete, arg.isIncomplete);
-        }
+    void swap(CompletionList& arg) noexcept
+    {
+        items.swap(arg.items);
+        std::swap(isIncomplete, arg.isIncomplete);
+    }
 };
 MAKE_REFLECT_STRUCT(CompletionList, isIncomplete, items);

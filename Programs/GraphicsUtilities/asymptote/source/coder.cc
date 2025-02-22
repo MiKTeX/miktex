@@ -38,7 +38,7 @@ vm::lambda *newLambda(string name) {
 // Used purely for global variables and static code blocks of file
 // level modules.
 coder::coder(position pos, string name, modifier sord)
-#if SIMPLE_FRAME
+#ifdef SIMPLE_FRAME
   : level(frame::indirect_frame(name)),
 #else
     : level(new frame(name, 0, 0)),
@@ -371,6 +371,44 @@ function *bootuptype()
   return &t;
 }
 } // private
+
+bool coder::encodeParent(position pos, trans::tyEntry *ent) {
+  record *r = dynamic_cast<record *>(ent->t);
+  if (!r) {
+    em.compiler(pos);
+    em << "type '" << *ent->t << "' is not a structure";
+    return false;
+  }
+  assert(r);
+
+  // The level needed on which to allocate the record.
+  frame *level = r->getLevel()->getParent();
+
+  if (ent->v) {
+    // Put the record on the stack.  For instance, in code like
+    //   access imp;
+    //   new imp.t;
+    // we are putting the instance of imp on the stack, so we can use it to
+    // allocate an instance of imp.t.
+    ent->v->encode(trans::READ, pos, *this);
+
+    // Adjust to the right frame.  For instance, in the last new in
+    //   struct A {
+    //     struct B {
+    //       static struct C {}
+    //     }
+    //     B b=new B;
+    //   }
+    //   A a=new A;
+    //   new a.b.C;
+    // we push a.b onto the stack, but need a as the enclosing frame for
+    // allocating an instance of C.
+    record* q= dynamic_cast<record*>(ent->v->getType());
+    assert(q);
+    return encode(level, q->getLevel());
+  } else
+    return encode(level);
+}
 
 } // namespace trans
 

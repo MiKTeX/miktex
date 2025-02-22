@@ -43,7 +43,7 @@ public:
 // How a function reference to a non-builtin function is stored.
 struct func : public callable {
   lambda *body;
-  frame *closure;
+  vmFrame *closure;
   func () : body(), closure() {}
   virtual void call (stack*);
   virtual bool compare(callable*);

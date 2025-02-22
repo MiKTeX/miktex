@@ -115,15 +115,19 @@ public:
 
   item(Int i)
     : kind(&typeid(Int)), i(i) {}
+#ifndef intIsInt
   item(int i)
     : kind(&typeid(Int)), i(i) {}
+#endif
   item(double x)
     : kind(&typeid(double)), x(x) {}
   item(bool b)
     : kind(&typeid(bool)), b(b) {}
 
+#ifndef intIsInt
   item& operator= (int a)
   { kind=&typeid(Int); i=a; return *this; }
+#endif
   item& operator= (unsigned int a)
   { kind=&typeid(Int); i=a; return *this; }
   item& operator= (Int a)
@@ -197,29 +201,29 @@ private:
 
 #ifdef SIMPLE_FRAME
 // In the simple implementation, a frame is just an array of items.
-typedef item frame;
+typedef item vmFrame;
 #else
-class frame : public gc {
+class vmFrame : public gc {
 #ifdef DEBUG_FRAME
   string name;
-  Int parentIndex;
+  size_t parentIndex;
 #endif
-  typedef mem::vector<item> internal_vars_t;
+  using internal_vars_t = mem::vector<item>;
   internal_vars_t vars;
 
   // Allow the stack direct access to vars.
   friend class stack;
 public:
 #ifdef DEBUG_FRAME
-  frame(string name, Int parentIndex, size_t size)
+  vmFrame(string name, size_t parentIndex, size_t size)
     : name(name), parentIndex(parentIndex), vars(size)
   {}
 
   string getName() { return name; }
 
-  Int getParentIndex() { return parentIndex; }
+  size_t getParentIndex() { return parentIndex; }
 #else
-  frame(size_t size)
+  vmFrame(size_t size)
     : vars(size)
   {}
 #endif
@@ -245,12 +249,6 @@ template<typename T>
 inline T get(const item& it)
 {
   return item::help<T>::unwrap(it);
-}
-
-template <>
-inline int get<int>(const item&)
-{
-  throw vm::bad_item_value();
 }
 
 template <>

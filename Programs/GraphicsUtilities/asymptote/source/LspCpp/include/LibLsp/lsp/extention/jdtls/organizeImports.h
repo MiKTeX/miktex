@@ -5,8 +5,4 @@
 
 #include "LibLsp/lsp/CodeActionParams.h"
 
-
-
 DEFINE_REQUEST_RESPONSE_TYPE(java_organizeImports, lsCodeActionParams, lsWorkspaceEdit, "java/organizeImports");
-
-

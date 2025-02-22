@@ -22,13 +22,13 @@
 #if defined(MIKTEX)
 #include <miktex/ExitThrows>
 #endif
-#include "oPRCFile.h"
-#include <time.h>
-#include <sstream>
-#include <iostream>
+#include "prc/oPRCFile.h"
+#include <cstring>
 #include <fstream>
 #include <iomanip>
-#include <cstring>
+#include <iostream>
+#include <sstream>
+#include <time.h>
 #include <zlib.h>
 
 namespace prc {
@@ -157,7 +157,7 @@ void PRCFileStructure::serializeFileStructureTree(PRCbitStream &out)
   WriteUnsignedInteger (number_of_part_definitions)
   for (size_t i=0;i<number_of_part_definitions;i++)
     SerializePartDefinition (part_definitions[i])
-	
+
   const size_t number_of_product_occurrences = product_occurrences.size();
   WriteUnsignedInteger (number_of_product_occurrences)
   for (size_t i=0;i<number_of_product_occurrences;i++)
@@ -559,7 +559,7 @@ void oPRCFile::doGroup(PRCgroup& group)
           break;
         }
       }
-      
+
       for(PRCtessquadList::const_iterator qit=group.quads.begin(); qit!=group.quads.end(); qit++)
       {
         const RGBAColour* C = qit->colours;
@@ -591,13 +591,13 @@ void oPRCFile::doGroup(PRCgroup& group)
             tessFace->rgba_vertices.push_back(byte(C[1].B));
             if(tessFace->is_rgba)
               tessFace->rgba_vertices.push_back(byte(C[1].A));
-            
+
             tessFace->rgba_vertices.push_back(byte(C[2].R));
             tessFace->rgba_vertices.push_back(byte(C[2].G));
             tessFace->rgba_vertices.push_back(byte(C[2].B));
             if(tessFace->is_rgba)
               tessFace->rgba_vertices.push_back(byte(C[2].A));
-            
+
             tessFace->rgba_vertices.push_back(byte(C[3].R));
             tessFace->rgba_vertices.push_back(byte(C[3].G));
             tessFace->rgba_vertices.push_back(byte(C[3].B));
@@ -618,13 +618,13 @@ void oPRCFile::doGroup(PRCgroup& group)
             tessFace->rgba_vertices.push_back(byte(C[0].B));
             if(tessFace->is_rgba)
               tessFace->rgba_vertices.push_back(byte(C[0].A));
-            
+
             tessFace->rgba_vertices.push_back(byte(C[2].R));
             tessFace->rgba_vertices.push_back(byte(C[2].G));
             tessFace->rgba_vertices.push_back(byte(C[2].B));
             if(tessFace->is_rgba)
               tessFace->rgba_vertices.push_back(byte(C[2].A));
-            
+
             tessFace->rgba_vertices.push_back(byte(C[3].R));
             tessFace->rgba_vertices.push_back(byte(C[3].G));
             tessFace->rgba_vertices.push_back(byte(C[3].B));
@@ -642,13 +642,13 @@ void oPRCFile::doGroup(PRCgroup& group)
             tessFace->rgba_vertices.push_back(byte(C[3].B));
             if(tessFace->is_rgba)
               tessFace->rgba_vertices.push_back(byte(C[3].A));
-          
+
             tessFace->rgba_vertices.push_back(byte(C[1].R));
             tessFace->rgba_vertices.push_back(byte(C[1].G));
             tessFace->rgba_vertices.push_back(byte(C[1].B));
             if(tessFace->is_rgba)
               tessFace->rgba_vertices.push_back(byte(C[1].A));
-          
+
             tessFace->rgba_vertices.push_back(byte(C[0].R));
             tessFace->rgba_vertices.push_back(byte(C[0].G));
             tessFace->rgba_vertices.push_back(byte(C[0].B));
@@ -860,7 +860,7 @@ void oPRCFile::doGroup(PRCgroup& group)
     }
 
     // Simplify and reduce to as simple entities as possible
-    // products with named representation items can not be reduced to sets, since 
+    // products with named representation items can not be reduced to sets, since
     // outside references are already set
     bool nonamedparts = true;
     for(PRCRepresentationItemList::const_iterator it=part_definition->representation_item.begin(); it!=part_definition->representation_item.end(); it++)
@@ -966,7 +966,7 @@ std::string oPRCFile::calculate_unique_name(const ContentPRCBase *prc_entity,con
   serialization << prc_entity->getPRCID();
   if (prc_occurence)
   {
-// serialization_buffer = Flush serialization (serialization) 
+// serialization_buffer = Flush serialization (serialization)
   {
     const uint32_t size_serialization = serialization.getSize();
     while(size_serialization == serialization.getSize())
