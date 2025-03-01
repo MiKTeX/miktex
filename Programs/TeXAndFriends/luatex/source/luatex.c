@@ -477,6 +477,7 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
             *d++ = QUOTE;
         }
         *d = '\0';
+#if 0
 #ifdef WIN32
         {
           char *p, *q, *r;
@@ -514,6 +515,7 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
             }
           }
         }
+#endif
 #endif
     }
     return allow;
