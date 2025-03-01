@@ -6,6 +6,10 @@
 
 * gregorio 6.1.0
 
+### Fixed issues
+
+- [1598](https://github.com/MiKTeX/miktex/issues/1598): lualatex.fmt is incorrectly created in the output directory
+
 ## 25.2 - 2025-02-22
 
 ### Upgraded programs

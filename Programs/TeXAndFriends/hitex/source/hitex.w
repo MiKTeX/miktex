@@ -35286,10 +35286,12 @@ the environment to the global variable so that it is used in the
 rest of the code.
 
 @<Check the environment for extra settings@>=
+#if !defined(MIKTEX)
 if (output_directory)
     xputenv ("TEXMF_OUTPUT_DIRECTORY", output_directory);
 else if (getenv ("TEXMF_OUTPUT_DIRECTORY"))
     output_directory = getenv ("TEXMF_OUTPUT_DIRECTORY");
+#endif
 
 @*1 Passing a file name as a general text argument.
 

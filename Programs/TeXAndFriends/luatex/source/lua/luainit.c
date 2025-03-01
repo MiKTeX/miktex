@@ -1411,15 +1411,14 @@ void lua_initialize(int ac, char **av)
         kpse_init = 1;
         fix_dumpname();
     }
+#if !defined(MIKTEX)
     if (output_directory) {
       xputenv ("TEXMF_OUTPUT_DIRECTORY", output_directory);
     } else if (getenv ("TEXMF_OUTPUT_DIRECTORY")) {
-#if defined(MIKTEX)
       miktex_web2c_set_output_directory(getenv("TEXMF_OUTPUT_DIRECTORY"));
-#else
       output_directory = getenv ("TEXMF_OUTPUT_DIRECTORY");
-#endif
     }
+#endif
     /* the lua debug library is enabled if shell escape permits everything */
     if (shellenabledp && restrictedshell != 1) {
       luadebug_option = 1 ;      
