@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## next
+
+### Upgraded programs
+
+* gregorio 6.1.0
+
 ## 25.2 - 2025-02-22
 
 ### Upgraded programs

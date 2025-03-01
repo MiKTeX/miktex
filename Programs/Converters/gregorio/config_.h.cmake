@@ -3,7 +3,7 @@
 /* Define if building universal (internal helper macro) */
 #cmakedefine AC_APPLE_UNIVERSAL_BUILD
 
-/* The normal alignment of `uint32_t', in bytes. */
+/* The normal alignment of 'uint32_t', in bytes. */
 #cmakedefine ALIGNOF_UINT32_T ${ALIGNOF_UINT32_T}
 
 /* version suitable for file names */
@@ -16,10 +16,7 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H 1
 
-/* Define to 1 if you have the <memory.h> header file. */
-#cmakedefine HAVE_MEMORY_H 1
-
-/* Define to 1 if you have the `realpath' function. */
+/* Define to 1 if you have the 'realpath' function. */
 #cmakedefine HAVE_REALPATH 1
 
 /* Define to 1 if you have the <stdalign.h> header file. */
@@ -27,6 +24,9 @@
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #cmakedefine HAVE_STDINT_H 1
+
+/* Define to 1 if you have the <stdio.h> header file. */
+#cmakedefine HAVE_STDIO_H 1
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #cmakedefine HAVE_STDLIB_H 1
@@ -67,7 +67,9 @@
 /* Define to the version of this package. */
 #cmakedefine PACKAGE_VERSION
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #cmakedefine STDC_HEADERS 1
 
 /* Use kpathsea */
@@ -88,8 +90,8 @@
 # endif
 #endif
 
-/* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
-   `char[]'. */
+/* Define to 1 if 'lex' declares 'yytext' as a 'char *' by default, not a
+   'char[]'. */
 #cmakedefine YYTEXT_POINTER
 
 /* Always define this. */

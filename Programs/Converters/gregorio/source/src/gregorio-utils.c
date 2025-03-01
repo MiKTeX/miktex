@@ -375,10 +375,18 @@ int main(int argc, char **argv)
     if (error_file_name) {
         gregorio_check_file_access(write, error_file_name, ERROR,
                 gregorio_exit(1));
-        error_file = freopen(error_file_name, "a", stderr);
+        /* First test if we can open error_file_name for writing, so
+           that if there is an error, we can still write the message
+           to stderr. */
+        error_file = fopen(error_file_name, "w");
         if (!error_file) {
             fprintf(stderr, "error: can't open file %s for writing\n",
                     error_file_name);
+            gregorio_exit(1);
+        }
+        fclose(error_file);
+        error_file = freopen(error_file_name, "w", stderr);
+        if (!error_file) {
             gregorio_exit(1);
         }
     }
