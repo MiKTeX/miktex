@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## next
+
+### Upgraded programs
+
+* luatex 1.22.0
+
 ## 25.3 - 2025-03-05
 
 ### Upgraded programs

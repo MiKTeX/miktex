@@ -1602,7 +1602,7 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
                                 shape i.e. they are end points in a variant list or a base 
                                 character. It took two decades to run into an example (HH & MS). 
                             */
-                            if (is_new_mathfont(z)) {
+                            if (is_new_mathfont(g)) {
                                 goto FOUND;
                             } else if (char_tag(g, y) != ext_tag) {
                                 goto FOUND;
