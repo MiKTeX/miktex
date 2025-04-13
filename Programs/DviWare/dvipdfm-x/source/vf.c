@@ -47,6 +47,8 @@
 #define TEXPT2PT (72.0/72.27)
 #define FW2PT (TEXPT2PT/((double)(FIX_WORD_BASE)))
 
+#define CHAR_INDEX_MIN 0x40000
+
 struct font_def {
   int32_t font_id /* id used internally in vf file */;
   uint32_t checksum, size, design_size;
@@ -65,6 +67,7 @@ struct vf
   unsigned char **ch_pkt, message_flag;
   uint32_t *pkt_len;
   unsigned num_chars;
+  uint32_t *idx_to_char, max_idx;
 };
 
 struct vf *vf_fonts = NULL;
@@ -111,12 +114,21 @@ static void resize_one_vf_font (struct vf *a_vf, unsigned size)
 {
   unsigned i;
   if (size > (a_vf->num_chars)) {
-    size = MAX (size, a_vf->num_chars+256);
+    if (size > 0x40000)
+      size = MAX (size+0x1000, a_vf->num_chars+0x40000);
+    else if (size > 0x8000)
+      size = MAX (size+0x1000, a_vf->num_chars+0x8000);
+    else if (size > 0x1000)
+      size = MAX (size+0x100, a_vf->num_chars+0x1000);
+    else
+      size = MAX (size, a_vf->num_chars+256);
     a_vf->ch_pkt = RENEW (a_vf->ch_pkt, size, unsigned char *);
     a_vf->pkt_len = RENEW (a_vf->pkt_len, size, uint32_t);
+    a_vf->idx_to_char = RENEW (a_vf->idx_to_char, size, uint32_t);
     for (i=a_vf->num_chars; i<size; i++) {
       (a_vf->ch_pkt)[i] = NULL;
       (a_vf->pkt_len)[i] = 0;
+      (a_vf->idx_to_char)[i] = -1;
     }
     a_vf->num_chars = size;
   }
@@ -126,20 +138,35 @@ static void read_a_char_def(FILE *vf_file, int thisfont, uint32_t pkt_len,
 			    uint32_t ch)
 {
   unsigned char *pkt;
+  uint32_t idx;
+
 #ifdef DEBUG
   fprintf (stderr, "read_a_char_def: len=%u, ch=%u\n", pkt_len, ch);
 #endif
+  idx = ch;
+  if (ch >= CHAR_INDEX_MIN) {
+    if (vf_fonts[thisfont].max_idx==0)
+      vf_fonts[thisfont].max_idx = CHAR_INDEX_MIN;
+    idx = vf_fonts[thisfont].max_idx;
+  }
   /* Resize and initialize character arrays if necessary */
-  if (ch >= vf_fonts[thisfont].num_chars) {
-    resize_one_vf_font (vf_fonts+thisfont, ch+1);
+  if (idx >= vf_fonts[thisfont].num_chars)
+    resize_one_vf_font (vf_fonts+thisfont, idx+1);
+  if (ch >= CHAR_INDEX_MIN) {
+    if (idx > CHAR_INDEX_MIN && (vf_fonts[thisfont].idx_to_char)[idx-1] >= ch) {
+      fprintf (stderr, "Unexpected character code: %x, index: %x\n", ch, idx);
+      ERROR ("Unexpected character code in vf file\n");
+    }
+    (vf_fonts[thisfont].idx_to_char)[idx] = ch;
+    vf_fonts[thisfont].max_idx++;
   }
   if (pkt_len > 0) {
     pkt = NEW (pkt_len, unsigned char);
     if (fread (pkt, 1, pkt_len, vf_file) != pkt_len)
       ERROR ("VF file ended prematurely.");
-    (vf_fonts[thisfont].ch_pkt)[ch] = pkt;
+    (vf_fonts[thisfont].ch_pkt)[idx] = pkt;
   }
-  (vf_fonts[thisfont].pkt_len)[ch] = pkt_len;
+  (vf_fonts[thisfont].pkt_len)[idx] = pkt_len;
   return;
 }
 
@@ -278,6 +305,8 @@ int vf_locate_font (const char *tex_name, spt_t ptsize)
 	vf_fonts[thisfont].num_chars = 0;
 	vf_fonts[thisfont].ch_pkt = NULL;
 	vf_fonts[thisfont].pkt_len = NULL;
+	vf_fonts[thisfont].idx_to_char = NULL;
+	vf_fonts[thisfont].max_idx = 0;
       }
       read_header(vf_file, thisfont);
       process_vf_file (vf_file, thisfont);
@@ -406,16 +435,30 @@ void vf_set_char(int32_t ch, int vf_font)
   unsigned char *start, *end;
   spt_t ptsize;
   int default_font = -1;
+  int32_t idx;
+  idx = ch;
+  if (ch >= CHAR_INDEX_MIN) {
+    int32_t j, k, mid, ch0;
+    idx = -1;
+    j=CHAR_INDEX_MIN;  k=vf_fonts[vf_font].max_idx;
+    while (j < k) {
+      mid = j + (k - j) / 2;
+      ch0 = (vf_fonts[vf_font].idx_to_char)[mid];
+      if      (ch0 < ch) j = mid+1;
+      else if (ch0 > ch) k = mid;
+      else { idx = mid; break; }
+    }
+  }
   if (vf_font < num_vf_fonts) {
     /* Initialize to the first font or -1 if undefined */
     ptsize = vf_fonts[vf_font].ptsize;
     if (vf_fonts[vf_font].num_dev_fonts > 0)
       default_font = ((vf_fonts[vf_font].dev_fonts)[0]).dev_id;
     dvi_vf_init (default_font);
-    if (ch >= vf_fonts[vf_font].num_chars ||
-	!(start = (vf_fonts[vf_font].ch_pkt)[ch])) {
+    if (idx >= vf_fonts[vf_font].num_chars || idx < 0 ||
+	!(start = (vf_fonts[vf_font].ch_pkt)[idx])) {
       int is_jfm = tfm_is_jfm(vf_fonts[vf_font].dev_fonts[0].tfm_id);
-      if (is_jfm &&
+      if (is_jfm && ch < CHAR_INDEX_MIN &&
           ch <= JFM_LASTCHAR && dpx_conf.compat_mode != dpx_mode_xdv_mode) {
         /* fallback multibyte character for (u)pTeX */
         if (dpx_conf.verbose_level == 1)
@@ -437,7 +480,7 @@ void vf_set_char(int32_t ch, int vf_font)
       fprintf (stderr, "Tried to set a nonexistent character in a virtual font");
       start = end = NULL;
     } else {
-      end = start + (vf_fonts[vf_font].pkt_len)[ch];
+      end = start + (vf_fonts[vf_font].pkt_len)[idx];
     }
     while (start && start < end) {
       opcode = *(start++);
@@ -555,6 +598,8 @@ void vf_close_all_fonts(void)
     }
     if (vf_fonts[i].pkt_len)
       RELEASE (vf_fonts[i].pkt_len);
+    if (vf_fonts[i].idx_to_char)
+      RELEASE (vf_fonts[i].idx_to_char);
     if (vf_fonts[i].tex_name)
       RELEASE (vf_fonts[i].tex_name);
     /* Release each font record */
