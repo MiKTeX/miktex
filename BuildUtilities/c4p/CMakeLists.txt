@@ -8,6 +8,11 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_BUILD_UTILITIES_FOLDER}")
 
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(powerpc|ppc)64le|aarch64")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsigned-char")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsigned-char")
+endif ()
+
 include_directories(BEFORE
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
