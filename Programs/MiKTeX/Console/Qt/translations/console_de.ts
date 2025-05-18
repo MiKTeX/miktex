@@ -1290,7 +1290,7 @@ The application window will now be closed.</source>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2649"/>
-        <source>&lt;p&gt;You are about to reset your TeX installation. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.</source>
+        <source>&lt;p&gt;You are about to reset your TeX installation. All TEXMF root directories will be removed and you will lose all configuration settings, log files, data files and packages.</source>
         <translation>&lt;p&gt;Sie sind im Begriff, die TeX-Installation auf Werkseinstellungen zurückzusetzen. Alle TEXMF-Wurzelverzeichnisse werden entfernt und Sie verlieren alle Konfigurationseinstellungen, Log-Dateien, Datendateien und Pakete.</translation>
     </message>
     <message>
@@ -1330,7 +1330,7 @@ Das Anwendungsfenster wird jetzt geschlossen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2727"/>
-        <source>&lt;p&gt;You are about to remove MiKTeX from your computer. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.&lt;/p&gt;</source>
+        <source>&lt;p&gt;You are about to remove MiKTeX from your computer. All TEXMF root directories will be removed and you will lose all configuration settings, log files, data files and packages.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Sie sind im Begriff, MiKTeX von Ihrem Computer zu entfernen. Alle TEXMF-Wurzelverzeichnisse werden entfernt und sie verlieren alle Konfigurationseinstellungen, Log-Dateien, Datendateien und Pakete.&lt;/p&gt;</translation>
     </message>
     <message>
