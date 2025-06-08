@@ -13,7 +13,9 @@
 #include <cstring>
 #include <memory>
 #include <string>
+#if defined(MIKTEX)
 #include <cstdint>
+#endif
 
 namespace woff2 {
 
