@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## 26.6 - 2025-06-08
+
+### Added
+
+- [1571](https://github.com/MiKTeX/miktex/issues/1641): Fedora 42
+
 ## 25.4 - 2025-04-18
 
 ### Upgraded programs
