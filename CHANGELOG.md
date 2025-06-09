@@ -2,6 +2,10 @@
 
 ## 26.6 - 2025-06-08
 
+### Upgraded programs
+
+* pdftex 1.40.28
+
 ### Added
 
 - [1571](https://github.com/MiKTeX/miktex/issues/1641): Fedora 42
