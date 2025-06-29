@@ -247,6 +247,9 @@ private slots:
 private slots:
   void AboutDialog();
 
+private:
+  bool restartingToApplyUpdates = false;
+
 private slots:
   void RestartAdmin();
 

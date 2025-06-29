@@ -235,7 +235,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
       return;
     }
   }
-  if (updateModel->Pending() > 0)
+  if (updateModel->Pending() > 0 && !restartingToApplyUpdates)
   {
     if (QMessageBox::question(this, TheNameOfTheGame, tr("There are pending updates. Are you sure you want to quit %1?").arg(TheNameOfTheGame))
       != QMessageBox::Yes)
@@ -657,6 +657,7 @@ void MainWindow::RestartAdmin()
       {
         return;
       }
+      restartingToApplyUpdates = true;
     }
     RestartAdminWithArguments({ "--admin" });
   }
