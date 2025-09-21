@@ -1,0 +1,29 @@
+# French translations for MiKTeX package.
+# Copyright (C) 2025 THE MiKTeX'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Gwilherm Baudic <gbaudic@users.noreply.github.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-06-02 21:39+0200\n"
+"PO-Revision-Date: 2025-07-06 14:00+0200\n"
+"Last-Translator: Gwilherm Baudic <gbaudic@users.noreply.github.com>\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: miktex-pdftex.h:219 miktex-pdftex.h:221
+msgid "Switch on draft mode (generates no output)."
+msgstr "Passer en mode brouillon (ne génère pas de sortie)."
+
+#: miktex-pdftex.h:220 miktex-pdftex.h:222
+msgid "Set the output format."
+msgstr "Fixe le format de sortie."
+
+#: miktex-pdftex.h:245 miktex-pdftex.h:247
+msgid "Unknown output format value."
+msgstr "Valeur de format de sortie inconnue."
