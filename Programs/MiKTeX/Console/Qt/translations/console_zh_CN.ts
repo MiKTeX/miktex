@@ -1293,7 +1293,7 @@ The application window will now be closed.</source>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2649"/>
-        <source>&lt;p&gt;You are about to reset your TeX installation. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.</source>
+        <source>&lt;p&gt;You are about to reset your TeX installation. All TEXMF root directories will be removed and you will lose all configuration settings, log files, data files and packages.</source>
         <translation type="unfinished">&lt;p&gt;您即将重置您的 TeX 安装。所有的 TEXMF 根目录将被删除，您将失去所有的配置设置、日志文件、数据文件以及宏包。</translation>
     </message>
     <message>
@@ -1333,7 +1333,7 @@ The application window will now be closed.</source>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2727"/>
-        <source>&lt;p&gt;You are about to remove MiKTeX from your computer. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.&lt;/p&gt;</source>
+        <source>&lt;p&gt;You are about to remove MiKTeX from your computer. All TEXMF root directories will be removed and you will lose all configuration settings, log files, data files and packages.&lt;/p&gt;</source>
         <translation type="unfinished">&lt;p&gt;您即将从您的计算机删除 MikTeX。所有的 TEXMF 根目录将被删除，您将失去所有的配置设置、日志文件、数据文件以及宏包。&lt;/p&gt;</translation>
     </message>
     <message>
