@@ -1,6 +1,6 @@
 /* mainwindow.cpp:
 
-   Copyright (C) 2017-2024 Christian Schenk
+   Copyright (C) 2017-2025 Christian Schenk
 
    This file is part of MiKTeX Console.
 
