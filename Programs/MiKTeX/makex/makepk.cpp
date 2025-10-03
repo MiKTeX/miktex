@@ -418,7 +418,7 @@ void MakePk::Run(int argc, const char** argv)
     if (mfMode.empty() || mfMode == "default")
     {
         mfMode = MakeModeName(bdpi);
-        Verbose(fmt::format(T_("The METFAONT mode is: {0}"), mfMode));
+        Verbose(fmt::format(T_("The METAFONT mode is: {0}"), mfMode));
     }
 
     // validate command-line arguments
