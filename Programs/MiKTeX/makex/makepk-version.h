@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Version number
  *
- * @copyright Copyright © 1998-2024 Christian Schenk
+ * @copyright Copyright © 1998-2025 Christian Schenk
  *
  * This file is part of the MiKTeX Make Utility Collection.
  *
@@ -12,9 +12,9 @@
  */
 
 #define MIKTEX_COMP_MAJOR_VERSION 4
-#define MIKTEX_COMP_MINOR_VERSION 1
+#define MIKTEX_COMP_MINOR_VERSION 2
 #define MIKTEX_COMP_PATCH_VERSION 0
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 1998-2024 Christian Schenk"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 1998-2025 Christian Schenk"
 
 #include <miktex/Version>
