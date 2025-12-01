@@ -2,6 +2,11 @@
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #endif
+
+#include "zlib_first.h"
+#include "win_sanitizer.h" 
+#include "winapi_slim.h"
+
 #include "jsfile.h"
 
 #include "settings.h"

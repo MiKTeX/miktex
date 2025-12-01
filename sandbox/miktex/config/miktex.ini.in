@@ -1,7 +1,7 @@
 [Core]
   NoRegistry = yes
-  SharedSetup = no
+  SharedSetup = yes
   LastUserMaintenance = 1516916169
 
 [MPM]
-  AutoInstall = no
+  AutoInstall = yes

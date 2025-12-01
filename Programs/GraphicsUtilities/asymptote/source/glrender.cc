@@ -4,6 +4,10 @@
  * Render 3D Bezier paths and surfaces.
  *****/
 
+#include "zlib_first.h"
+#include "win_sanitizer.h"  
+#include "winapi_slim.h"
+
 #ifdef __CYGWIN__
 #define _POSIX_C_SOURCE 200809L
 #endif

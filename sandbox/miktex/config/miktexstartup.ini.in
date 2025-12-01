@@ -1,3 +1,9 @@
+[Auto]
+Config=Regular
+
+[Setup]
+Version=25.4
+
 [Paths]
   UserConfig = ${MIKTEX_SANDBOX_USER_CONFIG_DIR}
   UserData = ${MIKTEX_SANDBOX_USER_DATA_DIR}
