@@ -86,11 +86,10 @@ if(CMAKE_CL_64)
     else()
         set(env "win32")
     endif()
-    message(STATUS "COM: MIDL /env ${env} (CMAKE_SYSTEM_PROCESSOR=${CMAKE_SYSTEM_PROCESSOR})")
 endif()
 
 
-if(env STREQUAL "arm64" OR env STREQUAL "amd64")
+if(env STREQUAL "arm64")
     set(MIDL_ROBUST "/robust")
 else()
     set(MIDL_ROBUST "/no_robust")

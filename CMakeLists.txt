@@ -173,8 +173,6 @@ endif()
 ###############################################################################
 ## user options
 
-set(Boost_DIR "C:/dependencies/lib/cmake/boost_locale-1.89.0") 
-
 option(
     MIKTEX_SELF_CONTAINED
     "Build and install a self-contained MiKTeX distribution."
@@ -1148,10 +1146,14 @@ if(USE_SYSTEM_APRUTIL)
 endif()
 
 if(USE_SYSTEM_BOOST)
-    find_package(Boost 1.89.0 EXACT CONFIG REQUIRED COMPONENTS locale)
-    link_libraries(Boost::locale)
-    link_libraries(Boost::disable_autolinking)
-    link_libraries(Boost::dynamic_linking)
+    if(MIKTEX_NATIVE_WINDOWS)
+        set(Boost_USE_STATIC_LIBS ON)
+        set(Boost_USE_DEBUG_LIBS ON)
+        set(Boost_USE_RELEASE_LIBS ON)
+        set(Boost_USE_MULTITHREADED ON)
+        set(Boost_USE_STATIC_RUNTIME OFF)
+    endif()
+    find_package(Boost REQUIRED locale)
 endif()
 
 if(USE_SYSTEM_BZIP2)
@@ -2271,12 +2273,13 @@ if(MIKTEX_NATIVE_WINDOWS)
     add_subdirectory(${MIKTEX_REL_UTF8WRAP_DIR})
 endif()
 
-
+# LuaJIT is not supported on Windows ARM
+# Use MIKTEX_WITH_LUAJIT to enable/disable its build
 if(MIKTEX_NATIVE_WINDOWS)
     if(MIKTEX_WITH_LUAJIT)
         add_subdirectory(${MIKTEX_REL_LUAJIT_DIR})
     else()
-        message(STATUS "MIKTEX_WITH_LUAJIT=OFF -> Skipping ${MIKTEX_REL_LUAJIT_DIR}")
+        message(STATUS "MIKTEX_WITH_LUAJIT=OFF hence skipping ${MIKTEX_REL_LUAJIT_DIR}") 
     endif()
 endif()
 

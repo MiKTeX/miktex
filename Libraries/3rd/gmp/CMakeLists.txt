@@ -22,7 +22,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-arm64")
     set(HAVE_HOST_CPU_FAMILY_arm64 1)
     set(HAVE_LIMB_LITTLE_ENDIAN 1)
 else()
-    message(FATAL_ERROR "Unsupported platform: ${MIKTEX_TARGET_SYSTEM_TAG}")
+    message(FATAL_ERROR "TODO: implement platform checks")
 endif()
 
 set(WANT_TMP_REENTRANT 1)
