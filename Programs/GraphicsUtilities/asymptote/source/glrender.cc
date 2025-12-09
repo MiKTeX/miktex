@@ -19,6 +19,9 @@
 #include <sys/time.h>
 #include <unistd.h>
 
+#if defined(_M_ARM64)
+#include "win_zlib_macro.h"
+#endif
 #include "common.h"
 #include "locate.h"
 #include "seconds.h"

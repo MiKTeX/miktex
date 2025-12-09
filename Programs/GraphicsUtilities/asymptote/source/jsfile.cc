@@ -4,6 +4,9 @@
 #endif
 #include "jsfile.h"
 
+#if defined(_M_ARM64)
+#include "win_zlib_macro.h"
+#endif
 #include "settings.h"
 #include "glrender.h"
 #include "drawelement.h"

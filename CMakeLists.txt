@@ -113,7 +113,10 @@ else()
 endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
-    if(CMAKE_CL_64)
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64")
+        set(system_cpu "arm64")
+        set(MIKTEX_MANIFEST_PROCESSOR_ARCHITECTURE "arm64")
+    elseif(CMAKE_CL_64)
         set(system_cpu "x64")
         set(MIKTEX_MANIFEST_PROCESSOR_ARCHITECTURE "amd64")
     else()
@@ -2270,9 +2273,14 @@ if(MIKTEX_NATIVE_WINDOWS)
     add_subdirectory(${MIKTEX_REL_UTF8WRAP_DIR})
 endif()
 
+# LuaJIT is not supported on Windows ARM
+# Use MIKTEX_WITH_LUAJIT to enable/disable its build
 if(MIKTEX_NATIVE_WINDOWS)
-    add_subdirectory(${MIKTEX_REL_LUAJIT_DIR})
+    if(MIKTEX_WITH_LUAJIT)
+        add_subdirectory(${MIKTEX_REL_LUAJIT_DIR})
+    endif()
 endif()
+
 
 if(NOT HAVE_GETOPT_LONG)
     add_subdirectory(${MIKTEX_REL_GETOPT_DIR})
