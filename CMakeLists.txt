@@ -2281,7 +2281,6 @@ if(MIKTEX_NATIVE_WINDOWS)
     endif()
 endif()
 
-
 if(NOT HAVE_GETOPT_LONG)
     add_subdirectory(${MIKTEX_REL_GETOPT_DIR})
 endif()

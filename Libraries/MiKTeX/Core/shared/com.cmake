@@ -57,7 +57,6 @@ set(core_ps_sources
     ${generated_core_ps_sources}
 )
 
-
 if(CMAKE_CL_64)
     string(TOUPPER "${CMAKE_SYSTEM_PROCESSOR}" PROCESSOR)
     if(PROCESSOR STREQUAL "ARM64" OR PROCESSOR STREQUAL "AARCH64")
@@ -75,7 +74,6 @@ if(env STREQUAL "arm64")
 else()
     set(MIDL_ROBUST "/no_robust")
 endif()
-
 
 file(MAKE_DIRECTORY ${core_binary_dir}/include)
 
