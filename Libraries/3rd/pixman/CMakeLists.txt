@@ -33,9 +33,8 @@ set(pixman_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-combine-float.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-conical-gradient.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-filter.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-x86.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-mips.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-arm.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-x86.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-ppc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-edge.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-edge-accessors.c
@@ -56,10 +55,6 @@ set(pixman_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-trap.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-utils.c
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-mmx.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-sse2.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-ssse3.c
-
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/dither/blue-noise-64x64.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-accessor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-combine32.h
@@ -69,6 +64,18 @@ set(pixman_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-private.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman.h
 )
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64")
+    list(APPEND pixman_sources
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-arm.c
+    )
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x64")
+    list(APPEND pixman_sources
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-mmx.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-sse2.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-ssse3.c
+    )
+endif()
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-version.h.in
