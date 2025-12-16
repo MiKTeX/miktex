@@ -2273,7 +2273,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     add_subdirectory(${MIKTEX_REL_UTF8WRAP_DIR})
 endif()
 
-# LuaJIT is not supported on Windows ARM
+# MiKTeX-LuaJIT is not supported on Windows ARM
 # Use MIKTEX_WITH_LUAJIT to enable/disable its build
 if(MIKTEX_NATIVE_WINDOWS)
     if(MIKTEX_WITH_LUAJIT)

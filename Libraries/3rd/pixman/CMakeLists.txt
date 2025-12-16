@@ -33,8 +33,9 @@ set(pixman_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-combine-float.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-conical-gradient.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-filter.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-mips.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-x86.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-mips.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-arm.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-ppc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-edge.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-edge-accessors.c
@@ -65,11 +66,7 @@ set(pixman_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman.h
 )
 
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64")
-    list(APPEND pixman_sources
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-arm.c
-    )
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x64")
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64")
     list(APPEND pixman_sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-mmx.c
         ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-sse2.c
