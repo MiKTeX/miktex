@@ -30,7 +30,7 @@
 #include "dvipdfmx.h"
 #include "error.h"
 #if defined(MIKTEX)
-#include <miktex/dvipdfm-x.h>
+#include <miktex/dvipdfmx.h>
 #endif
 
 #define DPX_MESG        0

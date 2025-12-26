@@ -68,7 +68,7 @@
 #include <miktex/unxemu.h>
 #include <getopt.h>
 #endif
-#include <miktex/dvipdfm-x.h>
+#include <miktex/dvipdfmx.h>
 #endif
 
 #if defined(LIBDPX)
