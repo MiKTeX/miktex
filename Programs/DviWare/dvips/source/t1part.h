@@ -35,7 +35,6 @@ extern int debug_flag;
 #endif
 
 #ifdef DVIPS
-extern FILE *search();
 #ifndef KPATHSEA
 extern char *headerpath;
 #endif /* not KPATHSEA */
