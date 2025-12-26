@@ -203,6 +203,9 @@ pdf_include_page (pdf_ximage        *ximage,
 
     if (group)
       pdf_add_dict(contents_dict, pdf_new_name("Group"), group);
+
+    if (options.dict)
+      pdf_merge_dict(contents_dict, options.dict);
   }
 
   pdf_close(pf);

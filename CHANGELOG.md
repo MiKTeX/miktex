@@ -4,6 +4,7 @@
 
 ### Upgraded programs
 
+* dvipdfmx 20250413
 * pdftex 1.40.28
 
 ### Added
