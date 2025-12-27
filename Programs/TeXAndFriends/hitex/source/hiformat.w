@@ -38,6 +38,9 @@
 @s uint64_t int
 @s bool int
 
+%% defining hyphenation patterns
+\hyphenation{pa-ra-me-ter}
+
 @
 
 \makeindex
@@ -156,7 +159,7 @@ ISBN-13: 979-854992684-4\par
 First printing: August 2019\par
 Second edition: August 2021\par
 \medskip
-Last commit: Tue Feb 4 19:26:26 2025
+Last commit: Tue Nov 4 17:08:38 2025
 \par
 }
 }
@@ -308,10 +311,10 @@ happens to be the ASCII code of the letter `a' and ``{\tt *1}'' is a font refere
 that stands for ``Computer Modern Roman 10pt''. 
 Reference numbers, as you can see, 
 start with an asterisk reminiscent of references in the \CEE\ programming language.
-The Astrix enables us to distinguish between ordinary numbers like ``\.{1}'' and references like ``{\tt *1}''.
+The asterisk enables us to distinguish between ordinary numbers like ``\.{1}'' and references like ``{\tt *1}''.
 
 To make this node more readable, we will see in section~\secref{chars} that it is also 
-possible to write `` \.{<glyph 'a' (cmr10) *1>}''.
+possible to write `` \.{<glyph 'a' *1 (cmr10)>}''.
 The latter form uses a comment ``\.{(cmr10)}'', enclosed in parentheses, to
 give an indication of what kind of font happens to be font 1, and it uses ``\.{'a'}'',
 the character enclosed in single quotes to denote the ASCII code of `a'. 
@@ -722,7 +725,7 @@ Here is the code for the initial and final part of a get function:
 
 @<read the start byte |a|@>=
 Tag a,z; /* the start and the end byte*/
-uint32_t node_pos=hpos-hstart;
+uint32_t node_pos=(uint32_t)(hpos-hstart);
 if (hpos>=hend) QUIT("Attempt to read a start byte at the end of the section");
 HGETTAG(a);@/@t{}@>
 @
@@ -1152,7 +1155,7 @@ having the high bits |11110| indicating a four byte sequence followed by three c
 @
 
 @<scanning macros@>=
-#define @[SCAN_UTF8_4(S)@]   @[yylval.u=(((S)[0]&0x03)<<18)+(((S)[1]&0x3F)<<12)+@|(((S)[2]&0x3F)<<6)+((S)[3]&0x3F)@]
+#define @[SCAN_UTF8_4(S)@]   @[yylval.u=(((S)[0]&0x07)<<18)+(((S)[1]&0x3F)<<12)+@|(((S)[2]&0x3F)<<6)+((S)[3]&0x3F)@]
 @
 
 \enditemize
@@ -3245,7 +3248,7 @@ txt: TXT_CC { hput_txt_cc($1); }
 @
 
 The following function keeps track of the position in the current line.
-It the line gets too long it will break the text at the next space
+If the line gets too long it will break the text at the next space
 character. If no suitable space character comes along,
 the line will be broken after any regular character.
 
@@ -4095,6 +4098,7 @@ Tag hput_ligature(Lig *l)
 { @+if (l->l.s < 7) return TAG(ligature_kind,l->l.s);
   else@/
   { uint32_t pos=l->l.p;
+    l->l.t=TAG(list_kind,b100);
     hput_tags(pos,hput_list(pos+1, &(l->l)));
     return TAG(ligature_kind,7);
   }
@@ -7398,10 +7402,13 @@ bool hcheck_banner(char *magic)
   if (v!=HINT_VERSION)
   { MESSAGE("Wrong HINT version: got %d.%d, expected %d.%d\n",
       v,s,HINT_VERSION,HINT_MINOR_VERSION); return false; }
+#if 0 /* minor versions should be downward compatible */
   if (s<HINT_MINOR_VERSION)
   { MESSAGE("Outdated HINT minor version: got %d.%d, expected %d.%d\n",
       v,s,HINT_VERSION,HINT_MINOR_VERSION); }
-  else if (s>HINT_MINOR_VERSION)
+  else
+#endif
+  if (s>HINT_MINOR_VERSION)
   { MESSAGE("More recent HINT minor version: got %d.%d, expected %d.%d, update your application\n",
       v,s,HINT_VERSION,HINT_MINOR_VERSION); }
   if (*t!=' ' && *t!='\n')
@@ -7488,10 +7495,11 @@ The big picture is captured by the |put_hint| function:
 @<put functions@>=
 static size_t hput_root(void);
 static size_t hput_section(uint16_t n);
-static size_t hput_optional_sections(void);
+static size_t hput_optional_section(int i);
 
 size_t hput_hint(char * str)
 { size_t s;
+  int i;
   DBG(DBGBASIC,"Writing hint output %s\n",str); 
   s=hput_banner("hint",str);
   DBG(DBGDIR,@["Root entry at " SIZE_F "\n"@],s);
@@ -7503,7 +7511,8 @@ size_t hput_hint(char * str)
   DBG(DBGDIR,@["Content section at " SIZE_F "\n"@],s);
   s+=hput_section(2);
   DBG(DBGDIR,@["Auxiliary sections at " SIZE_F "\n"@],s);
-  s+=hput_optional_sections();
+  for (i=3; i<=max_section_no; i++)@/
+    s+=hput_optional_section(i);
   DBG(DBGDIR,@["Total number of bytes written " SIZE_F "\n"@],s);
   return s;
 }
@@ -8386,35 +8395,30 @@ are described in the directory entries 3 and above to a \HINT\ file in short for
 
 \putcode
 @<put functions@>=
-static size_t hput_optional_sections(void)
-{ int i;
-  size_t s=0;
-  DBG(DBGDIR,"Optional Sections\n");
-  for (i=3; i<=max_section_no; i++)@/
-   { FILE *f;
-     size_t fsize;
-     char *file_name=dir[i].file_name;
-     DBG(DBGDIR,"adding file %d: %s\n",dir[i].section_no,file_name);
-     if (dir[i].xsize!=0) @/
-       DBG(DBGDIR,"Compressing of auxiliary files currently not supported");
-     f=fopen(file_name,"rb");
-     if (f==NULL) QUIT("Unable to read section %d, file %s",
-       dir[i].section_no,file_name);
-     fsize=0;
-     while (!feof(f))@/
-     { size_t s,t;
-       char buffer[1<<13]; /* 8kByte */       
-       s=fread(buffer,1,1<<13,f);@/
-       t=fwrite(buffer,1,s,hout);
-       if (s!=t) QUIT("writing file %s",file_name);
-       fsize=fsize+t;
-     }
-     fclose(f);
-     if (fsize!=dir[i].size) 
-       QUIT(@["File size " SIZE_F " does not match section[0] size %u"@],@|fsize,dir[i].size);
-     s=s+fsize;
-   }
-   return s;
+static size_t hput_optional_section(int i)
+{ FILE *f;
+  size_t fsize;
+  char *file_name=dir[i].file_name;
+  DBG(DBGDIR,"Adding file %d: %s\n",dir[i].section_no,file_name);
+  if (dir[i].xsize!=0) @/
+    DBG(DBGDIR,"Compressing of auxiliary files currently not supported");
+  f=fopen(file_name,"rb");
+  if (f==NULL) QUIT("Unable to read section %d, file %s",
+    dir[i].section_no,file_name);
+  fsize=0;
+  while (!feof(f))@/
+  { size_t s,t;
+    char buffer[1<<13]; /* 8kByte */       
+    s=fread(buffer,1,1<<13,f);@/
+    t=fwrite(buffer,1,s,hout);
+    if (s!=t) QUIT("writing file %s",file_name);
+    fsize=fsize+t;
+  }
+  fclose(f);
+  if (fsize!=dir[i].size) 
+    QUIT(@["File size " SIZE_F " does not match section[0] size %u"@],
+           @|fsize,dir[i].size);
+  return fsize;
 }
 @
 
@@ -8848,7 +8852,7 @@ def_node:
 @<get functions@>=
 void hget_definition(int n, Tag a, uint32_t node_pos)
 {@+ switch(KIND(a))
-    { case font_kind: hget_font_def(n);@+ break;
+    { case font_kind: hget_font_def(INFO(a),n);@+ break;
       case param_kind:
         {@+ List l; l.t=a; @+HGET_LIST(INFO(a),l); @+hwrite_parameters(&l); @+ break;@+} 
       case page_kind: hget_page(); @+break;
@@ -9022,23 +9026,18 @@ fonts that can be used in a \HINT\ file to at most 256.
 
 A long format font definition starts with the keyword ``\.{font}'' and
 is followed by the font number, as usual prefixed by an asterisk. Then
-comes the font specification with the font size, the font
-name, the section number of the \TeX\ font metric file, and the
+comes the font specification with the font name, the font size,
+the section number of the \TeX\ font metric file, and the
 section number of the file containing the glyphs for the font.
 The \HINT\ format supports \.{.pk} files, the traditional font format
 for \TeX, and the more modern PostScript Type 1 fonts,
 TrueType fonts, and OpenType fonts.
 
-The format of font definitions will probably change in future
-versions of the \HINT\ file format. 
-For example,  \.{.pk} files might be replaced entirely by PostScript Type 1 fonts.
-Also \HINT\ needs the \TeX\ font metric files only to obtain the sizes
-of characters when running \TeX's line breaking algorithm.
-But for many TrueType fonts there are no \TeX\ font metric files,
-while the necessary information about character sizes should be easy
-to obtain.
-Another information, that is currently missing from font definitions,
-is the fonts character encoding.
+Starting with version 2.2, there is new support for TrueType and OpenType
+fonts while \.{.pk} fonts are considered deprecated.
+The previously mandatory \.{.tfm} file is no longer required for
+TrueType and OpenType fonts. Instead, the hint viewer is required to
+extract the necessary font metrics directly from the font files.
 
 In a \HINT\ file, text is represented as a sequence of numbers called
 character codes. \HINT\ files use the UTF-8 character encoding
@@ -9059,13 +9058,28 @@ need to ``understand'' the content of the \HINT\ file. For example
 programs that want to translate a \HINT\ document to a different language,
 or for text-to-speech conversion.
 
+For FreeType and OpenType fonts, the \HINT\ viewer is required to support
+only two character encodings: |FT_ENCODING_ADOBE_CUSTOM|, used for the
+traditional \TeX\ encoding schema of fonts;
+and |FT_ENCODING_UNICODE| used for TrueType and OpenType fonts that do not have
+a \.{.tfm} file along with them. To be precise: a font that has no  \.{.tfm}
+file along with it must be encoded in Unicode. That is a glyph node
+will specify the unicode value of the desired character, which is then
+translated to the glyph number using |FT_ENCODING_UNICODE|.
+For ligature nodes, the node will speciy the glyph number directly without
+a need to translate it further, but the replacement list of the ligature
+will contain the unicode values of the replacement characters.
+
+In the short format we use the info value |b000| for a font with  \.{.tfm} file
+and the info value |b001| for a font without  \.{.tfm} file.
+
 The Internet Engineering Task Force IETF has established a character set
 registry\cite{ietf:charset-mib} that defines an enumeration of all
 registered coded character sets\cite{iana:charset-mib}.  The coded
 character set numbers are in the range 1--2999.
 This encoding number, as given in~\cite{iana:charset},
 might be one possibility for specifying the font encoding as
-part of a font definition.
+part of a font definition. But none such addition is planed at the moment.
 
 Currently, it is only required that a font specifies
 an interword glue and a default discretionary break. After that comes
@@ -9122,6 +9136,10 @@ font: font_head font_param_list;
 
 font_head: string dimension UNSIGNED UNSIGNED @/
   	 	 {uint8_t f=$<u>@&0;  SET_DBIT(f,font_kind); @+hfont_name[f]=strdup($1); $$=hput_font_head(f,hfont_name[f],$2,$3,$4);};
+font_head: string dimension UNSIGNED @/
+  	 	 {uint8_t f=$<u>@&0;  SET_DBIT(f,font_kind); @+hfont_name[f]=strdup($1); $$=hput_font_head(f,hfont_name[f],$2,-1,$3);};
+
+
 
 font_param_list: glue_node disc_node @+ | font_param_list font_param ;
 
@@ -9166,14 +9184,15 @@ static void hget_font_params(void)
 }
 
 
-void hget_font_def(uint8_t f)
+void hget_font_def(Info i, uint8_t f)
 { char *n; @+Dimen s=0;@+uint16_t m,y; 
   HGET_STRING(n);@+ hwrite_string(n);@+  hfont_name[f]=strdup(n);
   HGET32(s); @+ hwrite_dimension(s);
   DBG(DBGDEF,"Font %s size 0x%x\n", n, s); 
-  HGET16(m); @+RNG("Font metrics",m,3,max_section_no);
+  if (i==b000) { HGET16(m); @+RNG("Font metrics",m,3,max_section_no); }
   HGET16(y); @+RNG("Font glyphs",y,3,max_section_no);
-  hwritef(" %d %d",m,y);
+  if (i==b000) hwritef(" %d",m);
+  hwritef(" %d",y);
   hget_font_params();
   DBG(DBGDEF,"End font definition\n");
 }
@@ -9181,12 +9200,14 @@ void hget_font_def(uint8_t f)
 
 \putcode
 @<put functions@>=
-Tag hput_font_head(uint8_t f,  char *n, Dimen s, @| uint16_t m, uint16_t y)
-{ Info i=b000;
+Tag hput_font_head(uint8_t f,  char *n, Dimen s, @| int m, uint16_t y)
+{ Info i;
+  
   DBG(DBGDEF,"Defining font %d (%s) size 0x%x\n", f, n, s); 
   hput_string(n);
   HPUT32(s);@+ 
-  HPUT16(m); @+HPUT16(y); 
+  if (m>=0) {i=b000; HPUT16(m);} else i=b001;
+  HPUT16(y); 
   return TAG(font_kind,i);
 }
 @
@@ -11099,14 +11120,6 @@ case TAG(color_kind,b000): @+ (void)HTEG8; @+break;
 
 \noindent
 @<shared skip functions@>=
-void hteg_size_boundary(Info info)
-{ uint32_t n;
-  info=info&0x3;
-  if (info==0) return;
-  n=HTEG8;
-  if (n!=0x100-info) QUIT(@["List size boundary byte 0x%x does not match info value %d at " SIZE_F@],
-                            n, info,hpos-hstart);
-}
 
 uint32_t hteg_list_size(Info info)
 { uint32_t n=0;
@@ -11118,8 +11131,19 @@ uint32_t hteg_list_size(Info info)
   else QUIT("List info %d must be 0, 1, 2, or 3",info);
   return n;
 } 
+@
 
-void hteg_list(List *l)
+@<skip functions@>=
+static void hteg_size_boundary(Info info)
+{ uint32_t n;
+  info=info&0x3;
+  if (info==0) return;
+  n=HTEG8;
+  if (n!=0x100-info) QUIT(@["List size boundary byte 0x%x does not match info value %d at " SIZE_F@],
+                            n, info,hpos-hstart);
+}
+
+static void hteg_list(List *l)
 { @<skip the end byte |z|@>@,
   @+if (KIND(z)!=list_kind && KIND(z)!=param_kind) @/
     QUIT("List expected at 0x%x", (uint32_t)(hpos-hstart)); 
@@ -11139,7 +11163,7 @@ void hteg_list(List *l)
   @<skip and check the start byte |a|@>@;
 }
 
-void hteg_param_list(List *l)
+static void hteg_param_list(List *l)
 { @+if (KIND(*(hpos-1))!=param_kind) return;
   hteg_list(l);
 }
@@ -11294,7 +11318,7 @@ typedef double float64_t;
 #error  @=float64 type must have size 8@>
 #endif
 #define HINT_VERSION 2
-#define HINT_MINOR_VERSION 1
+#define HINT_MINOR_VERSION 2
 #define AS_STR(X) #X
 #define VERSION_AS_STR(X,Y) AS_STR(X) "." AS_STR(Y)
 #define HINT_VERSION_STRING VERSION_AS_STR(HINT_VERSION, HINT_MINOR_VERSION)
@@ -11566,7 +11590,7 @@ extern void hput_string(char *str);
 extern void hput_range(uint8_t pg, bool on);
 extern void hput_max_definitions(void);
 extern Tag hput_dimen(Dimen d);
-extern Tag hput_font_head(uint8_t f,  char *n, Dimen s,@| uint16_t m, uint16_t y);
+extern Tag hput_font_head(uint8_t f,  char *n, Dimen s,@| int m, uint16_t y);
 extern void hput_range_defs(void);
 extern void hput_xdimen_node(Xdimen *x);
 extern void hput_directory(void);
@@ -11851,7 +11875,7 @@ contained in {\tt get.h}. The remaining declarations are these:
 @<get function declarations@>=
 extern void hget_xdimen_node(Xdimen *x);
 extern void hget_def_node(void);
-extern void hget_font_def(uint8_t f);
+extern void hget_font_def(Info i, uint8_t f);
 extern void hget_content_section(void);
 extern Tag hget_content_node(void);
 extern void hget_glue_node(void);

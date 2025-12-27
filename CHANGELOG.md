@@ -7,6 +7,7 @@
 * autosp 2025-10-26
 * dvipdfmx 20250413
 * dvips 2025.1
+* hitex 2.2
 * luatex 1.24.0
 * pdftex 1.40.28
 
