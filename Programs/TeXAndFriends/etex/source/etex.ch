@@ -5110,7 +5110,7 @@ end;
 @ Parenthesized subexpressions can be inside expressions, and this
 nesting has a stack.  Seven local variables represent the top of the
 expression stack:  |p| points to pushed-down entries, if any; |l|
-specifies the type of expression currently beeing evaluated; |e| is the
+specifies the type of expression currently being evaluated; |e| is the
 expression so far and |r| is the state of its evaluation; |t| is the
 term so far and |s| is the state of its evaluation; finally |n| is the
 numerator for a combined multiplication and division, if any.
