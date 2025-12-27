@@ -8,7 +8,7 @@
     <TPM:Copyright owner="Takuji Tanaka" year="2007-2023"/>
     <TPM:Copyright owner="Japanese TeX Development Community" year="2010-2023"/>
     <TPM:License type="bsd3"/>
-    <TPM:Version>4.1.0</TPM:Version>
+    <TPM:Version>2025-12-25</TPM:Version>
     <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

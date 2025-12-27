@@ -1,4 +1,4 @@
-% This program is copyright (C) 1985, 1988, 2010 by Oren Patashnik;
+% This program is copyright (C) 1985, 1988, 2010, 2025 by Oren Patashnik;
 % all rights are reserved.
 % 
 % This program, BibTeX, is available under the same terms as
@@ -42,6 +42,8 @@
 %       Other known bugs (all minor) will be fixed in a subsequent release.
 % Updated bibtex.web was released on 8 December 2010.  Still version
 %       0.99d; this release clarified the license.
+% Version 0.99e was released September 2025. Its only changes affected the
+%       typesetting of the program itself; there were no functional changes.
 
 % Please report any bugs to biblio@@tug.org
 
@@ -58,30 +60,21 @@
 % Here is TeX material that gets inserted after \input webmac
 \def\hang{\hangindent 3em\indent\ignorespaces}
 \font\ninerm=cmr9
-\let\mc=\ninerm % medium caps for names like PASCAL
-\def\PASCAL{{\mc PASCAL}}
-\def\ph{{\mc PASCAL-H}}
+\let\mc=\ninerm % medium caps for names like SAIL
+\def\PASCAL{Pascal}
+\def\ph{\hbox{Pascal-H}}
 \def\<#1>{$\langle#1\rangle$}
 \def\section{\mathhexbox278}
 
 \def\(#1){} % this is used to make section names sort themselves better
 \def\9#1{} % this is used for sort keys in the index via @@:sort key}{entry@@>
 
-% Note: WEAVE will typeset an upper-case `E' in a PASCAL identifier a
-% bit strangely so that the `TeX' in the name of this program is typeset
-% correctly; if this becomes a problem remove these three lines to get
-% normal upper-case `E's in PASCAL identifiers
-\def\drop{\kern-.1667em\lower.5ex\hbox{E}\kern-.125em} % middle of TeX
-\catcode`E=13 \uppercase{\def E{e}}
-\def\\#1{\hbox{\let E=\drop\it#1\/\kern.05em}} % italic type for identifiers
-
 \font\sc=cmcsc10
 
-\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
-    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+% Use \TeX in defining \BibTeX and \LaTeX
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em \TeX}}
 
-\def\LaTeX{{\rm L\kern-.36em\raise.3ex\hbox{\sc a}\kern-.15em
-    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\def\LaTeX{{\rm L\kern-.36em\raise.3ex\hbox{\sc a}\kern-.15em \TeX}}
 
 \def\title{\BibTeX\ }
 \def\today{\ifcase\month\or
@@ -89,9 +82,8 @@
   July\or August\or September\or October\or November\or December\fi
   \space\number\day, \number\year}
 \def\topofcontents{\null\vfill
- \def\titlepage{F}
  \centerline{\:\titlefont The {\:\ttitlefont \BibTeX} preprocessor}
- \vskip 15pt \centerline{(Version 0.99d---\today)} \vfill}
+ \vskip 15pt \centerline{(Version 0.99e---\today)} \vfill}
 \pageno=\contentspagenumber \advance\pageno by 1
 
 
@@ -141,7 +133,7 @@ style writers would be eternally grateful, if only they knew.
 The |banner| string defined here should be changed whenever \BibTeX\
 gets modified.
 
-@d banner=='This is BibTeX, Version 0.99d' {printed when the program starts}
+@d banner=='This is BibTeX, Version 0.99e' {printed when the program starts}
 
 
 @
@@ -383,7 +375,7 @@ This procedure gets things started properly.
 procedure initialize;
 var @<Local variables for initialization@>
 begin
-@<Check the ``constant'' values for consistency@>;
+@<Check the \(co)``constant'' values for consistency@>;
 if (bad > 0) then
     begin
     write_ln (term_out,bad:0,' is a bad bad');
@@ -459,7 +451,7 @@ defined.
 @
 Each digit-value of |bad| has a specific meaning.
 
-@<Check the ``constant'' values for consistency@>=
+@<Check the \(co)``constant'' values for consistency@>=
 bad := 0;
 if (min_print_line < 3) then                    bad:=1;
 if (max_print_line <= min_print_line) then      bad:=10*bad+2;
@@ -1513,7 +1505,7 @@ end;
 
 @
 @:BibTeX capacity exceeded}{\quad file name size@>
-Yet another complaint-before-quiting.
+Yet another complaint-before-quitting.
 
 @<Procedures and functions for all file I/O, error messages, and such@>=
 procedure file_nm_size_overflow;
@@ -2468,7 +2460,7 @@ check_cmnd_line := false;                       {many systems will change this}
 loop
     begin
     if (check_cmnd_line) then
-        @<Process a possible command line@>
+        @<Process a \(o)possible command line@>
       else
         begin
         write (term_out,'Please type input file name (no extension)--');
@@ -2511,7 +2503,7 @@ Here's where we do the real command-line work.  Those systems needing
 more than a single module to handle the task should add the extras to
 the ``System-dependent changes'' section.
 
-@<Process a possible command line@>=
+@<Process a \(o)possible command line@>=
 begin
 do_nothing;             {the ``default system'' doesn't use the command line}
 end
@@ -3083,7 +3075,7 @@ while (scan_char <> right_brace) do
         aux_err_white_space_in_argument;
     if ((last > buf_ptr2+1) and (scan_char = right_brace)) then
         aux_err_stuff_after_right_brace;
-    @<Check the cite key@>;
+    @<Check the \(ci)cite key@>;
 next_cite:
     end;
 exit:
@@ -3098,7 +3090,7 @@ helps make the stack space not overflow on some machines.
 
 @d ex_buf1== ex_buf             {an alias, used only in this module}
 
-@<Check the cite key@>=
+@<Check the \(ci)cite key@>=
 begin
   trace
   trace_pr_token;
@@ -4109,7 +4101,7 @@ eat_bst_white_and_eof_check ('execute');
 bst_get_and_check_left_brace ('execute');
 eat_bst_white_and_eof_check ('execute');
 bst_identifier_scan ('execute');
-@<Check the \.{execute}-command argument token@>;
+@<Check the \(e)\.{execute}-command argument token@>;
 eat_bst_white_and_eof_check ('execute');
 bst_get_and_check_right_brace ('execute');
 @<Perform an \.{execute} command@>;
@@ -4121,7 +4113,7 @@ end;
 Before executing the function, we must make sure it's a legal one.  It
 must exist and be |built_in| or |wiz_defined|.
 
-@<Check the \.{execute}-command argument token@>=
+@<Check the \(e)\.{execute}-command argument token@>=
 begin
   trace
   trace_pr_token;
@@ -4164,7 +4156,7 @@ begin
 bst_get_and_check_left_brace ('function');
 eat_bst_white_and_eof_check ('function');
 bst_identifier_scan ('function');
-@<Check the |wiz_defined| function name@>;
+@<Check the \(w)|wiz_defined| function name@>;
 eat_bst_white_and_eof_check ('function');
 bst_get_and_check_right_brace ('function');
 end
@@ -4174,7 +4166,7 @@ end
 The function name must exist and be a new one; we mark it as
 |wiz_defined|.  Also, see if it's the default entry-type function.
 
-@<Check the |wiz_defined| function name@>=
+@<Check the \(w)|wiz_defined| function name@>=
 begin
   trace
   trace_pr_token;
@@ -4681,7 +4673,7 @@ eat_bst_white_and_eof_check ('iterate');
 bst_get_and_check_left_brace ('iterate');
 eat_bst_white_and_eof_check ('iterate');
 bst_identifier_scan ('iterate');
-@<Check the \.{iterate}-command argument token@>;
+@<Check the \(i)\.{iterate}-command argument token@>;
 eat_bst_white_and_eof_check ('iterate');
 bst_get_and_check_right_brace ('iterate');
 @<Perform an \.{iterate} command@>;
@@ -4693,7 +4685,7 @@ end;
 Before iterating the function, we must make sure it's a legal one.  It
 must exist and be |built_in| or |wiz_defined|.
 
-@<Check the \.{iterate}-command argument token@>=
+@<Check the \(i)\.{iterate}-command argument token@>=
 begin
   trace
   trace_pr_token;
@@ -4738,7 +4730,7 @@ begin
 bst_get_and_check_left_brace ('macro');
 eat_bst_white_and_eof_check ('macro');
 bst_identifier_scan ('macro');
-@<Check the macro name@>;
+@<Check the \(m)macro name@>;
 eat_bst_white_and_eof_check ('macro');
 bst_get_and_check_right_brace ('macro');
 end
@@ -4747,7 +4739,7 @@ end
 @
 The macro name must be a new one; we mark it as |macro_ilk|.
 
-@<Check the macro name@>=
+@<Check the \(m)macro name@>=
 begin
   trace
   trace_pr_token;
@@ -4869,7 +4861,7 @@ eat_bst_white_and_eof_check ('reverse');
 bst_get_and_check_left_brace ('reverse');
 eat_bst_white_and_eof_check ('reverse');
 bst_identifier_scan ('reverse');
-@<Check the \.{reverse}-command argument token@>;
+@<Check the \(r)\.{reverse}-command argument token@>;
 eat_bst_white_and_eof_check ('reverse');
 bst_get_and_check_right_brace ('reverse');
 @<Perform a \.{reverse} command@>;
@@ -4881,7 +4873,7 @@ end;
 Before iterating the function in reverse, we must make sure it's a
 legal one.  It must exist and be |built_in| or |wiz_defined|.
 
-@<Check the \.{reverse}-command argument token@>=
+@<Check the \(r)\.{reverse}-command argument token@>=
 begin
   trace
   trace_pr_token;
@@ -5185,7 +5177,7 @@ cite_ptr := 0;
 while (cite_ptr < max_cites) do
     begin
     type_list[cite_ptr] := empty;@/
-    cite_info[cite_ptr] := any_value;  {to appeas \PASCAL's boolean evaluation}
+    cite_info[cite_ptr] := any_value;  {to appease \PASCAL's boolean evaluation}
     incr(cite_ptr);
     end;
 old_num_cites := num_cites;
@@ -5440,7 +5432,7 @@ lower_case (buffer, buf_ptr1, token_len);       {ignore case differences}
 command_num := ilk_info[
         str_lookup(buffer,buf_ptr1,token_len,bib_command_ilk,dont_insert)];
 if (hash_found) then
-    @<Process a \.{.bib} command@>
+    @<Process a \(b)\.{.bib} command@>
 else
     begin                                       {process an entry type}
     entry_type_loc := str_lookup(
@@ -5459,13 +5451,13 @@ end
 Here we determine which \.{.bib} command we're about to process, then
 go to it.
 
-@<Process a \.{.bib} command@>=
+@<Process a \(b)\.{.bib} command@>=
 begin
 at_bib_command := true;
 case (command_num) of
-    n_bib_comment : @<Process a \.{comment} command@>;
-    n_bib_preamble : @<Process a \.{preamble} command@>;
-    n_bib_string : @<Process a \.{string} command@>;
+    n_bib_comment : @<Process a \(c)\.{comment} command@>;
+    n_bib_preamble : @<Process a \(p)\.{preamble} command@>;
+    n_bib_string : @<Process a \(s)\.{string} command@>;
     othercases bib_cmd_confusion
 endcases;
 end
@@ -5488,7 +5480,7 @@ The \.{comment} command is implemented for SCRIBE compatibility.  It's
 not really needed because \BibTeX\ treats (flushes) everything not
 within an entry as a comment anyway.
 
-@<Process a \.{comment} command@>=
+@<Process a \(c)\.{comment} command@>=
 begin
 return;                 {flush comments}
 end
@@ -5513,7 +5505,7 @@ This module does all the scanning (that's not subcontracted), but the
 |scan_and_store_the_field_value_and_eat_white| actually stores the
 value.
 
-@<Process a \.{preamble} command@>=
+@<Process a \(p)\.{preamble} command@>=
 begin
 if (preamble_ptr = max_bib_files) then
     bib_err ('You''ve exceeded ',max_bib_files:0,' preamble commands');
@@ -5559,7 +5551,7 @@ list of field tokens separated by |concat_char|s.  There are three
 types of field tokens---nonnegative numbers, macro names, and
 delimited strings.
 
-@<Process a \.{string} command@>=
+@<Process a \(s)\.{string} command@>=
 begin
 eat_bib_white_and_eof_check;
 @<Scan the string's name@>;
@@ -6222,7 +6214,7 @@ end
 @
 @:this can't happen}{\quad The cite list is messed up@>
 It's illegal to have two (or more) entries with the same database key
-(even if there are case differrences), and we skip the rest of the
+(even if there are case differences), and we skip the rest of the
 entry for such a repeat occurrence.  Also, we make this entry's
 database key the official |cite_list| key if it's on |cite_list| only
 because of cross references.
@@ -7087,7 +7079,7 @@ entire databases, which fairly frequently are nearly sorted).
 @d short_list = 10      {use straight insertion sort at or below this length}
 @d end_offset = 4       {the index end-offsets for choosing a median-of-three}
 
-@<Check the ``constant'' values for consistency@>=
+@<Check the \(co)``constant'' values for consistency@>=
 if (short_list < 2*end_offset + 2) then bad:=100*bad+22;
 
 
@@ -7706,15 +7698,15 @@ begin
   trace_pr_ln ('''');
   ecart@/
 case (fn_type[ex_fn_loc]) of
-    built_in : @<Execute a |built_in| function@>;
-    wiz_defined : @<Execute a |wiz_defined| function@>;
+    built_in : @<Execute a \(b)|built_in| function@>;
+    wiz_defined : @<Execute a \(w)|wiz_defined| function@>;
     int_literal : push_lit_stk (fn_info[ex_fn_loc], stk_int);
     str_literal : push_lit_stk (hash_text[ex_fn_loc], stk_str);
-    field : @<Execute a field@>;
+    field : @<Execute a \(f)field@>;
     int_entry_var : @<Execute an |int_entry_var|@>;
-    str_entry_var : @<Execute a |str_entry_var|@>;
+    str_entry_var : @<Execute a \(s)|str_entry_var|@>;
     int_global_var : push_lit_stk (fn_info[ex_fn_loc], stk_int);
-    str_global_var : @<Execute a |str_global_var|@>;
+    str_global_var : @<Execute a \(s)|str_global_var|@>;
     othercases unknwn_function_class_confusion
 endcases;
 end;
@@ -7725,7 +7717,7 @@ To execute a |wiz_defined| function, we just execute all those
 functions in its definition, except that the special marker
 |quote_next_fn| means we push the next function onto the stack.
 
-@<Execute a |wiz_defined| function@>=
+@<Execute a \(w)|wiz_defined| function@>=
 begin
 wiz_ptr := fn_info[ex_fn_loc];
 while (wiz_functions[wiz_ptr] <> end_of_def) do
@@ -7747,7 +7739,7 @@ This module pushes the string given by the field onto the literal
 stack unless it's |missing|, in which case it pushes a special value
 onto the stack.
 
-@<Execute a field@>=
+@<Execute a \(f)field@>=
 begin
 if (not mess_with_entries) then
     bst_cant_mess_with_entries_print
@@ -7780,7 +7772,7 @@ end
 This module adds the string given by a |str_entry_var| to |str_pool|
 via the execution buffer and pushes it onto the literal stack.
 
-@<Execute a |str_entry_var|@>=
+@<Execute a \(s)|str_entry_var|@>=
 begin
 if (not mess_with_entries) then
     bst_cant_mess_with_entries_print
@@ -7804,7 +7796,7 @@ character) only if it has to---it {\it doesn't\/} have to if the
 string is static (that is, if the string isn't at the top, temporary
 part of the string pool).
 
-@<Execute a |str_global_var|@>=
+@<Execute a \(s)|str_global_var|@>=
 begin
 str_glb_ptr := fn_info[ex_fn_loc];
 if (glb_str_ptr[str_glb_ptr] > 0) then  {we're dealing with a static string}
@@ -8166,7 +8158,7 @@ This module branches to the code for the appropriate |built_in|
 function.  Only three---{\.{call.type\$}}, {\.{if\$}}, and
 {\.{while\$}}---do a recursive call.
 
-@<Execute a |built_in| function@>=
+@<Execute a \(b)|built_in| function@>=
 begin
   stat          {update this function's execution count}
   incr(execution_count[fn_info[ex_fn_loc]]);
@@ -8778,7 +8770,7 @@ if (pop_typ1 <> stk_str) then
 else if (length(pop_lit1) = 0) then     {don't add |period| to the null string}
     push_lit_stk (s_null, stk_str)
 else
-    @<Add the |period|, if necessary, and push@>;
+    @<Add the |period|\(f), if necessary, and push@>;
 end;
 
 
@@ -8787,7 +8779,7 @@ end;
 Here we scan backwards from the end of the string, skipping
 non|right_brace| characters, to see if we have to add the |period|.
 
-@<Add the |period|, if necessary, and push@>=
+@<Add the |period|\(f), if necessary, and push@>=
 begin
 sp_ptr := str_start[pop_lit1+1];
 sp_end := str_start[pop_lit1];
@@ -8804,7 +8796,7 @@ case (str_pool[sp_ptr]) of
     exclamation_mark :
         repush_string;
     othercases
-        @<Add the |period| (it's necessary) and push@>
+        @<Add the |period|\(t) (it's necessary) and push@>
 endcases;
 end
 
@@ -8812,7 +8804,7 @@ end
 @
 Ok guys, we really have to do it.
 
-@<Add the |period| (it's necessary) and push@>=
+@<Add the |period|\(t) (it's necessary) and push@>=
 begin
 if (pop_lit1 < cmd_str_ptr) then
     begin
@@ -9007,7 +8999,7 @@ while (ex_buf_ptr < ex_buf_length) do
           else if ((prev_colon) and
                         (lex_class[ex_buf[ex_buf_ptr-1]] = white_space)) then
             goto ok_pascal_i_give_up;
-        @<Convert a special character@>;
+        @<Convert a \(s)special character@>;
 ok_pascal_i_give_up:
         prev_colon := false;
         end
@@ -9018,7 +9010,7 @@ ok_pascal_i_give_up:
         end
     else
         if (brace_level = 0) then
-            @<Convert a |brace_level = 0| character@>;
+            @<Convert a \(b)|brace_level = 0| character@>;
     incr(ex_buf_ptr);
     end;
 check_brace_level (pop_lit2);
@@ -9036,7 +9028,7 @@ in between depends on the special character.  In general, this code
 will do reasonably well if there is other stuff, too, between braces,
 but it doesn't try to do anything special with |colon|s.
 
-@<Convert a special character@>=
+@<Convert a \(s)special character@>=
 begin
 incr(ex_buf_ptr);                       {skip over the |left_brace|}
 while ((ex_buf_ptr < ex_buf_length) and (brace_level > 0)) do
@@ -9060,7 +9052,7 @@ while ((ex_buf_ptr < ex_buf_length) and (brace_level > 0)) do
             incr(brace_level);
         incr(ex_buf_ptr);
         end;
-    @<Convert a noncontrol sequence@>;
+    @<Convert a \(n)noncontrol sequence@>;
     end;
 decr(ex_buf_ptr);               {unskip the |right_brace|}
 end
@@ -9154,7 +9146,7 @@ end
 There are no control sequences in what we're about to convert,
 so a straight conversion suffices.
 
-@<Convert a noncontrol sequence@>=
+@<Convert a \(n)noncontrol sequence@>=
 begin
 case (conversion_type) of
     title_lowers,
@@ -9175,7 +9167,7 @@ end
 This code does any needed conversion for an ordinary character; it
 won't touch nonletters.
 
-@<Convert a |brace_level = 0| character@>=
+@<Convert a \(b)|brace_level = 0| character@>=
 begin
 case (conversion_type) of
     title_lowers :
@@ -9787,7 +9779,7 @@ while (name_bf_ptr < name_bf_xptr) do
         incr(name_bf_ptr);
         if ((name_bf_ptr + 2 < name_bf_xptr) and
                                 (name_buf[name_bf_ptr] = backslash)) then
-            @<Check the special character (and |return|)@>
+            @<Check the \(s)special character (and |return|)@>
           else
             @<Skip over |name_buf| stuff at |nm_brace_level > 0|@>;
         end
@@ -9802,7 +9794,7 @@ end;
 When we come here |name_bf_ptr| is just past the |left_brace|,
 but we always leave by |return|ing.
 
-@<Check the special character (and |return|)@>=
+@<Check the \(s)special character (and |return|)@>=
 begin
 incr(name_bf_ptr);                      {skip over the |backslash|}
 name_bf_yptr := name_bf_ptr;
@@ -9812,7 +9804,7 @@ while ((name_bf_ptr < name_bf_xptr) and
 control_seq_loc := str_lookup(name_buf,name_bf_yptr,name_bf_ptr-name_bf_yptr,
                                                 control_seq_ilk,dont_insert);
 if (hash_found) then
-    @<Handle this accented or foreign character (and |return|)@>;
+    @<Handle this \(a)accented or foreign character (and |return|)@>;
 while ((name_bf_ptr < name_bf_xptr) and (nm_brace_level > 0)) do
     begin
     if ((name_buf[name_bf_ptr] >= "A") and
@@ -9837,7 +9829,7 @@ The accented or foreign character is either `\.{\\i}' or `\.{\\j}' or
 one of the eleven alphabetic foreign characters in Table~3.2 of the
 \LaTeX\ manual.
 
-@<Handle this accented or foreign character (and |return|)@>=
+@<Handle this \(a)accented or foreign character (and |return|)@>=
 begin
 case (ilk_info[control_seq_loc]) of
     n_oe_upper,
@@ -10308,7 +10300,7 @@ end
 This function looks at the string in |ex_buf|, starting at
 |ex_buf_xptr| and ending just before |ex_buf_ptr|, and it returns
 |true| if there are |enough_chars|, where a special character (even if
-it's missing its matching |right_brace|) counts as a single charcter.
+it's missing its matching |right_brace|) counts as a single character.
 This procedure is called only for strings that don't have too many
 |right_brace|s.
 

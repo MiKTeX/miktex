@@ -7,8 +7,10 @@
 %% % \suppressifcsnameerror 
 %% % \suppressfontnotfounderror -> we have an error from mktextfm etc. anyway
 %% % \suppressprimitiveerror -> e-(u)pTeX does not produce errors in \pdfprimitive
-
+%%
 %% \ignoreprimitiveerror (from pdfTeX and XeTeX)
+%%
+%% This change file should be applied after unbalanced-braces.ch.
 
 @x
 @d print_err(#)==begin if interaction=error_stop_mode then wake_up_terminal;
@@ -91,11 +93,21 @@ if (suppress_outer_error=0)and(cur_cmd>=outer_call) then check_outer_validity;
 @x @<Input from token list, |goto restart|  ...@>
       if cur_cmd=dont_expand then
         @<Get the next token, suppressing expansion@>
-      else check_outer_validity;
+      else
+        begin
+        if (cur_cs=end_write)and(mode=0) then
+          fatal_error("Unbalanced write command");
+        check_outer_validity;
+        end;
 @y
       if cur_cmd=dont_expand then
         @<Get the next token, suppressing expansion@>
-      else if suppress_outer_error=0 then check_outer_validity;
+      else
+        begin
+        if (cur_cs=end_write)and(mode=0) then
+          fatal_error("Unbalanced write command");
+        if suppress_outer_error=0 then check_outer_validity;
+        end;
 @z
 
 @x @<Read next line of file into |buffer|, ...>

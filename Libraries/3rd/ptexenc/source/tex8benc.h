@@ -9,7 +9,7 @@ extern "C" {
 static unsigned short UCStoT1enc[] = {
     /* from,  to */
     0xA1,    0xBD,
-    0xA3,    0xBB,
+    0xA3,    0xBF,
     0xA7,    0x9F,
     0xA8,    0x04,
     0xAB,    0x13,
@@ -721,8 +721,12 @@ static unsigned short UCStoT2Aenc[] = {
     /* from,  to */
     0x49,    0x49,  // Latin Capital Letter I; glyph for \CYRII, U+0406 І
     0x4A,    0x4A,  // Latin Capital Letter J; glyph for \CYRJE, U+0408 Ј
+    0x51,    0x51,  // Latin Capital Letter Q; glyph for \CYRQ,  U+051A Ԛ
+    0x57,    0x57,  // Latin Capital Letter W; glyph for \CYRW,  U+051C Ԝ
     0x69,    0x69,  // Latin Small Letter I;   glyph for \cyrii, U+0456 і
     0x6A,    0x6A,  // Latin Small Letter J;   glyph for \cyrje, U+0458 ј
+    0x71,    0x71,  // Latin Small Letter Q;   glyph for \cyrq,  U+051B ԛ
+    0x77,    0x77,  // Latin Small Letter W;   glyph for \cyrw,  U+051D ԝ
     0xA4,    0x9E,
     0xA7,    0x9F,
     0xA8,    0x04,
@@ -868,6 +872,10 @@ static unsigned short UCStoT2Aenc[] = {
    0x4D9,    0xBA,  // CYRILLIC SMALL LETTER SCHWA
    0x4E8,    0x90,  // CYRILLIC CAPITAL LETTER BARRED O
    0x4E9,    0xB0,  // CYRILLIC SMALL LETTER BARRED O
+   0x51A,    0x51,  // CYRILLIC CAPITAL LETTER QA;   \CYRQ
+   0x51B,    0x71,  // CYRILLIC SMALL LETTER QA;     \cyrq
+   0x51C,    0x57,  // CYRILLIC CAPITAL LETTER WE;   \CYRW
+   0x51D,    0x77,  // CYRILLIC SMALL LETTER WE;     \cyrw
   0x200C,    0x17,
   0x2010,    0x7F,
   0x2013,    0x15,
@@ -888,8 +896,12 @@ static unsigned short UCStoT2Benc[] = {
     /* from,  to */
     0x49,    0x49,  // Latin Capital Letter I; glyph for \CYRII, U+0406 І
     0x4A,    0x4A,  // Latin Capital Letter J; glyph for \CYRJE, U+0408 Ј
+    0x51,    0x51,  // Latin Capital Letter Q; glyph for \CYRQ,  U+051A Ԛ
+    0x57,    0x57,  // Latin Capital Letter W; glyph for \CYRW,  U+051C Ԝ
     0x69,    0x69,  // Latin Small Letter I;   glyph for \cyrii, U+0456 і
     0x6A,    0x6A,  // Latin Small Letter J;   glyph for \cyrje, U+0458 ј
+    0x71,    0x71,  // Latin Small Letter Q;   glyph for \cyrq,  U+051B ԛ
+    0x77,    0x77,  // Latin Small Letter W;   glyph for \cyrw,  U+051D ԝ
     0xA4,    0x9E,
     0xA7,    0x9F,
     0xA8,    0x04,
@@ -1031,6 +1043,10 @@ static unsigned short UCStoT2Benc[] = {
    0x511,    0xBB,  // CYRILLIC SMALL LETTER REVERSED ZE
    0x512,    0x8C,  // CYRILLIC CAPITAL LETTER EL WITH HOOK
    0x513,    0xAC,  // CYRILLIC SMALL LETTER EL WITH HOOK
+   0x51A,    0x51,  // CYRILLIC CAPITAL LETTER QA;   \CYRQ
+   0x51B,    0x71,  // CYRILLIC SMALL LETTER QA;     \cyrq
+   0x51C,    0x57,  // CYRILLIC CAPITAL LETTER WE;   \CYRW
+   0x51D,    0x77,  // CYRILLIC SMALL LETTER WE;     \cyrw
   0x200C,    0x17,
   0x2010,    0x7F,
   0x2013,    0x15,
@@ -1051,8 +1067,12 @@ static unsigned short UCStoT2Cenc[] = {
     /* from,  to */
     0x49,    0x49,  // Latin Capital Letter I; glyph for \CYRII, U+0406 І
     0x4A,    0x4A,  // Latin Capital Letter J; glyph for \CYRJE, U+0408 Ј
+    0x51,    0x51,  // Latin Capital Letter Q; glyph for \CYRQ,  U+051A Ԛ
+    0x57,    0x57,  // Latin Capital Letter W; glyph for \CYRW,  U+051C Ԝ
     0x69,    0x69,  // Latin Small Letter I;   glyph for \cyrii, U+0456 і
     0x6A,    0x6A,  // Latin Small Letter J;   glyph for \cyrje, U+0458 ј
+    0x71,    0x71,  // Latin Small Letter Q;   glyph for \cyrq,  U+051B ԛ
+    0x77,    0x77,  // Latin Small Letter W;   glyph for \cyrw,  U+051D ԝ
     0xA4,    0x9E,
     0xA7,    0x9F,
     0xA8,    0x04,
@@ -1190,6 +1210,10 @@ static unsigned short UCStoT2Cenc[] = {
    0x4E9,    0xB0,  // CYRILLIC SMALL LETTER BARRED O
    0x512,    0x8C,  // CYRILLIC CAPITAL LETTER EL WITH HOOK
    0x513,    0xAC,  // CYRILLIC SMALL LETTER EL WITH HOOK
+   0x51A,    0x51,  // CYRILLIC CAPITAL LETTER QA;   \CYRQ
+   0x51B,    0x71,  // CYRILLIC SMALL LETTER QA;     \cyrq
+   0x51C,    0x57,  // CYRILLIC CAPITAL LETTER WE;   \CYRW
+   0x51D,    0x77,  // CYRILLIC SMALL LETTER WE;     \cyrw
    0x528,    0x99,  // CYRILLIC CAPITAL LETTER EN WITH LEFT HOOK
    0x529,    0xB9,  // CYRILLIC SMALL LETTER EN WITH LEFT HOOK
   0x200C,    0x17,
@@ -1398,6 +1422,7 @@ static unsigned short UCStoLGRenc[] = {
   0x1FB4,    0x8C,  // Greek Small Letter Alpha with Oxia and Ypogegrammeni
   0x1FB6,    0x90,  // Greek Small Letter Alpha with Perispomeni
   0x1FB7,    0x94,  // Greek Small Letter Alpha with Perispomeni and Ypogegrammeni
+  0x1FBB,    0xFD,  // Greek Capital Letter Alpha with Oxia
   0x1FBC,    0x09,  // Greek Capital Letter Alpha with Prosgegrammeni
   0x1FBD,    0x3E,  // Greek Koronis
   0x1FBE,    0x08,  // Greek Prosgegrammeni
@@ -1409,6 +1434,8 @@ static unsigned short UCStoLGRenc[] = {
   0x1FC4,    0xA4,  // Greek Small Letter Eta with Oxia and Ypogegrammeni
   0x1FC6,    0xA8,  // Greek Small Letter Eta with Perispomeni
   0x1FC7,    0xAC,  // Greek Small Letter Eta with Perispomeni and Ypogegrammeni
+  0x1FC9,    0xC7,  // Greek Capital Letter Epsilon with Oxia
+  0x1FCB,    0x9F,  // Greek Capital Letter Eta with Oxia
   0x1FCC,    0x0A,  // Greek Capital Letter Eta with Prosgegrammeni
   0x1FCD,    0x5F,  // Greek Psili and Varia
   0x1FCE,    0x5E,  // Greek Psili and Oxia
@@ -1417,6 +1444,7 @@ static unsigned short UCStoLGRenc[] = {
   0x1FD3,    0xF2,  // Greek Small Letter Iota with Dialytika and Oxia
   0x1FD6,    0xD8,  // Greek Small Letter Iota with Perispomeni
   0x1FD7,    0xF3,  // Greek Small Letter Iota with Dialytika and Perispomeni
+  0x1FDB,    0x9B,  // Greek Capital Letter Iota with Oxia
   0x1FDD,    0x43,  // Greek Dasia and Varia
   0x1FDE,    0x56,  // Greek Dasia and Oxia
   0x1FDF,    0x40,  // Greek Dasia and Perispomeni
@@ -1434,6 +1462,7 @@ static unsigned short UCStoLGRenc[] = {
   0x1FF4,    0xBC,  // Greek Small Letter Omega with Oxia and Ypogegrammeni
   0x1FF6,    0xC0,  // Greek Small Letter Omega with Perispomeni
   0x1FF7,    0xC4,  // Greek Small Letter Omega with Perispomeni and Ypogegrammeni
+  0x1FF9,    0x97,  // Greek Capital Letter Omicron with Oxia
   0x1FFC,    0x0B,  // Greek Capital Letter Omega with Prosgegrammeni
   0x1FFD,    0x27,  // Greek Oxia
   0x1FFE,    0x3C,  // Greek Dasia
