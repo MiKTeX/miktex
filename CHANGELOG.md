@@ -9,6 +9,7 @@
 * dvips 2025.1
 * hitex 2.2
 * luatex 1.24.0
+* metapost 2.12
 * pdftex 1.40.28
 
 ### Added
