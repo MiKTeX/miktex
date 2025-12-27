@@ -24,6 +24,8 @@
 
 extern int cur_size;
 
+extern int permit_math_obsolete;
+
 extern halfword del_width;
 extern halfword del_height;
 extern halfword del_depth;

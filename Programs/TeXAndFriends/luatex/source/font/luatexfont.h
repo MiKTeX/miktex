@@ -119,7 +119,7 @@ typedef struct {
 /* tounicode.c */
 
 int write_cid_tounicode(PDF, fo_entry *, internal_font_number);
-int write_tounicode(PDF, char **, char *);
+int write_tounicode(PDF, char **, char *, internal_font_number);
 int write_raw_tounicode(PDF, internal_font_number, char *);
 void def_tounicode(str_number, str_number);
 void glyph_unicode_free(void);

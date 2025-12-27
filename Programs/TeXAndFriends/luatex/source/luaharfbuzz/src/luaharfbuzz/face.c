@@ -15,6 +15,7 @@ static void lua_seti (lua_State *L, int index, lua_Integer i) {
 }
 #endif
 
+
 /* Size of static arrays we use to avoid heap allocating memory when reading
  * data from HarfBuzz. */
 #define STATIC_ARRAY_SIZE 128
@@ -287,8 +288,8 @@ static int face_collect_unicodes(lua_State *L) {
     hb_codepoint_t c = HB_SET_VALUE_INVALID;
 
     while (hb_set_next(codes, &c)) {
-      lua_pushnumber(L, ++i);
-      lua_pushnumber(L, c);
+      lua_pushinteger(L, ++i);
+      lua_pushinteger(L, c);
       lua_rawset(L, -3);
     }
   }

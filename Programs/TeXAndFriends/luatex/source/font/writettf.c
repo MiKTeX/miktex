@@ -1310,7 +1310,7 @@ static void ttf_write_OS2(PDF pdf)
     TTF_USHORT version;
     ttf_reset_chksm(pdf, tab);
     version = get_ushort();
-    if (version > 3) {
+    if (version > 5) {
         formatted_error("ttf font","unknown version '%.4X' of OS/2 table", version);
     }
     /*tex fix version to 1 */

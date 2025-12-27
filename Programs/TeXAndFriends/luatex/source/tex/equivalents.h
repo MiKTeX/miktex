@@ -278,10 +278,10 @@ the |number_regs| \.{\\dimen} registers.
 #  define math_eqno_gap_step_code 87                                    /* factor/1000 used for distance between eq and eqno */
 #  define math_display_skip_mode_code 88
 #  define math_scripts_mode_code 89
-#  define math_nolimits_mode_code 90
+#  define math_nolimits_mode_code 90 /* obsolete */
 #  define math_rules_mode_code 91
 #  define math_rules_fam_code 92
-#  define math_italics_mode_code 93
+#  define math_italics_mode_code 93 /* obsolete */
 #  define synctex_code 94                                               /* is synctex file generation enabled ?  */
 #  define shape_mode_code 95
 #  define first_valid_language_code 96
@@ -300,8 +300,8 @@ the |number_regs| \.{\\dimen} registers.
 #  define pre_rel_penalty_code 108
 #  define math_penalties_mode_code 109
 #  define math_delimiters_mode_code 110
-#  define math_script_box_mode_code 111
-#  define math_script_char_mode_code 112
+#  define math_script_box_mode_code 111 /* obsolete */
+#  define math_script_char_mode_code 112 /* obsolete */
 #  define math_rule_thickness_mode_code 113
 #  define math_flatten_mode_code 114
 
@@ -315,24 +315,13 @@ the |number_regs| \.{\\dimen} registers.
 #  define show_stream_code 122
 #  define math_eq_dir_mode_code 123
 #  define var_fam_code 124
-
 #  define ignore_primitive_error_code 125 				/*ignore some primitive/engine errors*/
-
 #  define math_empty_display_mode_code 126
 
-#  define math_option_code 127
-
-
-#  define mathoption_int_base_code (math_option_code+1)                 /* one reserve */
-#  define mathoption_int_last_code (mathoption_int_base_code+8)
-
-#  define backend_int_base_code (mathoption_int_last_code+1)
+#  define backend_int_base_code (math_empty_display_mode_code+1)
 #  define backend_int_last_code (backend_int_base_code+32)              /* we need some 25 but take some slack */
 
 #  define tex_int_pars (backend_int_last_code+1)                        /* total number of integer parameters */
-
-#  define mathoption_int_base (int_base+mathoption_int_base_code)
-#  define mathoption_int_last (int_base+mathoption_int_last_code)
 
 #  define backend_int_base (int_base+backend_int_base_code)
 #  define backend_int_last (int_base+backend_int_last_code)
@@ -470,15 +459,6 @@ extern void print_save_stack(void);
 #  define dimen_par(A) eqtb[dimen_base+(A)].cint
 #  define loc_par(A)   equiv(local_base+(A))
 #  define glue_par(A)  equiv(glue_base+(A))
-
-typedef enum {
-    c_mathoption_old_code = 0,                  /* this one is stable */
-    /*
-    c_mathoption_umathcode_meaning_code,
-    */
-} math_option_codes ;
-
-#  define mathoption_int_par(A) eqtb[mathoption_int_base+(A)].cint
 
 /* if nonzero, this magnification should be used henceforth */
 
@@ -682,18 +662,11 @@ extern halfword last_cs_name;
 #define pre_bin_op_penalty_par             int_par(pre_bin_op_penalty_code)
 #define pre_rel_penalty_par                int_par(pre_rel_penalty_code)
 #define math_penalties_mode_par            int_par(math_penalties_mode_code)
-#define math_delimiters_mode_par           int_par(math_delimiters_mode_code)
-#define math_script_box_mode_par           int_par(math_script_box_mode_code)
-#define math_script_char_mode_par          int_par(math_script_char_mode_code)
-#define math_rule_thickness_mode_par       int_par(math_rule_thickness_mode_code)
-#define math_flatten_mode_par              int_par(math_flatten_mode_code)
 #define null_delimiter_space_par           dimen_par(null_delimiter_space_code)
 #define disable_lig_par                    int_par(disable_lig_code)
 #define disable_kern_par                   int_par(disable_kern_code)
 #define disable_space_par                  int_par(disable_space_code)
 #define math_scripts_mode_par              int_par(math_scripts_mode_code)
-#define math_nolimits_mode_par             int_par(math_nolimits_mode_code)
-#define math_italics_mode_par              int_par(math_italics_mode_code)
 #define math_rules_mode_par                int_par(math_rules_mode_code)
 #define math_rules_fam_par                 int_par(math_rules_fam_code)
 
@@ -783,12 +756,6 @@ extern halfword last_cs_name;
 #define error_context_lines_par            int_par(error_context_lines_code)
 #define copy_lua_input_nodes_par           int_par(copy_lua_input_nodes_code)
 
-#define math_old_par                       mathoption_int_par(c_mathoption_old_code)
-
-/*
-#define math_umathcode_meaning_par         mathoption_int_par(c_mathoption_umathcode_meaning_code)
-*/
-
 #define math_pre_display_gap_factor_par    int_par(math_pre_display_gap_factor_code)
 
 #define time_par                           int_par(time_code)
@@ -825,7 +792,6 @@ extern halfword last_cs_name;
 
 #define fixup_boxes_par                    int_par(fixup_boxes_code)
 #define glyph_dimensions_par               int_par(glyph_dimensions_code)
-#define math_defaults_mode_par             int_par(math_defaults_mode_code)
 #define math_eq_dir_mode_par               int_par(math_eq_dir_mode_code)
 #define discretionary_ligature_mode_par    int_par(discretionary_ligature_mode_code)
 #define partoken_context_code_par          int_par(partoken_context_code)
@@ -837,6 +803,17 @@ extern halfword last_cs_name;
 /* */
 
 #define math_use_current_family_code 7
+
+/* obsolete */
+
+#define math_italics_mode_par        int_par(math_italics_mode_code)
+#define math_script_char_mode_par    int_par(math_script_char_mode_code)
+#define math_script_box_mode_par     int_par(math_script_box_mode_code)
+#define math_nolimits_mode_par       int_par(math_nolimits_mode_code)
+#define math_flatten_mode_par        int_par(math_flatten_mode_code)
+#define math_defaults_mode_par       int_par(math_defaults_mode_code)
+#define math_rule_thickness_mode_par int_par(math_rule_thickness_mode_code)
+#define math_delimiters_mode_par     int_par(math_delimiters_mode_code)
 
 /*
     #define box(A) equiv(box_base+(A))

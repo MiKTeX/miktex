@@ -68,7 +68,7 @@ scaled_whd output_one_char(PDF pdf, halfword p)
     if (has_packet(f, c)) {
         do_vf_packet(pdf, f, c, ex_glyph);
     } else {
-        backend_out[glyph_node] (pdf, f, c, ex_glyph);
+      backend_out_node_glyph[BACKEND_INDEX(glyph_node)] (pdf, f, c, ex_glyph);
     }
     return ci;
 }

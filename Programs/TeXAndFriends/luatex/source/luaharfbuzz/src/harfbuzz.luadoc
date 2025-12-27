@@ -1,15 +1,15 @@
 -----------
 -- Lua bindings to Harfbuzz.
--- * [Wiki](http://github.com/ufytex/luaharfbuzz/wiki)
--- * [Source on Github](https://github.com/ufytex/luaharfbuzz)
--- * [API Coverage Status](https://github.com/ufytex/luaharfbuzz/blob/master/status/done.txt)
+-- * [Wiki](http://github.com/harfbuzz/luaharfbuzz/wiki)
+-- * [Source on Github](https://github.com/harfbuzz/luaharfbuzz)
+-- * [API Coverage Status](https://github.com/harfbuzz/luaharfbuzz/blob/master/status/done.txt)
 --
 -- @author Deepak Jois <<deepak.jois@gmail.com>>
 -- @copyright 2016
 -- @license MIT
 -- @module harfbuzz
 
---- Wraps `hb_version`
+--- Wraps `hb_version`.
 -- @function version
 
 --- Wraps `hb_shape`.
@@ -23,7 +23,7 @@
 --  * `script`: A `Script` object representing the script.
 --  * `language`: A `Language` object representing the language.
 --  * `features`: features to enable, specified as either of the following.
---    - comma-separated list of features. See [feature string syntax reference](https://github.com/ufytex/luaharfbuzz/wiki/Feature-Strings)
+--    - comma-separated list of features. See [feature string syntax reference](https://github.com/harfbuzz/luaharfbuzz/wiki/Feature-Strings)
 --    - table of `Feature` objects
 --  @function shape
 
@@ -267,7 +267,7 @@
 --- Cluster Levels.
 -- See [Harfbuzz docs](http://behdad.github.io/harfbuzz/clusters.html) for more details
 -- about what each of these levels mean.
---  @section
+--  @section cluster-levels
 
 --- Wraps `HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES`.
 --  @field Buffer.CLUSTER_LEVEL_MONOTONE_GRAPHEMES
@@ -291,7 +291,7 @@
 --  @type Feature
 
 --- Wraps `hb_feature_from_string`
---  @param feature_string See [feature string syntax reference](https://github.com/ufytex/luaharfbuzz/wiki/Feature-Strings)
+--  @param feature_string See [feature string syntax reference](https://github.com/harfbuzz/luaharfbuzz/wiki/Feature-Strings)
 --  @function Feature.new
 
 --- Wraps `hb_feature_to_string`.
@@ -308,7 +308,7 @@
 
 --- Wraps `hb_tag_to_string`. Enable nice output with `tostring(…)`.
 -- @return Returns a string representation for the tag object.
--- @function Tag:__to_string
+-- @function Tag:__tostring
 
 --- Enables equality comparisions with `==` between two tags.
 -- @return `true` or `false` depending on whether the two tags are equal.
@@ -333,7 +333,7 @@
 
 --- Enable nice output with `tostring(…)`
 -- @return Returns a 4-letter [ISO 15924 script code](http://www.unicode.org/iso15924/iso15924-num.html) for the script object.
--- @function Script:__to_string
+-- @function Script:__tostring
 
 --- Enables equality comparisions with `==` between two scripts.
 -- @return `true` or `false` depending on whether the two scripts are equal.
@@ -341,7 +341,7 @@
 
 --- Predefined Script Codes.
 -- Predefined directions that correspond to their original definitions in Harfbuzz.
--- @section
+-- @section predefined-script-codes
 
 --- Wraps `HB_SCRIPT_COMMON`.
 -- @field Script.COMMON
@@ -365,7 +365,7 @@
 
 --- Wraps `hb_direction_to_string`. Enable nice output with `tostring(…)`.
 -- @return Returns a string representation for direction.
--- @function Direction:__to_string
+-- @function Direction:__tostring
 
 --- Enables equality comparisions with `==` between two directions.
 -- @return `true` or `false` depending on whether the two tags are equal.
@@ -393,7 +393,7 @@
 
 --- Predefined directions.
 -- Predefined directions that correspond to their original definitions in Harfbuzz.
--- @section
+-- @section predefined-directions
 
 --- Wraps `HB_DIRECTION_LTR`.
 -- @field Direction.LTR
@@ -417,7 +417,7 @@
 
 --- Wraps `hb_language_to_string`. Enable nice output with `tostring(…)`.
 -- @return Returns a string representation for the language object.
--- @function Language:__to_string
+-- @function Language:__tostring
 
 --- Enables equality comparisions with `==` between two languages.
 -- @return `true` or `false` depending on whether the two languages are equal.
@@ -425,14 +425,28 @@
 
 --- Predefined languages.
 -- Predefined languages that correspond to their original definitions in Harfbuzz.
--- @section
+-- @section predefined-languages
 
 --- Wraps `HB_LANGUAGE_INVALID`.
 -- @field Language.INVALID
 
 
+--- Lua wrapper for `hb_set_t` type.
+--
+-- Set objects represent a mathematical set of integer values.
+--
+-- @type Set
+
+--- Wraps `hb_set_add`.
+--
+-- Adds a codepoint to the set.
+--
+-- @param codepoint The element to add.
+-- @function Set:add
+
+
 --- Unicode functions.
--- @section
+-- @section unicode-functions
 
 --- Wraps `hb_unicode_script`
 -- @param char Unicode codepoint
@@ -442,7 +456,7 @@
 
 --- Predefined Name IDs.
 -- Predefined OpenType 'name' table name identifier.
--- @section
+-- @section predefined-name-ids
 
 --- Wraps `HB_OT_NAME_ID_COPYRIGHT`
 -- @field ot.NAME_ID_COPYRIGHT

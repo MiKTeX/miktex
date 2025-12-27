@@ -187,6 +187,26 @@ static int addcharacters(lua_State * L)
     return 0;
 }
 
+static int settounicode(lua_State * L)
+{
+    int font = luaL_checkinteger(L,1);
+    if (font && is_valid_font(font)) {
+        int unicode = luaL_checkinteger(L,2);
+        if (quick_char_exists(font,unicode)) {
+            charinfo *co = char_info(font, unicode);
+            if (co) {
+                char *tounicode = lua_type(L,3) == LUA_TSTRING ? (char *) lua_tostring(L,3) : NULL;
+                set_charinfo_tounicode(co, tounicode);
+                glyph_unicode_new(); /* signals that we need to check it */
+                set_font_tounicode(font, 1);
+            }
+        }
+    } else {
+        luaL_error(L, "that integer id is not a valid font");
+    }
+    return 0;
+}
+
 static int setexpansion(lua_State * L)
 {
     int f = luaL_checkinteger(L,1);
@@ -306,6 +326,7 @@ static const struct luaL_Reg fontlib[] = {
     {"getparameters", getparameters},
     {"setfont", setfont},
     {"addcharacters", addcharacters},
+    {"settounicode", settounicode},
     {"setexpansion", setexpansion},
     {"define", deffont},
     {"nextid", nextfontid},
@@ -340,7 +361,7 @@ static int l_vf_char(lua_State * L)
         if (has_packet(lf, k))
             do_vf_packet(static_pdf, lf, k, ex_glyph);
         else
-            backend_out[glyph_node] (static_pdf, lf, k, ex_glyph);
+	  backend_out_node_glyph[BACKEND_INDEX(glyph_node)] (static_pdf, lf, k, ex_glyph);
     }
     mat_p = &(vsp->packet_stack[vsp->packet_stack_level]);
     w = char_width(lf, k);
@@ -467,7 +488,7 @@ static int l_vf_rule(lua_State * L)
     size.h = store_scaled_f(size.h, vsp->fs_f);
     size.v = store_scaled_f(size.v, vsp->fs_f);
     if (size.h > 0 && size.v > 0)
-        backend_out[rule_node](static_pdf, 0, size);    /* the 0 is unused */
+      backend_out_node_rule[BACKEND_INDEX(rule_node)](static_pdf, 0, size,0);    /* the 0s are unused */
     mat_p = &(vsp->packet_stack[vsp->packet_stack_level]);
     mat_p->pos.h += size.h;
     synch_pos_with_cur(static_pdf->posstruct, vsp->refpos, mat_p->pos);

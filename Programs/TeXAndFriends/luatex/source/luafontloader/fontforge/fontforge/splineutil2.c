@@ -2049,10 +2049,7 @@ SplineSet *SplineSetReverse(SplineSet *spl) {
     Spline *spline, *first, *next;
     BasePoint tp;
     SplinePoint *temp;
-#if defined(MIKTEX)
-#  define bool variable_of_type_bool
-#endif
-    int bool;
+    int i_bool;
     /* reverse the splineset so that what was the start point becomes the end */
     /*  and vice versa. This entails reversing every individual spline, and */
     /*  each point */
@@ -2065,12 +2062,12 @@ return( spl );			/* Only one point, reversal is meaningless */
     tp = spline->from->nextcp;
     spline->from->nextcp = spline->from->prevcp;
     spline->from->prevcp = tp;
-    bool = spline->from->nonextcp;
+    i_bool = spline->from->nonextcp;
     spline->from->nonextcp = spline->from->noprevcp;
-    spline->from->noprevcp = bool;
-    bool = spline->from->nextcpdef;
+    spline->from->noprevcp = i_bool;
+    i_bool = spline->from->nextcpdef;
     spline->from->nextcpdef = spline->from->prevcpdef;
-    spline->from->prevcpdef = bool;
+    spline->from->prevcpdef = i_bool;
 
     for ( ; spline!=NULL && spline!=first; spline=next ) {
 	next = spline->to->next;
@@ -2079,12 +2076,12 @@ return( spl );			/* Only one point, reversal is meaningless */
 	    tp = spline->to->nextcp;
 	    spline->to->nextcp = spline->to->prevcp;
 	    spline->to->prevcp = tp;
-	    bool = spline->to->nonextcp;
+	    i_bool = spline->to->nonextcp;
 	    spline->to->nonextcp = spline->to->noprevcp;
-	    spline->to->noprevcp = bool;
-	    bool = spline->to->nextcpdef;
+	    spline->to->noprevcp = i_bool;
+	    i_bool = spline->to->nextcpdef;
 	    spline->to->nextcpdef = spline->to->prevcpdef;
-	    spline->to->prevcpdef = bool;
+	    spline->to->prevcpdef = i_bool;
 	}
 
 	temp = spline->to;
@@ -2105,9 +2102,6 @@ return( spl );			/* Only one point, reversal is meaningless */
     }
 
 return( spl );
-#if defined(MIKTEX)
-#  undef bool
-#endif
 }
 
 static void SplineSetsUntick(SplineSet *spl) {

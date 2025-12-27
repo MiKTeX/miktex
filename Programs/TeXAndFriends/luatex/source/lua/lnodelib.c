@@ -1646,11 +1646,11 @@ static int lua_nodelib_direct_setleader(lua_State * L)
     write_tokens(n) = nodelib_gettoks(L, i); \
 } while (0)
 
-#define xget_write_direct_value(L,n) do {  \
+#define get_write_direct_value(L,n) do {  \
     tokenlist_to_lua(L, write_tokens(n)); \
 } while (0)
 
-#define get_write_direct_value(L,n) do {  \
+#define get_write_direct_data(L,n) do {  \
     int l; \
     char *s; \
     expand_macros_in_tokenlist(write_tokens(n)); \
@@ -1702,7 +1702,7 @@ static int lua_nodelib_direct_getdata(lua_State * L)
             } else if (s == special_node || s == late_special_node) {
                 get_special_direct_value(L, n);
             } else if (s == write_node) {
-                get_write_direct_value(L, n);
+                get_write_direct_data(L, n);
             } else {
                 lua_pushnil(L);
             }
@@ -4522,12 +4522,14 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, const char *s)
         if (lua_key_eq(s, stream)) {
             lua_pushinteger(L, write_stream(n));
         } else if (lua_key_eq(s, data)) {
+            get_write_direct_data(L,n);
+        } else if (lua_key_eq(s, value)) {
             get_write_direct_value(L,n);
         } else {
             lua_pushnil(L);
         }
     } else if (t == special_node || t == late_special_node) {
-        if (lua_key_eq(s, data)) {
+        if (lua_key_eq(s, data) || lua_key_eq(s, value)) {
             get_special_direct_value(L,n);
         } else {
             lua_pushnil(L);
@@ -5302,12 +5304,14 @@ static void lua_nodelib_direct_getfield_whatsit(lua_State * L, int n, const char
         if (lua_key_eq(s, stream)) {
             lua_pushinteger(L, write_stream(n));
         } else if (lua_key_eq(s, data)) {
+            get_write_direct_data(L,n);
+        } else if (lua_key_eq(s, value)) {
             get_write_direct_value(L,n);
         } else {
             lua_pushnil(L);
         }
     } else if (t == special_node || t == late_special_node) {
-        if (lua_key_eq(s, data)) {
+        if (lua_key_eq(s, data) || lua_key_eq(s, value)) {
             get_special_direct_value(L,n);
         } else {
             lua_pushnil(L);
@@ -6715,7 +6719,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
     } else if (t == write_node) {
         if (lua_key_eq(s, stream)) {
             write_stream(n) = (halfword) lua_tointeger(L, 3);
-        } else if (lua_key_eq(s, data)) {
+        } else if (lua_key_eq(s, data) || lua_key_eq(s, value)) {
             set_write_direct_value(L,n,3);
         } else {
             return nodelib_cantset(L, n, s);
@@ -6749,7 +6753,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
             pdf_action_tokens(n) = nodelib_gettoks(L, 3);
         } else if (lua_key_eq(s, struct_id)) {
             if (lua_isnil(L, 3)) {
-               pdf_action_struct_id(n) = null;
+                pdf_action_struct_id(n) = null;
             } else if (pdf_action_named_id(n) & 2) {
                 pdf_action_struct_id(n) = nodelib_gettoks(L, 3);
             } else {
@@ -6779,7 +6783,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
             return nodelib_cantset(L, n, s);
         }
     } else if (t == special_node || t == late_special_node) {
-        if (lua_key_eq(s, data)) {
+        if (lua_key_eq(s, data) || lua_key_eq(s, value)) {
             set_special_direct_value(L,n,3);
         } else {
             return nodelib_cantset(L, n, s);
@@ -7469,8 +7473,8 @@ static int lua_nodelib_direct_setfield_whatsit(lua_State * L, int n, const char 
         }
     } else if (t == write_node) {
         if (lua_key_eq(s, stream)) {
-            set_write_direct_value(L,n,3);
-        } else if (lua_key_eq(s, data)) {
+            write_stream(n) = (halfword) lua_tointeger(L, 3);
+        } else if (lua_key_eq(s, data) || lua_key_eq(s, value)) {
             set_write_direct_value(L,n,3);
         } else {
             return nodelib_cantset(L, n, s);
@@ -7534,7 +7538,7 @@ static int lua_nodelib_direct_setfield_whatsit(lua_State * L, int n, const char 
             return nodelib_cantset(L, n, s);
         }
     } else if (t == special_node || t == late_special_node) {
-        if (lua_key_eq(s, data)) {
+        if (lua_key_eq(s, data) || lua_key_eq(s, value)) {
             set_special_direct_value(L, n, 3);
         } else {
             return nodelib_cantset(L, n, s);
