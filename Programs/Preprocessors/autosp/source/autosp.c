@@ -1,6 +1,6 @@
-char version[12] = "2023-10-07";
+char version[12] = "2025-10-26";
 
-/*  Copyright (C) 2014-23 R. D. Tennent School of Computing,
+/*  Copyright (C) 2014-25 R. D. Tennent School of Computing,
  *  Queen's University, rdt@cs.queensu.ca
  *
  *  This program is free software; you can redistribute it
@@ -142,8 +142,8 @@ int main (int argc, char *argv[])
   };
   
   printf ("This is autosp, version %s.\n", version);
-  printf ("Copyright (C) 2014-23  R. D. Tennent\n" );
-  printf ("School of Computing, Queen's University, rdtennent@gmail.com\n" );
+  printf ("Copyright (C) 2014-24  R. D. Tennent\n" );
+  printf ("School of Computing, Queen's University, rdt@cs.queensu.ca\n" );
   printf ("License GNU GPL version 2 or later <http://gnu.org/licences/gpl.html>.\n" );
   printf ("There is NO WARRANTY, to the extent permitted by law.\n\n" );
 
@@ -154,7 +154,7 @@ int main (int argc, char *argv[])
         {
         case 'h':
           usage ();
-          printf ("Please report bugs to rdt@cs.queensu.ca.\n" );
+          printf ("Please report bugs to rdtennent@gmail.com.\n" );
           exit (0);
         case 'v':
           exit (0);

@@ -4,6 +4,7 @@
 
 ### Upgraded programs
 
+* autosp 2025-10-26
 * dvipdfmx 20250413
 * dvips 2025.1
 * luatex 1.24.0
