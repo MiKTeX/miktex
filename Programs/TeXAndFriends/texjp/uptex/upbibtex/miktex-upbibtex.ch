@@ -145,6 +145,7 @@ long_options[current_option].has_arg := 0;
 long_options[current_option].flag := 0;
 long_options[current_option].val := 0;
 incr(current_option);
+
 @ Kanji-internal option.
 @.-kanji-internal@>
 

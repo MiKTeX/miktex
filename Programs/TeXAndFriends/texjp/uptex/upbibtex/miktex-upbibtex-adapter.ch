@@ -66,6 +66,7 @@ long_options[current_option].has_arg := 0;
 long_options[current_option].flag := 0;
 long_options[current_option].val := 0;
 incr (current_option);
+
 @ An element with all zeros always ends the list.
 begin kpse_set_program_name (argv[0], 'bibtex');
 @z
