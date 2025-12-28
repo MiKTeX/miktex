@@ -1,5 +1,3 @@
-% $Id: mpmathdouble.w 2118 2017-02-15 17:49:54Z luigi $
-%
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
@@ -33,14 +31,14 @@
 @h
 
 @ @c
-@<Declarations@>;
+@<Declarations@>
 
 @ @(mpmathdouble.h@>=
 #ifndef MPMATHDOUBLE_H
 #define  MPMATHDOUBLE_H 1
 #include "mplib.h"
 #include "mpmp.h" /* internal header */
-@<Internal library declarations@>;
+@<Internal library declarations@>
 #endif
 
 @* Math initialization.
@@ -805,7 +803,7 @@ void mp_double_velocity (MP mp, mp_number *ret, mp_number st, mp_number ct, mp_n
   } else {
     ret->data.dval = mp_double_make_fraction (mp, num, denom);
   }
-#if DEBUG
+#if MPOST_DEBUG
   fprintf(stdout, "\n%f = velocity(%f,%f,%f,%f,%f)", mp_number_to_double(*ret), 
 mp_number_to_double(st),mp_number_to_double(ct),
 mp_number_to_double(sf),mp_number_to_double(cf),
@@ -857,7 +855,7 @@ void mp_ab_vs_cd (MP mp, mp_number *ret, mp_number a_orig, mp_number b_orig, mp_
     d = r;
   }                             /* now |a>d>0| and |c>b>0| */
 RETURN:
-#if DEBUG
+#if MPOST_DEBUG
   fprintf(stdout, "\n%f = ab_vs_cd(%f,%f,%f,%f)", mp_number_to_double(*ret), 
 mp_number_to_double(a_orig),mp_number_to_double(b_orig),
 mp_number_to_double(c_orig),mp_number_to_double(d_orig));
@@ -993,7 +991,7 @@ static void mp_double_crossing_point (MP mp, mp_number *ret, mp_number aa, mp_nu
   } while (d < fraction_one);
   ret->data.dval = (d - fraction_one); 
 RETURN:
-#if DEBUG
+#if MPOST_DEBUG
   fprintf(stdout, "\n%f = crossing_point(%f,%f,%f)", mp_number_to_double(*ret), 
 mp_number_to_double(aa),mp_number_to_double(bb),mp_number_to_double(cc));
 #endif
@@ -1187,7 +1185,7 @@ void mp_double_n_arg (MP mp, mp_number *ret, mp_number x_orig, mp_number y_orig)
     ret->data.dval = atan2 (y_orig.data.dval, x_orig.data.dval) * (180.0 / PI)  * angle_multiplier;
     if (ret->data.dval == -0.0) 
       ret->data.dval = 0.0;
-#if DEBUG
+#if MPOST_DEBUG
     fprintf(stdout, "\nn_arg(%g,%g,%g)", mp_number_to_double(*ret),
     mp_number_to_double(x_orig),mp_number_to_double(y_orig));
 #endif
@@ -1243,7 +1241,7 @@ void mp_double_sin_cos (MP mp, mp_number z_orig, mp_number *n_cos, mp_number *n_
     n_cos->data.dval = cos(rad) * fraction_multiplier;
     n_sin->data.dval = sin(rad) * fraction_multiplier;
   }
-#if DEBUG
+#if MPOST_DEBUG
   fprintf(stdout, "\nsin_cos(%f,%f,%f)", mp_number_to_double(z_orig),
 mp_number_to_double(*n_cos), mp_number_to_double(*n_sin));
 #endif

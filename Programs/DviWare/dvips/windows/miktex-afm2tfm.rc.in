@@ -1,0 +1,19 @@
+/**
+ * @file miktex-afm2tfm.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 1996-2017 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#include "miktex-afm2tfm-version.h"
+
+#define VER_FILEDESCRIPTION_STR "AFM-to-TDM Converter"
+#define VER_INTERNALNAME_STR "afm2tfm"
+#define VER_ORIGINALFILENAME_STR "miktex-afm2tfm.exe"
+
+#include "miktex/win/version.rc"

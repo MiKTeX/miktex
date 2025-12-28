@@ -283,14 +283,14 @@ static void handle_backend_whatsit(PDF pdf, halfword p, halfword parent_box, sca
             case pdf_end_link_node:
             case pdf_end_thread_node:
             case pdf_link_state_node:
-                backend_out_whatsit[subtype(p)](pdf, p);
+	        backend_out_whatsit[BACKEND_WHATSIT_INDEX(subtype(p))](pdf, p);
                 break;
             case pdf_annot_node:
             case pdf_start_link_node:
             case pdf_dest_node:
             case pdf_start_thread_node:
             case pdf_thread_node:
-                backend_out_whatsit[subtype(p)](pdf, p, parent_box, cur);
+	        backend_out_whatsit_do[BACKEND_WHATSIT_DO_INDEX(subtype(p))](pdf, p, parent_box, cur);
                 break;
             default:
                 /*tex We ignore bad ones. */
@@ -358,7 +358,7 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     localpos.pos = refpos->pos;
     localpos.dir = box_dir(this_box);
     cur_s++;
-    backend_out_control[backend_control_push_list](pdf,&saved_pos,&saved_loc);
+    backend_out_control_list[BACKEND_INDEX(backend_control_push_list)](pdf,&saved_pos,&saved_loc);
     for (i = 1; i <= pdf->link_stack_ptr; i++) {
         if (pdf->link_state == 1) {
             /*
@@ -736,7 +736,7 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                                 /*tex |pdf_special(pdf, p)| */
                             case late_lua_node:
                                 /*tex |late_lua(pdf, p)| */
-                                backend_out_whatsit[subtype(p)] (pdf, p);
+			        backend_out_whatsit[BACKEND_WHATSIT_INDEX(subtype(p))] (pdf, p);
                                 break;
                             default:
                                 break;
@@ -804,10 +804,10 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                 if (type(p) == glue_node) {
                     q = leader_ptr(p);
                     if ((q) && (type(q) == rule_node)) {
-                        backend_out[rule_node] (pdf, q, size, rule_callback_id);
+		      backend_out_node_rule[BACKEND_INDEX(rule_node)] (pdf, q, size, rule_callback_id);
                     }
                 } else {
-                    backend_out[rule_node] (pdf, p, size, rule_callback_id);
+		  backend_out_node_rule[BACKEND_INDEX(rule_node)] (pdf, p, size, rule_callback_id);
                 }
             }
           MOVE_PAST:
@@ -828,7 +828,7 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     if (synctex) {
         synctextsilh(this_box);
     }
-    backend_out_control[backend_control_pop_list](pdf,&saved_pos,&saved_loc);
+    backend_out_control_list[BACKEND_INDEX(backend_control_pop_list)](pdf,&saved_pos,&saved_loc);
     cur_s--;
     pdf->posstruct = refpos;
 }
@@ -893,7 +893,7 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     localpos.dir = box_dir(this_box);
     synch_pos_with_cur(pdf->posstruct, refpos, cur);
     cur_s++;
-    backend_out_control[backend_control_push_list](pdf,&saved_pos,&saved_loc);
+    backend_out_control_list[BACKEND_INDEX(backend_control_push_list)](pdf,&saved_pos,&saved_loc);
     if (synctex) {
         synctexvlist(this_box);
     }
@@ -1114,7 +1114,7 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                             /*tex |pdf_special(pdf, p)|; */
                         case late_lua_node:
                             /*tex |late_lua(pdf, p)|; */
-                            backend_out_whatsit[subtype(p)] (pdf, p);
+			    backend_out_whatsit[BACKEND_WHATSIT_INDEX(subtype(p))] (pdf, p);
                             break;
                         default:
                             break;
@@ -1180,10 +1180,10 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
             if (type(p) == glue_node) {
                 q = leader_ptr(p);
                 if ((q) && (type(q) == rule_node)) {
-                    backend_out[rule_node] (pdf, q, size, rule_callback_id);
+		  backend_out_node_rule[BACKEND_INDEX(rule_node)] (pdf, q, size, rule_callback_id);
                 }
             } else {
-                backend_out[rule_node] (pdf, p, size, rule_callback_id);
+	      backend_out_node_rule[BACKEND_INDEX(rule_node)] (pdf, p, size, rule_callback_id);
             }
         }
         cur.v += rule.ht + rule.dp;
@@ -1197,7 +1197,7 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     if (synctex) {
         synctextsilv(this_box);
     }
-    backend_out_control[backend_control_pop_list](pdf,&saved_pos,&saved_loc);
+    backend_out_control_list[BACKEND_INDEX(backend_control_pop_list)](pdf,&saved_pos,&saved_loc);
     cur_s--;
     pdf->posstruct = refpos;
 }

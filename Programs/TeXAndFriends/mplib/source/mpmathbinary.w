@@ -1,5 +1,3 @@
-% $Id$
-%
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
@@ -30,7 +28,7 @@
 @h
 
 @ @c
-@<Declarations@>;
+@<Declarations@>
 
 @ @(mpmathbinary.h@>=
 #ifndef MPMATHBINARY_H
@@ -53,7 +51,7 @@ int COMPILED__GNU_MP_VERSION = __GNU_MP_VERSION ;
 int COMPILED__GNU_MP_VERSION_MINOR = __GNU_MP_VERSION_MINOR ;
 int COMPILED__GNU_MP_VERSION_PATCHLEVEL = __GNU_MP_VERSION_PATCHLEVEL ;
 
-@<Internal library declarations@>;
+@<Internal library declarations@>
 #endif
 
 @* Math initialization.
@@ -69,7 +67,7 @@ First, here are some very important constants.
 @ Here are the functions that are static as they are not used elsewhere
 
 @<Declarations@>=
-#define DEBUG 0
+
 static void mp_binary_scan_fractional_token (MP mp, int n);
 static void mp_binary_scan_numeric_token (MP mp, int n);
 static void mp_binary_ab_vs_cd (MP mp, mp_number *ret, mp_number a, mp_number b, mp_number c, mp_number d);
@@ -692,7 +690,7 @@ char * mp_binnumber_tostring (mpfr_t n) {
   char *str = NULL, *buffer = NULL;
   mpfr_exp_t exp = 0;
   int neg = 0;
-  if ((str = mpfr_get_str (NULL, &exp, 10, 0, n, ROUNDING))>0) {
+  if ((str = mpfr_get_str (NULL, &exp, 10, 0, n, ROUNDING))!=NULL) {
     int numprecdigits = precision_bits_to_digits(precision_bits);
     if (*str == '-') {
       neg = 1;
@@ -1180,7 +1178,7 @@ void mp_ab_vs_cd (MP mp, mp_number *ret, mp_number a_orig, mp_number b_orig, mp_
     mpfr_set(d,r, ROUNDING);
   }                             /* now |a>d>0| and |c>b>0| */
 RETURN:
-#if DEBUG
+#if MPOST_DEBUG
   fprintf(stdout, "\n%f = ab_vs_cd(%f,%f,%f,%f)", mp_number_to_double(*ret), 
 mp_number_to_double(a_orig),mp_number_to_double(b_orig),
 mp_number_to_double(c_orig),mp_number_to_double(d_orig));
@@ -1331,7 +1329,7 @@ static void mp_binary_crossing_point (MP mp, mp_number *ret, mp_number aa, mp_nu
   mpfr_set_d(scratch, d, ROUNDING);
   mpfr_sub(ret->data.num,scratch, fraction_one_mpfr_t, ROUNDING);
 RETURN:
-#if DEBUG
+#if MPOST_DEBUG
   fprintf(stdout, "\n%f = crossing_point(%f,%f,%f)", mp_number_to_double(*ret), 
 mp_number_to_double(aa),mp_number_to_double(bb),mp_number_to_double(cc));
 #endif

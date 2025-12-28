@@ -855,8 +855,8 @@ static const flex_int16_t yy_rule_linenum[130] =
 char *yytext;
 #line 1 "lexer.l"
 #line 2 "lexer.l"
-	/*552:*/
-	#line 11598 "format.w"
+	/*553:*/
+	#line 11622 "format.w"
 	
 #include "hibasetypes.h"
 #include "hierror.h"
@@ -895,7 +895,7 @@ static int str_length;
 	/*:43*/	/*45:*/
 #define SCAN_UTF8_3(S)   yylval.u= (((S)[0]&0x0F)<<12)+(((S)[1]&0x3F)<<6)+((S)[2]&0x3F)
 	/*:45*/	/*47:*/
-#define SCAN_UTF8_4(S)   yylval.u= (((S)[0]&0x03)<<18)+(((S)[1]&0x3F)<<12)+(((S)[2]&0x3F)<<6)+((S)[3]&0x3F)
+#define SCAN_UTF8_4(S)   yylval.u= (((S)[0]&0x07)<<18)+(((S)[1]&0x3F)<<12)+(((S)[2]&0x3F)<<6)+((S)[3]&0x3F)
 	/*:47*/	/*58:*/
 #define SCAN_DECFLOAT       yylval.f= atof(yytext)
 	/*:58*/	/*61:*/
@@ -912,7 +912,7 @@ static int scan_level= 0;
 
 float64_t xtof(char*x)
 {
-	#line 1387 "format.w"
+	#line 1390 "format.w"
 	int sign,digits,exp;
 	uint64_t mantissa= 0;
 	DBG(DBGFLOAT,"converting %s:\n",x);
@@ -992,7 +992,7 @@ float64_t xtof(char*x)
 	}
 	/*:62*/
 int yywrap(void){
-	#line 11609 "format.w"
+	#line 11633 "format.w"
 	return 1;}
 #ifdef _MSC_VER
 #pragma  warning( disable : 4267)
@@ -3260,5 +3260,5 @@ void yyfree (void * ptr )
 
 #line 359 "lexer.l"
 
-	/*:552*/
+	/*:553*/
 

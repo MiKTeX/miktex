@@ -979,7 +979,7 @@ we have to create a temporary string that is destroyed immediately after.
 @!save_scanner_status:small_number; {|scanner_status| upon entry}
 @!save_def_ref: pointer; {|def_ref| upon entry, important if inside `\.{\\message}'}
 @!save_warning_index: pointer;
-@!bool: boolean; {temp boolean}
+@!booltemp: boolean; {temp boolean}
 @!u: str_number; {saved current string string}
 @!s: str_number; {first temp string}
 @!i: integer;
@@ -990,8 +990,9 @@ we have to create a temporary string that is destroyed immediately after.
 @x
 begin c:=cur_chr; @<Scan the argument for command |c|@>;
 @y
-begin cat:=0; c:=cur_chr; @<Scan the argument for command |c|@>;
+begin cat:=0; c:=cur_chr;
 u:=0; { will become non-nil if a string is already being built}
+@<Scan the argument for command |c|@>;
 @z
 
 @x
@@ -1085,9 +1086,9 @@ pdf_mdfive_sum_code:
     save_warning_index := warning_index;
     save_def_ref := def_ref;
     save_cur_string;
-    bool := scan_keyword("file");
+    booltemp := scan_keyword("file");
     scan_pdf_ext_toks;
-    if bool then s := tokens_to_string(def_ref)
+    if booltemp then s := tokens_to_string(def_ref)
     else begin
       isprint_utf8:=true; s := tokens_to_string(def_ref); isprint_utf8:=false;
     end;
@@ -1096,7 +1097,7 @@ pdf_mdfive_sum_code:
     warning_index := save_warning_index;
     scanner_status := save_scanner_status;
     b := pool_ptr;
-    getmd5sum(s, bool);
+    getmd5sum(s, booltemp);
     link(garbage) := str_toks(b);
     flush_str(s);
     ins_list(link(temp_head));

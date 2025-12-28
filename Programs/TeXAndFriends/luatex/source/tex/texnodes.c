@@ -1647,37 +1647,37 @@ static halfword synctex_no_files    = 0;
 void synctex_set_mode(int m)
 {
     synctex_anyway_mode = m;
-};
+}
 
 int synctex_get_mode(void)
 {
     return synctex_anyway_mode;
-};
+}
 
 void synctex_set_no_files(int f)
 {
     synctex_no_files = f;
-};
+}
 
 int synctex_get_no_files(void)
 {
     return (int) synctex_no_files ;
-};
+}
 
 void synctex_set_tag(int t)
 {
     cur_input.synctex_tag_field = t;
-};
+}
 
 int synctex_get_tag(void)
 {
     return (int) cur_input.synctex_tag_field;
-};
+}
 
 int synctex_get_line(void)
 {
     return (int) synctex_line_field;
-};
+}
 
 static int forced_tag  = 0;
 static int forced_line = 0;
@@ -1685,17 +1685,17 @@ static int forced_line = 0;
 void synctex_force_tag(int t)
 {
     forced_tag = t;
-};
+}
 
 void synctex_force_line(int t)
 {
     forced_line = t;
-};
+}
 
 void synctex_set_line(int l)
 {
     synctex_line_field = l;
-};
+}
 
 /*tex |if_stack| is called a lot so maybe optimize that one. */
 

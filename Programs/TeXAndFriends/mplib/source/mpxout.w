@@ -10,11 +10,17 @@
 
 \def\(#1){} % this is used to make section names sort themselves better
 \def\9#1{} % this is used for sort keys in the index
-\def\[#1]{#1.}
+
+@s avl_tree int
+@s boolean int
+@s dirent int
+@s _finddata_t int
+@s intptr_t int
+@s pid_t int
 
 \pdfoutput=1
 
-@* \[1] Makempx overview.
+@**  Makempx overview.
 
 This source file implements the makempx functionality for the new \MP.
 It includes all of the functional code from the old standalone programs
@@ -50,10 +56,9 @@ in order to prevent name clashes.
 #include <stdarg.h>
 #include <assert.h>
 #include <setjmp.h>
-#include <errno.h> /* TODO autoconf ? */
-/* unistd.h is needed for every non-Win32 platform, and we assume
- * that implies that sys/types.h is also present 
- */
+#include <errno.h> /* TODO autoconf ? */ @t@>
+/* unistd.h is needed for every non-Win32 platform, and we assume */ @t@>
+/* that implies that sys/types.h is also present */
 #ifndef WIN32
 #include <sys/types.h>
 #include <unistd.h>
@@ -121,8 +126,8 @@ The more complex datatypes are defined in the following sections.
 @c
 typedef signed int web_integer;
 typedef signed int web_boolean;
-@<C Data Types@>
-@<Declarations@>
+@<C Data Types@>@;
+@<Declarations@>@;
 
 @ The single most important data structure is the structure
 |mpx_data|.  It contains all of the global state for a specific
@@ -141,7 +146,7 @@ typedef enum {
   mpx_troff_mode=1 
 } mpx_modes;
 typedef struct mpx_data * MPX;
-@<Makempx header information@>
+@<Makempx header information@>@;
 #endif
 
 @ @<C Data Types@>=
@@ -294,7 +299,7 @@ static void mpx_fclose (MPX mpx, FILE *file) {
 }
 
 @ 
-@d xfree(A) do { mpx_xfree(A); A=NULL; } while (0)
+@d xfree(A) do { mpx_xfree(A); A=NULL; } while (0)@;
 @d xrealloc(P,A,B) mpx_xrealloc(mpx,P,A,B)
 @d xmalloc(A,B)  mpx_xmalloc(mpx,A,B)
 @d xstrdup(A)  mpx_xstrdup(mpx,A)
@@ -587,17 +592,17 @@ static void mpx_copy_mpto (MPX mpx, FILE *outfile, int textype) {
 static const char *mpx_predoc[]  = {"", ".po 0\n"};
 static const char *mpx_postdoc[] = { "\\end{document}\n", ""};
 static const char *mpx_pretex1[] = { 
-    "\\gdef\\mpxshipout{\\shipout\\hbox\\bgroup%\n"
-    "  \\setbox0=\\hbox\\bgroup}%\n"
-    "\\gdef\\stopmpxshipout{\\egroup"
-    "  \\dimen0=\\ht0 \\advance\\dimen0\\dp0\n"
-    "  \\dimen1=\\ht0 \\dimen2=\\dp0\n"
-    "  \\setbox0=\\hbox\\bgroup\n"
-    "    \\box0\n"
-    "    \\ifnum\\dimen0>0 \\vrule width1sp height\\dimen1 depth\\dimen2 \n"
-    "    \\else \\vrule width1sp height1sp depth0sp\\relax\n"
-    "    \\fi\\egroup\n"
-    "  \\ht0=0pt \\dp0=0pt \\box0 \\egroup}\n"
+    "\\gdef\\mpxshipout{\\shipout\\hbox\\bgroup\n" @|
+    "  \\setbox0=\\hbox\\bgroup}%%\n" @|
+    "\\gdef\\stopmpxshipout{\\egroup" @|
+    "  \\dimen0=\\ht0 \\advance\\dimen0\\dp0\n" @|
+    "  \\dimen1=\\ht0 \\dimen2=\\dp0\n" @|
+    "  \\setbox0=\\hbox\\bgroup\n" @|
+    "    \\box0\n" @|
+    "    \\ifnum\\dimen0>0 \\vrule width1sp height\\dimen1 depth\\dimen2 \n" @|
+    "    \\else \\vrule width1sp height1sp depth0sp\\relax\n" @|
+    "    \\fi\\egroup\n" @|
+    "  \\ht0=0pt \\dp0=0pt \\box0 \\egroup}%%\n" @|
     "\\mpxshipout%% line %d %s\n", ".lf %d %s\n" };
 static const char *mpx_pretex[] = { "\\mpxshipout%% line %d %s\n", ".bp\n.lf %d %s\n" };
 static const char *mpx_posttex[] = { "\n\\stopmpxshipout\n", "\n" };
@@ -1017,7 +1022,7 @@ the commands for character~|c| starting at
 commands occupy positions |fbase[f]| through |ftop[f]-1| in the |font_num|
 table and the |internal_num| array gives the corresponding internal font
 numbers.  If such an internal font number~|i| does not correspond to
-some font occuring in the \.{DVI} file, then |font_num[i]| has not been
+some font occurring in the \.{DVI} file, then |font_num[i]| has not been
 assigned a meaningful value; this is indicated by |local_only[i]=true|.
 
 If font~|f| is not virtual, then |fbase[f]=0| and |ftop[f]=0|.  The |start_cmd|
@@ -1117,7 +1122,7 @@ mpx->font_num[i]=e
 
 @ @<Read the font parameters into position for font |nf|@>=
 mpx->font_check_sum[mpx->nfonts]=mpx_signed_quad(mpx);
-@<Read |font_scaled_size[nf]| and |font_design_size[nf]|@>;
+@<Read |font_scaled_size[nf]| and |font_design_size[nf]|@>
 n=mpx_get_byte(mpx);  /* that is the area */
 n=n+mpx_get_byte(mpx);
 mpx->font_name[mpx->nfonts]=xmalloc((size_t)(n+1),1);
@@ -1406,7 +1411,7 @@ worthwhile to slide everything down just to save a little space.
 
 @<Finish setting up the data structures for the new virtual font@>=
 mpx->fbase[f]=(web_integer)(mpx->vf_ptr+1);
-mpx->info_ptr=(unsigned int)(mpx->info_base[f]+mpx->font_ec[f]+1)
+mpx->info_ptr=(unsigned int)(mpx->info_base[f]+mpx->font_ec[f]+1)@;
 
 
 @* Loading fonts.
@@ -2313,7 +2318,7 @@ static void mpx_do_xxx (MPX mpx, web_integer p)
     buf[len] = (unsigned char)mpx_get_byte(mpx);
     decr(p); incr(len);
   }
-  @<Check whether |buf| contains a color command; if not, |goto XXXX|@>
+  @<Check whether |buf| contains a color command; if not, |goto XXXX|@>@;
   if ( p > 0 ) {
      color_warn("long \"color\" special ignored"); 
      goto XXXX; 
@@ -2417,7 +2422,7 @@ while ( (l < len) && (buf[l] == ' ') ) incr(l); /*  Remove spaces at end of buf 
 while ( (len > l) && (buf[len - 1] == ' ') ) decr(len);
 mpx->color_stack[mpx->color_stack_depth]=xmalloc((size_t)(len-l+3),1);
 k = 0;
-@<Copy |buf[l]| to |color_stack[color_stack_depth][k]| in tuple form@>
+@<Copy |buf[l]| to |color_stack[color_stack_depth][k]| in tuple form@>@;
 
 @ @<|buf[l]| contains a gray command@>=
 (l + 5 < len)
@@ -2434,7 +2439,7 @@ while ( (len > l) && (buf[len - 1] == ' ') ) decr(len);
 mpx->color_stack[mpx->color_stack_depth]=xmalloc((size_t)(len-l+9),1);
 strcpy(mpx->color_stack[mpx->color_stack_depth],"white*");
 k = 6;
-@<Copy |buf[l]| to |color_stack[color_stack_depth][k]| in tuple form@>
+@<Copy |buf[l]| to |color_stack[color_stack_depth][k]| in tuple form@>@;
 
 @ @<|buf[l]| contains a cmyk command@>=
 (l + 5 < len)
@@ -2452,7 +2457,7 @@ while ( (len > l) && (buf[len - 1] == ' ') ) decr(len);
 mpx->color_stack[mpx->color_stack_depth]=xmalloc((size_t)(len-l+7),1);
 strcpy(mpx->color_stack[mpx->color_stack_depth],"cmyk");
 k = 4;
-@<Copy |buf[l]| to |color_stack[color_stack_depth][k]| in tuple form@>
+@<Copy |buf[l]| to |color_stack[color_stack_depth][k]| in tuple form@>@;
 
 @ @<Copy |buf[l]| to |color_stack[color_stack_depth][k]| in tuple form@>=
 mpx->color_stack[mpx->color_stack_depth][k] = '(';
@@ -2507,7 +2512,7 @@ if ( mpx->color_stack_depth > 0 ) {
 }
 
 
-@* \[4] Dmp.
+@** Dmp.
 
 This program reads device-independent troff output files,
 and converts them into a symbolic form understood by MetaPost.  Some
@@ -3151,7 +3156,7 @@ It is a hack, I know. I've stuck to  names on TeXLive.
 @d test_redo_search do {
    if (deff==NULL)
 	 deff = mpx_fsearch(mpx, cname, mpx_specchar_format);
- } while (0)
+ } while (0) @;
 
 @c
 static char *mpx_copy_spec_char(MPX mpx, char *cname) {
@@ -3797,7 +3802,7 @@ static int mpx_dmp(MPX mpx, char *infile) {
 }
 
 
-@* \[5] Makempx.
+@** Makempx.
 
 
 Make an MPX file from the labels in a MetaPost source file,
@@ -4043,7 +4048,7 @@ static int mpx_run_command(MPX mpx, char *inname, char *outname, int count, char
     return retcode;
 }
 
-@ @ Running Troff is more likely than not a series of pipes that 
+@ Running Troff is more likely than not a series of pipes that
 feed input to each other. Makempx does all of this itself by using
 temporary files inbetween. That means we have to juggle about with
 |stdin| and |stdout|.
@@ -4175,7 +4180,7 @@ int mpx_makempx (mpx_options *mpxopt) {
     char **cmdline, **cmdbits;
     char infile[15];
     int retcode, i ;
-    char tmpname[] = "mpXXXXXX";
+    char tmpname[] = "mpXXXXXX\0";
     int cmdlength = 1;
     int cmdbitlength = 1;
     if (!mpxopt->debug) {
@@ -4398,3 +4403,5 @@ if (mpx_newer(mpxopt->mpname, mpxopt->mpxname))
 #endif
 #endif
 @= /*@@+bufferoverflowhigh@@*/ @> 
+
+@* Index.

@@ -1,7 +1,7 @@
-%%% miktex-bibtex.ch: WEB change file for MiKTeX-BibTeX
-%%% 
-%%% Derived from:
-%%% web2c/bibtex.ch, originally by Howard Trickey.
+%% miktex-bibtex.ch
+%%
+%% Derived from:
+%% web2c/bibtex.ch, originally by Howard Trickey.
 
 % _____________________________________________________________________________
 %
@@ -625,6 +625,7 @@ while (p_ptr < str_start[area+1]) do
 name_length := name_length + length(area);
 end;
 @y
+{procedure |add_area| not used}
 @z
 
 % _____________________________________________________________________________
@@ -733,7 +734,7 @@ check_cmnd_line := false;                       {many systems will change this}
 loop
     begin
     if (check_cmnd_line) then
-        @<Process a possible command line@>
+        @<Process a \(o)possible command line@>
       else
         begin
         write (term_out,'Please type input file name (no extension)--');
@@ -764,7 +765,7 @@ end;
 procedure get_the_top_level_aux_file_name;
 label aux_found,@!aux_not_found;
 begin
-  @<Process a possible command line@>
+  @<Process a \(o)possible command line@>
   {Leave room for the \.., the extension, the junk byte at the
    beginning, and the null byte at the end.}
   miktex_bibtex_realloc('name_of_file', name_of_file, c4p_strlen(c4p_argv[1]) + 5);
@@ -794,12 +795,12 @@ end;
 % _____________________________________________________________________________
 
 @x
-@<Process a possible command line@>=
+@<Process a \(o)possible command line@>=
 begin
 do_nothing;             {the ``default system'' doesn't use the command line}
 end
 @y
-@<Process a possible command line@>=
+@<Process a \(o)possible command line@>=
 if (c4p_argc <> 2) then begin
   write_ln(term_out, 'Need exactly one file argument');
   goto_exit_program;

@@ -6,7 +6,7 @@
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_BUILD_UTILITIES_FOLDER}/HiTeX")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_TEX_AND_FRIENDS_FOLDER}/HiTeX")
 
 include_directories(BEFORE
     ${CMAKE_CURRENT_BINARY_DIR}
@@ -124,6 +124,7 @@ set_property(TARGET ${MIKTEX_PREFIX}hitex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDE
 target_link_libraries(${MIKTEX_PREFIX}hitex
     ${app_dll_name}
     ${core_dll_name}
+    ${harfbuzz_dll_name}
     ${kpsemu_dll_name}
     ${w2cemu_dll_name}
 )

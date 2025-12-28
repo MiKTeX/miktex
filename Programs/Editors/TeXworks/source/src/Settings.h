@@ -29,10 +29,18 @@ class Settings
 {
 	QSettings m_s;
 public:
+#if defined(MIKTEX)
+#if QT_VERSION < QT_VERSION_CHECK(6, 3, 0)
+	using KeyType = QString;
+#else
+	using KeyType = QAnyStringView;
+#endif
+#else
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	using KeyType = QString;
 #else
 	using KeyType = QAnyStringView;
+#endif
 #endif
 
 #if defined(MIKTEX)

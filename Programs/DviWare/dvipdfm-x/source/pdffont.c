@@ -31,6 +31,7 @@
 #include "mem.h"
 
 #include "dpxconf.h"
+#include "dpxcrypt.h"
 #include "dpxfile.h"
 #include "dpxutil.h"
 
@@ -51,6 +52,8 @@
 #include "type0.h"
 #include "tt_cmap.h"
 
+#include "dvipdfmx.h"
+
 #include "pdffont.h"
 
 #define MREC_HAS_TOUNICODE(m) ((m) && (m)->opt.tounicode)
@@ -61,14 +64,68 @@ pdf_font_set_dpi (int font_dpi)
   PKFont_set_dpi(font_dpi);
 }
 
+static union {
+  char p[sizeof(int)];
+  int* i;
+} unique_tag_count;
+
+/* This function used to be implemented as
+ *
+ *     for (i = 0; i < 6; i++) {
+ *         ch = rand() % 26;
+ *         tag[i] = ch + 'A';
+ *     }
+ *     tag[6] = '\0';
+ *
+ * but this meant that the tag would change on every run, producing a
+ * non-deterministic PDF file. You could work around this by setting
+ * `SOURCE_DATE_EPOCH` in the environment (since the current time is used to
+ * seed `rand`), but that requires extra effort. Instead, we use an MD5 hash of
+ * the input (dvi) filename, the output (pdf) filename, and a counter that
+ * increments on each call to this function. This produces a deterministic tag
+ * for each document, provided that the input filename, the output filename, and
+ * the order/number of fonts remains the same.
+ *
+ * Why do we need this function in the first place? Well, since we are
+ * subsetting the fonts, this means that the "LM Roman 10" font in one document
+ * will not be the same as the "LM Roman 10" font in another document. This can
+ * cause problems when older/buggy PDF processors merge or embed multiple
+ * documents, since it's invalid to have two fonts with the same name and
+ * neither font is a strict subset/superset of the other.
+ *
+ * pdfTeX and LuaTeX solve this by hashing over the subsetting hash table, but
+ * this only works there since they only generate the PDF font name _after_
+ * creating the subset. (x)dvipdfmx generates the PDF font name as (almost) the
+ * very first step when including a font, so we couldn't use this method without
+ * extensive refactoring.
+ *
+ * The pdfTeX and LuaTeX methods guarantee that multiple incompatible subsets
+ * will never have the same name (barring hash collisions), and the prior `rand`
+ * method had the same guarantee (barring an _extremely_ unlikely RNG
+ * collision). This new method isn't quite as good since if the input and output
+ * are both pipes, then both filenames will be `NULL` and the tag will only
+ * depend on the counter. But I think that most PDF processors these days will
+ * properly check for font name collisions, so this is probably good enough.
+ */
 void
 pdf_font_make_uniqueTag (char *tag)
 {
-  int    i;
-  char   ch;
+  MD5_CONTEXT state;
+  unsigned char digest[16];
+  int i, ch;
+
+  unique_tag_count.i++;
+
+  MD5_init(&state);
+  if (dvi_filename)
+    MD5_write(&state, dvi_filename, strlen(dvi_filename));
+  if (pdf_filename)
+    MD5_write(&state, pdf_filename, strlen(pdf_filename));
+  MD5_write(&state, unique_tag_count.p, sizeof(unique_tag_count));
+  MD5_final(digest, &state);
 
   for (i = 0; i < 6; i++) {
-    ch = rand() % 26;
+    ch = digest[i] % 26;
     tag[i] = ch + 'A';
   }
   tag[6] = '\0';

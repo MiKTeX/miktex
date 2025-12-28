@@ -13,6 +13,13 @@ static int blob_new(lua_State *L) {
   return 1;
 }
 
+static int blob_destroy(lua_State *L) {
+  Blob *b = (Blob *)luaL_checkudata(L, 1, "harfbuzz.Blob");
+
+  hb_blob_destroy(*b);
+  return 0;
+}
+
 static int blob_new_from_file(lua_State *L) {
   Blob *b;
   const char *file_name = luaL_checkstring(L, 1);
@@ -44,6 +51,7 @@ static int blob_get_data(lua_State *L) {
 }
 
 static const struct luaL_Reg blob_methods[] = {
+  { "__gc", blob_destroy },
   { "get_length", blob_get_length },
   { "get_data", blob_get_data },
   { NULL, NULL }

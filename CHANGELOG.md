@@ -1,6 +1,39 @@
 # MiKTeX Change Log
 
-## 25.2 - 2025-02-09
+## 25.12 - 2025-12-28
+
+### Upgraded programs
+
+* autosp 2025-10-26
+* dvipdfmx 20250413
+* dvips 2025.1
+* hitex 2.2
+* luatex 1.24.0
+* metapost 2.12
+* pdftex 1.40.28
+
+### Added
+
+- [1571](https://github.com/MiKTeX/miktex/issues/1641): Fedora 42
+
+## 25.4 - 2025-04-18
+
+### Upgraded programs
+
+* dvipdfmx 20250410
+* luatex 1.22.0
+
+## 25.3 - 2025-03-05
+
+### Upgraded programs
+
+* gregorio 6.1.0
+
+### Fixed issues
+
+- [1598](https://github.com/MiKTeX/miktex/issues/1598): lualatex.fmt is incorrectly created in the output directory
+
+## 25.2 - 2025-02-22
 
 ### Upgraded programs
 

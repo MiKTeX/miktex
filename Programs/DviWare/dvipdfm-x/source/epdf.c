@@ -119,7 +119,7 @@ pdf_include_page (pdf_ximage        *ximage,
   xform_info info;
   pdf_obj *contents = NULL, *catalog;
   pdf_obj *page = NULL, *resources = NULL, *markinfo = NULL;
-  pdf_obj *group = NULL;
+  pdf_obj *group = NULL, *group_obj = NULL;
 
   pf = pdf_open(ident, image_file);
   if (!pf)
@@ -155,7 +155,9 @@ pdf_include_page (pdf_ximage        *ximage,
   /*
    * Handle page's Group
    */
-  group = pdf_deref_obj(pdf_lookup_dict(page, "Group"));
+  group_obj = pdf_lookup_dict(page, "Group");
+  if (group_obj)
+    group = pdf_import_object(group_obj);
   /*
    * Handle page content stream.
    */
@@ -201,6 +203,9 @@ pdf_include_page (pdf_ximage        *ximage,
 
     if (group)
       pdf_add_dict(contents_dict, pdf_new_name("Group"), group);
+
+    if (options.dict)
+      pdf_merge_dict(contents_dict, options.dict);
   }
 
   pdf_close(pf);

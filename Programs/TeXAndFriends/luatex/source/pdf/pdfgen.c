@@ -1033,10 +1033,10 @@ void ensure_output_state(PDF pdf, output_state s)
                 fix_o_mode();
                 break;
             case ST_OMODE_FIX:
-                backend_out_control[backend_control_open_file](pdf);
+	        backend_out_control[BACKEND_INDEX(backend_control_open_file)](pdf);
                 break;
             case ST_FILE_OPEN:
-                backend_out_control[backend_control_write_header](pdf);
+	        backend_out_control[BACKEND_INDEX(backend_control_write_header)](pdf);
                 break;
             case ST_HEADER_WRITTEN:
                 break;

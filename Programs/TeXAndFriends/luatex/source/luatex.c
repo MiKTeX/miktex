@@ -32,9 +32,9 @@
     stick to "0" upto "9" so users can expect a number represented as string.
 */
 
-int luatex_version = 121;
+int luatex_version = 124;
 int luatex_revision = '0';
-const char *luatex_version_string = "1.21.0";
+const char *luatex_version_string = "1.24.0";
 const char *engine_name = my_name;
 
 #include <kpathsea/c-ctype.h>
@@ -477,6 +477,7 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
             *d++ = QUOTE;
         }
         *d = '\0';
+#if 0
 #ifdef WIN32
         {
           char *p, *q, *r;
@@ -514,6 +515,7 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
             }
           }
         }
+#endif
 #endif
     }
     return allow;

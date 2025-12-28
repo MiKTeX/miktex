@@ -31,7 +31,7 @@
 #define Hi(x) BYTE3(x)
 #define Lo(x) BYTE4(x)
 
-extern boolean check_kanji (integer c);
+extern integer check_kanji (integer c);
 #define checkkanji check_kanji
 extern boolean is_char_ascii (integer c);
 #define ischarascii is_char_ascii

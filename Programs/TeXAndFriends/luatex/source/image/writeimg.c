@@ -21,6 +21,7 @@ LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ptexlib.h"
+#include <kpathsea/absolute.h>
 #include <kpathsea/c-auto.h>
 #include <kpathsea/c-memstr.h>
 
@@ -262,7 +263,18 @@ void read_img(image_dict * idict)
             img_filepath(idict) = strdup(img_filename(idict));
         } else if (callback_id == 0) {
             /*tex Otherwise we use kpse but only when we don't callback. */
-            img_filepath(idict) = kpse_find_file(img_filename(idict), kpse_tex_format, true);
+	    char *st = img_filename(idict);
+	    char *res = NULL;
+	    if (output_directory && !kpse_absolute_p(st, false)) {
+	      char *ftemp = concat3(output_directory, DIR_SEP_STRING, st);
+	      res = kpse_find_file(ftemp, kpse_tex_format, true);
+	      xfree(ftemp);
+	    }
+	    if(res) {
+	      img_filepath(idict) = res;
+	    } else {
+	      img_filepath(idict) = kpse_find_file(st, kpse_tex_format, true);
+	    }
         }
         if (img_filepath(idict) == NULL) {
             /*tex In any case we need a name. */

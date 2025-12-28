@@ -31,6 +31,8 @@ void pdf_write_obj(PDF pdf, int k)
     /*tex The index into |data.s|: */
     size_t li;
     int saved_compress_level ;
+    int saved_objcompresslevel ; 
+ // int saved_stream_deflate ; 
     /*tex Gives compressed objects for |\pdfvariable objcompresslevel| >= |OBJSTM_ALWAYS|: */
     int os_threshold = OBJSTM_ALWAYS;
     /*tex Possibly a \LUA\ registry reference: */
@@ -39,7 +41,9 @@ void pdf_write_obj(PDF pdf, int k)
     data.s = NULL;
     /*tex We can have an immediate object before we are initialized. */
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
-    saved_compress_level = pdf->compress_level;
+    saved_compress_level = pdf->compress_level;   
+    saved_objcompresslevel = pdf->objcompresslevel;
+ // saved_stream_deflate = pdf->stream_deflate; 
     /*tex End of a ugly hack. */
     if (obj_obj_pdfcompresslevel(pdf, k) > -1) {
         /*tex A value of |-1| means ``unset''. */
@@ -127,6 +131,8 @@ void pdf_write_obj(PDF pdf, int k)
     luaL_unref(Luas, LUA_REGISTRYINDEX, l);
     obj_obj_data(pdf, k) = LUA_NOREF;
     pdf->compress_level = saved_compress_level;
+    pdf->objcompresslevel = saved_objcompresslevel;
+ // pdf->stream_deflate = saved_stream_deflate; 
 }
 
 void init_obj_obj(PDF pdf, int k)

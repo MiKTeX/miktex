@@ -32,7 +32,6 @@ endif()
 ###############################################################################
 ## CMake policies
 
-# CMP0071: Let AUTOMOC and AUTOUIC process GENERATED files.
 list(APPEND cmake_policies_new
 #    CMP0071
 )
@@ -40,6 +39,16 @@ list(APPEND cmake_policies_new
 foreach(p ${cmake_policies_new})
     if(POLICY ${p})
         cmake_policy(SET ${p} NEW)
+    endif()
+endforeach()
+
+list(APPEND cmake_policies_old
+    CMP0167
+)
+
+foreach(p ${cmake_policies_old})
+    if(POLICY ${p})
+        cmake_policy(SET ${p} OLD)
     endif()
 endforeach()
 
@@ -1141,7 +1150,7 @@ if(USE_SYSTEM_BOOST)
         set(Boost_USE_MULTITHREADED ON)
         set(Boost_USE_STATIC_RUNTIME OFF)
     endif()
-    find_package(Boost CONFIG REQUIRED locale)
+    find_package(Boost REQUIRED locale)
 endif()
 
 if(USE_SYSTEM_BZIP2)

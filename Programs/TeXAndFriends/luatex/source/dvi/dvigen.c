@@ -1274,8 +1274,9 @@ onto its coordinate stack.
 
 */
 
-void dvi_place_rule(PDF pdf, halfword q, scaledpos size)
+void dvi_place_rule(PDF pdf, halfword q, scaledpos size,int callback_id)
 {
+  (void)callback_id;/*tex to be consistent with pdf_place_rule */
     synch_dvi_with_pos(pdf->posstruct->pos);
     if ((subtype(q) >= box_rule) && (subtype(q) <= user_rule)) {
         /*tex place nothing, only take space */

@@ -1,5 +1,3 @@
-% $Id$
-%
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
@@ -30,7 +28,7 @@
 @h
 
 @ @c
-@<Declarations@>;
+@<Declarations@>
 
 @ @(mpmathinterval.h@>=
 #ifndef MPMATHINTERVAL_H
@@ -55,7 +53,7 @@ const char *COMPILED_MPFI_VERSION_STRING = MPFI_VERSION_STRING;
 //int COMPILED__GNU_MP_VERSION_MINOR = __GNU_MP_VERSION_MINOR ;
 //int COMPILED__GNU_MP_VERSION_PATCHLEVEL = __GNU_MP_VERSION_PATCHLEVEL ;
 
-@<Internal library declarations@>;
+@<Internal library declarations@>
 #endif
 
 @* Math initialization.
@@ -72,7 +70,7 @@ First, here are some very important constants.
 @ Here are the functions that are static as they are not used elsewhere
 
 @<Declarations@>=
-#define DEBUG 0
+
 static void mp_interval_scan_fractional_token (MP mp, int n);
 static void mp_interval_scan_numeric_token (MP mp, int n);
 static void mp_interval_ab_vs_cd (MP mp, mp_number *ret, mp_number a, mp_number b, mp_number c, mp_number d);
@@ -988,7 +986,7 @@ char * mp_intervalnumber_tostring (mpfi_t n) {
   mpfr_t nn;
   mpfr_init2(nn,precision_bits);
   mpfi_mid (nn, n);
-  if ((str = mpfr_get_str (NULL, &exp, 10, 0, nn, MPFR_ROUNDING))>0) {
+  if ((str = mpfr_get_str (NULL, &exp, 10, 0, nn, MPFR_ROUNDING))!=NULL) {
     int numprecdigits = precision_bits_to_digits(precision_bits);
     if (*str == '-') {
       neg = 1;
@@ -1478,7 +1476,7 @@ void mp_ab_vs_cd (MP mp, mp_number *ret, mp_number a_orig, mp_number b_orig, mp_
     mpfi_set(d,r);
   }                             /* now |a>d>0| and |c>b>0| */
 RETURN:
-#if DEBUG
+#if MPOST_DEBUG
   fprintf(stdout, "\n%f = ab_vs_cd(%f,%f,%f,%f)", mp_number_to_double(*ret), 
 mp_number_to_double(a_orig),mp_number_to_double(b_orig),
 mp_number_to_double(c_orig),mp_number_to_double(d_orig));
@@ -1633,7 +1631,7 @@ static void mp_interval_crossing_point (MP mp, mp_number *ret, mp_number aa, mp_
   mpfi_set_d(scratch, d);
   mpfi_sub(ret->data.num,scratch, fraction_one_mpfi_t);
 RETURN:
-#if DEBUG
+#if MPOST_DEBUG
   fprintf(stdout, "\n%f = crossing_point(%f,%f,%f)", mp_number_to_double(*ret), 
 mp_number_to_double(aa),mp_number_to_double(bb),mp_number_to_double(cc));
 #endif

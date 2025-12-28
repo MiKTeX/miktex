@@ -25,7 +25,7 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 /*tex
 
-We support tre traditional math codes as well as larger ones suitable for
+We support the traditional math codes as well as larger ones suitable for
 \UNICODE\ input and fonts.
 
 */
@@ -52,7 +52,7 @@ static sa_tree delcode_head = NULL;
 /*tex
 
 We now get lots of helpers for definitions and printing. The storage model
-that we use is different because we can hav emany more so we need to be
+that we use is different because we can have many more so we need to be
 sparse. Therefore we use trees.
 
 */

@@ -104,13 +104,13 @@ set(gregorio_sources ${gregorio_c_sources})
 list(APPEND gregorio_sources
     ${MIKTEX_LIBRARY_WRAPPER}
     ${CMAKE_CURRENT_BINARY_DIR}/config_.h
-    ${CMAKE_CURRENT_BINARY_DIR}/gregorio-version.h
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-gregorio-version.h
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND gregorio_sources
         ${MIKTEX_COMMON_MANIFEST}
-        ${CMAKE_CURRENT_BINARY_DIR}/gregorio.rc
+        ${CMAKE_CURRENT_BINARY_DIR}/windows/miktex-gregorio.rc
     )
 endif()
 

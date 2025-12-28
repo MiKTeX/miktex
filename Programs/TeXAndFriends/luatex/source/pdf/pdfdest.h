@@ -51,7 +51,7 @@ typedef enum {
 #  define set_pdf_dest_xyz_zoom(A,B) pdf_dest_xyz_zoom(A)=B
 
 #  define inf_dest_names_size   1000  /* min size of the destination names table for PDF output */
-#  define sup_dest_names_size 131072  /* max size of the destination names table for PDF output */
+#  define sup_dest_names_size 1048576  /* max size of the destination names table for PDF output */
 
 extern void append_dest_name(PDF, char *, int);
 extern void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur);

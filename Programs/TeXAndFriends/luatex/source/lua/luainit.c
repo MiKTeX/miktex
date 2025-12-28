@@ -93,7 +93,7 @@ const_string LUATEX_IHELP[] = {
     "   --job-name=STRING             set the job name to STRING",
     "   --lua=FILE                    load and execute a lua initialization script",
     "   --luadebug                    enable lua debug library",
-    "   --mktex=FMT                   enable automatic generation (FMT one of: tex, tfm)",
+    "   --[no-]mktex=FMT              disable/enable mktexFMT generation (FMT=tex/tfm)",
     "   --no-c-style-errors           disable file:line:error style messages",
     "   --no-mktex=FMT                disable automatic generation (FMT one of: tex, tfm)",
     "   --nosocket                    disable the lua socket library",
@@ -149,7 +149,7 @@ const_string LUATEX_IHELP[] = {
     "   --kpathsea-debug=NUMBER       set path searching debugging flags according to the bits of NUMBER",
     "   --lua=FILE                    load and execute a lua initialization script",
     "   --luadebug                    enable lua debug library",
-    "   --[no-]mktex=FMT              disable/enable mktexFMT generation (FMT=tex/tfm)",
+    "   --[no-]mktex=FMT              disable/enable mktexFMT generation (FMT=tex/tfm/fmt)",
     "   --nosocket                    disable the lua socket library",
     "   --no-socket                   disable the lua socket library",
     "   --socket                      enable the lua socket library",
@@ -1301,9 +1301,10 @@ void lua_initialize(int ac, char **av)
                 exit(1);
             }
             init_tex_table(Luas);
-            if (lua_pcall(Luas, 0, 0, 0)) {
+            lua_pushcfunction(Luas, lua_traceback);
+            lua_insert(Luas, -2);
+            if (lua_pcall(Luas, 0, 0, -2)) {
                 fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
-                lua_traceback(Luas);
              /*tex lua_close(Luas); */
                 exit(1);
             } else {
@@ -1312,6 +1313,7 @@ void lua_initialize(int ac, char **av)
                 /*tex lua_close(Luas); */
                 exit(0);
             }
+            lua_remove(Luas, -1);
         }
         /*tex a normal tex run */
         init_tex_table(Luas);
@@ -1323,11 +1325,13 @@ void lua_initialize(int ac, char **av)
             fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
             exit(1);
         }
-        if (lua_pcall(Luas, 0, 0, 0)) {
+        lua_pushcfunction(Luas, lua_traceback);
+        lua_insert(Luas, -2);
+        if (lua_pcall(Luas, 0, 0, -2)) {
             fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
-            lua_traceback(Luas);
             exit(1);
         }
+        lua_remove(Luas, -1);
         if (!input_name) {
             get_lua_string("texconfig", "jobname", &input_name);
         }
@@ -1411,15 +1415,14 @@ void lua_initialize(int ac, char **av)
         kpse_init = 1;
         fix_dumpname();
     }
+#if !defined(MIKTEX)
     if (output_directory) {
       xputenv ("TEXMF_OUTPUT_DIRECTORY", output_directory);
     } else if (getenv ("TEXMF_OUTPUT_DIRECTORY")) {
-#if defined(MIKTEX)
       miktex_web2c_set_output_directory(getenv("TEXMF_OUTPUT_DIRECTORY"));
-#else
       output_directory = getenv ("TEXMF_OUTPUT_DIRECTORY");
-#endif
     }
+#endif
     /* the lua debug library is enabled if shell escape permits everything */
     if (shellenabledp && restrictedshell != 1) {
       luadebug_option = 1 ;      

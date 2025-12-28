@@ -166,7 +166,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
             Think in upright page/paper coordinates (page origin = lower left edge).
             First preset |refpoint.pos| to the DVI origin (near upper left page edge).
         */
-        backend_out_control[backend_control_set_reference_point](pdf,&refpoint);
+        backend_out_control_ref[BACKEND_INDEX(backend_control_set_reference_point)](pdf,&refpoint);
         /*tex
             Then shift |refpoint.pos| of the DVI origin depending on the
             |page_direction| within the upright (TLT) page coordinate system.
@@ -242,7 +242,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         should go. First we register the poisition for \.{\\gleaders}.
     */
     shipbox_refpos = pdf->posstruct->pos;
-    backend_out_control[backend_control_begin_page](pdf);
+    backend_out_control[BACKEND_INDEX(backend_control_begin_page)](pdf);
     rule_callback_id = callback_defined(process_rule_callback);
     switch (type(p)) {
         case vlist_node:
@@ -258,7 +258,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         total_pages++;
     cur_s = -1;
     /*tex Finish shipping */
-    backend_out_control[backend_control_end_page](pdf);
+    backend_out_control[BACKEND_INDEX(backend_control_end_page)](pdf);
   DONE:
     if ((tracing_output_par <= 0) && (post_callback_id == 0) && shipping_mode == SHIPPING_PAGE) {
         print_char(']');

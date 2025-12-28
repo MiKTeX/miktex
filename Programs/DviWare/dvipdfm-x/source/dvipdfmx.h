@@ -26,6 +26,7 @@
 #define _DVIPDFMX_H_
 
 extern const char *my_name;
+extern char *dvi_filename, *pdf_filename;
 
 extern int extractbb(int argc, char *argv[]);
 extern void read_config_special(const char **start, const char *end);

@@ -191,6 +191,7 @@ static const luaL_Reg lualibs[] = {
     /*tex more libraries will be loaded later */
 #ifdef LUATEX_HARFBUZZ_ENABLED
     { "luaharfbuzz", luaopen_luaharfbuzz },
+    { "luaharfbuzzsubset", luaopen_luaharfbuzzsubset },
 #endif
     { NULL,        NULL }
 };
@@ -323,7 +324,7 @@ void luainterpreter(void)
     /*tex
         The socket and mime libraries are a bit tricky to open because they use a
         load-time dependency that has to be worked around for luatex, where the C
-        module is loaded way before the lua module. 
+        module is loaded way before the lua module.
         The mime library is always available, even if the socket library is not enabled.
     */
     if (!nosocket_option) {

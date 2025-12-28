@@ -39,7 +39,7 @@
 #include "mppsout.h"            /* internal header */
 #include "mpsvgout.h"           /* internal header */
 #include "mpmath.h"             /* internal header */
-@<Definitions@>;
+@<Definitions@>
 #endif
 
 @ Here are the functions needed for the avl construction.

@@ -1,6 +1,6 @@
 /* mainwindow.cpp:
 
-   Copyright (C) 2017-2024 Christian Schenk
+   Copyright (C) 2017-2025 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -2659,7 +2659,7 @@ bool FactoryResetWorker::Run()
 void MainWindow::FactoryReset()
 {
   QString message = tr("<h3>Reset the TeX installation to factory defaults</h3>");
-  message += tr("<p>You are about to reset your TeX installation. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.");
+  message += tr("<p>You are about to reset your TeX installation. All TEXMF root directories will be removed and you will lose all configuration settings, log files, data files and packages.");
   message += tr(" In other words: your TeX installation will be restored to its original state, as when it was first installed.</p>");
   message += tr("Are you sure?");
   if (QMessageBox::warning(this, TheNameOfTheGame, message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
@@ -2737,7 +2737,7 @@ bool UninstallWorker::Run()
 void MainWindow::Uninstall()
 {
   QString message = tr("<h3>Remove MiKTeX</h3>");
-  message += tr("<p>You are about to remove MiKTeX from your computer. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.</p>");
+  message += tr("<p>You are about to remove MiKTeX from your computer. All TEXMF root directories will be removed and you will lose all configuration settings, log files, data files and packages.</p>");
   message += tr("Are you sure?");
   if (QMessageBox::warning(this, TheNameOfTheGame, message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
   {

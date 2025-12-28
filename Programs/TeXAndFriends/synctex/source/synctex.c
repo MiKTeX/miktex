@@ -67,7 +67,7 @@
  Versioning:
  -----------
  As synctex is embedded into different TeX implementation, there is an independent
- versionning system.
+ versioning system.
  For TeX implementations, the actual version is: 3
  For .synctex file format, the actual version is SYNCTEX_VERSION below
  
@@ -1055,10 +1055,11 @@ void synctexterminate(boolean log_opened)
                         if (SYNCTEX_interaction>0) {
 #ifdef W32UPTEXSYNCTEX
                         {
-                        char *stmp = chgto_oem(tmp);
+                        int savecp = GetConsoleOutputCP();
+                        SetConsoleOutputCP(file_system_codepage);
                         printf((synctex_ctxt.flags.quoted ? "\nSyncTeX written on \"%s\"\n" : "\nSyncTeX written on %s.\n"),
-                               stmp);
-                        free(stmp);
+                               tmp);
+                        SetConsoleOutputCP(savecp);
                         }
 #else
 #if defined(MIKTEX)
