@@ -1,5 +1,3 @@
-% $Id: mpmath.w 2118 2017-02-15 17:49:54Z luigi $
-%
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
@@ -31,14 +29,14 @@
 @h
 
 @ @c
-@<Declarations@>;
+@<Declarations@>
 
 @ @(mpmath.h@>=
 #ifndef MPMATH_H
 #define MPMATH_H 1
 #include "mplib.h"
 #include "mpmp.h" /* internal header */
-@<Internal library declarations@>;
+@<Internal library declarations@>
 #endif
 
 @* Math initialization.

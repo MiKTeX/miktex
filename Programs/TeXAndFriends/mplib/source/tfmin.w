@@ -49,7 +49,7 @@
 #include "mpmp.h" /* internal header */
 #include "mpmath.h" /* internal header */
 #include "mpstrings.h" /* internal header */
-@<Declarations@>;
+@<Declarations@>
 @h
 
 @ The |font_ps_name| for a built-in font should be what PostScript expects.
@@ -107,9 +107,9 @@ and \.{PLtoTF} can be used to debug \.{TFM} files.
 }
 
 @ @<Read data from |tfm_infile|; if there is no room, say so...@>=
-@<Read the \.{TFM} size fields@>;
-@<Use the size fields to allocate space in |font_info|@>;
-@<Read the \.{TFM} header@>;
+@<Read the \.{TFM} size fields@>
+@<Use the size fields to allocate space in |font_info|@>
+@<Read the \.{TFM} header@>
 @<Read the character data and the width, height, and depth tables and
   |goto done|@>
 

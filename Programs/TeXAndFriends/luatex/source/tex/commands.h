@@ -135,7 +135,7 @@ typedef enum {
     message_cmd,                          /* send to user ( \.{\\message}, \.{\\errmessage} ) */
     normal_cmd,                           /* general extensions to \TeX\ that don't fit into a category */
     extension_cmd,                        /* extensions to \TeX\ ( \.{\\write}, \.{\\special}, etc.~) */
-    option_cmd,
+    option_cmd,                           /* obsolete */
     lua_function_call_cmd,
     lua_bytecode_call_cmd,
     lua_call_cmd,

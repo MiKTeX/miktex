@@ -1190,6 +1190,11 @@ cur_order:=co_backup; link(backup_head):=backup_backup;
 decr(expand_depth_count);
 @z
 
+% _____________________________________________________________________________
+%
+% [25.369]
+% _____________________________________________________________________________
+
 % Original report: https://tex.stackexchange.com/questions/609423
 % TeX bug entry: https://tug.org/texmfbug/newbug.html#B155endwrite
 @x
@@ -1207,6 +1212,27 @@ if (t>=cs_token_flag)and(t<>end_write_token) then
 @!p:0..nest_size; {index into |nest|}
 @y
 @!p:0..sup_nest_size; {index into |nest|}
+@z
+
+% _____________________________________________________________________________
+%
+% [26.449]
+% _____________________________________________________________________________
+
+% Original report: https://tug.org/pipermail/tex-k/2025-January/004150.html
+% TeX bug entry: https://tug.org/texmfbug/newbug.html#B182muerror
+% Test file: tests/invalidmu.tex
+@x [26.449] l.8878 - recover better from \mkern <non-mu-dimen-or-skip>
+  @<Coerce glue to a dimension@>;
+  if cur_val_level=mu_val then goto attach_sign;
+  if cur_val_level<>int_val then mu_error;
+@y
+  if cur_val_level<>int_val then
+    begin
+    @<Coerce glue to a dimension@>;
+    if cur_val_level<>mu_val then mu_error;
+    goto attach_sign;
+    end;
 @z
 
 % _____________________________________________________________________________

@@ -1,6 +1,6 @@
 %% miktex-upbibtex-adapter.ch
 %%
-%% Copyright (C) 2021-2022 Christian Schenk
+%% Copyright (C) 2021-2025 Christian Schenk
 %% 
 %% This file is free software; the copyright holder gives
 %% unlimited permission to copy and/or distribute it, with or
@@ -12,10 +12,10 @@
 % _____________________________________________________________________________
 
 @x
-@d banner=='This is BibTeX, Version 0.99d' {printed when the program starts}
+@d banner=='This is BibTeX, Version 0.99e' {printed when the program starts}
 @y
 @d my_name=='bibtex'
-@d banner=='This is BibTeX, Version 0.99d' {printed when the program starts}
+@d banner=='This is BibTeX, Version 0.99e' {printed when the program starts}
 @z
 
 % _____________________________________________________________________________

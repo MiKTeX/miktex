@@ -227,7 +227,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c, int ex_glyph)
                 } else if (! ((c == k && vp->lf == vf_f)) && (has_packet(vp->lf, (int) k))) {
                     do_vf_packet(pdf, vp->lf, (int) k, ex_glyph);
                 } else {
-                    backend_out[glyph_node] (pdf, vp->lf, (int) k, ex_glyph);
+		  backend_out_node_glyph[BACKEND_INDEX(glyph_node)] (pdf, vp->lf, (int) k, ex_glyph);
                 }
                 w = char_width(vp->lf, (int) k);
                 if (ex_glyph != 0 && w != 0)
@@ -240,7 +240,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c, int ex_glyph)
                 if (ex_glyph != 0 && size.h > 0)
                     size.h = round_xn_over_d(size.h, 1000 + ex_glyph, 1000);
                 if (size.h > 0 && size.v > 0)
-                    backend_out[rule_node](pdf, 0, size);
+		  backend_out_node_rule[BACKEND_INDEX(rule_node)](pdf, 0, size,0);
                 mat_p->pos.h += size.h;
                 break;
             case packet_right_code:

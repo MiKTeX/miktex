@@ -37,7 +37,7 @@ extern void dvi_end_page(PDF pdf);
 /*tex Specific injections. */
 
 extern void dvi_place_glyph(PDF pdf, internal_font_number f, int c, int ex);
-extern void dvi_place_rule(PDF pdf, halfword q, scaledpos size);
+extern void dvi_place_rule(PDF pdf, halfword q, scaledpos size,int callback_id);
 extern void dvi_special(PDF pdf, halfword p);
 
 /*tex List handling (and nesting). */

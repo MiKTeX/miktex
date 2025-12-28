@@ -994,7 +994,7 @@ void wrapup_backend(void) {
     if (output_mode_used == OMODE_NONE) {
         print_err(" ==> Fatal error occurred, no FMT file produced!");
     } else {
-        backend_out_control[backend_control_finish_file](static_pdf,history == fatal_error_stop);
+      backend_out_control_err[BACKEND_INDEX(backend_control_finish_file)](static_pdf,history == fatal_error_stop);
     }
 }
 

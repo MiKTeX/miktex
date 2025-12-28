@@ -1,5 +1,3 @@
-% $Id$
-%
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
@@ -33,7 +31,7 @@
 @h
 
 @ @c
-@<Declarations@>;
+@<Declarations@>
 
 @ @(mpmathdecimal.h@>=
 #ifndef MPMATHDECIMAL_H
@@ -42,7 +40,7 @@
 #include "mpmp.h" /* internal header */
 #define  DECNUMDIGITS 1000
 #include "decNumber.h"
-@<Internal library declarations@>;
+@<Internal library declarations@>
 #endif
 
 @* Math initialization.
@@ -57,7 +55,7 @@ First, here are some very important constants.
 @ Here are the functions that are static as they are not used elsewhere
 
 @<Declarations@>=
-#define DEBUG 0
+
 static void mp_decimal_scan_fractional_token (MP mp, int n);
 static void mp_decimal_scan_numeric_token (MP mp, int n);
 static void mp_ab_vs_cd (MP mp, mp_number *ret, mp_number a, mp_number b, mp_number c, mp_number d);
@@ -1208,7 +1206,7 @@ void mp_decimal_velocity (MP mp, mp_number *ret, mp_number st, mp_number ct, mp_
   } else {
     mp_decimal_make_fraction (mp, ret->data.num, &num, &denom);
   }
-#if DEBUG
+#if MPOST_DEBUG
   fprintf(stdout, "\n%f = velocity(%f,%f,%f,%f,%f)", mp_number_to_double(*ret), 
 mp_number_to_double(st),mp_number_to_double(ct),
 mp_number_to_double(sf),mp_number_to_double(cf),
@@ -1275,7 +1273,7 @@ void mp_ab_vs_cd (MP mp, mp_number *ret, mp_number a_orig, mp_number b_orig, mp_
     decNumberCopy(&d,&r);
   }                             /* now |a>d>0| and |c>b>0| */
 RETURN:
-#if DEBUG
+#if MPOST_DEBUG
   fprintf(stdout, "\n%f = ab_vs_cd(%f,%f,%f,%f)", mp_number_to_double(*ret), 
 mp_number_to_double(a_orig),mp_number_to_double(b_orig),
 mp_number_to_double(c_orig),mp_number_to_double(d_orig));
@@ -1425,7 +1423,7 @@ static void mp_decimal_crossing_point (MP mp, mp_number *ret, mp_number aa, mp_n
   decNumberFromDouble(&scratch, d);
   decNumberSubtract(ret->data.num,&scratch, &fraction_one_decNumber, &set);
 RETURN:
-#if DEBUG
+#if MPOST_DEBUG
   fprintf(stdout, "\n%f = crossing_point(%f,%f,%f)", mp_number_to_double(*ret), 
 mp_number_to_double(aa),mp_number_to_double(bb),mp_number_to_double(cc));
 #endif
@@ -1634,12 +1632,12 @@ void mp_decimal_n_arg (MP mp, mp_number *ret, mp_number x_orig, mp_number y_orig
     checkZero(y_orig.data.num);
     checkZero(x_orig.data.num);
     decNumberAtan2(&atan2val, y_orig.data.num, x_orig.data.num, &set);
-#if DEBUG
+#if MPOST_DEBUG
     fprintf(stdout, "\n%g = atan2(%g,%g)", decNumberToDouble(&atan2val),mp_number_to_double(x_orig),mp_number_to_double(y_orig)); 
 #endif
     decNumberMultiply(ret->data.num,&atan2val, &oneeighty_angle, &set);
     checkZero(ret->data.num);
-#if DEBUG
+#if MPOST_DEBUG
     fprintf(stdout, "\nn_arg(%g,%g,%g)", mp_number_to_double(*ret),
     mp_number_to_double(x_orig),mp_number_to_double(y_orig));
 #endif
@@ -1727,7 +1725,7 @@ void mp_decimal_sin_cos (MP mp, mp_number z_orig, mp_number *n_cos, mp_number *n
   decNumber one_eighty;
   tmp = mp_number_to_double(z_orig)/16.0;
   
-#if DEBUG
+#if MPOST_DEBUG
   fprintf(stdout, "\nsin_cos(%f)", mp_number_to_double(z_orig));
 #endif
 #if 0
@@ -1756,7 +1754,7 @@ void mp_decimal_sin_cos (MP mp, mp_number z_orig, mp_number *n_cos, mp_number *n
    decNumberMultiply(n_cos->data.num,n_cos->data.num,&fraction_multiplier_decNumber, &set);
    decNumberMultiply(n_sin->data.num,n_sin->data.num,&fraction_multiplier_decNumber, &set);
   }
-#if DEBUG
+#if MPOST_DEBUG
   fprintf(stdout, "\nsin_cos(%f,%f,%f)", decNumberToDouble(&rad),
 mp_number_to_double(*n_cos), mp_number_to_double(*n_sin));
 #endif

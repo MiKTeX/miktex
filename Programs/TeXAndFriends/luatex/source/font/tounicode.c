@@ -318,7 +318,7 @@ static boolean is_last_byte_valid(int srcCode1, int srcCode2, long code)
        Followin pdfTeX, when defining ranges of this type, the value of the last byte in the
        string shall be less than or equal to 255 - (srcCode2 - srcCode1). This
        ensures that the last byte of the string shall not be incremented past
-       255; otherwise, the result of mapping is undefined. 
+       255; otherwise, the result of mapping is undefined.
     */
     char *s = strend(utf16be_str(code)) - 2;
     long l = strtol(s, NULL, 16);
@@ -327,7 +327,7 @@ static boolean is_last_byte_valid(int srcCode1, int srcCode2, long code)
 
 
 
-static int do_write_tounicode(PDF pdf, char **glyph_names, char *name, internal_font_number f)
+static int do_write_tounicode(PDF pdf, char **glyph_names, char *name, internal_font_number f, int obey_f)
 {
     char buf[SMALL_BUF_SIZE], *p, *s;
     static char builtin_suffix[] = "-builtin";
@@ -336,18 +336,53 @@ static int do_write_tounicode(PDF pdf, char **glyph_names, char *name, internal_
     int objnum;
     int i, j;
     int bfchar_count, bfrange_count, subrange_count;
-    if (glyph_unicode_tree == NULL) {
+    /*
+        This is weird test: why completely disable this generation when we
+        have no tree as a font can have one? So let's check. That way we are
+        (sort of) compatible. Anyway, the gen_tounicode is set every time we
+        do a font.
+    */
+    /*
+        We could have a callback here that gets the font name and id passes so
+        that one can do late mappings.
+    */
+    int done = 0;
+    if (f) {
+        for (i = 0; i < 256; ++i) {
+            if ((s = get_charinfo_tounicode(char_info(f,(int)i))) != NULL) {
+                done = 1;
+                break;
+            }
+        }
+    }
+    if (done) {
+        /*
+            We're fine, some values in the font are set but we combien these with
+            shared user set values at the tex end.
+        */
+        glyph_unicode_new(); /* play safe */
+    } else if (glyph_unicode_tree == NULL) {
+        /* As before, we quit. */
         pdf->gen_tounicode = 0;
         return 0;
+    } else {
+        /*
+            We continue and try to assemble a vector, either or not completes with
+            shared user defined values (at the tex end).
+        */
     }
     if (name == NULL) {
         strcpy(buf, "no-name");
     } else {
         strcpy(buf, name);
     }
-    if (f) {
+    /*
+        We never passed the f to write_fontdictionary but when we have a type one fonts we do
+        want to honor the
+    */
+    if (f && obey_f) {
         /*tex
-            Always.
+            Always. Old code path for raw.
         */
         strcat(buf, builtin_suffix);
     } else if ((p = strrchr(buf, '.')) != NULL && strcmp(p, ".enc") == 0) {
@@ -363,13 +398,16 @@ static int do_write_tounicode(PDF pdf, char **glyph_names, char *name, internal_
         strcat(buf, builtin_suffix);
     }
     /*tex Set gtab: */
-    if (f) {
+    if (f && obey_f) {
+        /*
+            This is again the case where we do a raw vector. Maybe needs checking.
+        */
         int done = 0 ;
         for (i = 0; i < 256; ++i) {
             if ((s = get_charinfo_tounicode(char_info(f,(int)i))) != NULL) {
                 gtab[i].code = UNI_EXTRA_STRING;
                 gtab[i].unicode_seq = xstrdup(s);
-                done = 1 ;
+                done = 1;
             } else {
                 gtab[i].code = UNI_UNDEF;
             }
@@ -378,9 +416,44 @@ static int do_write_tounicode(PDF pdf, char **glyph_names, char *name, internal_
             return 0;
         }
     } else {
+        /*
+            We end up here in case of a type one font with a given vector but also
+            possible overloads via the tounicode settings. We let the tounicode
+            entry win here.
+        */
+        const char *filename = font_name(f);
+        unsigned basesize = filename ? (strlen(filename) + 20) : 0;
         for (i = 0; i < 256; ++i) {
             gtab[i].code = UNI_UNDEF;
-            set_glyph_unicode(glyph_names[i], &gtab[i]);
+            if (f) {
+                if ((s = get_charinfo_tounicode(char_info(f,(int)i))) != NULL) {
+                    gtab[i].code = UNI_EXTRA_STRING;
+                    gtab[i].unicode_seq = xstrdup(s);
+                }
+            }
+            if (glyph_unicode_tree && basesize && gtab[i].code == UNI_UNDEF) {
+                glyph_unicode_entry tmp, *ptmp;
+                char *s = xmalloc(basesize + (unsigned) strlen(glyph_names[i]));
+                /* undocumented as not really tested well */
+                sprintf(s, "%s::%s", filename, glyph_names[i]); /* nice */
+                tmp.name = s;
+                tmp.code = UNI_UNDEF;
+                ptmp = (glyph_unicode_entry *) avl_find(glyph_unicode_tree, &tmp);
+                if (ptmp == NULL) {
+                    sprintf(s, "tfm:%s/%s", filename, glyph_names[i]); /* ugly */
+                    tmp.name = s;
+                    tmp.code = UNI_UNDEF;
+                    ptmp = (glyph_unicode_entry *) avl_find(glyph_unicode_tree, &tmp);
+                }
+                if (ptmp != NULL) {
+                    gtab[i].code = ptmp->code;
+                    gtab[i].unicode_seq = ptmp->unicode_seq;
+                }
+                xfree(s);
+            }
+            if (gtab[i].code == UNI_UNDEF) {
+                set_glyph_unicode(glyph_names[i], &gtab[i]);
+            }
         }
     }
     gtab[256].code = UNI_UNDEF;
@@ -516,14 +589,14 @@ static int do_write_tounicode(PDF pdf, char **glyph_names, char *name, internal_
     return objnum;
 }
 
-int write_tounicode(PDF pdf, char **glyph_names, char *name)
+int write_tounicode(PDF pdf, char **glyph_names, char *name, internal_font_number f)
 {
-    return do_write_tounicode(pdf, glyph_names, name, 0);
+    return do_write_tounicode(pdf, glyph_names, name, f, 0);
 }
 
 int write_raw_tounicode(PDF pdf, internal_font_number f, char *name)
 {
-    return do_write_tounicode(pdf, NULL, name, f);
+    return do_write_tounicode(pdf, NULL, name, f, 1);
 }
 
 int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)

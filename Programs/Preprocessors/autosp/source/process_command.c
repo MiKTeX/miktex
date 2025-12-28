@@ -1,5 +1,5 @@
 
-/*  Copyright (C) 2014-23 R. D. Tennent School of Computing,
+/*  Copyright (C) 2014-24 R. D. Tennent School of Computing,
  *  Queen's University, rdt@cs.queensu.ca
  *
  *  This program is free software; you can redistribute it
@@ -21,6 +21,7 @@
  */
 
 # include "process_score.h"
+# include <math.h> /* need fabs() */
 
 # define APPOGG_SPACING SP(64)+SP(256)  /* not a legitimate spacing */
 # define notespp "\\vnotes2.95\\elemskip"
@@ -313,11 +314,6 @@ void initialize_notes ()
   if ( nastaffs == 1 && spacing != MAX_SPACING && restbars > 0) 
     output_rests ();
 
-  fprintf (outfile, "\\scale");
-  if (debug)
-     fprintf (logfile, "spacing_staff = %i, staff_instr[spacing_staff] = %i, instrument_size[staff_instr[spacing_staff]] = %s\n",
-                       spacing_staff,       staff_instr[spacing_staff],      instrument_size[staff_instr[spacing_staff]]);
-  fprintf (outfile, "%s\n", instrument_size[staff_instr[spacing_staff]]);
   oldspacing_staff = spacing_staff;
 
   if (spacing == MAX_SPACING)
@@ -939,35 +935,51 @@ void process_command (char **ln)
     *ln = t;
   }
 
-  else if ( prefix ("\\bar", *ln) && !prefix ("\\barno", *ln))
+  else if ( (prefix ("\\bar", *ln) && !prefix ("\\barno", *ln))
+          || prefix ("\\doublebar", *ln) )   
   { int i;
     char *s, *t;
     bool atnextbar = false; 
+    if (debug)
+    {
+      fprintf (logfile, "Processing \\bar");
+      fflush (logfile);
+    }
     for (i=1; i <= nstaffs; i++)
       if (active[i] && bar_rest[i]) 
       { atnextbar = true; break; }
     if (nastaffs == 1 && atnextbar)
     { restbars++;
       sprintf (deferred_bar, "\\bar");
-      if (debug) fprintf (logfile, "\nrestbars increased to %d\n", restbars);
-      for (i=1; i<= nstaffs; i++)
-        bar_rest[i] = false;
+      if (debug) 
+      {
+        fprintf (logfile, "\nrestbars increased to %d\n", restbars);
+        fflush (logfile);
+      }
+      for (i=1; i <= nstaffs; i++)
+        bar_rest[i] = false; 
       *ln = *ln+4;
       t = strpbrk (*ln, "\\\n");
       if (t == NULL) t = *ln + strlen (*ln);
       if (*t == '\n') putc ('%', outfile);
       *ln = t;
     }
-    else
+    else 
     { if (atnextbar)
-      { fprintf (outfile, "\\def\\atnextbar{\\znotes");
+      {
+        if (debug)
+        {
+          fprintf (logfile, "Processing atnextbar");
+          fflush (logfile);
+        }
+        fprintf (outfile, "\\def\\atnextbar{\\znotes");
         t = TransformNotes2;
         while (true)
         {
           s = strchr (t, '#');
-          if (s == NULL) 
+          if (s == NULL)
             break;
-          while (t < s)  /* output any initial \transpose etc. */
+          while (t < s) /* output any initial \transpose etc. */
           { putc (*t, outfile); t++; }
           t++; /* skip # */
           i = atoi (t) -1; t++;
@@ -977,8 +989,8 @@ void process_command (char **ln)
               fprintf (outfile, "\\centerpause");
             bar_rest[i] = false;
           }
-          if (*t != '\0') 
-          { putc (*t, outfile); t++; }  /* terminator */
+          if (*t != '\0')
+          { putc (*t, outfile); t++; } /* terminator */
         }
         fprintf (outfile, "\\en}%%\n");
       }
@@ -1000,6 +1012,7 @@ void process_command (char **ln)
       fflush (logfile);
     }
   }
+  
 
   else if ( prefix ("\\endpiece", *ln)
          || prefix ("\\Endpiece", *ln)
@@ -1016,6 +1029,7 @@ void process_command (char **ln)
          || prefix ("\\zalaligne", *ln)
          || prefix ("\\zalapage", *ln) )
   { int i;
+    char *t;
     bool atnextbar = false; 
     for (i=1; i <= nstaffs; i++)
       if (active[i] && bar_rest[i]) 
@@ -1031,24 +1045,15 @@ void process_command (char **ln)
     else if (atnextbar)
     {
       fprintf (outfile, "\\def\\atnextbar{\\znotes");
-      t = TransformNotes2;
-      while (true)
+      for (i=1; i <= nstaffs; i++)
       {
-        s = strchr (t, '#');
-        if (s == NULL) 
-          break;
-        while (t < s)  /* output any initial \transpose etc. */
-        { putc (*t, outfile); t++; }
-        t++; /* skip # */
-        i = atoi (t) -1; t++;
         if (active[i])
         {
           if (bar_rest[i])
             fprintf (outfile, "\\centerpause");
           bar_rest[i] = false;
         }
-        if (*t != '\0') 
-        { putc (*t, outfile); t++; }  /* terminator */
+        if ( terminator[i] != '$') putc (terminator[i], outfile);
       }
       fprintf (outfile, "\\en}%%\n");
       if (Changeclefs) /* \Changeclefs has to be output after \def\atnextbar...  */

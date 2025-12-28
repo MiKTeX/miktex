@@ -33,8 +33,8 @@
 @y
 @d eTeX_version_string=='-2.6' {current \eTeX\ version}
 @#
-@d epTeX_version_string=='-250202'
-@d epTeX_version_number==250202
+@d epTeX_version_string=='-251130'
+@d epTeX_version_number==251130
 @z
 
 @x e-upTeX: banner
@@ -90,7 +90,7 @@ In \epTeX\ the |subtype| field is |qi(16*box_lr+box_dir)|.
 @x
 @d protected_token=@'7001 {$2^8\cdot|end_match|+1$}
 @y
-@d protected_token=@"E01 {$2^8\cdot|end_match|+1$}
+@d protected_token=@"E0001 {$2^16\cdot|end_match|+1$}
 @z
 
 @x [26.???] prepare for |scan_font_ident| to recognize \lastnodefont
@@ -240,7 +240,16 @@ end
     begin cur_val_level:=int_val; cur_val:=-1;
     end
   else if cur_chr=last_node_font_code then
-    begin cur_val_level:=ident_val; cur_val:=null_font+font_id_base;
+    begin if level<>tok_val then
+      begin print_err("Missing number, treated as zero");
+@.Missing number...@>
+      help3("A number should have been here; I inserted `0'.")@/
+        ("(If you can't figure out why I needed to see a number,")@/
+        ("look up `weird error' in the index to The TeXbook.)");
+@:TeXbook}{\sl The \TeX book@>
+      back_error; scanned_result(0)(dimen_val);
+      end
+    else scanned_result(null_font+font_id_base)(ident_val);
     end
   else cur_val_level:=cur_chr;
   if (cur_chr=last_node_char_code)or(cur_chr=last_node_font_code) then

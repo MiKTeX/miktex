@@ -6,8 +6,8 @@
 % an \output or \write and ending up in all sorts of ill-defined
 % trouble.  (Including the case of \output=\toks with no braces.)
 % 
-% For some problematic input files, see tests/unbalanced-braces.test
-% (not a runnable test).
+% For some problematic input texts, see tests/unbalanced-braces.test
+% (not a runnable test). References to bug reports are also there.
 %
 % The idea is that when it's time to run/evaluate each \output or \write,
 % they have to come to an end exactly as expected: at the right brace that

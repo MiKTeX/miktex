@@ -1012,9 +1012,10 @@ static struct option mpost_options[]
     } else if (ARGUMENT_IS("8bit") ||
                ARGUMENT_IS("parse-first-line")) {
       /* do nothing, these are always on */
+      fprintf(stdout,"warning: %s: option -%s is always enabled\n", argv[0], mpost_options[optionid].name);
     } else if (ARGUMENT_IS("translate-file") ||
                ARGUMENT_IS("no-parse-first-line")) {
-      fprintf(stdout,"warning: %s: unimplemented option %s\n", argv[0], argv[optind]);
+      fprintf(stdout,"warning: %s: unimplemented option -%s\n", argv[0], mpost_options[optionid].name);
     } 
   } 
   options->ini_version = (int)ini_version_test;
@@ -1077,7 +1078,7 @@ else
 mpost_xfree(s);
 fprintf(stdout,
 "\n"
-"Usage: mpost [OPTION] [&MEMNAME] [MPNAME[.mp]] [COMMANDS]\n"
+"Usage: mpost [OPTION] [&MPNAME] [MPNAME[.mp]] [COMMANDS]\n"
 "       mpost --dvitomp DVINAME[.dvi] [MPXNAME[.mpx]]\n"
 "\n"
 "  Run MetaPost on MPNAME, usually creating MPNAME.NNN (and perhaps\n"
@@ -1120,28 +1121,43 @@ fprintf(stdout,
 "\n");
 #else
 fprintf(stdout,
-"  -ini                      be inimpost, for dumping mem files\n"
-"  -interaction=STRING       set interaction mode (STRING=batchmode/nonstopmode/\n"
-"                            scrollmode/errorstopmode)\n"
-"  -numbersystem=STRING      set number system mode (STRING=scaled/double/binary/interval/decimal)\n"
-"  -jobname=STRING           set the job name to STRING\n"
-"  -progname=STRING          set program (and mem) name to STRING\n"
-"  -tex=TEXPROGRAM           use TEXPROGRAM for text labels\n"
-"  [-no]-file-line-error     disable/enable file:line:error style messages\n"
-);
-fprintf(stdout,
-"  -debug                    print debugging info and leave temporary files in place\n"
-"  -kpathsea-debug=NUMBER    set path searching debugging flags according to\n"
-"                            the bits of NUMBER\n"
-"  -mem=MEMNAME or &MEMNAME  use MEMNAME instead of program name or a %%& line\n"
-"  -recorder                 enable filename recorder\n"
+"MetaPost options:\n"  
+"  -debug                    print debugging info and leave temporary files\n"
+"                            in place\n"
+"  -mem=STRING               Use STRING for the name of the file that contains\n"
+"                            macros to be preloaded (same as &MPNAME)\n" 
+"  -numbersystem=STRING      set number system mode\n"
+"                            (STRING=scaled/double/binary/interval/decimal)\n"
 "  -restricted               be secure: disable tex, makempx and editor commands\n"
-"  -troff                    set prologues:=1 and assume TEXPROGRAM is really troff\n"
+"  -tex=TEXPROGRAM           use TEXPROGRAM for text labels\n"
+"  -troff                    set prologues:=1 and assume TEXPROGRAM is\n"
+"                            really troff\n"
 "  -T                        same as -troff\n"
 "  -s INTERNAL=\"STRING\"      set internal INTERNAL to the string value STRING\n"
 "  -s INTERNAL=NUMBER        set internal INTERNAL to the integer value NUMBER\n"
+);
+fprintf(stdout,
+"\n"
+"Common options:\n"
+"  [-no]-file-line-error     disable/enable file:line:error style messages\n"
+"  -halt-on-error            stop processing at the first error\n"
 "  -help                     display this help and exit\n"
+"  -ini                      do not load any preload file\n"
+"  -interaction=STRING       set interaction mode (STRING=batchmode/nonstopmode/\n"
+"                            scrollmode/errorstopmode)\n"
+"  -jobname=STRING           set the job name to STRING\n"
+"  -kpathsea-debug=NUMBER    set path searching debugging flags according to\n"
+"                            the bits of NUMBER\n"
+"  -no-kpathsea              Do not use the kpathsea program to find files.\n"
+"                            All files have to be in the current directory\n"
+"                            or specified via a full path.\n"
+"  -output-directory=DIR     use existing DIR as the directory\n"
+"                            to write files in\n"
+"  -progname=STRING          set program (and mem) name to STRING\n"
+"  -recorder                 enable filename recorder\n"
 "  -version                  output version information and exit\n"
+);
+fprintf(stdout,
 "\n"
 "Email bug reports to mp-implementors@@tug.org.\n"
 "\n");

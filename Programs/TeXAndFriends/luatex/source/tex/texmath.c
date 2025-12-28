@@ -2123,12 +2123,15 @@ void close_math_group(pointer p)
     if (p != null && vlink(p) == null) {
         if (type(p) == simple_noad) {
             if (subscr(p) == null && supscr(p) == null) {
-                /*tex (subtype(p) == ord_noad_type) */
+                /*tex 
+                    In traditional \TEX\ this only happens for ordinary noads.
+                */
+             // int flatten = subtype(p) == ord_noad_type; /*tex traditional \TEX. */
                 int flatten = 0;
                 int modepar = math_flatten_mode_par;
                 switch (subtype(p)) {
                     case ord_noad_type :
-                        flatten = (modepar & 1) == 1;
+                        flatten = (modepar & 1) == 1; /* the default */
                         break;
                     case bin_noad_type :
                         flatten = (modepar & 2) == 2;
@@ -2542,7 +2545,10 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
         g2 = below_display_short_skip_code;
        }
     } else {
-      if ((d + line_s <= pre_display_size_par) || ((! dir_math_save && l) || (dir_math_save && ! l))) {
+      boolean math_and_par_reversed = math_and_text_reversed_p();
+      if ((d + line_s <= pre_display_size_par) || (eqno_box != null
+              && ((! math_and_par_reversed && l)
+              || (math_and_par_reversed && ! l)))) {
         /*tex not enough clearance */
         g1 = above_display_skip_code;
         g2 = below_display_skip_code;

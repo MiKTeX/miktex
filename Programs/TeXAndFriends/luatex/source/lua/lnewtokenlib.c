@@ -150,7 +150,7 @@ int token_from_lua(lua_State * L)
                 return cs_token_flag + cs;
             }
         }
-    } else { 
+    } else {
         p = check_istoken(L, -1);
         if (p) {
             return token_info(p->token);
@@ -370,7 +370,7 @@ inline static int unchecked_put_next(lua_State * L)
             t = x;
             lua_pop(L, 1);
         }
-    } 
+    }
     begin_token_list(h,0);
     lua_settop(L,n);
     return 0;
@@ -1332,7 +1332,12 @@ static int set_macro(lua_State * L)
                         str += _s ;
                         _lname = _lname + _s ;
                     } else if (_c == 10) {
-                        /* we ignore a trailing space like normal scanning does */
+                        /* we ignore a trailing space like normal scanning does unless it is  */
+                        /* an '\ ' i.e. an original (unexpandable) control space or protected */
+                        /* macro, or alias; when we have e.g. \def\ {!} we get the expansion  */
+                        if (_lname == 0) {
+                            _lname = _lname + _s ;
+                        }
                         str += _s ;
                         break ;
                     } else {

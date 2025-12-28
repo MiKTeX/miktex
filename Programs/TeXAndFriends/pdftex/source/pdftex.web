@@ -1,4 +1,4 @@
-% Copyright 1996-2024 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh,
+% Copyright 1996-2025 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh,
 % <thanh@@pdftex.org>
 
 % This file is part of pdfTeX.
@@ -307,8 +307,8 @@ known as `\eTeX'.
   {printed when \eTeX\ starts}
 @#
 @d pdftex_version==140 { \.{\\pdftexversion} }
-@d pdftex_revision=="27" { \.{\\pdftexrevision} }
-@d pdftex_version_string=='-1.40.27' {current \pdfTeX\ version}
+@d pdftex_revision=="28" { \.{\\pdftexrevision} }
+@d pdftex_version_string=='-1.40.28' {current \pdfTeX\ version}
 @#
 @d pdfTeX_banner=='This is pdfTeX, Version 3.141592653',eTeX_version_string,pdftex_version_string
    {printed when \pdfTeX\ starts}
@@ -10959,7 +10959,7 @@ p, q: pointer;
 @!save_scanner_status:small_number; {|scanner_status| upon entry}
 @!save_def_ref: pointer; {|def_ref| upon entry, important if inside `\.{\\message}'}
 @!save_warning_index: pointer;
-@!bool: boolean; {temp boolean}
+@!booltemp: boolean; {temp boolean}
 @!i: integer; {first temp integer}
 @!j: integer; {second temp integer}
 @!b:pool_pointer; {base of temporary string}
@@ -11159,7 +11159,7 @@ pdf_mdfive_sum_code:
     save_warning_index := warning_index;
     save_def_ref := def_ref;
     save_cur_string;
-    bool := scan_keyword("file");
+    booltemp := scan_keyword("file");
     scan_pdf_ext_toks;
     s := tokens_to_string(def_ref);
     delete_token_ref(def_ref);
@@ -11167,7 +11167,7 @@ pdf_mdfive_sum_code:
     warning_index := save_warning_index;
     scanner_status := save_scanner_status;
     b := pool_ptr;
-    getmd5sum(s, bool);
+    getmd5sum(s, booltemp);
     link(garbage) := str_toks(b);
     flush_str(s);
     ins_list(link(temp_head));
@@ -11230,7 +11230,7 @@ pdf_match_code:
     save_def_ref := def_ref;
     save_cur_string;
     {scan for icase}
-    bool := scan_keyword("icase");
+    booltemp := scan_keyword("icase");
     {scan for subcount}
     i := -1; {default for subcount}
     if scan_keyword("subcount") then begin
@@ -11247,7 +11247,7 @@ pdf_match_code:
     warning_index := save_warning_index;
     scanner_status := save_scanner_status;
     b := pool_ptr;
-    matchstrings(s, t, i, bool);
+    matchstrings(s, t, i, booltemp);
     link(garbage) := str_toks(b);
     flush_str(t);
     flush_str(s);
@@ -11286,7 +11286,7 @@ pdf_strcmp_code:
   end;
 pdf_colorstack_init_code:
   begin
-    bool := scan_keyword("page");
+    booltemp := scan_keyword("page");
     if scan_keyword("direct") then
         cur_val := direct_always
     else
@@ -11304,7 +11304,7 @@ pdf_colorstack_init_code:
     def_ref := save_def_ref;
     warning_index := save_warning_index;
     scanner_status := save_scanner_status;
-    cur_val := newcolorstack(s, cur_val, bool);
+    cur_val := newcolorstack(s, cur_val, booltemp);
     flush_str(s);
     cur_val_level := int_val;
     if cur_val < 0 then begin
@@ -15794,7 +15794,7 @@ accuracy.
 @!scaled_out: integer; {amount of |scaled| that was taken out in
 |divide_scaled|}
 @!init_pdf_output: boolean;
-@!adv_char_width_s: integer; {to save result of calculation done in |adv_char_width| }
+@!adv_char_width_s: integer; {to save result of calculation done in |adv_char_width|}
 @!adv_char_width_s_out: scaled;
 
 @ @<Set init...@>=
@@ -15809,6 +15809,9 @@ init_pdf_output := false;
 
 
 @ The following function divides |s| by |m|. |dd| is number of decimal digits.
+The result is $r = (s/m) \times 10^{dd}$, and the remainder after
+the division is $s - |scaled_out|$
+
 
 @<Declare procedures that need to be declared forward for \pdfTeX@>=
 function divide_scaled(s, m: scaled; dd: integer): scaled;
@@ -15893,7 +15896,7 @@ For PK fonts things are more complicated,
 as we have to deal with scaling bitmaps as well.
 
 @p
-procedure adv_char_width(f: internal_font_number; c: eight_bits; dd: eight_bits);
+procedure adv_char_width(f: internal_font_number; c: eight_bits);
 {update |pdf_delta_h| by character width |w| from font |f|}
 var w, s_out: scaled;
     s: integer;
@@ -15901,21 +15904,21 @@ begin
     w := char_width(f)(char_info(f)(c));
     if isscalable(f) then begin
         if pdf_cur_Tm_a = 0 then begin
-            s := divide_scaled(w, pdf_font_size[f], dd);
+            s := divide_scaled(w, pdf_font_size[f], 4);
             s_out := scaled_out;
             pdf_delta_h := pdf_delta_h + s_out;
         end
         else begin
             s := divide_scaled(round_xn_over_d(w, 1000, 1000 + pdf_cur_Tm_a),
                                pdf_font_size[f],
-                               dd);
+                               4);
             s_out := round_xn_over_d(round_xn_over_d(pdf_font_size[f], abs(s), 10000),
                                      1000 + pdf_cur_Tm_a, 1000);
             if s < 0 then
                 s_out := -s_out;
             pdf_delta_h := pdf_delta_h + s_out;
         end;
-        adv_char_width_s := s;
+        adv_char_width_s := round(s/10);
         adv_char_width_s_out := s_out;
     end else
         pdf_delta_h := pdf_delta_h + get_pk_char_width(f, w);
@@ -16151,7 +16154,7 @@ begin
 
     {create a new font object for |f|}
     pdf_create_obj(obj_type_font, f);
-    pdf_font_has_space_char[f] := hasspacechar(f);
+    pdf_font_has_space_char[f] := hasspacechar(f) and (char_width(f)(char_info(f)(32)) > one_bp);
     pdf_use_font(f, obj_ptr);
 end;
 
@@ -16295,7 +16298,7 @@ begin
         {insert a real space char from the font when possible}
         if pdf_font_has_space_char[f] and pdf_doing_string then begin
             pdf_out(" ");
-            adv_char_width(f, 32, 4); { to get |adv_char_width_s| and |adv_char_width_s_out|}
+            adv_char_width(f, 32); { update |pdf_delta_h|, get |adv_char_width_s| and |adv_char_width_s_out|}
             s := s - adv_char_width_s;
             s_out := s_out - adv_char_width_s_out;
             pdf_mark_char(f, 32);
@@ -16346,7 +16349,7 @@ begin
     pdf_read_dummy_font;
     pdf_begin_string(pdf_dummy_font);
     pdf_print(" ");
-    adv_char_width(pdf_dummy_font, 32, 4);
+    adv_char_width(pdf_dummy_font, 32);
     pdf_end_string_nl;
 
     gen_faked_interword_space := s;
@@ -18431,7 +18434,7 @@ end;
     else begin
         pdf_begin_string(f);
         pdf_print_char(f, #);
-        adv_char_width(f, #, 4);
+        adv_char_width(f, #);
     end;
 end
 

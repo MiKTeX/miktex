@@ -113,6 +113,7 @@ extern int luaopen_sha2(lua_State * L);
 
 #ifdef LUATEX_HARFBUZZ_ENABLED
 extern int luaopen_luaharfbuzz(lua_State * L);
+extern int luaopen_luaharfbuzzsubset(lua_State * L);
 #endif
 
 extern int luaopen_zlib(lua_State * L);

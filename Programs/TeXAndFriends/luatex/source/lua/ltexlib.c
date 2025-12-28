@@ -3587,6 +3587,21 @@ static int tex_getmodevalues(lua_State * L)
     return 1;
 }
 
+/*tex   
+    This setter is only there so that we can still generate older \CONTEXT\ documents (like 
+    articles and progress reports) that refer to some now obsolete commands. Some of these 
+    math control are still present in \LUAMETATEX\ but in a different way. In \LUATEX\ they
+    became obsolete in 2025 (prelude to TL 2026) because we (MS/HH) notices that they'd 
+    never been used anywhere else. 
+*/
+
+static int tex_permitmathobsolete(lua_State * L)
+{
+    permit_math_obsolete = lua_toboolean(L, 1);
+    formatted_warning("math","obsolete commands are %s", permit_math_obsolete ? "permitted" : "blocked" );
+    return 0;
+}
+
 /* till here */
 
 void init_tex_table(lua_State * L)
@@ -3710,6 +3725,8 @@ static const struct luaL_Reg texlib[] = {
     { "quittoks", quittoks },
     { "forcehmode", forcehmode },
     { "getmodevalues", tex_getmodevalues },
+    /* private */
+    { "permitmathobsolete", tex_permitmathobsolete },
     /* sentinel */
     { NULL, NULL }
 };

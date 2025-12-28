@@ -1,5 +1,5 @@
 /*
-Copyright 1996-2014 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2025 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -322,7 +322,7 @@ void read_jpg_info(integer img)
         case M_SOF15:
             pdftex_fail("unsupported type of compression");
         case M_SOF2:
-            if (fixedpdfminorversion <= 2)
+            if (fixedpdfmajorversion == 1 && fixedpdfminorversion <= 2)
                 pdftex_fail("cannot use progressive DCT with PDF-1.2");
         case M_SOF0:
         case M_SOF1:

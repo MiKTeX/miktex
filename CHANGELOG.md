@@ -1,5 +1,21 @@
 # MiKTeX Change Log
 
+## 25.12 - 2025-12-28
+
+### Upgraded programs
+
+* autosp 2025-10-26
+* dvipdfmx 20250413
+* dvips 2025.1
+* hitex 2.2
+* luatex 1.24.0
+* metapost 2.12
+* pdftex 1.40.28
+
+### Added
+
+- [1571](https://github.com/MiKTeX/miktex/issues/1641): Fedora 42
+
 ## 25.4 - 2025-04-18
 
 ### Upgraded programs

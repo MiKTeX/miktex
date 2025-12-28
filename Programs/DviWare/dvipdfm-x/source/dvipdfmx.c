@@ -68,7 +68,7 @@
 #include <miktex/unxemu.h>
 #include <getopt.h>
 #endif
-#include <miktex/dvipdfm-x.h>
+#include <miktex/dvipdfmx.h>
 #endif
 
 #if defined(LIBDPX)
@@ -607,6 +607,9 @@ do_args_second_pass (int argc, char *argv[], const char *source, int unsafe)
       break;
 
     case 'o':
+      if (pdf_filename) {
+        RELEASE(pdf_filename);
+      }
       pdf_filename = NEW (strlen(optarg)+1, char);
       strcpy(pdf_filename, optarg);
       break;
@@ -1156,16 +1159,8 @@ main (int argc, char *argv[])
   if (!dvi_filename) {
     if (verbose)
       MESG("No dvi filename specified, reading standard input.\n");
-    if (!pdf_filename)
-      if (verbose)
-        MESG("No pdf filename specified, writing to standard output.\n");
   } else if (!pdf_filename)
     set_default_pdf_filename();
-
-  if (pdf_filename && !strcmp(pdf_filename, "-")) {
-    RELEASE(pdf_filename);
-    pdf_filename = NULL;
-  }
 
   if (dpx_conf.compat_mode == dpx_mode_mpost_mode) {
     x_offset = 0.0;
@@ -1194,11 +1189,24 @@ main (int argc, char *argv[])
     }
   }
 
+  /* moved to here because -o - was not effective */
+  if (pdf_filename && !strcmp(pdf_filename, "-")) {
+    RELEASE(pdf_filename);
+    pdf_filename = NULL;
+  }
+
+  /* moved to here because an incorrect message:
+     "No pdf filename specified, writing to standard output."
+     is printed for xdvipdfmx -v -o foo.pdf < foo.xdv */
+  if (!pdf_filename)
+    if (verbose)
+      MESG("No pdf filename specified, writing to standard output.\n");
+
+  /* moved to here because -r option was not effective */
 #if defined(MIKTEX)
   kpse_init_prog("", font_dpi, NULL, NULL);
   kpse_set_program_enabled(kpse_pk_format, true, kpse_src_texmf_cnf);
 #else
-  /* moved to here because -r option was not effective */
 #ifndef MIKTEX
   kpse_init_prog("", font_dpi, NULL, NULL);
   kpse_set_program_enabled(kpse_pk_format, true, kpse_src_texmf_cnf);
