@@ -1,12 +1,32 @@
 ## sources.cmake
 ##
-## Copyright (C) 2020-2024 Christian Schenk
+## Copyright (C) 2020-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
 
-set(project_sources ${CMAKE_CURRENT_SOURCE_DIR}/source/src/harfbuzz.cc)
+set(project_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/harfbuzz.cc
+
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/graph/gsubgpos-context.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-cff-common.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-cff1.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-cff2.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-input.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-instancer-iup.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-instancer-solver.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-plan-layout.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-plan-var.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-plan.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-serialize.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-table-cff.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-table-color.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-table-layout.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-table-other.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-table-var.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset.cc
+)
 
 set (project_headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout.h

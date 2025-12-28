@@ -1,6 +1,6 @@
 ## luaharfbuzz.cmake
 ##
-## Copyright (C) 2019-2023 Christian Schenk
+## Copyright (C) 2019-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -19,6 +19,7 @@ set(luaharfbuzz_sources
     source/luaharfbuzz/src/luaharfbuzz/luaharfbuzz.h
     source/luaharfbuzz/src/luaharfbuzz/ot.c
     source/luaharfbuzz/src/luaharfbuzz/script.c
+    source/luaharfbuzz/src/luaharfbuzz/set.c
     source/luaharfbuzz/src/luaharfbuzz/tag.c
     source/luaharfbuzz/src/luaharfbuzz/unicode.c
     source/luaharfbuzz/src/luaharfbuzz/variation.c

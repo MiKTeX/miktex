@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2010-2023 Christian Schenk
+## Copyright (C) 2010-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -47,6 +47,7 @@ include(libunilib.cmake)
 include(luaffi.cmake)
 include(luafontforge.cmake)
 include(luaharfbuzz.cmake)
+include(luaharfbuzzsubset.cmake)
 include(luamisc.cmake)
 include(luasocket.cmake)
 include(miktex.cmake)
@@ -137,6 +138,7 @@ set(luahbtex_libs
     ${common_engine_libs}
     luahbtex-engine-objects
     luahbtex-luaharfbuzz-objects
+    luahbtex-luaharfbuzzsubset-objects
 )
 
 add_executable(${MIKTEX_PREFIX}luahbtex ${luahbtex_sources} ${MIKTEX_LIBRARY_WRAPPER})
