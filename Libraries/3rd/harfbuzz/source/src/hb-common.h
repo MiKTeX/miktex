@@ -520,6 +520,12 @@ typedef struct hb_glyph_extents_t {
 typedef struct hb_font_t hb_font_t;
 
 /* Not of much use to clients. */
+#if defined(MIKTEX)
+#define hb_malloc malloc
+#define hb_calloc calloc
+#define hb_realloc realloc
+#define hb_free free
+#else
 HB_EXTERN void*
 hb_malloc (size_t size);
 HB_EXTERN void*
@@ -528,6 +534,7 @@ HB_EXTERN void*
 hb_realloc (void *ptr, size_t size);
 HB_EXTERN void
 hb_free (void *ptr);
+#endif
 
 HB_END_DECLS
 

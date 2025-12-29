@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 25.12 - 2025-12-28
+## 25.12 - 2025-12-29
 
 ### Upgraded programs
 

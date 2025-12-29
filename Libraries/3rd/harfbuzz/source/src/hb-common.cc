@@ -1186,6 +1186,7 @@ uint8_t
   return hb_color_get_blue (color);
 }
 
+#if !defined(MIKTEX)
 /**
  * hb_malloc:
  * @size: The size of the memory to allocate.
@@ -1237,6 +1238,7 @@ void* hb_realloc(void *ptr, size_t size) { return hb_realloc_impl (ptr, size); }
  * Since: 11.0.0
  **/
 void  hb_free(void *ptr) { hb_free_impl (ptr); }
+#endif
 
 
 /* If there is no visibility control, then hb-static.cc will NOT
