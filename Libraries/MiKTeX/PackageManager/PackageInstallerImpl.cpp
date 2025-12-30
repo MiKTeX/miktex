@@ -25,7 +25,7 @@
 #include <miktex/Core/FileStream>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/TemporaryFile>
-#include <miktex/Extractor/Extractor>
+#include <miktex/Archive/Extractor>
 #include <miktex/Trace/StopWatch>
 
 #if defined(MIKTEX_WINDOWS)
@@ -46,7 +46,7 @@ using namespace std;
 
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
-using namespace MiKTeX::Extractor;
+using namespace MiKTeX::Archive;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
@@ -263,7 +263,7 @@ bool PackageInstallerImpl::OnError(const string& message)
 
 void PackageInstallerImpl::ExtractFiles(const PathName& archiveFileName, ArchiveFileType archiveFileType)
 {
-    MiKTeX::Extractor::Extractor::CreateExtractor(archiveFileType)->Extract(archiveFileName, session->GetSpecialPath(SpecialPath::InstallRoot), true, this, TEXMF_PREFIX_DIRECTORY);
+    MiKTeX::Archive::Extractor::CreateExtractor(archiveFileType)->Extract(archiveFileName, session->GetSpecialPath(SpecialPath::InstallRoot), true, this, TEXMF_PREFIX_DIRECTORY);
 }
 
 void PackageInstallerImpl::InstallRepositoryManifest(bool fromCache)
@@ -366,7 +366,7 @@ void PackageInstallerImpl::InstallRepositoryManifest(bool fromCache)
             pathZzdb1 = PathName(repository) / MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME;
         }
 
-        MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(pathZzdb1, cacheDirectory);
+        MiKTeX::Archive::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(pathZzdb1, cacheDirectory);
     }
     else if (repositoryType == RepositoryType::MiKTeXDirect)
     {
@@ -1046,7 +1046,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
         || repositoryType == RepositoryType::Local)
     {
         PathName packageFileName(packageId);
-        packageFileName.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
+        packageFileName.AppendExtension(MiKTeX::Archive::Extractor::GetFileNameExtension(aft));
 
         if (repositoryType == RepositoryType::Remote)
         {
@@ -1059,7 +1059,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
         {
             MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
             pathArchiveFile = PathName(repository) / packageId;
-            pathArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
+            pathArchiveFile.AppendExtension(MiKTeX::Archive::Extractor::GetFileNameExtension(aft));
         }
 
         // check to see whether the digest is good
@@ -1089,7 +1089,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
     if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
     {
         // unpack the archive file
-        ReportLine(fmt::format(T_("extracting files from {0}..."), Q_(packageId + MiKTeX::Extractor::Extractor::GetFileNameExtension(aft))));
+        ReportLine(fmt::format(T_("extracting files from {0}..."), Q_(packageId + MiKTeX::Archive::Extractor::GetFileNameExtension(aft))));
         ExtractFiles(pathArchiveFile, aft);
     }
     else if (repositoryType == RepositoryType::MiKTeXDirect)
@@ -1173,7 +1173,7 @@ void PackageInstallerImpl::DownloadPackage(const string& packageId)
     // make the archive file name
     ArchiveFileType aft = repositoryManifest.GetArchiveFileType(packageId);
     PathName pathArchiveFile(packageId);
-    pathArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
+    pathArchiveFile.AppendExtension(MiKTeX::Archive::Extractor::GetFileNameExtension(aft));
 
     // download the archive file
     Download(pathArchiveFile, expectedSize);
@@ -1703,7 +1703,7 @@ void PackageInstallerImpl::InstallRemove(Role role)
                     // check to see whether the archive file exists
                     ArchiveFileType aft = repositoryManifest.GetArchiveFileType(packageId);
                     PathName pathLocalArchiveFile = PathName(repository) / packageId;
-                    pathLocalArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
+                    pathLocalArchiveFile.AppendExtension(MiKTeX::Archive::Extractor::GetFileNameExtension(aft));
                     if (!File::Exists(pathLocalArchiveFile))
                     {
                         MIKTEX_FATAL_ERROR_2(FatalError(ERROR_MISSING_PACKAGE), "package", packageId, "archiveFile", pathLocalArchiveFile.ToString());
@@ -1916,7 +1916,7 @@ void PackageInstallerImpl::Download()
             // check to see whether the file was downloaded previously
             ArchiveFileType aft = repositoryManifest.GetArchiveFileType(packageId);
             PathName pathLocalArchiveFile = downloadDirectory / packageId;
-            pathLocalArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
+            pathLocalArchiveFile.AppendExtension(MiKTeX::Archive::Extractor::GetFileNameExtension(aft));
             if (File::Exists(pathLocalArchiveFile))
             {
                 // the archive file exists;  check to see if it is valid
@@ -2208,7 +2208,7 @@ void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
         }
 
         // extract package-manifests.ini into cache directory
-        MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(archivePath, cacheDirectory);
+        MiKTeX::Archive::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(archivePath, cacheDirectory);
     }
 
     // load cached package-manifests.ini

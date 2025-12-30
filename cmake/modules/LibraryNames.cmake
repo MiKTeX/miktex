@@ -1,6 +1,6 @@
 ## LibraryNames.cmake
 ##
-## Copyright (C) 2006-2024 Christian Schenk
+## Copyright (C) 2006-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -43,6 +43,7 @@ endmacro()
 define_library(app)
 define_library(apr)
 define_library(aprutil apr_util)
+define_library(archive)
 define_library(bzip2)
 define_library(cairo)
 define_library(config)
@@ -52,7 +53,6 @@ define_library(dib)
 define_library(dvi)
 define_library(egl_registry)
 define_library(expat)
-define_library(extractor)
 define_library(fmt)
 define_library(fontconfig)
 define_library(freeglut)

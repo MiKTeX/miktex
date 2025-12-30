@@ -54,7 +54,7 @@
 #include "miktex/Core/win/WindowsVersion"
 #endif
 
-#include <miktex/Extractor/Extractor>
+#include <miktex/Archive/Extractor>
 
 #include <miktex/Locale/Translator>
 

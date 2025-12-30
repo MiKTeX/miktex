@@ -62,7 +62,7 @@ endif()
 
 target_link_libraries(${setup_dll_name}
     PRIVATE
-        ${extractor_dll_name}
+        ${archive_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

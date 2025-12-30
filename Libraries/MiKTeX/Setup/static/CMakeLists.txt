@@ -46,7 +46,7 @@ endif()
 
 target_link_libraries(${setup_lib_name}
     PRIVATE 
-        ${extractor_lib_name}
+        ${archive_lib_name}
 )
 
 source_group(Public FILES ${public_headers})

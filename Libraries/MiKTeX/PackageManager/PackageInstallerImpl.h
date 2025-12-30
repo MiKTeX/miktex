@@ -22,7 +22,7 @@
 #include <miktex/Core/Cfg>
 #include <miktex/Core/Session>
 #include <miktex/Core/TemporaryFile>
-#include <miktex/Extractor/Extractor>
+#include <miktex/Archive/Extractor>
 #include <miktex/Trace/Trace>
 
 #include "PackageManagerImpl.h"
@@ -45,7 +45,7 @@ class PackageInstallerImpl :
     public IProgressNotify_,
     public MiKTeX::Core::ICreateFndbCallback,
     public MiKTeX::Core::IRunProcessCallback,
-    public MiKTeX::Extractor::IExtractCallback,
+    public MiKTeX::Archive::IExtractCallback,
     public MiKTeX::Packages::PackageInstaller
 {
 
@@ -181,7 +181,7 @@ private:
     void Download(const std::string& url, const MiKTeX::Util::PathName& dest, std::size_t expectedSize = 0);
     void DownloadPackage(const std::string& packageId);
     void DownloadThread();
-    void ExtractFiles(const MiKTeX::Util::PathName& archiveFileName, MiKTeX::Extractor::ArchiveFileType archiveFileType);
+    void ExtractFiles(const MiKTeX::Util::PathName& archiveFileName, MiKTeX::Archive::ArchiveFileType archiveFileType);
     std::string FatalError(ErrorCode error);
     void FindUpdatesNoLock();
     void FindUpdatesThread();

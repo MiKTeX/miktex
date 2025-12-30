@@ -28,7 +28,7 @@ using namespace nlohmann;
 
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
-using namespace MiKTeX::Extractor;
+using namespace MiKTeX::Archive;
 using namespace MiKTeX::Locale;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
@@ -351,7 +351,7 @@ unique_ptr<TemporaryDirectory> SetupService::ExtractFiles()
             memcmp(magic + 12, MAGIC3, 3) == 0 &&
             memcmp(magic + 15, MAGIC3, 1) == 0)
         {
-            unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(MiKTeX::Extractor::ArchiveFileType::Tar));
+            unique_ptr<MiKTeX::Archive::Extractor> extractor(MiKTeX::Archive::Extractor::CreateExtractor(MiKTeX::Archive::ArchiveFileType::Tar));
             unique_ptr<TemporaryDirectory> sfxDir = TemporaryDirectory::Create();
             extractor->Extract(&myImage, sfxDir->GetPathName(), true);
             return sfxDir;

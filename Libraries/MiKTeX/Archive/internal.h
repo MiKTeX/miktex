@@ -24,7 +24,7 @@
 
 #define BEGIN_INTERNAL_NAMESPACE                        \
 namespace MiKTeX {                                      \
-  namespace Extractor {                                 \
+  namespace Archive {                                   \
     namespace AF1A1A64A53D45708F96161A1541D424 {
 
 #define END_INTERNAL_NAMESPACE                  \
@@ -53,9 +53,9 @@ namespace MiKTeX {                                      \
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-#define EXTRACTORSTATICFUNC(type) static type
-#define EXTRACTORINTERNALFUNC(type) type
-#define EXTRACTORINTERNALVAR(type) type
+#define ARCHIVESTATICFUNC(type) static type
+#define ARCHIVEINTERNALFUNC(type) type
+#define ARCHIVEINTERNALVAR(type) type
 
 #define ARRAY_SIZE(buf) (sizeof(buf)/sizeof(buf[0]))
 
@@ -64,4 +64,4 @@ namespace MiKTeX {                                      \
 BEGIN_INTERNAL_NAMESPACE;
 END_INTERNAL_NAMESPACE;
 
-using namespace MiKTeX::Extractor::AF1A1A64A53D45708F96161A1541D424;
+using namespace MiKTeX::Archive::AF1A1A64A53D45708F96161A1541D424;

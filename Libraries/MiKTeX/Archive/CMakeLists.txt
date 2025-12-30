@@ -19,7 +19,7 @@
 
 include(component.cmake)
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/extractor")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/archive")
 
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -32,11 +32,11 @@ set(public_include_directories
 )
 
 set(public_headers
-  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Extractor/vi/Version.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Extractor/Extractor
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Extractor/Extractor.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Extractor/config.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Extractor/vi/Version
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Archive/vi/Version.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Archive/Extractor
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Archive/Extractor.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Archive/config.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Archive/vi/Version
 )
 
 configure_file(
@@ -45,21 +45,21 @@ configure_file(
 )
 
 configure_file(
-  extractor-version.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/extractor-version.h
+  archive-version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/archive-version.h
 )
 
 configure_file(
-  include/miktex/Extractor/vi/Version.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Extractor/vi/Version.h
+  include/miktex/Archive/vi/Version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Archive/vi/Version.h
 )
 
-set(extractor_sources
+set(archive_sources
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
-  ${CMAKE_CURRENT_BINARY_DIR}/extractor-version.h
+  ${CMAKE_CURRENT_BINARY_DIR}/archive-version.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/Archive.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CabExtractor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CabExtractor.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/Extractor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/TarBzip2Extractor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/TarBzip2Extractor.h
   ${CMAKE_CURRENT_SOURCE_DIR}/TarExtractor.cpp

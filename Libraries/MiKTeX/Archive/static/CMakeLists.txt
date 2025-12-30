@@ -19,39 +19,39 @@
 
 use_static_crt()
 
-add_library(${extractor_lib_name} STATIC ${extractor_sources})
+add_library(${archive_lib_name} STATIC ${archive_sources})
 
-set_property(TARGET ${extractor_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${archive_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_compile_definitions(${extractor_lib_name}
+target_compile_definitions(${archive_lib_name}
   PUBLIC
-    -DMIKTEX_EXTRACTOR_STATIC
+    -DMIKTEX_ARCHIVE_STATIC
 )
 
-target_include_directories(${extractor_lib_name}
+target_include_directories(${archive_lib_name}
   PUBLIC
     ${public_include_directories}
 )
 
 if(USE_SYSTEM_BZIP2)
-  target_link_libraries(${extractor_lib_name} PUBLIC MiKTeX::Imported::BZIP2)
+  target_link_libraries(${archive_lib_name} PUBLIC MiKTeX::Imported::BZIP2)
 else()
-  target_link_libraries(${extractor_lib_name} PUBLIC ${bzip2_lib_name})
+  target_link_libraries(${archive_lib_name} PUBLIC ${bzip2_lib_name})
 endif()
 
 if(USE_SYSTEM_FMT)
-  target_link_libraries(${extractor_lib_name} PUBLIC MiKTeX::Imported::FMT)
+  target_link_libraries(${archive_lib_name} PUBLIC MiKTeX::Imported::FMT)
 else()
-  target_link_libraries(${extractor_lib_name} PUBLIC ${fmt_lib_name})
+  target_link_libraries(${archive_lib_name} PUBLIC ${fmt_lib_name})
 endif()
 
 if(USE_SYSTEM_MSPACK)
-  target_link_libraries(${extractor_lib_name} PUBLIC MiKTeX::Imported::MSPACK)
+  target_link_libraries(${archive_lib_name} PUBLIC MiKTeX::Imported::MSPACK)
 else()
-  target_link_libraries(${extractor_lib_name} PUBLIC ${mspack_lib_name})
+  target_link_libraries(${archive_lib_name} PUBLIC ${mspack_lib_name})
 endif()
 
-target_link_libraries(${extractor_lib_name}
+target_link_libraries(${archive_lib_name}
   PUBLIC
     ${core_lib_name}   
 )

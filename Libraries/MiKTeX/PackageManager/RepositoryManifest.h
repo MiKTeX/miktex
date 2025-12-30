@@ -30,7 +30,7 @@
 #include <miktex/Util/PathName>
 #include <miktex/Core/Utils>
 
-#include <miktex/Extractor/Extractor>
+#include <miktex/Archive/Extractor>
 
 MPM_INTERNAL_BEGIN_NAMESPACE;
 
@@ -173,20 +173,20 @@ public:
   }
 
 public:
-  MiKTeX::Extractor::ArchiveFileType GetArchiveFileType(const std::string& packageId)
+  MiKTeX::Archive::ArchiveFileType GetArchiveFileType(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "Type");
     if (val == nullptr || val->AsString().empty() || val->AsString() == "MSCab")
     {
-      return MiKTeX::Extractor::ArchiveFileType::MSCab;
+      return MiKTeX::Archive::ArchiveFileType::MSCab;
     }
     else if (val->AsString() == "TarBzip2")
     {
-      return MiKTeX::Extractor::ArchiveFileType::TarBzip2;
+      return MiKTeX::Archive::ArchiveFileType::TarBzip2;
     }
     else if (val->AsString() == "TarLzma")
     {
-      return MiKTeX::Extractor::ArchiveFileType::TarLzma;
+      return MiKTeX::Archive::ArchiveFileType::TarLzma;
     }
     else
     {

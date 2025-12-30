@@ -22,12 +22,12 @@
 #include <miktex/First>
 #include <miktex/Definitions>
 
-#define TRACE_FACILITY "extractor"
+#define TRACE_FACILITY "archive"
 
-#if defined(MIKTEX_EXTRACTOR_SHARED)
-#  define MIKTEXEXTRACTOREXPORT MIKTEXDLLEXPORT
+#if defined(MIKTEX_ARCHIVE_SHARED)
+#  define MIKTEXARCHIVEEXPORT MIKTEXDLLEXPORT
 #else
-#  define MIKTEXEXTRACTOREXPORT
+#  define MIKTEXARCHIVEEXPORT
 #endif
 
 #define DAA6476494C144C8BED9A9E8810BAABA

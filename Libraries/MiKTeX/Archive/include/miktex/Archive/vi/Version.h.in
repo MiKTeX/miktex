@@ -1,4 +1,4 @@
-/* miktex/Extractor/vi/Version.h: library version       -*- C++ -*-
+/* miktex/Archive/vi/Version.h: library version       -*- C++ -*-
 
    Copyright (C) 1996-2020 Christian Schenk
 
@@ -24,7 +24,7 @@
 #if !defined(F484D8E24F8A4225BCCEAAD8291F2899)
 #define F484D8E24F8A4225BCCEAAD8291F2899
 
-#include <miktex/Extractor/config.h>
+#include <miktex/Archive/config.h>
 
 #include <string>
 #include <vector>
@@ -32,12 +32,12 @@
 #include <miktex/Core/LibraryVersion>
 
 #define MIKTEX_EXTRACTOR_VI_BEGIN_NAMESPACE     \
-  MIKTEX_EXTRACTOR_BEGIN_NAMESPACE              \
+  MIKTEX_ARCHIVE_BEGIN_NAMESPACE              \
   namespace vi {
 
 #define MIKTEX_EXTRACTOR_VI_END_NAMESPACE       \
   }                                             \
-  MIKTEX_EXTRACTOR_END_NAMESPACE
+  MIKTEX_ARCHIVE_END_NAMESPACE
 
 MIKTEX_EXTRACTOR_VI_BEGIN_NAMESPACE;
 
@@ -62,19 +62,19 @@ public:
   ~Runtime() = delete;
 
 public:
-  static MIKTEXEXTRACTORCEEAPI(std::string) GetName();
+  static MIKTEXARCHIVECEEAPI(std::string) GetName();
 
 public:
-  static MIKTEXEXTRACTORCEEAPI(std::string) GetDescription();
+  static MIKTEXARCHIVECEEAPI(std::string) GetDescription();
 
 public:
-  static MIKTEXEXTRACTORCEEAPI(int) GetInterfaceVersion();
+  static MIKTEXARCHIVECEEAPI(int) GetInterfaceVersion();
 
 public:
-  static MIKTEXEXTRACTORCEEAPI(MiKTeX::Core::VersionNumber) GetVersion();
+  static MIKTEXARCHIVECEEAPI(MiKTeX::Core::VersionNumber) GetVersion();
 
 public:
-  static MIKTEXEXTRACTORCEEAPI(std::vector<MiKTeX::Core::LibraryVersion>) GetDependencies();
+  static MIKTEXARCHIVECEEAPI(std::vector<MiKTeX::Core::LibraryVersion>) GetDependencies();
 };
 
 class MIKTEXNOVTABLE Header

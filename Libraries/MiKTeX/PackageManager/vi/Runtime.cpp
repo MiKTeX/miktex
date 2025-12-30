@@ -28,7 +28,7 @@
 #include <expat.h>
 
 #include <miktex/Core/vi/Version>
-#include <miktex/Extractor/vi/Version>
+#include <miktex/Archive/vi/Version>
 
 #include "miktex/PackageManager/vi/Version.h"
 
@@ -67,8 +67,8 @@ vector<LibraryVersion> Runtime::GetDependencies()
   result.push_back(MiKTeX::Core::vi::Version::GetLibraryVersion());
   auto deps = MiKTeX::Core::vi::Runtime::GetDependencies();
   result.insert(std::end(result), std::begin(deps), std::end(deps));
-  result.push_back(MiKTeX::Extractor::vi::Version::GetLibraryVersion());
-  deps = MiKTeX::Extractor::vi::Runtime::GetDependencies();
+  result.push_back(MiKTeX::Archive::vi::Version::GetLibraryVersion());
+  deps = MiKTeX::Archive::vi::Runtime::GetDependencies();
   result.insert(std::end(result), std::begin(deps), std::end(deps));
   return result;
 }

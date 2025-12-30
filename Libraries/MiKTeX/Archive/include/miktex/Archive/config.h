@@ -1,4 +1,4 @@
-/* miktex/Extractor/config.h: library configuration     -*- C++ -*-
+/* miktex/Archive/config.h: library configuration     -*- C++ -*-
 
    Copyright (C) 2008-2018 Christian Schenk
 
@@ -29,21 +29,21 @@
 
 // DLL import/export switch
 #if !defined(DAA6476494C144C8BED9A9E8810BAABA)
-#  if defined(MIKTEX_EXTRACTOR_SHARED)
-#    define MIKTEXEXTRACTOREXPORT MIKTEXDLLIMPORT
+#  if defined(MIKTEX_ARCHIVE_SHARED)
+#    define MIKTEXARCHIVEEXPORT MIKTEXDLLIMPORT
 #  else
-#    define MIKTEXEXTRACTOREXPORT
+#    define MIKTEXARCHIVEEXPORT
 #  endif
 #endif
 
 // API decoration for exported member functions
-#define MIKTEXEXTRACTORCEEAPI(type) MIKTEXEXTRACTOREXPORT type MIKTEXCEECALL
+#define MIKTEXARCHIVECEEAPI(type) MIKTEXARCHIVEEXPORT type MIKTEXCEECALL
 
-#define MIKTEX_EXTRACTOR_BEGIN_NAMESPACE        \
+#define MIKTEX_ARCHIVE_BEGIN_NAMESPACE          \
   namespace MiKTeX {                            \
-    namespace Extractor {
+    namespace Archive {
 
-#define MIKTEX_EXTRACTOR_END_NAMESPACE          \
+#define MIKTEX_ARCHIVE_END_NAMESPACE            \
     }                                           \
   }
 

@@ -1,6 +1,6 @@
 ## SourcePaths.cmake
 ##
-## Copyright (C) 2006-2024 Christian Schenk
+## Copyright (C) 2006-2025 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -11,6 +11,7 @@ set(MIKTEX_REL_APP_DIR                  "Libraries/MiKTeX/App")
 set(MIKTEX_REL_APR_DIR                  "Libraries/3rd/apr")
 set(MIKTEX_REL_APR_UTIL_DIR             "Libraries/3rd/apr-util")
 set(MIKTEX_REL_ARCTRL_WIN_DIR           "Programs/MiKTeX/arctrl/win")
+set(MIKTEX_REL_ARCHIVE_DIR              "Libraries/MiKTeX/Archive")
 set(MIKTEX_REL_ASYMPTOTE_DIR            "Programs/GraphicsUtilities/asymptote")
 set(MIKTEX_REL_AUTOSP_DIR               "Programs/Preprocessors/autosp")
 set(MIKTEX_REL_AXOHELP_DIR              "Programs/Converters/axohelp")
@@ -48,7 +49,6 @@ set(MIKTEX_REL_ENCTEX_DIR               "Programs/TeXAndFriends/enctex")
 set(MIKTEX_REL_EPSTOPDF_DIR             "Programs/MiKTeX/epstopdf")
 set(MIKTEX_REL_ETEX_DIR                 "Programs/TeXAndFriends/etex")
 set(MIKTEX_REL_EXPAT_DIR                "Libraries/3rd/expat")
-set(MIKTEX_REL_EXTRACTOR_DIR            "Libraries/MiKTeX/Extractor")
 set(MIKTEX_REL_FINDTEXMF_DIR            "Programs/MiKTeX/findtexmf")
 set(MIKTEX_REL_FMT_DIR                  "Libraries/3rd/fmt")
 set(MIKTEX_REL_FONTCONFIG_DIR           "Libraries/3rd/fontconfig")

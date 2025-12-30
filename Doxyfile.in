@@ -34,7 +34,7 @@ STRIP_FROM_PATH        += @CMAKE_SOURCE_DIR@
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_APP_DIR@/include
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CONFIGLIB_DIR@/include
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CORE_DIR@/include
-STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_EXTRACTOR_DIR@/include
+STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_ARCHIVE_DIR@/include
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_KPSEMU_DIR@/include
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@/include
@@ -130,7 +130,7 @@ INPUT                  += @CMAKE_SOURCE_DIR@/HACKING.md
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_APP_DIR@/include/miktex/App
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CONFIGLIB_DIR@/include/miktex/Configuration
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CORE_DIR@/include/miktex/Core
-INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_EXTRACTOR_DIR@/include/miktex/Extractor
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_ARCHIVE_DIR@/include/miktex/Extractor
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_KPSEMU_DIR@/include/miktex/KPSE
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@/include/miktex/PackageManager
@@ -373,7 +373,7 @@ PREDEFINED             += "MIKTEXCONFIGTHISAPI(type)=type"
 PREDEFINED             += "MIKTEXCORECEEAPI(type)=type"
 PREDEFINED             += "MIKTEXCOREEXPORT= "
 PREDEFINED             += "MIKTEXCORETHISAPI(type)=type"
-PREDEFINED             += "MIKTEXEXTRACTORCEEAPI(type)=type"
+PREDEFINED             += "MIKTEXARCHIVECEEAPI(type)=type"
 PREDEFINED             += "MIKTEXKPSCEEAPI(type)=type"
 PREDEFINED             += "MIKTEXKPSDATA(type)=type "
 PREDEFINED             += "MIKTEXMFTHISAPI(type)=type"
@@ -397,8 +397,8 @@ PREDEFINED             += "MIKTEX_CONFIG_END_NAMESPACE=} }"
 PREDEFINED             += "MIKTEX_CORE_BEGIN_NAMESPACE=namespace MiKTeX { namespace Core {"
 PREDEFINED             += "MIKTEX_CORE_END_NAMESPACE=} }"
 PREDEFINED             += "MIKTEX_END_EXTERN_C_BLOCK=}"
-PREDEFINED             += "MIKTEX_EXTRACTOR_BEGIN_NAMESPACE=namespace MiKTeX { namespace Extractor {"
-PREDEFINED             += "MIKTEX_EXTRACTOR_END_NAMESPACE=} }"
+PREDEFINED             += "MIKTEX_ARCHIVE_BEGIN_NAMESPACE=namespace MiKTeX { namespace Archive {"
+PREDEFINED             += "MIKTEX_ARCHIVE_END_NAMESPACE=} }"
 PREDEFINED             += "MIKTEX_PACKAGES_BEGIN_NAMESPACE=namespace MiKTeX { namespace Packages {"
 PREDEFINED             += "MIKTEX_PACKAGES_END_NAMESPACE=} }"
 PREDEFINED             += "MIKTEX_SETUP_BEGIN_NAMESPACE=namespace MiKTeX { namespace Setup {"

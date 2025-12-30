@@ -68,7 +68,7 @@ target_include_directories(${mpm_dll_name}
 target_link_libraries(${mpm_dll_name}
   PRIVATE
     ${core_dll_name}
-    ${extractor_dll_name}
+    ${archive_dll_name}
     ${md5_dll_name}
     ${nlohmann_json_dll_name}
 )
@@ -96,7 +96,7 @@ endif()
 
 delay_load(${mpm_dll_name}
   ${curl_dll_name}
-  ${extractor_dll_name}
+  ${archive_dll_name}
   Ws2_32
 )
 

@@ -43,7 +43,7 @@ using namespace std;
 
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
-using namespace MiKTeX::Extractor;
+using namespace MiKTeX::Archive;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
@@ -153,7 +153,7 @@ void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)
         tempDir = TemporaryDirectory::Create();
 
         // extract "package-manifests.ini" from archive
-        unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
+        unique_ptr<MiKTeX::Archive::Extractor> extractor(MiKTeX::Archive::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
         extractor->Extract(absPath, tempDir->GetPathName());
 
         packageManifestsPath = tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME;

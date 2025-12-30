@@ -19,10 +19,10 @@
 
 #pragma code_page(65001)
 
-#include "extractor-version.h"
+#include "archive-version.h"
 
-#define VER_INTERNALNAME_STR "${extractor_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${extractor_dll_name}.dll"
+#define VER_INTERNALNAME_STR "${archive_dll_name}"
+#define VER_ORIGINALFILENAME_STR "${archive_dll_name}.dll"
 
 #define VER_FILEDESCRIPTION_STR "${MIKTEX_COMP_DESCRIPTION}"
 

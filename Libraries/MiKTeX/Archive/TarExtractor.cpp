@@ -36,7 +36,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
-using namespace MiKTeX::Extractor;
+using namespace MiKTeX::Archive;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 

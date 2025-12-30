@@ -48,7 +48,7 @@ endif()
 target_link_libraries(${mpm_lib_name}
   PUBLIC
     ${core_lib_name}
-    ${extractor_lib_name}
+    ${archive_lib_name}
     ${md5_lib_name}
     ${nlohmann_json_lib_name}
   )

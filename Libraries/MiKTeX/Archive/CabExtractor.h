@@ -26,13 +26,13 @@
 
 #include <mspack.h>
 
-#include <miktex/Extractor/Extractor>
+#include <miktex/Archive/Extractor>
 #include <miktex/Trace/TraceStream>
 
 BEGIN_INTERNAL_NAMESPACE;
 
 class CabExtractor :
-  public MiKTeX::Extractor::Extractor
+  public MiKTeX::Archive::Extractor
 {
 public:
   CabExtractor();

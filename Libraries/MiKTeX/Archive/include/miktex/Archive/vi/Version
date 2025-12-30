@@ -1,4 +1,4 @@
-/* miktex/Extractor/vi/Version:                         -*- C++ -*-
+/* miktex/Archive/vi/Version:                         -*- C++ -*-
 
    Copyright (C) 1996-2018 Christian Schenk
 
@@ -21,4 +21,4 @@
 
 #pragma once
 
-#include <miktex/Extractor/vi/Version.h>
+#include <miktex/Archive/vi/Version.h>

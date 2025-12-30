@@ -118,5 +118,5 @@
 #include <miktex/Util/Tokenizer>
 #include <miktex/Util/inliners.h>
 
-#include <miktex/Extractor/Extractor>
+#include <miktex/Archive/Extractor>
 

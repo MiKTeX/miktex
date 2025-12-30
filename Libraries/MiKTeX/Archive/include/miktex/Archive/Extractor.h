@@ -1,4 +1,4 @@
-/* miktex/Extractor/Extractor.h:                        -*- C++ -*-
+/* miktex/Archive/Extractor.h:                        -*- C++ -*-
 
    Copyright (C) 2001-2019 Christian Schenk
 
@@ -39,9 +39,9 @@
 #include <miktex/Core/Session>
 #include <miktex/Core/Stream>
 
-/// @namespace MiKTeX::Extractor
+/// @namespace MiKTeX::Archive
 /// @brief Extracting files from compressed archives.
-MIKTEX_EXTRACTOR_BEGIN_NAMESPACE;
+MIKTEX_ARCHIVE_BEGIN_NAMESPACE;
 
 enum class ArchiveFileType
 {
@@ -96,7 +96,7 @@ public:
   }
 
 public:
-  static MIKTEXEXTRACTORCEEAPI(std::unique_ptr<Extractor>) CreateExtractor(ArchiveFileType archiveFileType);
+  static MIKTEXARCHIVECEEAPI(std::unique_ptr<Extractor>) CreateExtractor(ArchiveFileType archiveFileType);
 
 public:
   static const std::string GetFileNameExtension(ArchiveFileType archiveFileType)
@@ -121,6 +121,6 @@ public:
   }
 };
 
-MIKTEX_EXTRACTOR_END_NAMESPACE;
+MIKTEX_ARCHIVE_END_NAMESPACE;
 
 #endif

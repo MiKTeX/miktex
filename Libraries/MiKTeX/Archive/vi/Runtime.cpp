@@ -22,14 +22,14 @@
 #include "config.h"
 
 #include <miktex/Core/vi/Version>
-#include <miktex/Extractor/vi/Version>
+#include <miktex/Archive/vi/Version>
 
 #include "internal.h"
 
 using namespace std;
 
 using namespace MiKTeX::Core;
-using namespace MiKTeX::Extractor::vi;
+using namespace MiKTeX::Archive::vi;
 
 string Runtime::GetName()
 {

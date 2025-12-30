@@ -26,11 +26,11 @@
 
 #include <miktex/Trace/TraceStream>
 
-#include "miktex/Extractor/Extractor"
+#include "miktex/Archive/Extractor"
 
 BEGIN_INTERNAL_NAMESPACE;
 
-class TarExtractor : public MiKTeX::Extractor::Extractor
+class TarExtractor : public MiKTeX::Archive::Extractor
 {
 public:
   TarExtractor();

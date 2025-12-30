@@ -15,10 +15,10 @@
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}rungs.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${app_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${archive_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${core_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${core_ps_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${dib_dll_name}.dll
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${extractor_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${kpsemu_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${loc_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${mpm_dll_name}.dll
