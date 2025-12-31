@@ -19,11 +19,11 @@
 
 // DLL import/export switch
 #if !defined(DAA6476494C144C8BED9A9E8810BAABA)
-#  if defined(MIKTEX_ARCHIVE_SHARED)
-#    define MIKTEXARCHIVEEXPORT MIKTEXDLLIMPORT
-#  else
-#    define MIKTEXARCHIVEEXPORT
-#  endif
+#   if defined(MIKTEX_ARCHIVE_SHARED)
+#       define MIKTEXARCHIVEEXPORT MIKTEXDLLIMPORT
+#   else
+#       define MIKTEXARCHIVEEXPORT
+#   endif
 #endif
 
 // API decoration for exported member functions

@@ -1,35 +1,30 @@
-/* internal.h: internal definitions                     -*- C++ -*-
+/**
+ * @file internal.h
+ * @defgroup MiKTeX Archive
+ * @author Christian Schenk
+ * @brief Internal definitions for MiKTeX Archive
+ *
+ * @copyright Copyright © 2001-2025 Christian Schenk
+ *
+ * This file is part of the MiKTeX Archive Library.
+ *
+ * MiKTeX Archive Library is licensed under GNU General Public License version 2
+ * or any later version.
+ */
 
-   Copyright (C) 2001-2018 Christian Schenk
-
-   This file is part of MiKTeX Extractor.
-
-   MiKTeX Extractor is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2, or (at
-   your option) any later version.
-
-   MiKTeX Extractor is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with MiKTeX Extractor; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+#pragma once
 
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Text>
 
 #define BEGIN_INTERNAL_NAMESPACE                        \
 namespace MiKTeX {                                      \
-  namespace Archive {                                   \
-    namespace AF1A1A64A53D45708F96161A1541D424 {
+    namespace Archive {                                 \
+        namespace AF1A1A64A53D45708F96161A1541D424 {
 
-#define END_INTERNAL_NAMESPACE                  \
-    }                                           \
-  }                                             \
+#define END_INTERNAL_NAMESPACE                          \
+        }                                               \
+    }                                                   \
 }
 
 #define BEGIN_ANONYMOUS_NAMESPACE namespace {

@@ -1,28 +1,18 @@
-/* TarExtractor.h:                                      -*- C++ -*-
-
-   Copyright (C) 2001-2018 Christian Schenk
-
-   This file is part of MiKTeX Extractor.
-
-   MiKTeX Extractor is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2, or (at
-   your option) any later version.
-
-   MiKTeX Extractor is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with MiKTeX Extractor; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file TarExtractor.h
+ * @defgroup MiKTeX Archive
+ * @author Christian Schenk
+ * @brief TarExtractor implementation for MiKTeX Archive
+ *
+ * @copyright Copyright © 2001-2025 Christian Schenk
+ *
+ * This file is part of the MiKTeX Archive Library.
+ *
+ * MiKTeX Archive Library is licensed under GNU General Public License version 2
+ * or any later version.
+ */
 
 #pragma once
-
-#if !defined(BF702FE409EC4B9592640F4FD967F75B)
-#define BF702FE409EC4B9592640F4FD967F75B
 
 #include <miktex/Trace/TraceStream>
 
@@ -32,52 +22,33 @@ BEGIN_INTERNAL_NAMESPACE;
 
 class TarExtractor : public MiKTeX::Archive::Extractor
 {
-public:
-  TarExtractor();
 
 public:
-  MIKTEXTHISCALL ~TarExtractor() override;
 
-public:
-  void MIKTEXTHISCALL Extract(const MiKTeX::Util::PathName& path, const MiKTeX::Util::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) override;
+    TarExtractor();
+    MIKTEXTHISCALL ~TarExtractor() override;
 
-public:
-  void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* stream, const MiKTeX::Util::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) override;
-
-protected:
-  size_t Read(void* data, size_t numBytes)
-  {
-    size_t n = streamIn->Read(data, numBytes);
-    totalBytesRead += n;
-    return n;
-  }
+    void MIKTEXTHISCALL Extract(const MiKTeX::Util::PathName& path, const MiKTeX::Util::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) override;
+    void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* stream, const MiKTeX::Util::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) override;
 
 protected:
-  void ReadBlock(void* data);
 
-protected:
-  std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;
+    size_t Read(void* data, size_t numBytes)
+    {
+        size_t n = streamIn->Read(data, numBytes);
+        totalBytesRead += n;
+        return n;
+    }
 
-protected:
-  std::unique_ptr<MiKTeX::Trace::TraceStream> traceStopWatch;
+    void ReadBlock(void* data);
+    std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;
+    std::unique_ptr<MiKTeX::Trace::TraceStream> traceStopWatch;
 
-protected:
-  bool haveLongName;
-
-protected:
-  MiKTeX::Util::PathName longName;
-
-protected:
-  size_t totalBytesRead;
-
-protected:
-  MiKTeX::Core::Stream* streamIn = nullptr;
-
-protected:
-  void Skip(size_t bytes);
-
+    bool haveLongName;
+    MiKTeX::Util::PathName longName;
+    size_t totalBytesRead;
+    MiKTeX::Core::Stream* streamIn = nullptr;
+    void Skip(size_t bytes);
 };
 
 END_INTERNAL_NAMESPACE;
-
-#endif
