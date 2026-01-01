@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief PackageManager implementation
  *
- * @copyright Copyright © 2001-2024 Christian Schenk
+ * @copyright Copyright © 2001-2026 Christian Schenk
  *
  * This file is part of MiKTeX Package Manager.
  *
@@ -153,7 +153,7 @@ void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)
         tempDir = TemporaryDirectory::Create();
 
         // extract "package-manifests.ini" from archive
-        unique_ptr<MiKTeX::Archive::Extractor> extractor(MiKTeX::Archive::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
+        unique_ptr<MiKTeX::Archive::Extractor> extractor(MiKTeX::Archive::Extractor::New(DB_ARCHIVE_FILE_TYPE));
         extractor->Extract(absPath, tempDir->GetPathName());
 
         packageManifestsPath = tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME;

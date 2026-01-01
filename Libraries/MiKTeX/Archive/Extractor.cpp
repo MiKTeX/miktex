@@ -4,7 +4,7 @@
  * @author Christian Schenk
  * @brief Extractor interface for MiKTeX Archive
  *
- * @copyright Copyright © 2001-2025 Christian Schenk
+ * @copyright Copyright © 2001-2026 Christian Schenk
  *
  * This file is part of the MiKTeX Archive Library.
  *
@@ -34,7 +34,7 @@ Extractor::~Extractor() noexcept
 {
 }
 
-unique_ptr<Extractor> Extractor::CreateExtractor(ArchiveFileType archiveFileType)
+unique_ptr<Extractor> Extractor::New(ArchiveFileType archiveFileType)
 {
     switch (archiveFileType)
     {

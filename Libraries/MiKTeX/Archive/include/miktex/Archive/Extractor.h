@@ -4,7 +4,7 @@
  * @author Christian Schenk
  * @brief Extractor interface for MiKTeX Archive
  *
- * @copyright Copyright © 2001-2025 Christian Schenk
+ * @copyright Copyright © 2001-2026 Christian Schenk
  *
  * This file is part of the MiKTeX Archive Library.
  *
@@ -29,14 +29,11 @@
 #include <miktex/Core/Session>
 #include <miktex/Core/Stream>
 
+#include "common.h"
+
  /// @namespace MiKTeX::Archive
  /// @brief Extracting files from compressed archives.
 MIKTEX_ARCHIVE_BEGIN_NAMESPACE;
-
-enum class ArchiveFileType
-{
-    None, MSCab, TarBzip2, Zip, Tar, TarLzma, TarXz
-};
 
 class MIKTEXNOVTABLE IExtractCallback
 {
@@ -54,8 +51,8 @@ class MIKTEXNOVTABLE Extractor
 public:
 
     virtual MIKTEXTHISCALL ~Extractor() noexcept = 0;
-    virtual void MIKTEXTHISCALL Extract(const MiKTeX::Util::PathName& path, const MiKTeX::Util::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) = 0;
 
+    virtual void MIKTEXTHISCALL Extract(const MiKTeX::Util::PathName& path, const MiKTeX::Util::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) = 0;
     virtual void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* stream, const MiKTeX::Util::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) = 0;
 
     void MIKTEXTHISCALL Extract(const MiKTeX::Util::PathName& path, const MiKTeX::Util::PathName& destDir, bool makeDirectories)
@@ -78,7 +75,7 @@ public:
         return Extract(stream, destDir, false, nullptr, "");
     }
 
-    static MIKTEXARCHIVECEEAPI(std::unique_ptr<Extractor>) CreateExtractor(ArchiveFileType archiveFileType);
+    static MIKTEXARCHIVECEEAPI(std::unique_ptr<Extractor>) New(ArchiveFileType archiveFileType);
 
     static const std::string GetFileNameExtension(ArchiveFileType archiveFileType)
     {

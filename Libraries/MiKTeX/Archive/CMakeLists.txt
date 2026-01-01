@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2007-2024 Christian Schenk
+## Copyright (C) 2007-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -22,8 +22,11 @@ set(public_include_directories
 
 set(public_headers
     ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Archive/vi/Version.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Archive/Creator
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Archive/Creator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Archive/Extractor
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Archive/Extractor.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Archive/common.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Archive/config.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Archive/vi/Version
 )
@@ -48,14 +51,20 @@ set(archive_sources
     ${CMAKE_CURRENT_BINARY_DIR}/config.h
     ${CMAKE_CURRENT_SOURCE_DIR}/CabExtractor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CabExtractor.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/Creator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Extractor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/TarBzip2Creator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/TarBzip2Creator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/TarBzip2Extractor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/TarBzip2Extractor.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/TarCreator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/TarCreator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/TarExtractor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/TarExtractor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/TarLzmaExtractor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/TarLzmaExtractor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/tar.h
     ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp
     ${public_headers}
 )

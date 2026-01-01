@@ -4,7 +4,7 @@
  * @author Christian Schenk
  * @brief Internal definitions for MiKTeX Archive
  *
- * @copyright Copyright © 2001-2025 Christian Schenk
+ * @copyright Copyright © 2001-2026 Christian Schenk
  *
  * This file is part of the MiKTeX Archive Library.
  *
@@ -15,6 +15,7 @@
 #pragma once
 
 #include <miktex/Core/Quoter>
+#include <miktex/Core/Session>
 #include <miktex/Core/Text>
 
 #define BEGIN_INTERNAL_NAMESPACE                        \
@@ -31,15 +32,15 @@ namespace MiKTeX {                                      \
 #define END_ANONYMOUS_NAMESPACE }
 
 #if !defined(UNUSED)
-#  if !defined(NDEBUG)
-#    define UNUSED(x)
-#  else
-#    define UNUSED(x) static_cast<void>(x)
-#  endif
+#   if !defined(NDEBUG)
+#       define UNUSED(x)
+#   else
+#       define UNUSED(x) static_cast<void>(x)
+#   endif
 #endif
 
 #if !defined(UNUSED_ALWAYS)
-#  define UNUSED_ALWAYS(x) static_cast<void>(x)
+#   define UNUSED_ALWAYS(x) static_cast<void>(x)
 #endif
 
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()

@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief PackageInstaller implementation
  *
- * @copyright Copyright © 2001-2024 Christian Schenk
+ * @copyright Copyright © 2001-2026 Christian Schenk
  *
  * This file is part of MiKTeX Package Manager.
  *
@@ -263,7 +263,7 @@ bool PackageInstallerImpl::OnError(const string& message)
 
 void PackageInstallerImpl::ExtractFiles(const PathName& archiveFileName, ArchiveFileType archiveFileType)
 {
-    MiKTeX::Archive::Extractor::CreateExtractor(archiveFileType)->Extract(archiveFileName, session->GetSpecialPath(SpecialPath::InstallRoot), true, this, TEXMF_PREFIX_DIRECTORY);
+    MiKTeX::Archive::Extractor::New(archiveFileType)->Extract(archiveFileName, session->GetSpecialPath(SpecialPath::InstallRoot), true, this, TEXMF_PREFIX_DIRECTORY);
 }
 
 void PackageInstallerImpl::InstallRepositoryManifest(bool fromCache)
@@ -366,7 +366,7 @@ void PackageInstallerImpl::InstallRepositoryManifest(bool fromCache)
             pathZzdb1 = PathName(repository) / MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME;
         }
 
-        MiKTeX::Archive::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(pathZzdb1, cacheDirectory);
+        MiKTeX::Archive::Extractor::New(DB_ARCHIVE_FILE_TYPE)->Extract(pathZzdb1, cacheDirectory);
     }
     else if (repositoryType == RepositoryType::MiKTeXDirect)
     {
@@ -2208,7 +2208,7 @@ void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
         }
 
         // extract package-manifests.ini into cache directory
-        MiKTeX::Archive::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(archivePath, cacheDirectory);
+        MiKTeX::Archive::Extractor::New(DB_ARCHIVE_FILE_TYPE)->Extract(archivePath, cacheDirectory);
     }
 
     // load cached package-manifests.ini

@@ -4,7 +4,7 @@
  * @author Christian Schenk
  * @brief TarExtractor implementation for MiKTeX Archive
  *
- * @copyright Copyright © 2001-2025 Christian Schenk
+ * @copyright Copyright © 2001-2026 Christian Schenk
  *
  * This file is part of the MiKTeX Archive Library.
  *
@@ -17,6 +17,8 @@
 #include <miktex/Trace/TraceStream>
 
 #include "miktex/Archive/Extractor"
+
+#include "internal.h"
 
 BEGIN_INTERNAL_NAMESPACE;
 
@@ -41,6 +43,8 @@ protected:
     }
 
     void ReadBlock(void* data);
+    void Skip(size_t bytes);
+
     std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;
     std::unique_ptr<MiKTeX::Trace::TraceStream> traceStopWatch;
 
@@ -48,7 +52,6 @@ protected:
     MiKTeX::Util::PathName longName;
     size_t totalBytesRead;
     MiKTeX::Core::Stream* streamIn = nullptr;
-    void Skip(size_t bytes);
 };
 
 END_INTERNAL_NAMESPACE;
