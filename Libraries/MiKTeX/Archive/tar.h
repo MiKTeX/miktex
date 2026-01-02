@@ -158,7 +158,7 @@ private:
 
     template<std::size_t N> void SetString(char(&field)[N], const std::string& str)
     {
-        if (str.length() >= N)
+        if (str.length() > N)
         {
             MIKTEX_UNEXPECTED();
         }
