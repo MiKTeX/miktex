@@ -34,7 +34,11 @@ public:
 
     void Write(const void* data, size_t count) override
     {
-        UNIMPLEMENTED();
+        if (IsUnsuccessful())
+        {
+            throw threadMiKTeXException;
+        }
+        pipe.Write(data, count);
     }
 
     void Seek(long offset, MiKTeX::Core::SeekOrigin seekOrigin) override
@@ -51,24 +55,27 @@ protected:
 
     void StartThread(const MiKTeX::Util::PathName& path, bool reading)
     {
-        thrd = std::thread(&CompressedStreamBase::UncompressThread, this, path, reading);
+        worker = std::thread(&CompressedStreamBase::Worker, this, path, reading);
     }
 
     void StopThread()
     {
         pipe.Close();
-        thrd.join();
+        worker.join();
     }
 
-    void UncompressThread(MiKTeX::Util::PathName path, bool reading)
+    void Worker(MiKTeX::Util::PathName path, bool reading)
     {
         try
         {
-            if (!reading)
+            if (reading)
             {
-                UNIMPLEMENTED();
+                DoCompress(path);
             }
-            DoUncompress(path);
+            else
+            {
+                DoUncompress(path);
+            }
             pipe.Close();
             Finish(true);
         }
@@ -84,9 +91,10 @@ protected:
         }
     }
 
+    virtual void DoCompress(const MiKTeX::Util::PathName& path) = 0;
     virtual void DoUncompress(const MiKTeX::Util::PathName& path) = 0;
 
-    std::thread thrd;
+    std::thread worker;
     Pipe pipe;
 
     enum State {

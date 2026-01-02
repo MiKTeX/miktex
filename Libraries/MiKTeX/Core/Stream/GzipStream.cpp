@@ -54,7 +54,12 @@ public:
 
 protected:
 
-    void DoUncompress(const PathName& path)
+    virtual void DoCompress(const PathName& path) override
+    {
+        UNIMPLEMENTED();
+    }
+
+    virtual void DoUncompress(const PathName& path) override
     {
         const size_t BUFFER_SIZE = 1024 * 16;
         unsigned char inbuf[BUFFER_SIZE];
