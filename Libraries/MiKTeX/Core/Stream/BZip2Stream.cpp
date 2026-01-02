@@ -65,7 +65,7 @@ protected:
         char inbuf[BUFFER_SIZE];
         char outbuf[BUFFER_SIZE];
         unique_ptr<FileStream> fileStream = make_unique<FileStream>(File::Open(path, FileMode::Open, FileAccess::Read, false));
-        unique_ptr<bz_stream_wrapper> bzStream = make_unique<bz_stream_wrapper>();
+        unique_ptr<bz_stream_wrapper> bzStream = make_unique<bz_stream_wrapper>(true);
         bzStream->next_in = nullptr;
         bzStream->avail_in = 0;
         bzStream->next_out = outbuf;
@@ -106,13 +106,24 @@ private:
 
     public:
 
-        bz_stream_wrapper()
+        bz_stream_wrapper(bool reading)
         {
             memset(this, 0, sizeof(bz_stream));
-            int ret = BZ2_bzDecompressInit(this, 0, 0);
-            if (ret != BZ_OK)
+            if (reading)
             {
-                MIKTEX_FATAL_ERROR_2("BZ2 decoder initialization did not succeed.", "ret", std::to_string(ret));
+                int ret = BZ2_bzDecompressInit(this, 0, 0);
+                if (ret != BZ_OK)
+                {
+                    MIKTEX_FATAL_ERROR_2("BZ2 decoder initialization did not succeed.", "ret", std::to_string(ret));
+                }
+            }
+            else
+            {
+                int ret = BZ2_bzCompressInit(this, 9, 0, 30);
+                if (ret != BZ_OK)
+                {
+                    MIKTEX_FATAL_ERROR_2("BZ2 encoder initialization did not succeed.", "ret", std::to_string(ret));
+                }
             }
         }
 

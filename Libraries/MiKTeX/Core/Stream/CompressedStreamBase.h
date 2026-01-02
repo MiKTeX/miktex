@@ -70,11 +70,11 @@ protected:
         {
             if (reading)
             {
-                DoCompress(path);
+                DoUncompress(path);
             }
             else
             {
-                DoUncompress(path);
+                DoCompress(path);
             }
             pipe.Close();
             Finish(true);
