@@ -80,6 +80,10 @@ public:
 
     std::string GetFileName() const
     {
+        if (prefix[0] == 0)
+        {
+            return GetString(name);
+        }
         return GetString(prefix) + "/" + GetString(name);
     }
 

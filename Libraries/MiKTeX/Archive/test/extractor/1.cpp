@@ -36,9 +36,18 @@ BEGIN_TEST_FUNCTION(1);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(2);
+{
+    shared_ptr<Extractor> extractor;
+    TESTX(extractor = Extractor::New(ArchiveFileType::TarLzma));
+    TESTX(extractor->Extract(PathName(TEST_BINARY_DIR) / "extractor" / "miktex-config-2.9.tar.lzma", PathName(TEST_BINARY_DIR) / "extractor" / "out2", true));
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
+  //CALL_TEST_FUNCTION(2);
 }
 END_TEST_PROGRAM();
 
