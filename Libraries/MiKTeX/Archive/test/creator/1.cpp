@@ -29,20 +29,20 @@ BEGIN_TEST_SCRIPT("creator-1");
 BEGIN_TEST_FUNCTION(1);
 {
     shared_ptr<Creator> creator;
-    TESTX(creator = Creator::New(ArchiveFileType::TarBzip2));
+    TESTX(creator = Creator::New(ArchiveFileType::Tar));
     FileSet fileSet = {
         PathName(TEST_SOURCE_DIR) / "creator" / "testdata",
         {
             "a"
         }
     };
-    TESTX(creator->Create(PathName(TEST_BINARY_DIR) / "creator" / "test.tar.bz2", { fileSet }));
+    TESTX(creator->Create(PathName(TEST_BINARY_DIR) / "creator" / "test.tar", { fileSet }));
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_PROGRAM();
 {
-  //CALL_TEST_FUNCTION(1);
+    CALL_TEST_FUNCTION(1);
 }
 END_TEST_PROGRAM();
 
