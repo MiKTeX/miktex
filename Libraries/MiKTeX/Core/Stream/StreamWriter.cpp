@@ -1,23 +1,15 @@
-/* StreamWriter.cpp:
-
-   Copyright (C) 1996-2021 Christian Schenk
-
-   This file is part of the MiKTeX Core Library.
-
-   The MiKTeX Core Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-
-   The MiKTeX Core Library is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX Core Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file Stream/StreamWriter.cpp
+ * @author Christian Schenk
+ * @brief StreamWriter implementation
+ *
+ * @copyright Copyright © 1996-2026 Christian Schenk
+ *
+ * This file is part of the MiKTeX Core Library.
+ *
+ * The MiKTeX Core Library is licensed under GNU General Public License version
+ * 2 or any later version.
+ */
 
 #include "config.h"
 
@@ -31,62 +23,62 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
 StreamWriter::StreamWriter(const PathName& path) :
-  stream(File::Open(path, FileMode::Create, FileAccess::Write))
+    stream(File::Open(path, FileMode::Create, FileAccess::Write))
 {
 }
 
 StreamWriter::~StreamWriter() noexcept
 {
-  try
-  {
-    Close();
-  }
-  catch (const exception&)
-  {
-  }
+    try
+    {
+        Close();
+    }
+    catch (const exception&)
+    {
+    }
 }
 
 void StreamWriter::Close()
 {
-  stream.Close();
+    stream.Close();
 }
 
 inline int FPutC(int ch, FILE* stream)
 {
-  int chWritten = fputc(ch, stream);
-  if (chWritten == EOF)
-  {
-    MIKTEX_FATAL_CRT_ERROR("fputc");
-  }
-  return chWritten;
+    int chWritten = fputc(ch, stream);
+    if (chWritten == EOF)
+    {
+        MIKTEX_FATAL_CRT_ERROR("fputc");
+    }
+    return chWritten;
 }
 
 inline void FPutS(const char* lpsz, FILE* stream)
 {
-  int ok = fputs(lpsz, stream);
-  if (ok < 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("fputs");
-  }
+    int ok = fputs(lpsz, stream);
+    if (ok < 0)
+    {
+        MIKTEX_FATAL_CRT_ERROR("fputs");
+    }
 }
 
 void StreamWriter::Write(char ch)
 {
-  FPutC(ch, stream.GetFile());
+    FPutC(ch, stream.GetFile());
 }
 
 void StreamWriter::Write(const string& s)
 {
-  FPutS(s.c_str(), stream.GetFile());
+    FPutS(s.c_str(), stream.GetFile());
 }
 
 void StreamWriter::WriteLine(const string& s)
 {
-  Write(s);
-  WriteLine();
+    Write(s);
+    WriteLine();
 }
 
 void StreamWriter::WriteLine()
 {
-  FPutC('\n', stream.GetFile());
+    FPutC('\n', stream.GetFile());
 }
