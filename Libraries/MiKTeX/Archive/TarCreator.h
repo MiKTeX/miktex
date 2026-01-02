@@ -32,6 +32,11 @@ public:
 
     void MIKTEXTHISCALL Create(const MiKTeX::Util::PathName& path, const std::vector<MiKTeX::Archive::FileSet>& fileSets) override;
     void MIKTEXTHISCALL Create(MiKTeX::Core::Stream* stream, const std::vector<MiKTeX::Archive::FileSet>& fileSets) override;
+
+private:
+
+    void WriteDirectory(MiKTeX::Core::Stream* stream, const MiKTeX::Util::PathName& path, const std::string& name);
+    void WriteFile(MiKTeX::Core::Stream* stream, const MiKTeX::Util::PathName& path, const std::string& name);
 };
 
 END_INTERNAL_NAMESPACE;

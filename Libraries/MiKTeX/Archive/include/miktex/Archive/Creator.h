@@ -30,7 +30,7 @@ MIKTEX_ARCHIVE_BEGIN_NAMESPACE;
 
 struct FileSet {
     MiKTeX::Util::PathName baseDir;
-    std::vector<MiKTeX::Util::PathName> fileNames;
+    std::vector<std::string> names;
 };
 
 class MIKTEXNOVTABLE Creator

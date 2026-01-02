@@ -99,7 +99,7 @@ void TarExtractor::Extract(Stream* streamIn_, const PathName& destDir, bool make
                 MIKTEX_UNEXPECTED();
             }
 
-            if (header.IsEndOfArchive())
+            if (header.IsZero())
             {
                 break;
             }
@@ -115,7 +115,7 @@ void TarExtractor::Extract(Stream* streamIn_, const PathName& destDir, bool make
 #endif
             }
 
-            PathName dest = header.GetFileName();
+            PathName dest = PathName(header.GetFileName());
             size_t size = header.GetFileSize();
 
             if (!header.IsNormalFile())
