@@ -56,17 +56,18 @@ protected:
 
     virtual void DoCompress(const PathName& path) override
     {
-        const size_t BUFFER_SIZE = 1024 * 16;
-        char inbuf[BUFFER_SIZE];
-        char outbuf[BUFFER_SIZE];
+        const size_t IN_BUFFER_SIZE = 1024 * 16;
+        const size_t OUT_BUFFER_SIZE = 1024 * 8;
+        char inbuf[IN_BUFFER_SIZE];
+        char outbuf[OUT_BUFFER_SIZE];
         unique_ptr<FileStream> fileStream = make_unique<FileStream>(File::Open(path, FileMode::Create, FileAccess::Write, false));
         unique_ptr<bz_stream_wrapper> bzStream = make_unique<bz_stream_wrapper>(false);
         while (true) {
-            auto n = pipe.Read(inbuf, BUFFER_SIZE);
+            auto n = pipe.Read(inbuf, IN_BUFFER_SIZE);
             bzStream->next_in = inbuf;
             bzStream->avail_in = static_cast<unsigned int>(n);
             bzStream->next_out = outbuf;
-            bzStream->avail_out = BUFFER_SIZE;
+            bzStream->avail_out = OUT_BUFFER_SIZE;
             auto action = n == 0 ? BZ_FINISH : BZ_RUN;
             while (true)
             {
@@ -75,7 +76,7 @@ protected:
                 {
                     MIKTEX_FATAL_ERROR_2("BZ2 encoder did not succeed.", "ret", std::to_string(ret));
                 }
-                fileStream->Write(bzStream->next_out, BUFFER_SIZE - bzStream->avail_out);
+                fileStream->Write(outbuf, OUT_BUFFER_SIZE - bzStream->avail_out);
                 if (ret == BZ_STREAM_END || bzStream->avail_in == 0)
                 {
                     break;
