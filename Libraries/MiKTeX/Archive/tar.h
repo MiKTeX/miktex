@@ -44,7 +44,7 @@ public:
         SetOctal(uid, 0);
         SetString(gname, "root");
         SetOctal(gid, 0);
-        SetOctal(mode, 0777);
+        SetOctal(mode, 0700);
     }
 
     bool Check() const

@@ -56,7 +56,41 @@ protected:
 
     virtual void DoCompress(const PathName& path) override
     {
-        UNIMPLEMENTED();
+        const size_t BUFFER_SIZE = 1024 * 16;
+        char inbuf[BUFFER_SIZE];
+        char outbuf[BUFFER_SIZE];
+        unique_ptr<FileStream> fileStream = make_unique<FileStream>(File::Open(path, FileMode::Create, FileAccess::Write, false));
+        unique_ptr<bz_stream_wrapper> bzStream = make_unique<bz_stream_wrapper>(false);
+        while (true) {
+            auto n = pipe.Read(inbuf, BUFFER_SIZE);
+            bzStream->next_in = inbuf;
+            bzStream->avail_in = static_cast<unsigned int>(n);
+            auto action = n == 0 ? BZ_FINISH : BZ_RUN;
+            while (true)
+            {
+                bzStream->next_out = outbuf;
+                bzStream->avail_out = BUFFER_SIZE;
+                int ret = BZ2_bzCompress(bzStream.get(), action);
+                if (ret != BZ_RUN_OK && ret != BZ_FINISH_OK && ret != BZ_STREAM_END)
+                {
+                    MIKTEX_FATAL_ERROR_2("BZ2 encoder did not succeed.", "ret", std::to_string(ret));
+                }
+                if (bzStream->avail_out < BUFFER_SIZE)
+                {
+                    fileStream->Write(outbuf, BUFFER_SIZE - bzStream->avail_out);
+                }
+                if (action == BZ_FINISH && ret == BZ_STREAM_END || bzStream->avail_in == 0)
+                {
+                    break;
+                }
+            }
+            if (n == 0)
+            {
+                bzStream.reset();
+                fileStream->Close();
+                return;
+            }
+        }
     }
 
     virtual void DoUncompress(const PathName& path) override
@@ -106,7 +140,8 @@ private:
 
     public:
 
-        bz_stream_wrapper(bool reading)
+        bz_stream_wrapper(bool reading) :
+            reading(reading)
         {
             memset(this, 0, sizeof(bz_stream));
             if (reading)
@@ -119,7 +154,7 @@ private:
             }
             else
             {
-                int ret = BZ2_bzCompressInit(this, 9, 0, 30);
+                int ret = BZ2_bzCompressInit(this, 9, 0, 0);
                 if (ret != BZ_OK)
                 {
                     MIKTEX_FATAL_ERROR_2("BZ2 encoder initialization did not succeed.", "ret", std::to_string(ret));
@@ -129,8 +164,19 @@ private:
 
         ~bz_stream_wrapper()
         {
-            BZ2_bzDecompressEnd(this);
+            if (reading)
+            {
+                BZ2_bzDecompressEnd(this);
+            }
+            else    
+            {
+                BZ2_bzCompressEnd(this);
+            }
         }
+
+    private:
+
+        bool reading;
     };
 
 };
