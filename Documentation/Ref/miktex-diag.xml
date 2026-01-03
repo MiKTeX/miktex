@@ -5,12 +5,12 @@
 %entities.ent;
 ]>
 
-<refentry id="miktex-fndb">
+<refentry id="miktex-diag">
 
-<?dbhh topicname="MIKTEXHELP_MIKTEX_FNDB" topicid="0"?>
+<?dbhh topicname="MIKTEXHELP_MIKTEX_DIAG" topicid="0"?>
 
 <refmeta>
-<refentrytitle>miktex-fndb</refentrytitle>
+<refentrytitle>miktex-diag</refentrytitle>
 <manvolnum>1</manvolnum>
 <refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
 <refmiscinfo class="version">&miktexrev;</refmiscinfo>
@@ -18,8 +18,8 @@
 </refmeta>
 
 <refnamediv>
-<refname>miktex-fndb</refname>
-<refpurpose>manage the &MiKTeX; file name database</refpurpose>
+<refname>miktex-diag</refname>
+<refpurpose>collect &MiKTeX; diagnostic information</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -27,7 +27,7 @@
 <cmdsynopsis>
 &miktex;
 <arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
-<arg choice="plain">fndb</arg>
+<arg choice="plain">diag</arg>
 <arg choice="plain"><replaceable>command</replaceable></arg>
 <arg choice="opt" rep="repeat"><replaceable>command-option-or-parameter</replaceable></arg>
 </cmdsynopsis>
@@ -38,7 +38,7 @@
 
 <title>Description</title>
 
-<para>Commands for managing the &MiKTeX; file name database.</para>
+<para>Commands for collecting &MiKTeX; diagnostic information.</para>
 
 </refsect1>
 
@@ -48,18 +48,13 @@
 
 <variablelist>
 <varlistentry>
-<term><command>refresh</command></term>
+<term><command>collect <optional><option>--output <replaceable>file</replaceable></option></optional></command></term>
 <listitem>
 <indexterm>
-<primary>file name datasbase</primary>
-<secondary>refreshing</secondary>
+<primary>diagnostic information</primary>
+<secondary>collecting</secondary>
 </indexterm>
-<para>Refresh the &MiKTeX; file name database.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><command>remove</command></term>
-<listitem>
-<para>Remove the &MiKTeX; file name database.</para></listitem>
+<para>Collect &MiKTeX; diagnostic information into a tar.bz2 archive.</para></listitem>
 </varlistentry>
 </variablelist>
 
