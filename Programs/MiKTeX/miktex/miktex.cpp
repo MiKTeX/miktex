@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Main program
  *
- * @copyright Copyright © 2021-2023 Christian Schenk
+ * @copyright Copyright © 2021-2026 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -64,6 +64,7 @@
 #include "shims/updmap.h"
 
 #include "topics/Topic.h"
+#include "topics/diag/topic.h"
 #include "topics/filesystem/topic.h"
 #include "topics/fndb/topic.h"
 #include "topics/fontmaps/topic.h"
@@ -106,6 +107,7 @@ private:
 
     void RegisterTopics()
     {
+        RegisterTopic(OneMiKTeXUtility::Topics::Diagnostics::Create());
         RegisterTopic(OneMiKTeXUtility::Topics::FileSystem::Create());
         RegisterTopic(OneMiKTeXUtility::Topics::FNDB::Create());
         RegisterTopic(OneMiKTeXUtility::Topics::FontMaps::Create());

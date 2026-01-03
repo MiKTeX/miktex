@@ -32,6 +32,7 @@ BEGIN_TEST_FUNCTION(1);
     TESTX(creator = Creator::New(ArchiveFileType::Tar));
     FileSet fileSet = {
         PathName(TEST_SOURCE_DIR) / "creator" / "testdata",
+        "",
         {
             "a"
         }
@@ -45,9 +46,10 @@ BEGIN_TEST_FUNCTION(2);
     shared_ptr<Creator> creator;
     TESTX(creator = Creator::New(ArchiveFileType::TarBzip2));
     FileSet fileSet = {
-        PathName(TEST_SOURCE_DIR) / "creator" / "testdata",
+        PathName(TEST_SOURCE_DIR) / "creator" / "testdata" / "a",
+        "foo/bar/",
         {
-            "a"
+            "."
         }
     };
     TESTX(creator->Create(PathName(TEST_BINARY_DIR) / "creator" / "test.tar.bz2", { fileSet }));

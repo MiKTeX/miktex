@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2021-2022 Christian Schenk
+## Copyright (C) 2021-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -58,6 +58,13 @@ list(APPEND miktex_sources
     topics/Command.h
     topics/Topic.cpp
     topics/Topic.h
+)
+
+list(APPEND miktex_sources
+    topics/diag/commands/commands.h
+    topics/diag/commands/collect.cpp
+    topics/diag/topic.cpp
+    topics/diag/topic.h
 )
 
 list(APPEND miktex_sources
@@ -206,6 +213,7 @@ else()
 endif()
 
 target_link_libraries(miktex
+    ${archive_dll_name}
     ${core_dll_name}
     ${mpm_dll_name}
     ${setup_dll_name}

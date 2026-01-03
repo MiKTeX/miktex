@@ -53,10 +53,10 @@ void TarCreator::Create(Stream* stream, const vector<FileSet>& fileSets)
             auto path = fileSet.baseDir / name;
             if (Directory::Exists(path))
             {
-                WriteDirectory(stream, path, name);
+                WriteDirectory(stream, path, fileSet.prefix + name);
                 continue;
             }
-            WriteFile(stream, path, name);
+            WriteFile(stream, path, fileSet.prefix + name);
         }
     }
     char zeroBlock[BLOCKSIZE] = {};
@@ -66,11 +66,7 @@ void TarCreator::Create(Stream* stream, const vector<FileSet>& fileSets)
 
 void TarCreator::WriteDirectory(Stream* stream, const PathName& path, const string& name)
 {
-    Header header;
-    header.SetFileName(name + "/");
-    header.SetType(Header::Type::Directory);
-    header.SetLastModificationTime(File::GetLastWriteTime(path));
-    header.SetChecksum();
+    Header header(path, name);
     stream->Write(&header, sizeof(Header));
     auto lister = DirectoryLister::Open(path);
     DirectoryEntry dirEntry;
@@ -89,12 +85,7 @@ void TarCreator::WriteDirectory(Stream* stream, const PathName& path, const stri
 void TarCreator::WriteFile(Stream* stream, const PathName& path, const string& name)
 {
     auto fileSize = File::GetSize(path);
-    Header header;
-    header.SetFileName(name);
-    header.SetType(Header::Type::RegularFile);
-    header.SetFileSize(fileSize);
-    header.SetLastModificationTime(File::GetLastWriteTime(path));
-    header.SetChecksum();
+    Header header(path, name);
     stream->Write(&header, sizeof(Header));
     FileStream fileStream(File::Open(path, FileMode::Open, FileAccess::Read, false));
     const size_t BUFSIZE = 4096;

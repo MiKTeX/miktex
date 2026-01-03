@@ -30,6 +30,7 @@ MIKTEX_ARCHIVE_BEGIN_NAMESPACE;
 
 struct FileSet {
     MiKTeX::Util::PathName baseDir;
+    std::string prefix;
     std::vector<std::string> names;
 };
 

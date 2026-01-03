@@ -21,6 +21,8 @@
 #include <string>
 
 #include <miktex/Core/Debug>
+#include <miktex/Core/Directory>
+#include <miktex/Core/File>
 #include <miktex/Util/PathName>
 
 #include "internal.h"
@@ -34,36 +36,69 @@ struct Header
 
 public:
 
+    enum Type
+    {
+        RegularFile = '0',
+        AlternateRegularFile = '\0',
+        Link = '1',
+        SymbolicLink = '2',
+        CharacterSpecial = '3',
+        BlockSpecial = '4',
+        Directory = '5',
+        FIFOSpecial = '6',
+        Reserved = '7',
+        LongName = 'L'
+    };
+
     Header()
     {
         MIKTEX_ASSERT(sizeof(*this) == BLOCKSIZE);
         memset(this, 0, sizeof(*this));
+    }
+
+    Header(const MiKTeX::Util::PathName& path, const std::string& name) :
+        Header()
+    {
         SetString(magic, "ustar");
         SetString(version, "00");
+        auto cleanName = MiKTeX::Util::PathName(name);
+        cleanName.Clean();
+        cleanName = cleanName.ToUnix();
+        if (MiKTeX::Core::Directory::Exists(path))
+        {
+            cleanName += '/';
+            SetFileSize(0);
+            SetType(Directory);
+        }
+        else
+        {
+            SetFileSize(MiKTeX::Core::File::GetSize(path));
+            SetType(RegularFile);
+        }
+        SetFileName(cleanName.ToString());
         SetString(uname, "root");
         SetOctal(uid, 0);
         SetString(gname, "root");
         SetOctal(gid, 0);
-        SetOctal(mode, 0700);
+        unsigned long mode;
+#if defined(MIKTEX_UNIX)
+        mode = MiKTeX::Core::File::GetNativeAttributes(path);
+#else
+        auto attr = MiKTeX::Core::File::GetAttributes(path);
+        mode = attr[MiKTeX::Core::FileAttribute::ReadOnly] ? 0400 : 0600;
+        if (attr[MiKTeX::Core::FileAttribute::Directory])
+        {
+            mode |= 0100;
+        }
+#endif
+        SetOctal(this->mode, static_cast<int>(mode));
+        SetLastModificationTime(MiKTeX::Core::File::GetLastWriteTime(path));
+        SetChecksum();
     }
 
     bool Check() const
     {
         return ComputeChecksum() == GetOctal(checksum);
-    }
-
-    void SetChecksum()
-    {
-        std::ostringstream oss;
-        oss << std::setfill('0') << std::setw(sizeof(checksum) - 2) << std::oct << ComputeChecksum();
-        auto s = oss.str();
-        if (s.length() != sizeof(checksum) - 2)
-        {
-            MIKTEX_UNEXPECTED();
-        }
-        memcpy(checksum, s.c_str(), sizeof(checksum) - 2);
-        checksum[sizeof(checksum) - 2] = '\0';
-        checksum[sizeof(checksum) - 1] = ' ';
     }
 
     bool IsZero() const
@@ -87,31 +122,9 @@ public:
         return GetString(prefix) + "/" + GetString(name);
     }
 
-    void SetFileName(const std::string& fileName)
-    {
-        if (fileName.length() < sizeof(name))
-        {
-            SetString(name, fileName);
-            memset(prefix, 0, sizeof(prefix));
-            return;
-        }
-        auto pos = fileName.rfind('/');
-        if (pos == std::string::npos)
-        {
-            MIKTEX_UNEXPECTED();
-        }
-        SetString(prefix, fileName.substr(0, pos));
-        SetString(name, fileName.substr(pos + 1));
-    }
-
     std::size_t GetFileSize() const
     {
         return GetOctal(size);
-    }
-
-    void SetFileSize(std::size_t size)
-    {
-        SetOctal(this->size, static_cast<int>(size));
     }
 
     std::time_t GetLastModificationTime() const
@@ -119,33 +132,9 @@ public:
         return GetOctal(mtime);
     }
 
-    void SetLastModificationTime(std::time_t time)
-    {
-        SetOctal(mtime, static_cast<int>(time));
-    }
-
-    enum Type
-    {
-        RegularFile = '0',
-        AlternateRegularFile = '\0',
-        Link = '1',
-        SymbolicLink = '2',
-        CharacterSpecial = '3',
-        BlockSpecial = '4',
-        Directory = '5',
-        FIFOSpecial = '6',
-        Reserved = '7',
-        LongName = 'L'
-    };
-
     Type GetType() const
     {
         return static_cast<Type>(typeflag[0]);
-    }
-
-    void SetType(Type type)
-    {
-        typeflag[0] = static_cast<char>(type);
     }
 
     bool IsNormalFile() const
@@ -180,6 +169,52 @@ private:
         std::ostringstream oss;
         oss << std::setfill('0') << std::setw(N - 1) << std::oct << value;
         SetString(field, oss.str());
+    }
+
+    void SetFileName(const std::string& fileName)
+    {
+        if (fileName.length() < sizeof(name))
+        {
+            SetString(name, fileName);
+            memset(prefix, 0, sizeof(prefix));
+            return;
+        }
+        auto pos = fileName.rfind('/');
+        if (pos == std::string::npos)
+        {
+            MIKTEX_UNEXPECTED();
+        }
+        SetString(prefix, fileName.substr(0, pos));
+        SetString(name, fileName.substr(pos + 1));
+    }
+
+    void SetFileSize(std::size_t size)
+    {
+        SetOctal(this->size, static_cast<int>(size));
+    }
+
+    void SetLastModificationTime(std::time_t time)
+    {
+        SetOctal(mtime, static_cast<int>(time));
+    }
+
+    void SetType(Type type)
+    {
+        typeflag[0] = static_cast<char>(type);
+    }
+
+    void SetChecksum()
+    {
+        std::ostringstream oss;
+        oss << std::setfill('0') << std::setw(sizeof(checksum) - 2) << std::oct << ComputeChecksum();
+        auto s = oss.str();
+        if (s.length() != sizeof(checksum) - 2)
+        {
+            MIKTEX_UNEXPECTED();
+        }
+        memcpy(checksum, s.c_str(), sizeof(checksum) - 2);
+        checksum[sizeof(checksum) - 2] = '\0';
+        checksum[sizeof(checksum) - 1] = ' ';
     }
 
     unsigned ComputeChecksum() const

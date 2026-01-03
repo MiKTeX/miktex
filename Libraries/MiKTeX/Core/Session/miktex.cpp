@@ -1,6 +1,6 @@
 /* miktex.cpp:
 
-   Copyright (C) 1996-2024 Christian Schenk
+   Copyright (C) 1996-2026 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -161,19 +161,25 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     }
 #endif
     break;
+  case SpecialPath::CommonLogDirectory:
+#if defined(MIKTEX_UNIX)
+    // FIXME: hard-coded sub-directory
+    path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((PathName(MIKTEX_SYSTEM_VAR_LOG_DIR) / "miktex").ToString())).GetString();
+#else
+    path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString())).GetString();
+#endif
+    break;
+  case SpecialPath::UserLogDirectory:
+    path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLOGDIRECTORY, ConfigValue((GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString())).GetString();
+    break;
   case SpecialPath::LogDirectory:
     if (IsAdminMode())
     {
-#if defined(MIKTEX_UNIX)
-      // FIXME: hard-coded sub-directory
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((PathName(MIKTEX_SYSTEM_VAR_LOG_DIR) / "miktex").ToString())).GetString();
-#else
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString())).GetString();
-#endif
+      path = GetSpecialPath(SpecialPath::CommonLogDirectory);
     }
     else
     {
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLOGDIRECTORY, ConfigValue((GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString())).GetString();
+      path = GetSpecialPath(SpecialPath::UserLogDirectory);
     }
     break;
   case SpecialPath::CommonInstallRoot:

@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2006-2022 Christian Schenk
+## Copyright (C) 2006-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -123,6 +123,7 @@ set(ref_xml_files
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/findtexmf.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/initexmf.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-bibtex.xml
+    ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-diag.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-dvicopy.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-dvips.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-filesystem.xml

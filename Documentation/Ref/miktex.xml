@@ -116,6 +116,11 @@ invoke the utility as follows:</para>
 <variablelist>
 
 <varlistentry>
+<term><citerefentry><refentrytitle>miktex-diag</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+<listitem><para>Commands for collecting &MiKTeX; diagnostic information.</para></listitem>
+</varlistentry>
+
+<varlistentry>
 <term><citerefentry><refentrytitle>miktex-filesystem</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
 <listitem><para>Commands for watching the file system.</para></listitem>
 </varlistentry>

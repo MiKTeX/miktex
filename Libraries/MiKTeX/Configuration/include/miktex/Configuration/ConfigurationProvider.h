@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Configuration provider interface
  *
- * @copyright Copyright © 1996-2022 Christian Schenk
+ * @copyright Copyright © 1996-2026 Christian Schenk
  *
  * This file is part of the MiKTeX Configuration Library.
  *
@@ -38,6 +38,9 @@ enum class SpecialPath
     /// User installation root directory.
     UserInstallRoot,
 
+    /// User log directory.
+    UserLogDirectory,
+
     /// System-wide configuration root directory.
     CommonConfigRoot,
 
@@ -46,6 +49,9 @@ enum class SpecialPath
 
     /// System-wide installation root directory.
     CommonInstallRoot,
+
+    /// System-wide log directory.
+    CommonLogDirectory,
 
     /// The portable root directory.
     PortableRoot,
@@ -81,7 +87,7 @@ enum class SpecialPath
     LinkTargetDirectory,
 
     /// The effective directory for log files.
-    LogDirectory,
+    LogDirectory,    
 };
 
 /// The MiKTeX ConfigurationProvider interface.

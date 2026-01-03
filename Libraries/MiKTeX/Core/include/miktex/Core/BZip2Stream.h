@@ -1,6 +1,6 @@
 /* miktex/Core/BZip2Stream.h:                           -*- C++ -*-
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2026 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
