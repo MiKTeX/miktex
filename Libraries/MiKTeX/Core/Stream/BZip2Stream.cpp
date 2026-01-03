@@ -75,11 +75,8 @@ protected:
                 {
                     MIKTEX_FATAL_ERROR_2("BZ2 encoder did not succeed.", "ret", std::to_string(ret));
                 }
-                if (bzStream->avail_out < BUFFER_SIZE)
-                {
-                    fileStream->Write(outbuf, BUFFER_SIZE - bzStream->avail_out);
-                }
-                if (action == BZ_FINISH && ret == BZ_STREAM_END || bzStream->avail_in == 0)
+                fileStream->Write(bzStream->next_out, BUFFER_SIZE - bzStream->avail_out);
+                if (ret == BZ_STREAM_END || bzStream->avail_in == 0)
                 {
                     break;
                 }
