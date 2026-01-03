@@ -65,11 +65,11 @@ protected:
             auto n = pipe.Read(inbuf, BUFFER_SIZE);
             bzStream->next_in = inbuf;
             bzStream->avail_in = static_cast<unsigned int>(n);
+            bzStream->next_out = outbuf;
+            bzStream->avail_out = BUFFER_SIZE;
             auto action = n == 0 ? BZ_FINISH : BZ_RUN;
             while (true)
             {
-                bzStream->next_out = outbuf;
-                bzStream->avail_out = BUFFER_SIZE;
                 int ret = BZ2_bzCompress(bzStream.get(), action);
                 if (ret != BZ_RUN_OK && ret != BZ_FINISH_OK && ret != BZ_STREAM_END)
                 {
