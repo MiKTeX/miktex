@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## next
+
+### Added
+
+- [1703](https://github.com/MiKTeX/miktex/issues/1703): collect diagnostic information
+- 
 ## 25.12 - 2025-12-29
 
 ### Upgraded programs
