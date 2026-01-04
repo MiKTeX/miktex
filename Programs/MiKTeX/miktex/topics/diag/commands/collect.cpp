@@ -151,19 +151,16 @@ int CollectCommand::Execute(ApplicationContext& ctx, const vector<string>& argum
             }
         });
     }
-    if (ctx.session->IsSharedSetup())
+    auto commonLogDirectory = ctx.session->GetSpecialPath(SpecialPath::CommonLogDirectory);
+    if (userLogDirectory != commonLogDirectory && Directory::Exists(commonLogDirectory))
     {
-        auto commonLogDirectory = ctx.session->GetSpecialPath(SpecialPath::CommonLogDirectory);
-        if (userLogDirectory != commonLogDirectory && Directory::Exists(commonLogDirectory))
-        {
-            fileSets.push_back({
-                commonLogDirectory,
-                "logs/common/",
-                {
-                    "."
-                }
-            });
-        }
+        fileSets.push_back({
+            commonLogDirectory,
+            "logs/common/",
+            {
+                "."
+            }
+        });
     }
     auto creator = Creator::New(ArchiveFileType::TarBzip2);
     creator->Create(PathName(outputFileName), fileSets);
