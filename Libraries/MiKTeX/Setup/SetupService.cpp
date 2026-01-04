@@ -15,6 +15,8 @@
 
 #include "setup-version.h"
 
+#include <miktex/archive/Creator>
+
 #include "internal.h"
 
 #if defined(MIKTEX_WINDOWS)
@@ -26,6 +28,7 @@ using namespace std::string_literals;
 
 using namespace nlohmann;
 
+using namespace MiKTeX::Archive;
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Archive;
@@ -2197,4 +2200,51 @@ vector<Issue> SetupServiceImpl::GetIssues()
 
     }
     return issues;
+}
+
+void SetupServiceImpl::CollectDiagnosticInfo(const PathName& outputFileName)
+{
+    vector<FileSet> fileSets;
+    auto tmpDir = TemporaryDirectory::Create();
+    auto reportFileName = tmpDir->GetPathName() / "report.txt";
+    ofstream ofs;
+    ofs.open(reportFileName.ToString(), ios::out | ios::binary);
+    if (!ofs.is_open())
+    {
+        MIKTEX_FATAL_ERROR("The report could not be written.");
+    }
+    this->WriteReport(ofs, { ReportOption::General, ReportOption::RootDirectories, ReportOption::CurrentUser });
+    ofs.close();
+    fileSets.push_back({
+        tmpDir->GetPathName(),
+        "",
+        {
+            reportFileName.GetFileName().ToString()
+        }
+    });
+    shared_ptr<Session> session = MIKTEX_SESSION();
+    auto userLogDirectory = session->GetSpecialPath(SpecialPath::UserLogDirectory);
+    if (Directory::Exists(userLogDirectory))
+    {
+        fileSets.push_back({
+            userLogDirectory,
+            "logs/user/",
+            {
+                "."
+            }
+        });
+    }
+    auto commonLogDirectory = session->GetSpecialPath(SpecialPath::CommonLogDirectory);
+    if (userLogDirectory != commonLogDirectory && Directory::Exists(commonLogDirectory))
+    {
+        fileSets.push_back({
+            commonLogDirectory,
+            "logs/common/",
+            {
+                "."
+            }
+        });
+    }
+    auto creator = Creator::New(ArchiveFileType::TarBzip2);
+    creator->Create(PathName(outputFileName), fileSets);
 }

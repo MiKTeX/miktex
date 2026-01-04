@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Internal definitions
  *
- * @copyright Copyright © 2013-2023 Christian Schenk
+ * @copyright Copyright © 2013-2026 Christian Schenk
  *
  * This file is part of the MiKTeX Setup Library.
  *
@@ -221,6 +221,7 @@ public:
     void Run() override;
     void WriteReport(std::ostream& s, ReportOptionSet options) override;
     void WriteReport(std::ostream& s) override;
+    void CollectDiagnosticInfo(const MiKTeX::Util::PathName& outputFileName) override;
     std::vector<Issue> FindIssues(bool checkPath, bool checkPackageIntegrity) override;
     std::vector<Issue> GetIssues() override;
 

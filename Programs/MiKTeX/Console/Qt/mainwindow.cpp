@@ -1,6 +1,6 @@
 /* mainwindow.cpp:
 
-   Copyright (C) 2017-2025 Christian Schenk
+   Copyright (C) 2017-2026 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -2480,6 +2480,29 @@ void MainWindow::on_pushButtonOpenReport_clicked()
     {
       MIKTEX_FATAL_ERROR("The report could not be opened.");
     }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+void MainWindow::on_pushButtonCollectAndSave_clicked()
+{
+  try
+  {
+    auto dir = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first();
+    auto fileName = QFileDialog::getSaveFileName(this, tr("Save Diagnostic Information"), dir + QDir::separator() + "miktex-diag.tar.bz2", tr("Compressed Archive (*.tar.bz2)"));
+    if (fileName.isNull())
+    {
+      return;
+    }
+    auto setupService = SetupService::Create();
+    setupService->CollectDiagnosticInfo(PathName(fileName.toUtf8().constData()));
   }
   catch (const MiKTeXException& e)
   {

@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2013-2023 Christian Schenk
+## Copyright (C) 2013-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -48,6 +48,7 @@ target_include_directories(${setup_dll_name}
 
 target_link_libraries(${setup_dll_name}
     PUBLIC
+        ${archive_dll_name}
         ${core_dll_name}
         ${loc_dll_name}
         ${mpm_dll_name}

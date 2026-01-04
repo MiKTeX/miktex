@@ -1,6 +1,6 @@
 /* mainwindow.h:                                        -*- C++ -*-
 
-   Copyright (C) 2017-2021 Christian Schenk
+   Copyright (C) 2017-2026 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -586,6 +586,9 @@ private slots:
 
 private slots:
   void on_pushButtonOpenReport_clicked();
+
+private slots:
+  void on_pushButtonCollectAndSave_clicked();
 
 private:
   void CreateReport();

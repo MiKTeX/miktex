@@ -82,7 +82,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::TabFocus</enum>
+          <enum>Qt::FocusPolicy::TabFocus</enum>
          </property>
          <property name="statusTip">
           <string>MiKTeX configuration overview</string>
@@ -110,7 +110,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::TabFocus</enum>
+          <enum>Qt::FocusPolicy::TabFocus</enum>
          </property>
          <property name="statusTip">
           <string>Check for MiKTeX updates</string>
@@ -138,7 +138,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::TabFocus</enum>
+          <enum>Qt::FocusPolicy::TabFocus</enum>
          </property>
          <property name="statusTip">
           <string>Documentation</string>
@@ -166,7 +166,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::TabFocus</enum>
+          <enum>Qt::FocusPolicy::TabFocus</enum>
          </property>
          <property name="statusTip">
           <string>MiKTeX package management</string>
@@ -194,7 +194,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::TabFocus</enum>
+          <enum>Qt::FocusPolicy::TabFocus</enum>
          </property>
          <property name="statusTip">
           <string>Diagnose</string>
@@ -222,7 +222,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::TabFocus</enum>
+          <enum>Qt::FocusPolicy::TabFocus</enum>
          </property>
          <property name="statusTip">
           <string>Cleanup</string>
@@ -253,7 +253,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::TabFocus</enum>
+          <enum>Qt::FocusPolicy::TabFocus</enum>
          </property>
          <property name="statusTip">
           <string>Check and modify MiKTeX configuration settings</string>
@@ -275,10 +275,10 @@
        <item>
         <spacer name="verticalSpacer_6">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeType">
-          <enum>QSizePolicy::Preferred</enum>
+          <enum>QSizePolicy::Policy::Preferred</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -288,7 +288,7 @@
          </property>
         </spacer>
        </item>
-       <item alignment="Qt::AlignHCenter">
+       <item alignment="Qt::AlignmentFlag::AlignHCenter">
         <widget class="QToolButton" name="buttonTeXworks">
          <property name="statusTip">
           <string>Start the TeXworks front-end</string>
@@ -307,14 +307,14 @@
           </size>
          </property>
          <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonIconOnly</enum>
+          <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>
          </property>
          <property name="autoRaise">
           <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item alignment="Qt::AlignHCenter">
+       <item alignment="Qt::AlignmentFlag::AlignHCenter">
         <widget class="QToolButton" name="buttonTerminal">
          <property name="statusTip">
           <string>Open a Terminal window</string>
@@ -333,7 +333,7 @@
           </size>
          </property>
          <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonIconOnly</enum>
+          <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>
          </property>
          <property name="autoRaise">
           <bool>true</bool>
@@ -343,7 +343,7 @@
        <item>
         <spacer name="verticalSpacer_8">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -365,7 +365,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>4</number>
+          <number>6</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -394,7 +394,7 @@
            <item>
             <widget class="Line" name="line_3">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
            </item>
@@ -419,10 +419,10 @@
            <item>
             <spacer name="verticalSpacer_5">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeType">
-              <enum>QSizePolicy::Preferred</enum>
+              <enum>QSizePolicy::Policy::Preferred</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -455,16 +455,16 @@
            <item>
             <widget class="QLabel" name="labelSetupWait">
              <property name="frameShape">
-              <enum>QFrame::Box</enum>
+              <enum>QFrame::Shape::Box</enum>
              </property>
              <property name="frameShadow">
-              <enum>QFrame::Plain</enum>
+              <enum>QFrame::Shadow::Plain</enum>
              </property>
              <property name="text">
               <string>Please wait a few moments. It doesn't take too long...</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -477,7 +477,7 @@
            <item>
             <spacer name="verticalSpacer_4">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -513,7 +513,7 @@
            <item>
             <widget class="Line" name="line_2">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
            </item>
@@ -533,10 +533,10 @@
            <item>
             <spacer name="verticalSpacer_11">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeType">
-              <enum>QSizePolicy::Preferred</enum>
+              <enum>QSizePolicy::Policy::Preferred</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -594,7 +594,7 @@
                 <item>
                  <spacer name="horizontalSpacer_8">
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -612,10 +612,10 @@
            <item>
             <spacer name="verticalSpacer_2">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeType">
-              <enum>QSizePolicy::Preferred</enum>
+              <enum>QSizePolicy::Policy::Preferred</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -710,10 +710,10 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
            <item>
             <spacer name="verticalSpacer_3">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeType">
-              <enum>QSizePolicy::Preferred</enum>
+              <enum>QSizePolicy::Policy::Preferred</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -785,7 +785,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                    <item>
                     <spacer name="horizontalSpacer_4">
                      <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
+                      <enum>Qt::Orientation::Horizontal</enum>
                      </property>
                      <property name="sizeHint" stdset="0">
                       <size>
@@ -826,10 +826,10 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
            <item>
             <spacer name="verticalSpacer_7">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeType">
-              <enum>QSizePolicy::Preferred</enum>
+              <enum>QSizePolicy::Policy::Preferred</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -903,7 +903,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                 <item>
                  <spacer name="horizontalSpacer">
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -921,7 +921,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
            <item>
             <spacer name="verticalSpacer">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -957,7 +957,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
            <item>
             <widget class="Line" name="line">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
            </item>
@@ -992,7 +992,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                     <item>
                      <spacer name="horizontalSpacer_10">
                       <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
+                       <enum>Qt::Orientation::Horizontal</enum>
                       </property>
                       <property name="sizeHint" stdset="0">
                        <size>
@@ -1031,7 +1031,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                        </sizepolicy>
                       </property>
                       <property name="sizeAdjustPolicy">
-                       <enum>QComboBox::AdjustToContents</enum>
+                       <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
                       </property>
                      </widget>
                     </item>
@@ -1061,10 +1061,10 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                       <item>
                        <spacer name="horizontalSpacer_7">
                         <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
+                         <enum>Qt::Orientation::Horizontal</enum>
                         </property>
                         <property name="sizeType">
-                         <enum>QSizePolicy::Fixed</enum>
+                         <enum>QSizePolicy::Policy::Fixed</enum>
                         </property>
                         <property name="sizeHint" stdset="0">
                          <size>
@@ -1088,10 +1088,10 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                           <item>
                            <spacer name="horizontalSpacer_9">
                             <property name="orientation">
-                             <enum>Qt::Horizontal</enum>
+                             <enum>Qt::Orientation::Horizontal</enum>
                             </property>
                             <property name="sizeType">
-                             <enum>QSizePolicy::Fixed</enum>
+                             <enum>QSizePolicy::Policy::Fixed</enum>
                             </property>
                             <property name="sizeHint" stdset="0">
                              <size>
@@ -1154,7 +1154,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                     <item>
                      <spacer name="horizontalSpacer_3">
                       <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
+                       <enum>Qt::Orientation::Horizontal</enum>
                       </property>
                       <property name="sizeHint" stdset="0">
                        <size>
@@ -1172,7 +1172,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                <item>
                 <spacer name="verticalSpacer_10">
                  <property name="orientation">
-                  <enum>Qt::Vertical</enum>
+                  <enum>Qt::Orientation::Vertical</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
@@ -1216,7 +1216,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                     <item>
                      <widget class="QTreeView" name="treeViewRootDirectories">
                       <property name="selectionMode">
-                       <enum>QAbstractItemView::ExtendedSelection</enum>
+                       <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
                       </property>
                       <property name="rootIsDecorated">
                        <bool>false</bool>
@@ -1315,7 +1315,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                <item>
                 <spacer name="verticalSpacer_9">
                  <property name="orientation">
-                  <enum>Qt::Vertical</enum>
+                  <enum>Qt::Orientation::Vertical</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
@@ -1337,7 +1337,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                  <item>
                   <widget class="QTreeView" name="treeViewFormats">
                    <property name="selectionMode">
-                    <enum>QAbstractItemView::ExtendedSelection</enum>
+                    <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
                    </property>
                    <property name="rootIsDecorated">
                     <bool>false</bool>
@@ -1364,7 +1364,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                  <item>
                   <widget class="QTreeView" name="treeViewLanguages">
                    <property name="selectionMode">
-                    <enum>QAbstractItemView::ExtendedSelection</enum>
+                    <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
                    </property>
                    <property name="rootIsDecorated">
                     <bool>false</bool>
@@ -1383,7 +1383,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
            <item>
             <spacer name="verticalSpacer_x6">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -1419,14 +1419,14 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
            <item>
             <widget class="Line" name="line_4">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
            </item>
            <item>
             <layout class="QFormLayout" name="formLayoutx">
              <property name="labelAlignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
              <item row="0" column="0">
               <widget class="QLabel" name="label_22">
@@ -1531,7 +1531,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
               <item>
                <spacer name="horizontalSpacer_2">
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -1556,7 +1556,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
              <item>
               <widget class="QTreeView" name="treeViewUpdates">
                <property name="selectionMode">
-                <enum>QAbstractItemView::ExtendedSelection</enum>
+                <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
                </property>
                <property name="rootIsDecorated">
                 <bool>false</bool>
@@ -1571,10 +1571,10 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
            <item>
             <spacer name="verticalSpacer_12">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeType">
-              <enum>QSizePolicy::Preferred</enum>
+              <enum>QSizePolicy::Policy::Preferred</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -1610,14 +1610,14 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
            <item>
             <widget class="Line" name="line_5">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
            </item>
            <item>
             <layout class="QFormLayout" name="formLayout">
              <property name="labelAlignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
              <item row="0" column="0">
               <widget class="QLabel" name="labelInstallFrom">
@@ -1671,7 +1671,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
              <item>
               <widget class="QTreeView" name="treeViewPackages">
                <property name="selectionMode">
-                <enum>QAbstractItemView::ExtendedSelection</enum>
+                <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
                </property>
                <property name="rootIsDecorated">
                 <bool>false</bool>
@@ -1712,7 +1712,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
            <item>
             <widget class="Line" name="line_6xxx">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
            </item>
@@ -1724,7 +1724,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
              <item>
               <widget class="QTreeView" name="treeViewDocumentation">
                <property name="selectionMode">
-                <enum>QAbstractItemView::ExtendedSelection</enum>
+                <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
                </property>
                <property name="rootIsDecorated">
                 <bool>false</bool>
@@ -1765,8 +1765,48 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
            <item>
             <widget class="Line" name="line_6">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_4">
+             <property name="title">
+              <string>Diagnostic information</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_20">
+              <item>
+               <widget class="QLabel" name="label_23">
+                <property name="text">
+                 <string>If something goes wrong, you can collect diagnostic information and save it in a compressed archive.</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_14">
+                <item>
+                 <widget class="QPushButton" name="pushButtonCollectAndSave">
+                  <property name="text">
+                   <string>Collect and Save...</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_11">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+             </layout>
             </widget>
            </item>
            <item>
@@ -1794,7 +1834,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                 <item>
                  <spacer name="horizontalSpacer_6">
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -1805,13 +1845,6 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                  </spacer>
                 </item>
                </layout>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_17x_2">
-                <property name="text">
-                 <string>When you issue a ticket, you should include the report as an attachment.</string>
-                </property>
-               </widget>
               </item>
              </layout>
             </widget>
@@ -1848,7 +1881,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                 <item>
                  <spacer name="horizontalSpacer_5">
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -1859,13 +1892,6 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
                  </spacer>
                 </item>
                </layout>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_17x_3">
-                <property name="text">
-                 <string>When you issue a ticket, you should include relevant log files as attachments.</string>
-                </property>
-               </widget>
               </item>
              </layout>
             </widget>
@@ -1892,7 +1918,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
            <item>
             <spacer name="verticalSpacer_13">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -1928,7 +1954,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
            <item>
             <widget class="Line" name="line_7">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
            </item>
@@ -1973,7 +1999,7 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
            <item>
             <spacer name="verticalSpacer_14">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -1990,10 +2016,10 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
        <item>
         <widget class="QLabel" name="labelBackgroundTask">
          <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
+          <enum>QFrame::Shape::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
+          <enum>QFrame::Shadow::Raised</enum>
          </property>
          <property name="text">
           <string/>
@@ -2011,7 +2037,7 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
      <x>0</x>
      <y>0</y>
      <width>841</width>
-     <height>21</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

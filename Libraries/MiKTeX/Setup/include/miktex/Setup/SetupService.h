@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX Setup service interface
  *
- * @copyright Copyright © 2013-2023 Christian Schenk
+ * @copyright Copyright © 2013-2026 Christian Schenk
  *
  * This file is part of the MiKTeX Setup Library.
  *
@@ -329,6 +329,7 @@ public:
     virtual void MIKTEXTHISCALL Run() = 0;
     virtual void MIKTEXTHISCALL WriteReport(std::ostream& s, ReportOptionSet options) = 0;
     virtual void MIKTEXTHISCALL WriteReport(std::ostream& s) = 0;
+    virtual void MIKTEXTHISCALL CollectDiagnosticInfo(const MiKTeX::Util::PathName& outputFileName) = 0;
     virtual std::vector<Issue> MIKTEXTHISCALL FindIssues(bool checkPath, bool checkPackageIntegrity) = 0;
     virtual std::vector<Issue> MIKTEXTHISCALL GetIssues() = 0;
 

@@ -20,7 +20,6 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include <miktex/Archive/Creator>
 #include <miktex/Configuration/ConfigurationProvider>
 #include <miktex/Core/Directory>
 #include <miktex/Core/File>
@@ -62,7 +61,6 @@ namespace
 
 using namespace std;
 
-using namespace MiKTeX::Archive;
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Setup;
@@ -90,7 +88,7 @@ static const struct poptOption options[] =
         "output", 0,
         POPT_ARG_STRING, nullptr,
         OPT_OUTPUT,
-        T_("Specify the output file."),
+        T_("Specify the output file (default: miktex-diag.tar.bz2)"),
         "FILE"
     },
     POPT_AUTOHELP
@@ -120,49 +118,12 @@ int CollectCommand::Execute(ApplicationContext& ctx, const vector<string>& argum
     {
         ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
-    vector<FileSet> fileSets;
-
-    auto tmpDir = TemporaryDirectory::Create();
-    auto reportFileName = tmpDir->GetPathName() / "report.txt";
-    ofstream ofs;
-    ofs.open(reportFileName.ToString(), ios::out | ios::binary);
-    if (!ofs.is_open())
+    auto setupService = SetupService::Create();
+    ctx.ui->Verbose(1, T_("Collecting diagnostic information..."));
+    setupService->CollectDiagnosticInfo(PathName(outputFileName));
+    if (!ctx.ui->BeingQuiet())
     {
-        MIKTEX_FATAL_ERROR("The report could not be written.");
+        ctx.ui->Output(fmt::format(T_("Diagnostic information saved in {0}"), outputFileName));
     }
-    auto setupService = SetupService::Create();    
-    setupService->WriteReport(ofs, { ReportOption::General, ReportOption::RootDirectories, ReportOption::CurrentUser });
-    ofs.close();
-    fileSets.push_back({
-        tmpDir->GetPathName(),
-        "",
-        {
-            reportFileName.GetFileName().ToString()
-        }
-    });
-    auto userLogDirectory = ctx.session->GetSpecialPath(SpecialPath::UserLogDirectory);
-    if (Directory::Exists(userLogDirectory))
-    {
-        fileSets.push_back({
-            userLogDirectory,
-            "logs/user/",
-            {
-                "."
-            }
-        });
-    }
-    auto commonLogDirectory = ctx.session->GetSpecialPath(SpecialPath::CommonLogDirectory);
-    if (userLogDirectory != commonLogDirectory && Directory::Exists(commonLogDirectory))
-    {
-        fileSets.push_back({
-            commonLogDirectory,
-            "logs/common/",
-            {
-                "."
-            }
-        });
-    }
-    auto creator = Creator::New(ArchiveFileType::TarBzip2);
-    creator->Create(PathName(outputFileName), fileSets);
     return 0;
 }
