@@ -13,9 +13,13 @@
 
 #include "config.h"
 
+#include <random>
+
 #include <miktex/Core/Test>
 
 #include <miktex/Archive/Creator>
+#include <miktex/Core/File>
+#include <miktex/Core/FileStream>
 
 using namespace std;
 
@@ -43,13 +47,27 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(2);
 {
+    FileStream outFile(File::Open(PathName(TEST_BINARY_DIR)  / "creator" / "largefile", FileMode::Create, FileAccess::Write, false));
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> dist(0, 255);
+    for (int i = 0; i < 1000; ++i)
+    {
+        char buffer[1000];
+        for (int j = 0; j < 1000; ++j)
+        {
+            buffer[j] = static_cast<char>(dist(gen));
+        }
+        outFile.Write(buffer, sizeof(buffer));
+    }
+    outFile.Close();
     shared_ptr<Creator> creator;
     TESTX(creator = Creator::New(ArchiveFileType::TarBzip2));
     FileSet fileSet = {
-        PathName(TEST_SOURCE_DIR) / "creator" / "testdata" / "a",
+        PathName(TEST_BINARY_DIR) / "creator",
         "foo/bar/",
         {
-            "."
+            "largefile"
         }
     };
     TESTX(creator->Create(PathName(TEST_BINARY_DIR) / "creator" / "test.tar.bz2", { fileSet }));

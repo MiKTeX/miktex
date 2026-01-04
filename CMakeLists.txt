@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2006-2025 Christian Schenk
+## Copyright (C) 2006-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -1464,7 +1464,7 @@ elseif(MIKTEX_RELEASE_STATE EQUAL 1)
     endif()
 elseif(MIKTEX_RELEASE_STATE EQUAL 4)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "The build type." FORCE)
-    add_definitions(-DMIKTEX_DEBUG)
+    #add_definitions(-DMIKTEX_DEBUG)
 endif()
 
 mark_as_advanced(CMAKE_BUILD_TYPE)

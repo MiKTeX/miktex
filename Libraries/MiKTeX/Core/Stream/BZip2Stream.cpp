@@ -62,27 +62,34 @@ protected:
         char outbuf[OUT_BUFFER_SIZE];
         unique_ptr<FileStream> fileStream = make_unique<FileStream>(File::Open(path, FileMode::Create, FileAccess::Write, false));
         unique_ptr<bz_stream_wrapper> bzStream = make_unique<bz_stream_wrapper>(false);
-        while (true) {
-            auto n = pipe.Read(inbuf, IN_BUFFER_SIZE);
-            bzStream->next_in = inbuf;
-            bzStream->avail_in = static_cast<unsigned int>(n);
-            bzStream->next_out = outbuf;
-            bzStream->avail_out = OUT_BUFFER_SIZE;
-            auto action = n == 0 ? BZ_FINISH : BZ_RUN;
-            while (true)
+        bzStream->next_in = inbuf;
+        bzStream->avail_in = 0;
+        bzStream->next_out = outbuf;
+        bzStream->avail_out = OUT_BUFFER_SIZE;
+        auto action = BZ_RUN;
+        while (true)
+        {
+            if (action == BZ_RUN && bzStream->avail_in == 0)
             {
-                int ret = BZ2_bzCompress(bzStream.get(), action);
-                if (ret != BZ_RUN_OK && ret != BZ_FINISH_OK && ret != BZ_STREAM_END)
+                bzStream->avail_in = static_cast<unsigned int>(pipe.Read(inbuf, IN_BUFFER_SIZE));
+                bzStream->next_in = inbuf;
+                if (bzStream->avail_in == 0)
                 {
-                    MIKTEX_FATAL_ERROR_2("BZ2 encoder did not succeed.", "ret", std::to_string(ret));
-                }
-                fileStream->Write(outbuf, OUT_BUFFER_SIZE - bzStream->avail_out);
-                if (ret == BZ_STREAM_END || bzStream->avail_in == 0)
-                {
-                    break;
+                    action = BZ_FINISH;
                 }
             }
-            if (n == 0)
+            int ret = BZ2_bzCompress(bzStream.get(), action);
+            if (ret != BZ_RUN_OK && ret != BZ_FINISH_OK && ret != BZ_STREAM_END)
+            {
+                MIKTEX_FATAL_ERROR_2("BZ2 encoder did not succeed.", "ret", std::to_string(ret));
+            }
+            if (OUT_BUFFER_SIZE - bzStream->avail_out > 0)
+            {
+                fileStream->Write(outbuf, OUT_BUFFER_SIZE - bzStream->avail_out);
+                bzStream->next_out = outbuf;
+                bzStream->avail_out = OUT_BUFFER_SIZE;
+            }
+            if (ret == BZ_STREAM_END)
             {
                 bzStream.reset();
                 fileStream->Close();
@@ -152,7 +159,7 @@ private:
             }
             else
             {
-                int ret = BZ2_bzCompressInit(this, 9, 0, 0);
+                int ret = BZ2_bzCompressInit(this, 1, 0, 0);
                 if (ret != BZ_OK)
                 {
                     MIKTEX_FATAL_ERROR_2("BZ2 encoder initialization did not succeed.", "ret", std::to_string(ret));
