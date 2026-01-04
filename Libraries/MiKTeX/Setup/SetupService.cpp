@@ -15,7 +15,7 @@
 
 #include "setup-version.h"
 
-#include <miktex/archive/Creator>
+#include <miktex/Archive/Creator>
 
 #include "internal.h"
 
