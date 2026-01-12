@@ -90,7 +90,7 @@ char *otp_names[] = {
 void
 ctp_abort P1C(string, s)
 {
-  fprintf(stderr, s);
+  fprintf(stderr, "%s", s);
   exit(EXIT_FAILURE);
 }
  
