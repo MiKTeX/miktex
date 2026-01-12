@@ -1212,21 +1212,21 @@ InstallationSummary PackageManagerImpl::GetInstallationSummary(bool userScope)
         userScope ? MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_CHECK : MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_CHECK,
         lastUpdateCheckText))
     {
-        result.lastUpdateCheck = std::stol(lastUpdateCheckText);
+        result.lastUpdateCheck = std::stoll(lastUpdateCheckText);
     }
     string lastUpdateText;
     if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM,
         userScope ? MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE : MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE,
         lastUpdateText))
     {
-        result.lastUpdate = std::stol(lastUpdateText);
+        result.lastUpdate = std::stoll(lastUpdateText);
     }
     string lastUpdateDbText;
     if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM,
         userScope ? MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_DB : MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_DB,
         lastUpdateDbText))
     {
-        result.lastUpdateDb = std::stol(lastUpdateDbText);
+        result.lastUpdateDb = std::stoll(lastUpdateDbText);
     }
     return result;
 }
