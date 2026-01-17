@@ -26,6 +26,13 @@ endif()
 
 add_library(${cairo_dll_name} SHARED ${${cairo_dll_name}_sources})
 
+if (MIKTEX_NATIVE_WINDOWS AND MSVC)
+  target_compile_definitions(${cairo_dll_name} 
+    PRIVATE
+        NTDDI_VERSION=NTDDI_WIN10_RS3
+  )
+endif()
+
 prevent_all_warnings_on_bad_code_target(${cairo_dll_name})
 
 set_property(TARGET ${cairo_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})

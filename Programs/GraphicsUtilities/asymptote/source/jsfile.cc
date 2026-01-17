@@ -1,3 +1,9 @@
+#if defined(_WIN32) || defined(_WIN64)
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <Windows.h>
+#endif
+
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
