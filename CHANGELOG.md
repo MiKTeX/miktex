@@ -2,10 +2,19 @@
 
 ## next
 
+### Upgraded programs
+
+* dvipdfmx 20260113
+* dvips 2026.1
+* makeindex 2.18
+* pdftex 1.40.29
+* upmendex 1.22
+* xetex 0.999998
+
 ### Added
 
 - [1703](https://github.com/MiKTeX/miktex/issues/1703): collect diagnostic information
-- 
+
 ## 25.12 - 2025-12-29
 
 ### Upgraded programs

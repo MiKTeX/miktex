@@ -21,7 +21,7 @@
 	zh@collation=zhuyin  28880
 */
 
-int sym,nmbr,ltn,kana,hngl,hnz,cyr,grk,dvng,thai,arab,hbrw;
+int sym,nmbr,ltn,kana,hngl,hnz,cyr,grk,arab,hbrw,brhm[NUM_BRAHMIC];
 
 static int wcomp(const void *p, const void *q);
 static int pcomp(const void *p, const void *q);
@@ -91,7 +91,7 @@ void init_icu_collator()
 /*   sort index   */
 void wsort(struct index *ind, int num)
 {
-	int i,order;
+	int i,j,order;
 
 	for (order=1,i=0;;i++) {
 		switch (character_order[i]) {
@@ -131,14 +131,6 @@ void wsort(struct index *ind, int num)
 			grk=order++;
 			break;
 
-		case 'D':
-			dvng=order++;
-			break;
-
-		case 'T':
-			thai=order++;
-			break;
-
 		case 'a':
 			arab=order++;
 			break;
@@ -147,8 +139,23 @@ void wsort(struct index *ind, int num)
 			hbrw=order++;
 			break;
 
+		case 'D': brhm[BR_DEVA]=order++; break;
+		case 'b': brhm[BR_BENG]=order++; break;
+		case 'p': brhm[BR_GURU]=order++; break;
+		case 'g': brhm[BR_GUJR]=order++; break;
+		case 'o': brhm[BR_ORYA]=order++; break;
+		case 't': brhm[BR_TAML]=order++; break;
+		case 'u': brhm[BR_TELU]=order++; break;
+		case 'k': brhm[BR_KNDA]=order++; break;
+		case 'm': brhm[BR_MLYM]=order++; break;
+		case 's': brhm[BR_SINH]=order++; break;
+		case 'T': brhm[BR_THAI]=order++; break;
+		case 'l': brhm[BR_LAO ]=order++; break;
+
 		case '@':
-			sym=nmbr=ltn=kana=hngl=hnz=cyr=grk=dvng=thai=arab=hbrw=order++;
+			sym=nmbr=ltn=kana=hngl=hnz=cyr=grk=arab=hbrw=order;
+			for(j=0;j<NUM_BRAHMIC;j++) brhm[j]=order;
+			order++;
 			break;
 
 		default:
@@ -167,10 +174,10 @@ BREAK:
 	if (hnz==0) hnz=order++;
 	if (cyr==0) cyr=order++;
 	if (grk==0) grk=order++;
-	if (dvng==0) dvng=order++;
-	if (thai==0) thai=order++;
 	if (arab==0) arab=order++;
 	if (hbrw==0) hbrw=order++;
+	for(j=0;j<NUM_BRAHMIC;j++)
+		if (brhm[j]==0) brhm[j]=order++;
 
 	qsort(ind,num,sizeof(struct index),wcomp);
 }
@@ -317,6 +324,8 @@ static int pcomp(const void *p, const void *q)
 
 static int ordering(UChar *c)
 {
+	int scr;
+
 	if      (*c<0x20)                return sym;  /* control */
 	else if (*c<0x7F) {
 		if      (is_latin(c))    return ltn;
@@ -332,16 +341,20 @@ static int ordering(UChar *c)
 		else if (is_cyrillic(c)) return cyr;
 		else if (is_greek(c))    return grk;
 		else if (is_numeric(c))  return nmbr;
-		else if (is_devanagari(c)) return dvng;
-		else if (is_thai(c))     return thai;
+		else if (is_thai(c))     return brhm[BR_THAI];
+		else if (is_lao(c))      return brhm[BR_LAO];
 		else if (is_arabic(c))   return arab;
 		else if (is_hebrew(c))   return hbrw;
+		else if ((scr=is_brahmic(c))>0)
+			return brhm[scr-CH_DEVANAGARI];
 		else                     return sym;
 	}
 }
 
 int charset(UChar *c)
 {
+	int scr;
+
 	if      (*c<0x20)                return CH_UNKNOWN;  /* control */
 	else if (*c<0x7F) {
 		if      (is_latin(c))    return CH_LATIN;
@@ -357,10 +370,11 @@ int charset(UChar *c)
 		else if (is_cyrillic(c)) return CH_CYRILLIC;
 		else if (is_greek(c))    return CH_GREEK;
 		else if (is_numeric(c))  return CH_NUMERIC;
-		else if (is_devanagari(c)) return CH_DEVANAGARI;
 		else if (is_thai(c))     return CH_THAI;
+		else if (is_lao(c))      return CH_LAO;
 		else if (is_arabic(c))   return CH_ARABIC;
 		else if (is_hebrew(c))   return CH_HEBREW;
+		else if ((scr=is_brahmic(c))>0) return scr;
 		else                     return CH_SYMBOL;
 	}
 }
@@ -466,10 +480,7 @@ int is_numeric(UChar *c)
 	if ( *c>=L'0' && *c<=L'9' ) return 1;
 	else if ( *c>=0xFF10 && *c<=0xFF19 ) return 1; /* Fullwidth Digit */
 		/* followings do not seem to be treated as numbers by ICU collator though charType is U_OTHER_NUMBER */
-	else if ( *c>=0x3192 && *c<=0x3195 ) return 0; /* IDEOGRAPHIC ANNOTATION ONE MARK..IDEOGRAPHIC ANNOTATION FOUR MARK */
 	else if ( *c>=0x3220 && *c<=0x3229 ) return 0; /* PARENTHESIZED IDEOGRAPH ONE..PARENTHESIZED IDEOGRAPH TEN */
-	else if ( *c>=0x3280 && *c<=0x3289 ) return 0; /* CIRCLED IDEOGRAPH ONE..CIRCLED IDEOGRAPH TEN */
-	else if ( *c>=0xA830 && *c<=0xA835 ) return 0; /* NORTH INDIC FRACTION ONE QUARTER..NORTH INDIC FRACTION THREE SIXTEENTHS */
 
 	if (is_surrogate_pair(c))
 		c32=U16_GET_SUPPLEMENTARY(*c,*(c+1));
@@ -554,7 +565,7 @@ int is_hanzi(UChar *c)
 		c32=U16_GET_SUPPLEMENTARY(*c,*(c+1));
 		if ( c32>=0x20000  &&         /* CJK Unified Ideographs Extension B,C,D,E,F,I */
 		                              /* CJK Compatibility Ideographs Supplement */
-		     c32<=0x323AF ) return 2; /* CJK Unified Ideographs Extension G,H */
+		     c32<=0x3347F ) return 2; /* CJK Unified Ideographs Extension G,H,J */
 	}
 	if (*c==0xFDD0) { /* Noncharacter */
 		if (hanzi_mode==HANZI_PINYIN &&
@@ -597,17 +608,41 @@ int is_greek(UChar *c)
 	else return 0;
 }
 
-int is_devanagari(UChar *c)
+int is_brahmic(UChar *c)
 {
-	if      ( *c>=0x0964                           /* Generic punctuation for scripts of India */
-	                     && *c<=0x096F ) return 0; /* Devanagari Digit */
-	else if ( *c>=0x0900 && *c<=0x097F ) return 1; /* Devanagari */
-	else if ( *c>=0xA8E0 && *c<=0xA8FF ) return 1; /* Devanagari Extended */
+	if      ( *c< 0x0900               ) return 0;
+
+	/* Attribute Nd, No, Sc, So : return false */
+	else if ( *c>=0x09F2                           /* BENGALI RUPEE MARK..BENGALI RUPEE SIGN */
+	                                               /* BENGALI CURRENCY NUMERATOR ONE..BENGALI CURRENCY DENOMINATOR SIXTEEN */
+	                     && *c<=0x09FB ) return 0; /* .. BENGALI GANDA MARK */
+	else if ( *c==0x0AF1               ) return 0; /* GUJARATI RUPEE SIGN */
+	else if ( *c==0x0B70               ) return 0; /* ORIYA ISSHAR */
+	else if ( *c>=0x0B72 && *c<=0x0B77 ) return 0; /* ORIYA FRACTION ONE QUARTER..ORIYA FRACTION THREE SIXTEENTHS */
+	else if ( *c>=0x0BF0                           /* TAMIL NUMBER TEN..TAMIL NUMBER ONE THOUSAND */
+	                     && *c<=0x0BFA ) return 0; /* .. TAMIL NUMBER SIGN */
+	else if ( *c>=0x0C78                           /* TELUGU FRACTION DIGIT ZERO FOR ODD POWERS OF FOUR..TELUGU FRACTION DIGIT THREE FOR EVEN POWERS OF FOUR */
+	                     && *c<=0x0C7F ) return 0; /* TELUGU SIGN TUUMU */
+	else if ( *c==0x0D4F               ) return 0; /* MALAYALAM SIGN PARA */
+	else if ( *c>=0x0D58 && *c<=0x0D5E ) return 0; /* MALAYALAM FRACTION ONE ONE-HUNDRED-AND-SIXTIETH..MALAYALAM FRACTION ONE FIFTH */
+	else if ( *c>=0x0D70                           /* MALAYALAM NUMBER TEN..MALAYALAM FRACTION THREE SIXTEENTHS */
+	                     && *c<=0x0D79 ) return 0; /* MALAYALAM DATE MARK */
+
+	if      ( *c>=0xA8E0 && *c<=0xA8FF ) return CH_DEVANAGARI; /* Devanagari Extended */
+	else if (               *c<=0x0DFF ) {
+	   /* U+0900..0DFF */
+	   /* Devanagari, Bengali, Gurmukhi, Gujarati, Oriya, Tamil, Telugu, Kannada, Malayalam, Sinhala */
+		if ((*c & 0x7F)>=0x64                  /* Generic punctuation for scripts of India  or  Reserved */
+	         && (*c & 0x7F)<=0x6F      ) return 0; /* .. Digit */
+		return ((*c >> 7) - 0x12 + CH_DEVANAGARI);
+	}
 
 	if (is_surrogate_pair(c)) {
 		UChar32 c32;
 		c32=U16_GET_SUPPLEMENTARY(*c,*(c+1));
-		if ( c32>=0x11B00  &&  c32<=0x11B5F ) return 2; /* Devanagari Extended-A */
+		if ( c32>=0x11B00  &&  c32<=0x11B5F ) return CH_DEVANAGARI; /* Devanagari Extended-A */
+		// if ( c32>=0x111E0  &&  c32<=0x111FF ) return 0;       /* Sinhala Archaic Numbers */
+		if ( c32==0x11FFF                   ) return CH_TAMIL;      /* TAMIL PUNCTUATION END OF TEXT */
 	}
 	return 0;
 }
@@ -617,6 +652,13 @@ int is_thai(UChar *c)
 	if      ( *c==0x0E3F )               return 0; /* Thai Currency Symbol Baht */
 	else if ( *c>=0x0E50 && *c<=0x0E59 ) return 0; /* Thai Digit */
 	else if ( *c>=0x0E00 && *c<=0x0E7F ) return 1; /* Thai */
+	else return 0;
+}
+
+int is_lao(UChar *c)
+{
+	if      ( *c>=0x0ED0 && *c<=0x0ED9 ) return 0; /* Lao Digit */
+	else if ( *c>=0x0E80 && *c<=0x0EFF ) return 1; /* Lao */
 	else return 0;
 }
 

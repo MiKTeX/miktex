@@ -53,7 +53,7 @@ extern unsigned char  *pst_getSV (pst_obj *obj);
 extern void    *pst_data_ptr (pst_obj *obj);
 
 #define PST_NAME_LEN_MAX   127
-#define PST_STRING_LEN_MAX 4096
+#define PST_STRING_LEN_MAX 32767
 #define PST_MAX_DIGITS     10
 #define PST_TOKEN_LEN_MAX  PST_STRING_LEN_MAX
 

@@ -38,7 +38,7 @@ bfgets (char *buf, int size, FILE *fp)
 void styread(const char *filename)
 {
 	int i,j,q,cc;
-	char buff[4096],tmp[4096];
+	char buff[4096],tmp[4096],tmp2[4096];
 
 	filename = KP_find_ist_file(filename);
 	if(kpse_in_name_ok(filename))
@@ -147,7 +147,7 @@ void styread(const char *filename)
 			multibyte_to_widechar(kana_head,STYBUFSIZE,tmp);
 			continue;
 		}
-		if (getparam(buff,"hangul_head",tmp) || getparam(buff,"tumunja",tmp)) {
+		if (getparam(buff,"hangul_head",tmp)) {
 			multibyte_to_widechar(hangul_head,STYBUFSIZE,tmp);
 			continue;
 		}
@@ -156,11 +156,11 @@ void styread(const char *filename)
 			continue;
 		}
 		if (getparam(buff,"thai_head",tmp)) {
-			multibyte_to_widechar(thai_head,STYBUFSIZE,tmp);
+			multibyte_to_widechar(brahmic_head[BR_THAI],STYBUFSIZE,tmp);
 			continue;
 		}
 		if (getparam(buff,"devanagari_head",tmp)) {
-			multibyte_to_widechar(devanagari_head,STYBUFSIZE,tmp);
+			multibyte_to_widechar(brahmic_head[BR_DEVA],STYBUFSIZE,tmp);
 			continue;
 		}
 		if (getparam(buff,"page_compositor",page_compositor)) continue;
@@ -185,10 +185,20 @@ void styread(const char *filename)
 			if (getparam(tmp,"kana",      script_preamble[CH_KANA]       )) continue;
 			if (getparam(tmp,"hangul",    script_preamble[CH_HANGUL]     )) continue;
 			if (getparam(tmp,"hanzi",     script_preamble[CH_HANZI]      )) continue;
-			if (getparam(tmp,"devanagari",script_preamble[CH_DEVANAGARI] )) continue;
-			if (getparam(tmp,"thai",      script_preamble[CH_THAI]       )) continue;
 			if (getparam(tmp,"arabic",    script_preamble[CH_ARABIC]     )) continue;
 			if (getparam(tmp,"hebrew",    script_preamble[CH_HEBREW]     )) continue;
+			if (getparam(tmp,"devanagari",script_preamble[CH_DEVANAGARI] )) continue;
+			if (getparam(tmp,"bengali",   script_preamble[CH_BENGALI]    )) continue;
+			if (getparam(tmp,"gurmukhi",  script_preamble[CH_GURMUKHI]   )) continue;
+			if (getparam(tmp,"gujarati",  script_preamble[CH_GUJARATI]   )) continue;
+			if (getparam(tmp,"oriya",     script_preamble[CH_ORIYA]      )) continue;
+			if (getparam(tmp,"tamil",     script_preamble[CH_TAMIL]      )) continue;
+			if (getparam(tmp,"telugu",    script_preamble[CH_TELUGU]     )) continue;
+			if (getparam(tmp,"kannada",   script_preamble[CH_KANNADA]    )) continue;
+			if (getparam(tmp,"malayalam", script_preamble[CH_MALAYALAM]  )) continue;
+			if (getparam(tmp,"sinhala",   script_preamble[CH_SINHALA]    )) continue;
+			if (getparam(tmp,"thai",      script_preamble[CH_THAI]       )) continue;
+			if (getparam(tmp,"lao",       script_preamble[CH_LAO]        )) continue;
 			if (strlen(tmp)>0) {
 				verb_printf(efp,"\nWarning: Unknown script for specifier \"script_preamble\" (%s).", tmp);
 			}
@@ -203,12 +213,45 @@ void styread(const char *filename)
 			if (getparam(tmp,"kana",      script_postamble[CH_KANA]       )) continue;
 			if (getparam(tmp,"hangul",    script_postamble[CH_HANGUL]     )) continue;
 			if (getparam(tmp,"hanzi",     script_postamble[CH_HANZI]      )) continue;
-			if (getparam(tmp,"devanagari",script_postamble[CH_DEVANAGARI] )) continue;
-			if (getparam(tmp,"thai",      script_postamble[CH_THAI]       )) continue;
 			if (getparam(tmp,"arabic",    script_postamble[CH_ARABIC]     )) continue;
 			if (getparam(tmp,"hebrew",    script_postamble[CH_HEBREW]     )) continue;
+			if (getparam(tmp,"devanagari",script_postamble[CH_DEVANAGARI] )) continue;
+			if (getparam(tmp,"bengali",   script_postamble[CH_BENGALI]    )) continue;
+			if (getparam(tmp,"gurmukhi",  script_postamble[CH_GURMUKHI]   )) continue;
+			if (getparam(tmp,"gujarati",  script_postamble[CH_GUJARATI]   )) continue;
+			if (getparam(tmp,"oriya",     script_postamble[CH_ORIYA]      )) continue;
+			if (getparam(tmp,"tamil",     script_postamble[CH_TAMIL]      )) continue;
+			if (getparam(tmp,"telugu",    script_postamble[CH_TELUGU]     )) continue;
+			if (getparam(tmp,"kannada",   script_postamble[CH_KANNADA]    )) continue;
+			if (getparam(tmp,"malayalam", script_postamble[CH_MALAYALAM]  )) continue;
+			if (getparam(tmp,"sinhala",   script_postamble[CH_SINHALA]    )) continue;
+			if (getparam(tmp,"thai",      script_postamble[CH_THAI]       )) continue;
+			if (getparam(tmp,"lao",       script_postamble[CH_LAO]        )) continue;
 			if (strlen(tmp)>0) {
 				verb_printf(efp,"\nWarning: Unknown script for specifier \"script_postamble\" (%s).", tmp);
+			}
+			continue;
+		}
+		cc=scompare(buff,"script_head");
+		if (cc!= -1) {
+			strcpy(tmp,buff+strlen("script_head"));
+			if (getparam(tmp,"kana",      tmp2)){ multibyte_to_widechar(kana_head            ,STYBUFSIZE,tmp2); continue; }
+			if (getparam(tmp,"hangul",    tmp2)){ multibyte_to_widechar(hangul_head          ,STYBUFSIZE,tmp2); continue; }
+			if (getparam(tmp,"hanzi",     tmp2)){ multibyte_to_widechar(hanzi_head           ,STYBUFSIZE,tmp2); continue; }
+			if (getparam(tmp,"devanagari",tmp2)){ multibyte_to_widechar(brahmic_head[BR_DEVA],STYBUFSIZE,tmp2); continue; }
+			if (getparam(tmp,"bengali",   tmp2)){ multibyte_to_widechar(brahmic_head[BR_BENG],STYBUFSIZE,tmp2); continue; }
+			if (getparam(tmp,"gurmukhi",  tmp2)){ multibyte_to_widechar(brahmic_head[BR_GURU],STYBUFSIZE,tmp2); continue; }
+			if (getparam(tmp,"gujarati",  tmp2)){ multibyte_to_widechar(brahmic_head[BR_GUJR],STYBUFSIZE,tmp2); continue; }
+			if (getparam(tmp,"oriya",     tmp2)){ multibyte_to_widechar(brahmic_head[BR_ORYA],STYBUFSIZE,tmp2); continue; }
+			if (getparam(tmp,"tamil",     tmp2)){ multibyte_to_widechar(brahmic_head[BR_TAML],STYBUFSIZE,tmp2); continue; }
+			if (getparam(tmp,"telugu",    tmp2)){ multibyte_to_widechar(brahmic_head[BR_TELU],STYBUFSIZE,tmp2); continue; }
+			if (getparam(tmp,"kannada",   tmp2)){ multibyte_to_widechar(brahmic_head[BR_KNDA],STYBUFSIZE,tmp2); continue; }
+			if (getparam(tmp,"malayalam", tmp2)){ multibyte_to_widechar(brahmic_head[BR_MLYM],STYBUFSIZE,tmp2); continue; }
+			if (getparam(tmp,"sinhala",   tmp2)){ multibyte_to_widechar(brahmic_head[BR_SINH],STYBUFSIZE,tmp2); continue; }
+			if (getparam(tmp,"thai",      tmp2)){ multibyte_to_widechar(brahmic_head[BR_THAI],STYBUFSIZE,tmp2); continue; }
+			if (getparam(tmp,"lao",       tmp2)){ multibyte_to_widechar(brahmic_head[BR_LAO ],STYBUFSIZE,tmp2); continue; }
+			if (strlen(tmp)>0) {
+				verb_printf(efp,"\nWarning: Unknown script for specifier \"script_head\" (%s).", tmp);
 			}
 			continue;
 		}
@@ -225,7 +268,7 @@ void styread(const char *filename)
 	verb_printf(efp,"...done.\n");
 }
 
-/*   analize string parameter of style file   */
+/*   analyze string parameter of style file   */
 static void convline(char *buff1, int start, char *buff2)
 {
 	int i,j,cc;

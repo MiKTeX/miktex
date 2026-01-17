@@ -307,7 +307,7 @@ skip_prolog (const char **start, const char *end)
 
 /* PostScript Operators */
 
-/* Acoid conflict with SET... from <wingdi.h>.  */
+/* Avoid conflict with SET... from <wingdi.h>.  */
 #undef SETLINECAP
 #undef SETLINEJOIN
 #undef SETMITERLIMIT

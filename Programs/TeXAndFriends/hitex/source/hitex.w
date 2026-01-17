@@ -1830,7 +1830,7 @@ static void print_ignored_err(char *s)
 {@+if (interaction==error_stop_mode) wake_up_terminal;
   if (filelineerrorstylep) print_file_line(); /* \TeX\ Live */
   else  print_nl("");
-  print("ignored error: ");print(s);
+  print("ignored: ");print(s);
 }
 
 static void print_err(char *s)

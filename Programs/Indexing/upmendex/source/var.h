@@ -45,10 +45,10 @@ char numhead_positive[STYBUFSIZE]={"Numbers"},numhead_negative[STYBUFSIZE]={"num
 int symbol_flag=1;
 int letter_head=1;
 UChar atama[STYBUFSIZE],hangul_head[STYBUFSIZE],hanzi_head[STYBUFSIZE]={L'\0'},kana_head[STYBUFSIZE]={L'\0'};
-UChar devanagari_head[STYBUFSIZE],thai_head[STYBUFSIZE];
+UChar brahmic_head[NUM_BRAHMIC][STYBUFSIZE];
 char page_compositor[STYBUFSIZE]={"-"},page_precedence[STYBUFSIZE]={"rnaRA"};
-char character_order[STYBUFSIZE]={"SNLGCJKHDTah"};
-char script_preamble[11][STYBUFSIZE],script_postamble[11][STYBUFSIZE];
+char character_order[STYBUFSIZE]={"SNLGCJKHDbpgotukmsTlah"};
+char script_preamble[21][STYBUFSIZE],script_postamble[21][STYBUFSIZE];
 char icu_locale[STYBUFSIZE]={"root"},icu_rules[STYBUFSIZE]={""};
 int icu_attributes[UCOL_ATTRIBUTE_COUNT];
 

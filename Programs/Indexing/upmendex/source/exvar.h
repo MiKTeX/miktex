@@ -32,7 +32,7 @@ extern char numhead_positive[],numhead_negative[];
 extern int symbol_flag;
 extern int letter_head;
 extern UChar atama[],hangul_head[],hanzi_head[],kana_head[];
-extern UChar devanagari_head[],thai_head[];
+extern UChar brahmic_head[][STYBUFSIZE];
 extern char page_compositor[],page_precedence[];
 extern char character_order[];
 extern char script_preamble[][STYBUFSIZE],script_postamble[][STYBUFSIZE];

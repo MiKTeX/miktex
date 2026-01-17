@@ -234,7 +234,8 @@ int convert(UChar *buff1, UChar *buff2)
 			else if (is_latin(buff3)||is_cyrillic(buff3)||is_greek(buff3)
 				 ||is_jpn_kana(buff3)||is_kor_hngl(buff3)||is_zhuyin(buff3)
 				 ||is_numeric(buff3)==1||is_type_symbol(buff3)==1
-				 ||is_devanagari(buff3)||is_thai(buff3)||is_arabic(buff3)||is_hebrew(buff3)
+				 ||is_brahmic(buff3)||is_thai(buff3)||is_lao(buff3)
+				 ||is_arabic(buff3)||is_hebrew(buff3)
 					||is_type_mark_or_punct(buff3)) {
 				buff2[j]=buff3[0];
 				if (wclen==2) buff2[j+1]=buff3[1];
@@ -289,6 +290,7 @@ int pnumconv(char *page, int attr)
 {
 	int i,cc=0;
 
+	if (attr<0) return 0;  /* inappropriate page type */
 	switch (page_precedence[attr]) {
 	case 'a':
 		cc=page[0]-'a'+1;
@@ -398,6 +400,7 @@ int pnumconv(char *page, int attr)
 			case 'c':
 			case 'C':
 				if (i==0) cc=100;
+				else {
 					switch (page[i-1]) {
 					case 'x':
 					case 'X':
@@ -416,6 +419,7 @@ int pnumconv(char *page, int attr)
 					default:
 						break;
 					}
+				}
 				break;
 
 			case 'd':
@@ -442,6 +446,7 @@ int pnumconv(char *page, int attr)
 			case 'm':
 			case 'M':
 				if (i==0) cc=1000;
+				else {
 					switch (page[i-1]) {
 					case 'c':
 					case 'C':
@@ -456,6 +461,7 @@ int pnumconv(char *page, int attr)
 					default:
 						break;
 					}
+				}
 				break;
 
 			default:

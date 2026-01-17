@@ -155,7 +155,7 @@ void print_ignored_err(const char *s)
     if (filelineerrorstylep) {
         print_file_line();
     } else {
-        tprint_nl("ignored error ");
+        tprint_nl("ignored: ");
     }
     tprint(s);
     if (callback_id <= 0) {

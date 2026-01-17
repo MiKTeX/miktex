@@ -25,7 +25,7 @@
 #include "numbers.h"
 #include "pdfobj.h"
 
-/* Acoid conflict with CHAR ... from <winnt.h>.  */
+/* Avoid conflict with CHAR ... from <winnt.h>.  */
 #define CHAR SFNT_CHAR
 #define ULONG SFNT_ULONG
 #define LONG SFNT_LONG

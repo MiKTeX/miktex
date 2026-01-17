@@ -27,7 +27,7 @@
 
 extern void error_cleanup (void);
 
-/* Acoid conflict with NO_ERROR from <winerror.h>.  */
+/* Avoid conflict with NO_ERROR from <winerror.h>.  */
 #undef NO_ERROR
 
 #define FATAL_ERROR -1
@@ -38,7 +38,7 @@ extern void error_cleanup (void);
 
 extern void shut_up (int quietness);
 
-/* Acoid conflict with ERROR from <winnt.h>.  */
+/* Avoid conflict with ERROR from <winnt.h>.  */
 #undef ERROR
 
 extern void ERROR (const char *fmt, ...);

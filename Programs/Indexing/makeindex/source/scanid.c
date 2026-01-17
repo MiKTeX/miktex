@@ -79,8 +79,14 @@ scan_idx(void)
 		if (make_key())
 		    IDX_DOT(DOT_MAX);
 		arg_count = -1;
-	    } else
+	    } else {
+		if (arg_count > -1) {
+		    idx_lc++;
+		    IDX_ERROR("Missing arguments -- need two (premature EOF).\n");
+		    arg_count = -2;
+		}
 		not_eof = FALSE;
+	    }
 	    break;
 
 	case LFD:

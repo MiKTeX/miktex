@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX-pdfTeX version information
  *
- * @copyright Copyright © 1996-2025 Christian Schenk
+ * @copyright Copyright © 1996-2026 Christian Schenk
  *
  * This file is free software; the copyright holder gives unlimited permission
  * to copy and/or distribute it, with or without modifications, as long as this
@@ -13,14 +13,14 @@
 #include "pdftex_version.h"
 
 #define MIKTEX_COMP_MAJOR_VERSION 4
-#define MIKTEX_COMP_MINOR_VERSION 23
+#define MIKTEX_COMP_MINOR_VERSION 24
 #define MIKTEX_COMP_PATCH_VERSION 0
 
 #define MIKTEX_COMP_ID "miktex-pdftex"
 
 #define MIKTEX_COMP_ORIG_VERSION_STR PDFTEX_VERSION
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 1982 D. E. Knuth, © 1996-2025 Hàn Thế Thành"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 1982 D. E. Knuth, © 1996-2026 Hàn Thế Thành"
 
 #define MIKTEX_COMP_TM_STR "TeX is a trademark of the American Mathematical Society."
 

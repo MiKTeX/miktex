@@ -307,8 +307,8 @@ known as `\eTeX'.
   {printed when \eTeX\ starts}
 @#
 @d pdftex_version==140 { \.{\\pdftexversion} }
-@d pdftex_revision=="28" { \.{\\pdftexrevision} }
-@d pdftex_version_string=='-1.40.28' {current \pdfTeX\ version}
+@d pdftex_revision=="29" { \.{\\pdftexrevision} }
+@d pdftex_version_string=='-1.40.29' {current \pdfTeX\ version}
 @#
 @d pdfTeX_banner=='This is pdfTeX, Version 3.141592653',eTeX_version_string,pdftex_version_string
    {printed when \pdfTeX\ starts}
@@ -1888,7 +1888,7 @@ amounts of user interaction:
   print_nl("! "); print(#);
   end
 @d print_ignored_err(#)==begin if interaction=error_stop_mode then wake_up_terminal;
-  print_nl("ignored error: "); print(#);
+  print_nl("ignored: "); print(#);
   end
 
 @<Glob...@>=
@@ -16237,8 +16237,10 @@ begin
     must_insert_space := false;
     must_end_string := false;
 
-    if not pdf_doing_text then
+    if not pdf_doing_text then begin
         pdf_begin_text;
+        must_set_text_pos := true;
+    end;
 
     {delay font switch if we must insert interword space}
     if (not gen_faked_interword_space and pdf_f <> f)
@@ -16275,10 +16277,12 @@ begin
         v_out := 0;
     end;
 
-    must_set_text_pos := (v <> 0)
-        or (abs(s) >= @'100000)
-        or (get_font_auto_expand_ratio(f) <> pdf_cur_Tm_a)
-        or get_font_auto_expand_ratio(f) <> get_font_auto_expand_ratio(pdf_f);
+    if not must_set_text_pos then begin
+      must_set_text_pos := (v <> 0)
+          or (abs(s) >= @'100000)
+          or (get_font_auto_expand_ratio(f) <> pdf_cur_Tm_a)
+          or get_font_auto_expand_ratio(f) <> get_font_auto_expand_ratio(pdf_f);
+    end;
 
     if must_set_text_pos then begin
         must_end_string := true;
