@@ -198,6 +198,15 @@ void SessionImpl::RegisterFileType(FileType fileType)
       searchPath.push_back(myPrefixBinCanon.ToString());
     }
 #endif
+    if (Utils::GetEnvironmentString("PATH", str))
+    {
+      PathName binDir(str);
+      binDir.Canonicalize();
+      if (std::find(searchPath.begin(), searchPath.end(), binDir.ToString()) == searchPath.end())
+      {
+        searchPath.push_back(binDir.ToString());
+      }
+    }
     break;
   }
   case FileType::OTF:
