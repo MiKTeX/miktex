@@ -1,5 +1,5 @@
 % This file is part of HINT
-% Copyright 2017-2021 Martin Ruckert, Hochschule Muenchen, Lothstrasse 64, 80336 Muenchen
+% Copyright 2017-2026 Martin Ruckert, Hochschule Muenchen, Lothstrasse 64, 80336 Muenchen
 %
 % Permission is hereby granted, free of charge, to any person obtaining a copy
 % of this software and associated documentation files (the "Software"), to deal
@@ -132,6 +132,11 @@
 \def\textindent#1{\hangindent2.5em\noindent\hbox to2.5em{\hss#1 }\ignorespaces}
 \font\ninerm=cmr9
 \let\mc=\ninerm % medium caps for names like SAIL
+
+\def\XeTeX{X\kern-.125em\lower.5ex\hbox{\mirror{E}}\kern-.1667em\TeX}
+
+\def\eTeX{$\varepsilon$-\TeX}
+
 \def\Prote{{\tenrm P\kern-0.1em R\kern-0.15em\raise.11ex\hbox{o}%
   \kern-0.22em T\kern-0.05em E}}
 \ifpdftex
@@ -359,7 +364,7 @@ known as `\Prote'.
 
 @d eTeX_version 2 /* \.{\\eTeXversion} */
 @d eTeX_revision ".6" /* \.{\\eTeXrevision} */
-@d eTeX_version_string "-2.6" /*current \eTeX\ version*/
+@d eTeX_version_string "2.6" /*current \eTeX\ version*/
 @#
 @d TeX_banner "This is TeX, Version 3.141592653" /*printed when \TeX\ starts*/
 @#
@@ -375,8 +380,11 @@ known as `\Prote'.
 @d Prote_banner "This is Prote, Version " Prote_version_string
    /*printed when \Prote\ starts*/
 @#
-@d banner "This is HiTeX, Version 3.141592653"@|
-          eTeX_version_string"-"HINT_VERSION_STRING" "TL_VERSION
+
+@d HITEX_VERSION "2.0"
+
+@d banner "This is HiTeX " HITEX_VERSION ", TeX version 3.141592653 "@|
+          TL_VERSION
           /*printed when \TeX\ starts*/
 
 @ Different \PASCAL s have slightly different conventions, and the present
@@ -643,22 +651,21 @@ because some fussy \PASCAL\ compilers will complain about redundant labels.
 
 @* The character set.
 In order to make \TeX\ readily portable to a wide variety of
-computers, all of its input text is converted to an internal eight-bit
-code that includes standard ASCII, the ``American Standard Code for
-Information Interchange.''  This conversion is done immediately when each
-character is read in. Conversely, characters are converted from ASCII to
-the user's external representation just before they are output to a
-text file.
+computers, all of its input text is expected to be in UTF8 format.
+It is converted to an internal twenty-one bit code,
+This conversion is done immediately when each
+character is read in. Conversely, characters are converted to UTF8
+representation just before they are output to a text file.
 
 Such an internal code is relevant to users of \TeX\ primarily because it
 governs the positions of characters in the fonts. For example, the
-character `\.A' has ASCII code $65=0101$, and when \TeX\ typesets
+character `\.A' has UTF code $65=0101$, and when \TeX\ typesets
 this letter it specifies character number 65 in the current font.
 If that font actually has `\.A' in a different position, \TeX\ doesn't
 know what the real position is; the program that does the actual printing from
-\TeX's device-independent files is responsible for converting from ASCII to
+\TeX's device-independent files is responsible for converting from UTF to
 a particular font encoding.
-@^ASCII code@>
+@^UTF code@>
 
 \TeX's internal code also defines the value of constants
 that begin with a reverse apostrophe; and it provides an index to the
@@ -666,160 +673,16 @@ that begin with a reverse apostrophe; and it provides an index to the
 tables.
 
 @ Characters of text that have been converted to \TeX's internal form
-are said to be of type |ASCII_code|, which is a subrange of the integers.
+are said to be of type |UTF_code|, which is a subrange of the integers.
 
 @<Types...@>=
-typedef uint8_t ASCII_code; /*eight-bit numbers*/
+typedef unsigned char UTF8_code; /*eight-bit numbers*/
+typedef uint32_t UTF_code; /*twenty-one-bit numbers*/
 
 @ The original \PASCAL\ compiler was designed in the late 60s, when six-bit
 character sets were common, so it did not make provision for lowercase
 letters. Nowadays, of course, we need to deal with both capital and small
 letters in a convenient way, especially in a program for typesetting;
-so the present specification of \TeX\ has been written under the assumption
-that the \PASCAL\ compiler and run-time system permit the use of text files
-with more than 64 distinguishable characters. More precisely, we assume that
-the character set contains at least the letters and symbols associated
-with ASCII codes 040 through 0176; all of these characters are now
-available on most computer terminals.
-
-Since we are dealing with more characters than were present in the first
-\PASCAL\ compilers, we have to decide what to call the associated data
-type. Some \PASCAL s use the original name |unsigned char| for the
-characters in text files, even though there now are more than 64 such
-characters, while other \PASCAL s consider |unsigned char| to be a 64-element
-subrange of a larger data type that has some other name.
-
-In order to accommodate this difference, we shall use the name |text_char|
-to stand for the data type of the characters that are converted to and
-from |ASCII_code| when they are input and output. We shall also assume
-that |text_char| consists of the elements |chr(first_text_char)| through
-|chr(last_text_char)|, inclusive. The following definitions should be
-adjusted if necessary.
-@^system dependencies@>
-
-@s text_char char
-@d text_char unsigned char /*the data type of characters in text files*/
-@d first_text_char 0 /*ordinal number of the smallest element of |text_char|*/
-@d last_text_char 255 /*ordinal number of the largest element of |text_char|*/
-
-@<Local variables for init...@>=
-int @!i;
-
-@ The \TeX\ processor converts between ASCII code and
-the user's external character set by means of arrays |xord| and |xchr|
-that are analogous to \PASCAL's |ord| and |chr| functions.
-
-@<Glob...@>=
-static ASCII_code @!xord[256];
-   /*specifies conversion of input characters*/
-static text_char @!xchr[256];
-   /*specifies conversion of output characters*/
-
-@ Since we are assuming that our \PASCAL\ system is able to read and
-write the visible characters of standard ASCII (although not
-necessarily using the ASCII codes to represent them), the following
-assignment statements initialize the standard part of the |xchr| array
-properly, without needing any system-dependent changes. On the other
-hand, it is possible to implement \TeX\ with less complete character
-sets, and in such cases it will be necessary to change something here.
-@^system dependencies@>
-
-@<Set init...@>=
-xchr[040]=' ';
-xchr[041]='!';
-xchr[042]='"';
-xchr[043]='#';
-xchr[044]='$';
-xchr[045]='%';
-xchr[046]='&';
-xchr[047]='\'';@/
-xchr[050]='(';
-xchr[051]=')';
-xchr[052]='*';
-xchr[053]='+';
-xchr[054]=',';
-xchr[055]='-';
-xchr[056]='.';
-xchr[057]='/';@/
-xchr[060]='0';
-xchr[061]='1';
-xchr[062]='2';
-xchr[063]='3';
-xchr[064]='4';
-xchr[065]='5';
-xchr[066]='6';
-xchr[067]='7';@/
-xchr[070]='8';
-xchr[071]='9';
-xchr[072]=':';
-xchr[073]=';';
-xchr[074]='<';
-xchr[075]='=';
-xchr[076]='>';
-xchr[077]='?';@/
-xchr[0100]='@@';
-xchr[0101]='A';
-xchr[0102]='B';
-xchr[0103]='C';
-xchr[0104]='D';
-xchr[0105]='E';
-xchr[0106]='F';
-xchr[0107]='G';@/
-xchr[0110]='H';
-xchr[0111]='I';
-xchr[0112]='J';
-xchr[0113]='K';
-xchr[0114]='L';
-xchr[0115]='M';
-xchr[0116]='N';
-xchr[0117]='O';@/
-xchr[0120]='P';
-xchr[0121]='Q';
-xchr[0122]='R';
-xchr[0123]='S';
-xchr[0124]='T';
-xchr[0125]='U';
-xchr[0126]='V';
-xchr[0127]='W';@/
-xchr[0130]='X';
-xchr[0131]='Y';
-xchr[0132]='Z';
-xchr[0133]='[';
-xchr[0134]='\\';
-xchr[0135]=']';
-xchr[0136]='^';
-xchr[0137]='_';@/
-xchr[0140]='`';
-xchr[0141]='a';
-xchr[0142]='b';
-xchr[0143]='c';
-xchr[0144]='d';
-xchr[0145]='e';
-xchr[0146]='f';
-xchr[0147]='g';@/
-xchr[0150]='h';
-xchr[0151]='i';
-xchr[0152]='j';
-xchr[0153]='k';
-xchr[0154]='l';
-xchr[0155]='m';
-xchr[0156]='n';
-xchr[0157]='o';@/
-xchr[0160]='p';
-xchr[0161]='q';
-xchr[0162]='r';
-xchr[0163]='s';
-xchr[0164]='t';
-xchr[0165]='u';
-xchr[0166]='v';
-xchr[0167]='w';@/
-xchr[0170]='x';
-xchr[0171]='y';
-xchr[0172]='z';
-xchr[0173]='{';
-xchr[0174]='|';
-xchr[0175]='}';
-xchr[0176]='~';@/
 
 @ Some of the ASCII codes without visible characters have been given symbolic
 names in this program because they are used with a special meaning.
@@ -828,47 +691,6 @@ names in this program because they are used with a special meaning.
 @d carriage_return 015 /*ASCII code used at end of line*/
 @d invalid_code 0177 /*ASCII code that many systems prohibit in text files*/
 
-@ The ASCII code is ``standard'' only to a certain extent, since many
-computer installations have found it advantageous to have ready access
-to more than 94 printing characters. Appendix~C of {\sl The \TeX book\/}
-gives a complete specification of the intended correspondence between
-characters and \TeX's internal representation.
-@:TeXbook}{\sl The \TeX book@>
-
-If \TeX\ is being used
-on a garden-variety \PASCAL\ for which only standard ASCII
-codes will appear in the input and output files, it doesn't really matter
-what codes are specified in |xchr[0 dotdot 037]|, but the safest policy is to
-blank everything out by using the code shown below.
-
-However, other settings of |xchr| will make \TeX\ more friendly on
-computers that have an extended character set, so that users can type things
-like `\.^^Z' instead of `\.{\\ne}'. People with extended character sets can
-assign codes arbitrarily, giving an |xchr| equivalent to whatever
-characters the users of \TeX\ are allowed to have in their input files.
-It is best to make the codes correspond to the intended interpretations as
-shown in Appendix~C whenever possible; but this is not necessary. For
-example, in countries with an alphabet of more than 26 letters, it is
-usually best to map the additional letters into codes less than~040.
-To get the most ``permissive'' character set, change |' '| on the
-right of these assignment statements to |chr(i)|.
-@^character set dependencies@>
-@^system dependencies@>
-
-@<Set init...@>=
-for (i=0; i<=037; i++) xchr[i]=chr(i); /* \TeX\ Live*/
-for (i=0177; i<=0377; i++) xchr[i]=chr(i); /* \TeX\ Live*/
-
-@ The following system-independent code makes the |xord| array contain a
-suitable inverse to the information in |xchr|. Note that if |xchr[i]==xchr[j]|
-where |i < j < 0177|, the value of |xord[xchr[i]]| will turn out to be
-|j| or more; hence, standard ASCII code numbers will be used instead of
-codes below 040 in case there is a coincidence.
-
-@<Set init...@>=
-for (i=first_text_char; i<=last_text_char; i++) xord[chr(i)]=invalid_code;
-for (i=0200; i<=0377; i++) xord[xchr[i]]=i;
-for (i=0; i<=0176; i++) xord[xchr[i]]=i;
 
 @* Input and output.
 The bane of portability is the fact that different operating systems treat
@@ -906,7 +728,7 @@ for us to specify simple operations on word files before they are defined.
 
 @<Types...@>=
 typedef uint8_t eight_bits; /*unsigned one-byte quantity*/
-typedef struct {@+FILE *f;@+text_char@,d;@+} alpha_file; /*files that contain textual data*/
+typedef struct {@+FILE *f;@+char@,d;@+} alpha_file; /*files that contain textual data*/
 typedef struct {@+FILE *f;@+eight_bits@,d;@+} byte_file; /*files that contain binary data*/
 
 @ Most of what we need to do with respect to input and output can be handled
@@ -945,7 +767,7 @@ This allows \TeX\ to undertake appropriate corrective action.
 @p
 static FILE*open_in(char*filename,kpse_file_format_type t,const char*rwb);  /* \TeX\ Live*/
 static bool a_open_in(alpha_file *f); /*open a text file for input*/
-static bool b_open_in(byte_file *f);   /*open a binary file for input*/
+static bool b_open_in(byte_file *f, char *path);   /*open a binary file for input*/
 static bool w_open_in(word_file *f);   /*open a word file for input*/
 static FILE *open_out(const char *file_name, const char *file_mode);  /* \TeX\ Live*/
 static bool a_open_out(alpha_file *f);  /*open a text file for output*/
@@ -992,7 +814,7 @@ values, and that |first| and |last| are indices into this array
 representing the beginning and ending of a line of text.
 
 @<Glob...@>=
-static ASCII_code @!buffer[buf_size+1]; /*lines of characters being read*/
+static UTF8_code @!buffer[buf_size+1]; /*lines of characters being read*/
 static int @!first; /*the first unused position in |buffer|*/
 static int @!last; /*end of the line just input to |buffer|*/
 static int @!max_buf_stack; /*largest index used in |buffer|*/
@@ -1051,7 +873,7 @@ else{@+last_nonblank=first;
       if (max_buf_stack==buf_size)
         @<Report overflow of the input buffer, and abort@>;
       }
-    buffer[last]=xord[(*f).d];get((*f));incr(last);
+    buffer[last]=(*f).d;get((*f));incr(last);
     if (buffer[last-1]!=' ') last_nonblank=last;
     }
   last=last_nonblank;return true;
@@ -1218,19 +1040,6 @@ representation, and \TeX\ sometimes needs to be able to print an arbitrary
 ASCII character, so the first 256 strings are used to specify exactly what
 should be printed for each of the 256 possibilities.
 
-Elements of the |str_pool| array must be ASCII codes that can actually
-be printed; i.e., they must have an |xchr| equivalent in the local
-character set. (This restriction applies only to preloaded strings,
-not to those generated dynamically by the user.)
-
-Some \PASCAL\ compilers won't pack integers into a single byte unless the
-integers lie in the range |-128 dotdot 127|. To accommodate such systems
-we access the string pool only via macros that can easily be redefined.
-@^system dependencies@>
-
-@d si(A) A /*convert from |ASCII_code| to |packed_ASCII_code|*/
-@d so(A) A /*convert from |packed_ASCII_code| to |ASCII_code|*/
-
 @<Types...@>=
 typedef int32_t pool_pointer; /*for variables that point into |str_pool|*/
 typedef int32_t str_number; /*for variables that point into |str_start|*/
@@ -1268,8 +1077,8 @@ To test if there is room to append |l| more characters to |str_pool|,
 we shall write |str_room(l)|, which aborts \TeX\ and gives an
 apologetic error message if there isn't enough room.
 
-@d append_char(A)  /*put |ASCII_code| \# at the end of |str_pool|*/
-{@+str_pool[pool_ptr]=si(A);incr(pool_ptr);
+@d append_char(A)	 /*put |ASCII_code| \# at the end of |str_pool|*/
+{@+str_pool[pool_ptr]=A;incr(pool_ptr);
 }
 @d flush_char decr(pool_ptr) /*forget the last character in the pool*/
 @d str_room(A)  /*make sure that the pool hasn't overflowed*/
@@ -1297,25 +1106,22 @@ return str_ptr-1;
   }
 
 @ The following subroutine compares string |s| with another string of the
-same length that appears in |buffer| starting at position |k|;
+same length that appears in |buf|;
 the result is |true| if and only if the strings are equal.
 Empirical tests indicate that |str_eq_buf| is used in such a way that
 it tends to return |true| about 80 percent of the time.
 
-@p static bool str_eq_buf(str_number @!s, int @!k)
+@p static bool str_eq_buf(str_number @!s, char *buf)
    /*test equality of strings*/
 {@+ /*loop exit*/
 pool_pointer j; /*running index*/
-bool @!result; /*result of comparison*/
 j=str_start[s];
 while (j < str_start[s+1])
-  {@+if (so(str_pool[j])!=buffer[k])
-    {@+result=false;goto not_found;
-    }
-  incr(j);incr(k);
+  {@+if (str_pool[j]!=*buf || *buf==0)
+     return false;
+   j++;buf++;
   }
-result=true;
-not_found: return result;
+return true;
 }
 
 @ Here is a similar routine, but it compares two strings in the string pool,
@@ -1366,14 +1172,14 @@ for (k=0; k<=255; k++)
     else{@+app_lc_hex(k/16);app_lc_hex(k%16);
       }
     }
-  else append_char(k);
+  else append_utf8(k);
   make_string();
   }
 
 @ The first 128 strings will contain 95 standard ASCII characters, and the
 other 33 characters will be printed in three-symbol form like `\.{\^\^A}'
 unless a system-dependent change is made here. Installations that have
-an extended character set, where for example |xchr[032]==@t\.{\'^^Z\'}@>|,
+an extended character set
 would like string 032 to be the single character 032 instead of the
 three characters 0136, 0136, 0132 (\.{\^\^Z}). On the other hand,
 even people with an extended character set will want to represent string
@@ -1484,7 +1290,7 @@ static int @!term_offset;
    /*the number of characters on the current terminal line*/
 static int @!file_offset;
    /*the number of characters on the current file line*/
-static ASCII_code @!trick_buf[error_line+1]; /*circular buffer for
+static UTF8_code @!trick_buf[error_line+1]; /*circular buffer for
   pseudoprinting*/
 static int @!trick_count; /*threshold for pseudoprinting, explained later*/
 static int @!first_count; /*another variable for pseudoprinting*/
@@ -1506,9 +1312,6 @@ by changing |wterm|, |wterm_ln|, and |wterm_cr| in this section.
 #define @[eof(F)@]    @[feof((F).f)@]
 #define @[eoln(F)@]    @[((F).d=='\n'||eof(F))@]
 #define @[erstat(F)@]   @[((F).f==NULL?-1:ferror((F).f))@]
-
-#define @[pascal_read(F,X)@] @[((X)=(F).d,get(F))@]
-#define @[read_ln(F)@]  do get(F); while (!eoln(F))
 
 #define @[pascal_write(F, FMT,...)@]    @[fprintf(F.f,FMT,## __VA_ARGS__)@]
 #define @[write_ln(F,...)@]    @[pascal_write(F,__VA_ARGS__"\n")@]
@@ -1537,19 +1340,18 @@ default:write_ln(write_file[selector]);
 } @/
 }  /*|tally| is not affected*/
 
-@ The |print_char| procedure sends one character to the desired destination,
-using the |xchr| array to map it into an external character compatible with
-|input_ln|. All printing comes through |print_ln| or |print_char|.
+@ The |print_char| procedure sends one character to the desired destination.
+All printing comes through |print_ln| or |print_char|.
 
 @<Basic printing...@>=
-static void print_char(ASCII_code @!s) /*prints a single character*/
+static void print_char(UTF8_code @!s) /*prints a single character byte*/
 {@+
 if (@<Character |s| is the current new-line character@>)
  if (selector < pseudo)
   {@+print_ln();return;
   }
 switch (selector) {
-case term_and_log: {@+wterm("%c",xchr[s]);wlog("%c",xchr[s]);
+case term_and_log: {@+wterm("%c",s);wlog("%c",s);
   incr(term_offset);incr(file_offset);
   if (term_offset==max_print_line)
     {@+wterm_cr;term_offset=0;
@@ -1558,17 +1360,17 @@ case term_and_log: {@+wterm("%c",xchr[s]);wlog("%c",xchr[s]);
     {@+wlog_cr;file_offset=0;
     }
   } @+break;
-case log_only: {@+wlog("%c",xchr[s]);incr(file_offset);
+case log_only: {@+wlog("%c",s);incr(file_offset);
   if (file_offset==max_print_line) print_ln();
   } @+break;
-case term_only: {@+wterm("%c",xchr[s]);incr(term_offset);
+case term_only: {@+wterm("%c",s);incr(term_offset);
   if (term_offset==max_print_line) print_ln();
   } @+break;
 case no_print: do_nothing;@+break;
 case pseudo: if (tally < trick_count) trick_buf[tally%error_line]=s;@+break;
 case new_string: {@+if (pool_ptr < pool_size) append_char(s);
   } @+break; /*we drop characters if the string space is full*/
-default:pascal_write(write_file[selector],"%c", xchr[s]);
+default:pascal_write(write_file[selector],"%c", s);
 } @/
 incr(tally);
 }
@@ -1606,13 +1408,13 @@ else if (s < 0x80)
        /*temporarily disable new-line character*/
     j=str_start[s];
     while (j < str_start[s+1])
-      {@+print_char(so(str_pool[j]));incr(j);
+      {@+print_char(str_pool[j]);incr(j);
       }
     new_line_char=nl;return;
     }
 j=str_start[s];
 while (j < str_start[s+1])
-  {@+print_char(so(str_pool[j]));incr(j);
+  {@+print_char(str_pool[j]);incr(j);
   }
 }
 
@@ -1755,17 +1557,17 @@ nonnegative_integer @!u, @!v; /*mysterious numbers*/
 const char mystery[] ="m2d5c2l5x2v5i";
 j=0;v=1000;
 loop@+{@+while (n >= v)
-    {@+print_char(so(mystery[j]));n=n-v;
+    {@+print_char(mystery[j]);n=n-v;
     }
   if (n <= 0) return; /*nonpositive input produces no output*/
-  k=j+2;u=v/(so(mystery[k-1])-'0');
-  if (mystery[k-1]==si('2'))
-    {@+k=k+2;u=u/(so(mystery[k-1])-'0');
+  k=j+2;u=v/(mystery[k-1]-'0');
+  if (mystery[k-1]=='2')
+    {@+k=k+2;u=u/(mystery[k-1]-'0');
     }
   if (n+u >= v)
-    {@+print_char(so(mystery[k]));n=n+u;
+    {@+print_char(mystery[k]);n=n+u;
     }
-  else{@+j=j+2;v=v/(so(mystery[j-1])-'0');
+  else{@+j=j+2;v=v/(mystery[j-1]-'0');
     }
   }
 }
@@ -1777,7 +1579,7 @@ created. The following procedure will.
 {@+pool_pointer j; /*points to current character code*/
 j=str_start[str_ptr];
 while (j < pool_ptr)
-  {@+print_char(so(str_pool[j]));incr(j);
+  {@+print_char(str_pool[j]);incr(j);
   }
 }
 
@@ -1825,12 +1627,19 @@ it also enters into a dialog with the user, during which time the help
 message may be printed.
 @^system dependencies@>
 
+Some of the errors in original \TeX\ should go only to the log file
+and without the word |"error"| in it because humans and
+software look for it. This behaviour is implemented here to match
+the behaviour of other \TeX\ engines.
+
 @<Error handling...@>=
 static void print_ignored_err(char *s)
-{@+if (interaction==error_stop_mode) wake_up_terminal;
-  if (filelineerrorstylep) print_file_line(); /* \TeX\ Live */
-  else  print_nl("");
-  print("ignored: ");print(s);
+{@+int old_selector_ignored_err = selector;
+   selector = log_only;
+   if (filelineerrorstylep) print_file_line(); /* \TeX\ Live */
+   else print_nl("");
+   print("ignored: "); print(s);
+   selector = old_selector_ignored_err;
 }
 
 static void print_err(char *s)
@@ -1978,7 +1787,7 @@ static void jump_out(void)
 @<Error hand...@>=
 static void error(void) /*completes the job of error reporting*/
 {@+
-ASCII_code c; /*what the user types*/
+UTF8_code c; /*what the user types*/
 int @!s1, @!s2, @!s3, @!s4;
    /*used to save global variables when deleting tokens*/
 if (history < error_message_issued) history=error_message_issued;
@@ -3496,6 +3305,7 @@ harmless to let |lig_trick| and |garbage| share the same location of |mem|.
 initializing itself the slow~way.
 
 @<Local variables for init...@>=
+int i; 
 int @!k; /*index into |mem|, |eqtb|, etc.*/
 
 @ @<Initialize table entries...@>=
@@ -4532,8 +4342,6 @@ typedef struct { int16_t @!mode_field;@+
 @d head cur_list.head_field /*header node of current list*/
 @d tail cur_list.tail_field /*final node on current list*/
 @d eTeX_aux cur_list.eTeX_aux_field /*auxiliary data for \eTeX*/
-@d LR_save eTeX_aux /*LR stack when a paragraph is interrupted*/
-@d LR_box eTeX_aux /*prototype box for display*/
 @d delim_ptr eTeX_aux /*most recent left or right noad of a math left group*/
 @d prev_graf cur_list.pg_field /*number of paragraph lines accumulated*/
 @d aux cur_list.aux_field /*auxiliary data about the current list*/
@@ -5842,7 +5650,7 @@ int @!k; /*index in |buffer| array*/
 @<Compute the hash code |h|@>;
 p=h+hash_base; /*we start searching here; note that |0 <= h < hash_prime|*/
 loop@+{@+if (text(p) > 0) if (length(text(p))==l)
-    if (str_eq_buf(text(p), j)) goto found;
+    if (str_eq_buf(text(p), (char*)buffer+j)) goto found;
   if (next(p)==0)
     {@+if (no_new_control_sequence)
       p=undefined_control_sequence;
@@ -5951,7 +5759,7 @@ else{@+k=str_start[s];l=str_start[s+1]-k;
   if (first+l > buf_size+1)
       overflow("buffer size", buf_size);
 @:TeX capacity exceeded buffer size}{\quad buffer size@>
-  for (j=0; j<=l-1; j++) buffer[first+j]=so(str_pool[k+j]);
+  for (j=0; j<=l-1; j++) buffer[first+j]=str_pool[k+j];
   cur_val=id_lookup(first, l); /*|no_new_control_sequence| is |false|*/
   flush_string;text(cur_val)=s; /*we don't want to have the string twice*/
   }
@@ -6710,8 +6518,8 @@ a real control sequence named \.{BAD} would come out `\.{\\BAD\ }'.
 static void show_token_list(int @!p, int @!q, int @!l)
 {@+
 int m, @!c; /*pieces of a token*/
-ASCII_code @!match_chr; /*character used in a `|match|'*/
-ASCII_code @!n; /*the highest parameter number, as an ASCII digit*/
+UTF8_code @!match_chr; /*character used in a `|match|'*/
+UTF8_code @!n; /*the highest parameter number, as an ASCII digit*/
 match_chr='#';n='0';tally=0;
 while ((p!=null)&&(tally < l))
   {@+if (p==q) @<Do magic computation@>;
@@ -7757,7 +7565,7 @@ this routine are executed more often than any other instructions of \TeX.
 int k; /*an index into |buffer|*/
 halfword @!t; /*a token*/
 int @!cat; /*|equiv(cat_code_base+cur_chr)|, usually*/
-ASCII_code @!c, @!cc; /*constituents of a possible expanded code*/
+UTF8_code @!c, @!cc; /*constituents of a possible expanded code*/
 int @!d; /*number of excess characters in an expanded code*/
 restart: cur_cs=0;
 if (state!=token_list)
@@ -7780,7 +7588,8 @@ if (cur_cmd <= car_ret) if (cur_cmd >= tab_mark) if (align_state==0)
 @ @<Input from external file, |goto restart| if no input found@>=
 @^inner loop@>
 {@+get_cur_chr: if (loc <= limit)  /*current line not yet finished*/
-  {@+loc=utf8_get_cur_chr(buffer,loc,limit);
+  {@+int prev_loc=loc;
+  loc=utf8_get_cur_chr(buffer,loc,limit);
   reswitch: cur_cmd=cat_code(cur_chr);
   @<Change state if necessary, and |goto switch| if the current character
 should be ignored, or |goto reswitch| if the current character changes to
@@ -7904,10 +7713,23 @@ if (cur_cmd >= outer_call) check_outer_validity();
 state=mid_line;
 }
 
-@ @<Process an active-character...@>=
-{@+cur_cs=cur_chr+active_base;
-cur_cmd=eq_type(cur_cs);cur_chr=equiv(cur_cs);state=mid_line;
-if (cur_cmd >= outer_call) check_outer_validity();
+@ To distinguis a single character control sequence
+from the control sequence associated with the same active character,
+we append a single byte |0xF8| to the ``name'' of the active character
+control sequence. Sind the largest byte that starts an UTF8 code is |0xF7|
+such a control sequence name can not occur otherwise in an input file.
+
+@<Process an active-character...@>=
+{@+if (cur_chr<0x100)
+     cur_cs=cur_chr+active_base;
+   else
+   { uint8_t save_char=buffer[loc];
+     buffer[loc]=0xF8;
+     cur_cs=id_lookup(prev_loc, loc+1-prev_loc);
+     buffer[loc]=save_char;
+   }
+   cur_cmd=eq_type(cur_cs);cur_chr=equiv(cur_cs);state=mid_line;
+   if (cur_cmd >= outer_call) check_outer_validity();
 }
 
 @ Control sequence names are scanned only when they appear in some line of
@@ -7937,14 +7759,12 @@ else{@+start_cs: k=loc;k=utf8_get_cur_chr(buffer, k, limit);
 is encountered, reduce it and |goto start_cs|; otherwise if a multiletter
 control sequence is found, adjust |cur_cs| and |loc|, and |goto found|@>@;
   else@<If an expanded code is present, reduce it and |goto start_cs|@>;
-  loc=utf8_get_cur_chr(buffer, loc, limit);
+  /*single character control sequence*/
+  k=utf8_get_cur_chr(buffer, loc, limit);
   if (cur_chr<0x100)
-    cur_cs=single_base+cur_chr;
+  { cur_cs=single_base+cur_chr; loc=k; }
   else
-    fatal_error("single character control sequence above 0xff not implemented");
-    /* The simple case that we got here while scanning an alphabetic character code
-       could be handled by setting |cur_cmd| and |cur_chr| directly. 
-    */
+  { cur_cs=id_lookup(loc, k-loc); loc=k;  }
   }
 found: cur_cmd=eq_type(cur_cs);cur_chr=equiv(cur_cs);
 if (cur_cmd >= outer_call) check_outer_validity();
@@ -7958,7 +7778,7 @@ will store the corresponding UTF8 code in |buffer[(k-1)dotdot(k+2)]| and shift t
 the buffer left to close the gap.
 
 @<If an expanded...@>=
-{@+if (buffer[k]==cur_chr) @+if (cat==sup_mark) @+if (k < limit)
+{@+if (cat==sup_mark && buffer[k]==cur_chr && k < limit)
   {@+c=buffer[k+1];@+if (c < 0200)  /*yes, one is indeed present*/
     {@+d=2;
     if (is_hex(c)) @+if (k+2 <= limit)
@@ -8528,7 +8348,7 @@ int @!m; /*the number of tokens or groups (usually)*/
 pointer @!ref_count; /*start of the token list*/
 small_number @!save_scanner_status; /*|scanner_status| upon entry*/
 pointer @!save_warning_index; /*|warning_index| upon entry*/
-ASCII_code @!match_chr; /*character used in parameter*/
+UTF8_code @!match_chr; /*character used in parameter*/
 save_scanner_status=scanner_status;save_warning_index=warning_index;
 warning_index=cur_cs;ref_count=cur_chr;r=link(ref_count);n=0;
 if (tracing_macros > 0) @<Show the text of the macro being expanded@>;
@@ -8821,7 +8641,7 @@ while (*s!=0)
   {@+get_x_token(); /*recursion is possible here*/
 @^recursion@>
   if ((cur_cs==0)&&@|
-   ((cur_chr==so(*s))||(cur_chr==so(*s)-'a'+'A')))
+   ((cur_chr==*s)||(cur_chr==*s-'a'+'A')))
     {@+store_new_token(cur_tok);incr(s);
     }
   else if ((cur_cmd!=spacer)||(p!=backup_head))
@@ -9395,9 +9215,21 @@ if (cur_tok < cs_token_flag)
   }
 else if (cur_tok < cs_token_flag+single_base)
   cur_val=cur_tok-cs_token_flag-active_base;
-else cur_val=cur_tok-cs_token_flag-single_base;
+else if (cur_tok < cs_token_flag+null_cs)
+   cur_val=cur_tok-cs_token_flag-single_base;
+else /* a single UTF8 character controll sequence with a value greater than 255 */
+{ pointer p = cur_tok-cs_token_flag;
+  int t=text(p);
+  int i=str_start[t];
+  int j=str_start[t+1];
+  int k=utf8_get_cur_chr(str_pool,i,j);
+  if (k==j)
+    cur_val=cur_chr;
+  else
+    cur_val=0x110000;
+}
 if (cur_val > 0x10ffff)
-  {@+print_err("Improper alphabetic constant");
+{@+print_err("Improper alphabetic constant");
 @.Improper alphabetic constant@>
   help2("A one-character control sequence belongs after a ` mark.",@/
     "So I'm essentially inserting \\0 here.");
@@ -9826,7 +9658,7 @@ pool_pointer @!k; /*index into |str_pool|*/
 str_room(1);
 p=temp_head;link(p)=null;k=b;
 while (k < pool_ptr)
-  {@+t=so(str_pool[k]);
+  {@+t=str_pool[k];
   if (t==' ') t=space_token;
   else t=other_token+t;
   fast_store_new_token(t);
@@ -9959,7 +9791,7 @@ switch (c) {
 case number_code: print_int(cur_val);@+break;
 case roman_numeral_code: print_roman_int(cur_val);@+break;
 case string_code: if (cur_cs!=0) sprint_cs(cur_cs);
-  else print_char(cur_chr);@+break;
+  else print_utf8(cur_chr);@+break;
 case meaning_code: print_meaning();@+break;
 case font_name_code: {@+printn(font_name[cur_val]);
   if (font_size[cur_val]!=font_dsize[cur_val])
@@ -10527,14 +10359,14 @@ active characters have the smallest tokens, among all control sequences.
 
 @<Test if two characters match@>=
 {@+get_x_token_or_active_char;
-if ((cur_cmd > active_char)||(cur_chr > 255))  /*not a character*/
-  {@+m=relax;n=256;
+if ((cur_cmd > active_char)||(cur_chr > biggest_char))  /*not a character*/
+  {@+m=relax;n=biggest_char+1;
   }
 else{@+m=cur_cmd;n=cur_chr;
   }
 get_x_token_or_active_char;
-if ((cur_cmd > active_char)||(cur_chr > 255))
-  {@+cur_cmd=relax;cur_chr=256;
+if ((cur_cmd > active_char)||(cur_chr > biggest_char))
+  {@+cur_cmd=relax;cur_chr=biggest_char+1;
   }
 if (this_if==if_char_code) b=(n==cur_chr);@+else b=(m==cur_cmd);
 }
@@ -10699,18 +10531,6 @@ of the occurrences of area and extension delimiters:
 static pool_pointer @!area_delimiter; /*the most recent `\.>' or `\.:', if any*/
 static pool_pointer @!ext_delimiter; /*the relevant `\..', if any*/
 
-@ Input files that can't be found in the user's area may appear in a standard
-system area called |TEX_area|. Font metric files whose areas are not given
-explicitly are assumed to appear in a standard system area called
-|TEX_font_area|.  These system area names will, of course, vary from place
-to place.
-@^system dependencies@>
-
-@d TEX_area "TeXinputs/"
-@.TeXinputs@>
-@d TEX_font_area "TeXfonts/"
-@.TeXfonts@>
-
 @ Here now is the first of the system-dependent routines for file name scanning.
 @^system dependencies@>
 
@@ -10725,7 +10545,7 @@ being scanned, since a new \.{\\csname} might be entered; therefore we keep
 string, instead of assigning an absolute address like |pool_ptr| to them.
 @^system dependencies@>
 
-@p static bool more_name(ASCII_code @!c)
+@p static bool more_name(uint32_t @!c)
 {@+if (c==' ' && !inside_quote) return false;
 else if (c=='"') {@+ if (cur_length==0) quoted_filename=true;
   inside_quote=!inside_quote; return true; }
@@ -10773,20 +10593,20 @@ allows both lowercase and uppercase letters in the file name.
 @^system dependencies@>
 
 @d append_to_name(A) {@+c=A;incr(k);
-  if (k <= file_name_size) name_of_file[k]=xchr[c];
+  if (k <= file_name_size) name_of_file[k]=c;
   }
 
 @p static void pack_file_name(str_number @!n, str_number @!a, str_number @!e,  char *@!f)
 {@+int k; /*number of positions filled in |name_of_file|*/
-ASCII_code @!c; /*character being packed*/
+UTF8_code @!c; /*character being packed*/
 int @!j; /*index into |str_pool|*/
 k=0;
-for (j=str_start[a]; j<=str_start[a+1]-1; j++) append_to_name(so(str_pool[j]))@;
-for (j=str_start[n]; j<=str_start[n+1]-1; j++) append_to_name(so(str_pool[j]))@;
+for (j=str_start[a]; j<=str_start[a+1]-1; j++) append_to_name(str_pool[j])@;
+for (j=str_start[n]; j<=str_start[n+1]-1; j++) append_to_name(str_pool[j])@;
 if (f==NULL)
-  for (j=str_start[e]; j<=str_start[e+1]-1; j++) append_to_name(so(str_pool[j]))@;
+  for (j=str_start[e]; j<=str_start[e+1]-1; j++) append_to_name(str_pool[j])@;
 else
-  while(*f!=0) append_to_name(so(*f++))@;
+  while(*f!=0) append_to_name(*f++)@;
 if (k <= file_name_size) name_length=k;@+else name_length=file_name_size;
 name_of_file[name_length+1]=0;
 }
@@ -10835,7 +10655,7 @@ we dare not use `|str_room|'.
 if ((pool_ptr+name_length > pool_size)||(str_ptr==max_strings)||
  (cur_length > 0))
   return'?';
-else{@+for (k=1; k<=name_length; k++) append_char(xord[name_of_file[k]]);
+else{@+for (k=1; k<=name_length; k++) append_char(name_of_file[k]);
   return make_string();
   }
 }
@@ -10876,7 +10696,7 @@ name_in_progress=true;begin_name();
 @<Get the next non-blank non-relax...@>;
 if (cur_cmd==left_brace)
   @<Define a general text file name and |goto done|@>@;
-loop@+{@+if ((cur_cmd > other_char)||(cur_chr > 255))  /*not a character*/
+loop@+{@+if ((cur_cmd==relax) || (cur_cmd > other_char) || (cur_chr > biggest_char))  /*not a character*/
     {@+back_input();goto done;
     }
 #if 0
@@ -10971,19 +10791,7 @@ loop@+{@+if (k==last) goto done;
 done: end_name();
 }
 
-@ Here's an example of how these conventions are used. Whenever it is time to
-ship out a box of stuff, we shall use the macro |ensure_dvi_open|.
-
-@d ensure_dvi_open if (output_file_name==0)
-  {@+if (job_name==0) open_log_file();
-  pack_job_name(".dvi");
-  while (!b_open_out(&dvi_file))
-    prompt_file_name("file name for output",".dvi");
-  output_file_name=b_make_name_string(&dvi_file);
-  }
-
-@<Glob...@>=
-static byte_file @!dvi_file; /*the device-independent output goes here*/
+@ @<Glob...@>=
 static str_number @!output_file_name; /*full name of the output file*/
 static str_number @!log_name; /*full name of the log file*/
 
@@ -11633,10 +11441,10 @@ information is stored; |null_font| is returned in this case.
 @d abort goto bad_tfm /*do this when the \.{TFM} data is wrong*/
 
 @p static internal_font_number read_font_info(pointer @!u, str_number @!nom, str_number @!aire,
+  str_number @!ext,
   scaled @!s) /*input a font file*/
 {@+
 int k; /*index into |font_info|*/
-bool @!file_opened; /*was the file successfully opened?*/
 halfword @!lf, @!lh, @!bc, @!ec, @!nw, @!nh, @!nd, @!ni, @!nl, @!nk, @!ne, @!np;
    /*sizes of subfiles*/
 internal_font_number @!f; /*the new font's number*/
@@ -11647,17 +11455,27 @@ int @!bch_label; /*left boundary start location, or infinity*/
 int @!bchar; /*boundary character, or 256*/
 scaled @!z; /*the design size or the ``at'' size*/
 int @!alpha;int @!beta;  /*auxiliary quantities used in fixed-point multiplication*/
-char* path = NULL; /*the path of the new font file*/
+
 g=null_font;@/
-file_opened=false;
 @<Read and check the font data; |abort| if the font file is malformed;
 if there's no room for this font, say so and |goto done|; otherwise |incr(font_ptr)|
 and |goto done|@>;
-bad_tfm: @<Report that the font won't be loaded@>;
+bad_tfm: @<Report a bad tfm file@>;
 done: if (tfm_file.f!=NULL) b_close(&tfm_file);
-@<Trace the new font@>@;
 return g;
 }
+
+static internal_font_number read_extended_font(pointer @!u, str_number @!nom, str_number @!aire,
+  str_number @!ext,
+  scaled @!s, char * path) /*input a font file*/
+{ 
+  internal_font_number @!g=null_font; /*the number to return*/
+  @<load an extended font@>@;
+  done:
+  @<Trace the new extended font@>@;
+  return g;
+}
+
 
 @ There are programs called \.{TFtoPL} and \.{PLtoTF} that convert
 between the \.{TFM} format and a symbolic property-list format
@@ -11675,11 +11493,10 @@ precise details about why it rejects a particular \.{TFM} file.
     {@+print(" scaled ");print_int(-s);
     }
 
-@<Report that the font won't be loaded@>=
+@<Report a bad tfm file@>=
 start_font_error_message;
 @.Font x=xx not loadable...@>
-if (file_opened) print(" not loadable: Bad font file");
-else print(" not loadable: font file not found");
+print(" not loadable: Bad font file");
 help5("I wasn't able to read the data for this font,",@/
 "so I will ignore the font specification.",@/
 "[Wizards can fix TFM files using TFtoPL/PLtoTF.]",@/
@@ -11687,9 +11504,9 @@ help5("I wasn't able to read the data for this font,",@/
 "e.g., type `I\\font<same font id>=<substitute font name>'.");
 error()
 
+
+
 @ @<Read and check...@>=
-@<Open |tfm_file| for input@>;
-if (file_opened) {
 @<Read the {\.{TFM}} size fields@>;
 @<Use size fields to allocate font information@>;
 @<Read the {\.{TFM}} header@>;
@@ -11699,14 +11516,11 @@ if (file_opened) {
 @<Read extensible character recipes@>;
 @<Read font parameters@>;
 @<Make final adjustments and |goto done|@>@;
-}
-else
-@<Open an extended font file for input@>@;
 
 @ @<Open |tfm_file| for input@>=
-pack_file_name(nom, empty_string,empty_string,".tfm"); /* \TeX\ Live */
+pack_file_name(cur_name, empty_string,empty_string,".tfm"); /* \TeX\ Live */
 path=kpse_find_file((char*)name_of_file+1, kpse_tfm_format, 0);
-if (path!=NULL && b_open_in(&tfm_file)) file_opened=true;
+if (path!=NULL && b_open_in(&tfm_file,path)) file_opened=true;
 
 @ Note: A malformed \.{TFM} file might be shorter than it claims to be;
 thus |eof(tfm_file)| might be true when |read_font_info| refers to
@@ -12023,7 +11837,7 @@ character node is not created; thus the output routine can assume
 that characters exist when it sees them. The following procedure
 prints a warning message unless the user has suppressed it.
 
-@p static void char_warning(internal_font_number @!f, eight_bits @!c)
+@p static void char_warning(internal_font_number @!f, uint32_t @!c)
 {@+int old_setting; /*saved value of |tracing_online|*/
 if (tracing_lost_chars > 0)
  {@+old_setting=tracing_online;
@@ -12031,7 +11845,7 @@ if (tracing_lost_chars > 0)
   {@+begin_diagnostic();
   print_nl("Missing character: There is no ");
 @.Missing character@>
-  print_ASCII(c);print(" in font ");
+  print_utf8(c);print(" in font ");
   slow_print(font_name[f]);print_char('!');end_diagnostic(false);
   }
  tracing_online=old_setting;
@@ -12042,12 +11856,12 @@ if (tracing_lost_chars > 0)
 given character in a given font. If that character doesn't exist,
 |null| is returned instead.
 
-@p static pointer new_character(internal_font_number @!f, eight_bits @!c)
+@p static pointer new_character(internal_font_number @!f, uint32_t @!c)
 {@+
 pointer p; /*newly allocated node*/
 if (font_bc[f] <= c) if (font_ec[f] >= c)
-  if (char_exists(f, qi(c)))
-    {@+p=get_avail();font(p)=f;character(p)=qi(c);
+  if (char_exists(f, c))
+    {@+p=get_avail();font(p)=f;character(p)=c;
     return p;
     }
 char_warning(f, c);
@@ -12103,299 +11917,6 @@ first page occupies bytes 100 to 999, say, and if the second
 page occupies bytes 1000 to 1999, then the |bop| that starts in byte 1000
 points to 100 and the |bop| that starts in byte 2000 points to 1000. (The
 very first |bop|, i.e., the one starting in byte 100, has a pointer of~$-1$.)
-
-@ The \.{DVI} format is intended to be both compact and easily interpreted
-by a machine. Compactness is achieved by making most of the information
-implicit instead of explicit. When a \.{DVI}-reading program reads the
-commands for a page, it keeps track of several quantities: (a)~The current
-font |f| is an integer; this value is changed only
-by \\{fnt} and \\{fnt\_num} commands. (b)~The current position on the page
-is given by two numbers called the horizontal and vertical coordinates,
-|h| and |v|. Both coordinates are zero at the upper left corner of the page;
-moving to the right corresponds to increasing the horizontal coordinate, and
-moving down corresponds to increasing the vertical coordinate. Thus, the
-coordinates are essentially Cartesian, except that vertical directions are
-flipped; the Cartesian version of |(h, v)| would be |(h,-v)|.  (c)~The
-current spacing amounts are given by four numbers |w|, |x|, |y|, and |z|,
-where |w| and~|x| are used for horizontal spacing and where |y| and~|z|
-are used for vertical spacing. (d)~There is a stack containing
-|(h, v, w, x, y, z)| values; the \.{DVI} commands |push| and |pop| are used to
-change the current level of operation. Note that the current font~|f| is
-not pushed and popped; the stack contains only information about
-positioning.
-
-The values of |h|, |v|, |w|, |x|, |y|, and |z| are signed integers having up
-to 32 bits, including the sign. Since they represent physical distances,
-there is a small unit of measurement such that increasing |h| by~1 means
-moving a certain tiny distance to the right. The actual unit of
-measurement is variable, as explained below; \TeX\ sets things up so that
-its \.{DVI} output is in sp units, i.e., scaled points, in agreement with
-all the |scaled| dimensions in \TeX's data structures.
-
-@ Here is a list of all the commands that may appear in a \.{DVI} file. Each
-command is specified by its symbolic name (e.g., |bop|), its opcode byte
-(e.g., 139), and its parameters (if any). The parameters are followed
-by a bracketed number telling how many bytes they occupy; for example,
-`|p[4]|' means that parameter |p| is four bytes long.
-
-\yskip\hang|set_char_0| 0. Typeset character number~0 from font~|f|
-such that the reference point of the character is at |(h, v)|. Then
-increase |h| by the width of that character. Note that a character may
-have zero or negative width, so one cannot be sure that |h| will advance
-after this command; but |h| usually does increase.
-
-\yskip\hang\\{set\_char\_1} through \\{set\_char\_127} (opcodes 1 to 127).
-Do the operations of |set_char_0|; but use the character whose number
-matches the opcode, instead of character~0.
-
-\yskip\hang|set1| 128 |c[1]|. Same as |set_char_0|, except that character
-number~|c| is typeset. \TeX82 uses this command for characters in the
-range |128 <= c < 256|.
-
-\yskip\hang|@!set2| 129 |c[2]|. Same as |set1|, except that |c|~is two
-bytes long, so it is in the range |0 <= c < 65536|. \TeX82 never uses this
-command, but it should come in handy for extensions of \TeX\ that deal
-with oriental languages.
-@^oriental characters@>@^Chinese characters@>@^Japanese characters@>
-
-\yskip\hang|@!set3| 130 |c[3]|. Same as |set1|, except that |c|~is three
-bytes long, so it can be as large as $2^{24}-1$. Not even the Chinese
-language has this many characters, but this command might prove useful
-in some yet unforeseen extension.
-
-\yskip\hang|@!set4| 131 |c[4]|. Same as |set1|, except that |c|~is four
-bytes long. Imagine that.
-
-\yskip\hang|set_rule| 132 |a[4]| |b[4]|. Typeset a solid black rectangle
-of height~|a| and width~|b|, with its bottom left corner at |(h, v)|. Then
-set |h=h+b|. If either |a <= 0| or |b <= 0|, nothing should be typeset. Note
-that if |b < 0|, the value of |h| will decrease even though nothing else happens.
-See below for details about how to typeset rules so that consistency with
-\MF\ is guaranteed.
-
-\yskip\hang|@!put1| 133 |c[1]|. Typeset character number~|c| from font~|f|
-such that the reference point of the character is at |(h, v)|. (The `put'
-commands are exactly like the `set' commands, except that they simply put out a
-character or a rule without moving the reference point afterwards.)
-
-\yskip\hang|@!put2| 134 |c[2]|. Same as |set2|, except that |h| is not changed.
-
-\yskip\hang|@!put3| 135 |c[3]|. Same as |set3|, except that |h| is not changed.
-
-\yskip\hang|@!put4| 136 |c[4]|. Same as |set4|, except that |h| is not changed.
-
-\yskip\hang|put_rule| 137 |a[4]| |b[4]|. Same as |set_rule|, except that
-|h| is not changed.
-
-\yskip\hang|nop| 138. No operation, do nothing. Any number of |nop|'s
-may occur between \.{DVI} commands, but a |nop| cannot be inserted between
-a command and its parameters or between two parameters.
-
-\yskip\hang|bop| 139 $c_0[4]$ $c_1[4]$ $\ldots$ $c_9[4]$ $p[4]$. Beginning
-of a page: Set |(h, v, w, x, y, z)=(0, 0, 0, 0, 0, 0)| and set the stack empty. Set
-the current font |f| to an undefined value.  The ten $c_i$ parameters hold
-the values of \.{\\count0} $\ldots$ \.{\\count9} in \TeX\ at the time
-\.{\\shipout} was invoked for this page; they can be used to identify
-pages, if a user wants to print only part of a \.{DVI} file. The parameter
-|p| points to the previous |bop| in the file; the first
-|bop| has $p=-1$.
-
-\yskip\hang|eop| 140.  End of page: Print what you have read since the
-previous |bop|. At this point the stack should be empty. (The \.{DVI}-reading
-programs that drive most output devices will have kept a buffer of the
-material that appears on the page that has just ended. This material is
-largely, but not entirely, in order by |v| coordinate and (for fixed |v|) by
-|h|~coordinate; so it usually needs to be sorted into some order that is
-appropriate for the device in question.)
-
-\yskip\hang|push| 141. Push the current values of |(h, v, w, x, y, z)| onto the
-top of the stack; do not change any of these values. Note that |f| is
-not pushed.
-
-\yskip\hang|pop| 142. Pop the top six values off of the stack and assign
-them respectively to |(h, v, w, x, y, z)|. The number of pops should never
-exceed the number of pushes, since it would be highly embarrassing if the
-stack were empty at the time of a |pop| command.
-
-\yskip\hang|right1| 143 |b[1]|. Set |h=h+b|, i.e., move right |b| units.
-The parameter is a signed number in two's complement notation, |-128 <= b < 128|;
-if |b < 0|, the reference point moves left.
-
-\yskip\hang|@!right2| 144 |b[2]|. Same as |right1|, except that |b| is a
-two-byte quantity in the range |-32768 <= b < 32768|.
-
-\yskip\hang|@!right3| 145 |b[3]|. Same as |right1|, except that |b| is a
-three-byte quantity in the range |@t$-2^{23}$@> <= b < @t$2^{23}$@>|.
-
-\yskip\hang|@!right4| 146 |b[4]|. Same as |right1|, except that |b| is a
-four-byte quantity in the range |@t$-2^{31}$@> <= b < @t$2^{31}$@>|.
-
-\yskip\hang|w0| 147. Set |h=h+w|; i.e., move right |w| units. With luck,
-this parameterless command will usually suffice, because the same kind of motion
-will occur several times in succession; the following commands explain how
-|w| gets particular values.
-
-\yskip\hang|w1| 148 |b[1]|. Set |w=b| and |h=h+b|. The value of |b| is a
-signed quantity in two's complement notation, |-128 <= b < 128|. This command
-changes the current |w|~spacing and moves right by |b|.
-
-\yskip\hang|@!w2| 149 |b[2]|. Same as |w1|, but |b| is two bytes long,
-|-32768 <= b < 32768|.
-
-\yskip\hang|@!w3| 150 |b[3]|. Same as |w1|, but |b| is three bytes long,
-|@t$-2^{23}$@> <= b < @t$2^{23}$@>|.
-
-\yskip\hang|@!w4| 151 |b[4]|. Same as |w1|, but |b| is four bytes long,
-|@t$-2^{31}$@> <= b < @t$2^{31}$@>|.
-
-\yskip\hang|x0| 152. Set |h=h+x|; i.e., move right |x| units. The `|x|'
-commands are like the `|w|' commands except that they involve |x| instead
-of |w|.
-
-\yskip\hang|x1| 153 |b[1]|. Set |x=b| and |h=h+b|. The value of |b| is a
-signed quantity in two's complement notation, |-128 <= b < 128|. This command
-changes the current |x|~spacing and moves right by |b|.
-
-\yskip\hang|@!x2| 154 |b[2]|. Same as |x1|, but |b| is two bytes long,
-|-32768 <= b < 32768|.
-
-\yskip\hang|@!x3| 155 |b[3]|. Same as |x1|, but |b| is three bytes long,
-|@t$-2^{23}$@> <= b < @t$2^{23}$@>|.
-
-\yskip\hang|@!x4| 156 |b[4]|. Same as |x1|, but |b| is four bytes long,
-|@t$-2^{31}$@> <= b < @t$2^{31}$@>|.
-
-\yskip\hang|down1| 157 |a[1]|. Set |v=v+a|, i.e., move down |a| units.
-The parameter is a signed number in two's complement notation, |-128 <= a < 128|;
-if |a < 0|, the reference point moves up.
-
-\yskip\hang|@!down2| 158 |a[2]|. Same as |down1|, except that |a| is a
-two-byte quantity in the range |-32768 <= a < 32768|.
-
-\yskip\hang|@!down3| 159 |a[3]|. Same as |down1|, except that |a| is a
-three-byte quantity in the range |@t$-2^{23}$@> <= a < @t$2^{23}$@>|.
-
-\yskip\hang|@!down4| 160 |a[4]|. Same as |down1|, except that |a| is a
-four-byte quantity in the range |@t$-2^{31}$@> <= a < @t$2^{31}$@>|.
-
-\yskip\hang|y0| 161. Set |v=v+y|; i.e., move down |y| units. With luck,
-this parameterless command will usually suffice, because the same kind of motion
-will occur several times in succession; the following commands explain how
-|y| gets particular values.
-
-\yskip\hang|y1| 162 |a[1]|. Set |y=a| and |v=v+a|. The value of |a| is a
-signed quantity in two's complement notation, |-128 <= a < 128|. This command
-changes the current |y|~spacing and moves down by |a|.
-
-\yskip\hang|@!y2| 163 |a[2]|. Same as |y1|, but |a| is two bytes long,
-|-32768 <= a < 32768|.
-
-\yskip\hang|@!y3| 164 |a[3]|. Same as |y1|, but |a| is three bytes long,
-|@t$-2^{23}$@> <= a < @t$2^{23}$@>|.
-
-\yskip\hang|@!y4| 165 |a[4]|. Same as |y1|, but |a| is four bytes long,
-|@t$-2^{31}$@> <= a < @t$2^{31}$@>|.
-
-\yskip\hang|z0| 166. Set |v=v+z|; i.e., move down |z| units. The `|z|' commands
-are like the `|y|' commands except that they involve |z| instead of |y|.
-
-\yskip\hang|z1| 167 |a[1]|. Set |z=a| and |v=v+a|. The value of |a| is a
-signed quantity in two's complement notation, |-128 <= a < 128|. This command
-changes the current |z|~spacing and moves down by |a|.
-
-\yskip\hang|@!z2| 168 |a[2]|. Same as |z1|, but |a| is two bytes long,
-|-32768 <= a < 32768|.
-
-\yskip\hang|@!z3| 169 |a[3]|. Same as |z1|, but |a| is three bytes long,
-|@t$-2^{23}$@> <= a < @t$2^{23}$@>|.
-
-\yskip\hang|@!z4| 170 |a[4]|. Same as |z1|, but |a| is four bytes long,
-|@t$-2^{31}$@> <= a < @t$2^{31}$@>|.
-
-\yskip\hang|fnt_num_0| 171. Set |f=0|. Font 0 must previously have been
-defined by a \\{fnt\_def} instruction, as explained below.
-
-\yskip\hang\\{fnt\_num\_1} through \\{fnt\_num\_63} (opcodes 172 to 234). Set
-|f=1|, \dots, \hbox{|f=63|}, respectively.
-
-\yskip\hang|fnt1| 235 |k[1]|. Set |f=k|. \TeX82 uses this command for font
-numbers in the range |64 <= k < 256|.
-
-\yskip\hang|@!fnt2| 236 |k[2]|. Same as |fnt1|, except that |k|~is two
-bytes long, so it is in the range |0 <= k < 65536|. \TeX82 never generates this
-command, but large font numbers may prove useful for specifications of
-color or texture, or they may be used for special fonts that have fixed
-numbers in some external coding scheme.
-
-\yskip\hang|@!fnt3| 237 |k[3]|. Same as |fnt1|, except that |k|~is three
-bytes long, so it can be as large as $2^{24}-1$.
-
-\yskip\hang|@!fnt4| 238 |k[4]|. Same as |fnt1|, except that |k|~is four
-bytes long; this is for the really big font numbers (and for the negative ones).
-
-\yskip\hang|xxx1| 239 |k[1]| |x[k]|. This command is undefined in
-general; it functions as a $(k+2)$-byte |nop| unless special \.{DVI}-reading
-programs are being used. \TeX82 generates |xxx1| when a short enough
-\.{\\special} appears, setting |k| to the number of bytes being sent. It
-is recommended that |x| be a string having the form of a keyword followed
-by possible parameters relevant to that keyword.
-
-\yskip\hang|@!xxx2| 240 |k[2]| |x[k]|. Like |xxx1|, but |0 <= k < 65536|.
-
-\yskip\hang|@!xxx3| 241 |k[3]| |x[k]|. Like |xxx1|, but |0 <= k < @t$2^{24}$@>|.
-
-\yskip\hang|xxx4| 242 |k[4]| |x[k]|. Like |xxx1|, but |k| can be ridiculously
-large. \TeX82 uses |xxx4| when sending a string of length 256 or more.
-
-\yskip\hang|fnt_def1| 243 |k[1]| |c[4]| |s[4]| |d[4]| |a[1]| |l[1]| |n[a+l]|.
-Define font |k|, where |0 <= k < 256|; font definitions will be explained shortly.
-
-\yskip\hang|@!fnt_def2| 244 |k[2]| |c[4]| |s[4]| |d[4]| |a[1]| |l[1]| |n[a+l]|.
-Define font |k|, where |0 <= k < 65536|.
-
-\yskip\hang|@!fnt_def3| 245 |k[3]| |c[4]| |s[4]| |d[4]| |a[1]| |l[1]| |n[a+l]|.
-Define font |k|, where |0 <= k < @t$2^{24}$@>|.
-
-\yskip\hang|@!fnt_def4| 246 |k[4]| |c[4]| |s[4]| |d[4]| |a[1]| |l[1]| |n[a+l]|.
-Define font |k|, where |@t$-2^{31}$@> <= k < @t$2^{31}$@>|.
-
-\yskip\hang|pre| 247 |i[1]| |num[4]| |den[4]| |mag[4]| |k[1]| |x[k]|.
-Beginning of the preamble; this must come at the very beginning of the
-file. Parameters |i|, |num|, |den|, |mag|, |k|, and |x| are explained below.
-
-\yskip\hang|post| 248. Beginning of the postamble, see below.
-
-\yskip\hang|post_post| 249. Ending of the postamble, see below.
-
-\yskip\noindent Commands 250--255 are undefined at the present time.
-
-@ @d set_char_0 0 /*typeset character 0 and move right*/
-@d set1 128 /*typeset a character and move right*/
-@d set_rule 132 /*typeset a rule and move right*/
-@d put_rule 137 /*typeset a rule*/
-@d nop 138 /*no operation*/
-@d bop 139 /*beginning of page*/
-@d eop 140 /*ending of page*/
-@d push 141 /*save the current positions*/
-@d pop 142 /*restore previous positions*/
-@d right1 143 /*move right*/
-@d w0 147 /*move right by |w|*/
-@d w1 148 /*move right and set |w|*/
-@d x0 152 /*move right by |x|*/
-@d x1 153 /*move right and set |x|*/
-@d down1 157 /*move down*/
-@d y0 161 /*move down by |y|*/
-@d y1 162 /*move down and set |y|*/
-@d z0 166 /*move down by |z|*/
-@d z1 167 /*move down and set |z|*/
-@d fnt_num_0 171 /*set current font to 0*/
-@d fnt1 235 /*set current font*/
-@d xxx1 239 /*extension to \.{DVI} primitives*/
-@d xxx4 242 /*potentially long extension to \.{DVI} primitives*/
-@d fnt_def1 243 /*define the meaning of a font number*/
-@d pre 247 /*preamble*/
-@d post 248 /*postamble beginning*/
-@d post_post 249 /*postamble ending*/
 
 @ The preamble contains basic information about the file as a whole. As
 stated above, there are six parameters:
@@ -12585,801 +12106,16 @@ static int @!max_push; /*deepest nesting of |push| commands encountered so far*/
 static int @!last_bop; /*location of previous |bop| in the \.{DVI} output*/
 static int @!dead_cycles; /*recent outputs that didn't ship anything out*/
 static bool @!doing_leaders; /*are we inside a leader box?*/
-@#
-static quarterword @!c, @!f; /*character and font in current |char_node|*/
-static scaled @!rule_ht, @!rule_dp, @!rule_wd; /*size of current rule being output*/
-static pointer @!g; /*current glue specification*/
-static int @!lq, @!lr; /*quantities used in calculations for leaders*/
+
 
 @ @<Set init...@>=
 total_pages=0;max_v=0;max_h=0;max_push=0;last_bop=-1;
-doing_leaders=false;dead_cycles=0;cur_s=-1;
+doing_leaders=false;dead_cycles=0;
 
-@ The \.{DVI} bytes are output to a buffer instead of being written directly
-to the output file. This makes it possible to reduce the overhead of
-subroutine calls, thereby measurably speeding up the computation, since
-output of \.{DVI} bytes is part of \TeX's inner loop. And it has another
-advantage as well, since we can change instructions in the buffer in order to
-make the output more compact. For example, a `|down2|' command can be
-changed to a `|y2|', thereby making a subsequent `|y0|' command possible,
-saving two bytes.
 
-The output buffer is divided into two parts of equal size; the bytes found
-in |dvi_buf[0 dotdot half_buf-1]| constitute the first half, and those in
-|dvi_buf[half_buf dotdot dvi_buf_size-1]| constitute the second. The global
-variable |dvi_ptr| points to the position that will receive the next
-output byte. When |dvi_ptr| reaches |dvi_limit|, which is always equal
-to one of the two values |half_buf| or |dvi_buf_size|, the half buffer that
-is about to be invaded next is sent to the output and |dvi_limit| is
-changed to its other value. Thus, there is always at least a half buffer's
-worth of information present, except at the very beginning of the job.
 
-Bytes of the \.{DVI} file are numbered sequentially starting with 0;
-the next byte to be generated will be number |dvi_offset+dvi_ptr|.
-A byte is present in the buffer only if its number is | >= dvi_gone|.
+@ @p @t\4@>@<Declare procedures needed in |hlist_out|, |vlist_out|@>@t@>@/
 
-@<Types...@>=
-typedef int16_t dvi_index; /*an index into the output buffer*/
-
-@ Some systems may find it more efficient to make |dvi_buf| a ||
-array, since output of four bytes at once may be facilitated.
-@^system dependencies@>
-
-@<Glob...@>=
-static eight_bits @!dvi_buf[dvi_buf_size+1]; /*buffer for \.{DVI} output*/
-static dvi_index @!half_buf; /*half of |dvi_buf_size|*/
-static dvi_index @!dvi_limit; /*end of the current half buffer*/
-static dvi_index @!dvi_ptr; /*the next available buffer address*/
-static int @!dvi_offset; /*|dvi_buf_size| times the number of times the
-  output buffer has been fully emptied*/
-static int @!dvi_gone; /*the number of bytes already output to |dvi_file|*/
-
-@ Initially the buffer is all in one piece; we will output half of it only
-after it first fills up.
-
-@<Set init...@>=
-half_buf=dvi_buf_size/2;dvi_limit=dvi_buf_size;dvi_ptr=0;
-dvi_offset=0;dvi_gone=0;
-
-@ The actual output of |dvi_buf[a dotdot b]| to |dvi_file| is performed by calling
-|write_dvi(a, b)|. For best results, this procedure should be optimized to
-run as fast as possible on each particular system, since it is part of
-\TeX's inner loop. It is safe to assume that |a| and |b+1| will both be
-multiples of 4 when |write_dvi(a, b)| is called; therefore it is possible on
-many machines to use efficient methods to pack four bytes per word and to
-output an array of words with one system call.
-@^system dependencies@>
-@^inner loop@>
-@^defecation@>
-
-@p static void write_dvi(dvi_index @!a, dvi_index @!b)
-{@+int k;
-for (k=a; k<=b; k++) pascal_write(dvi_file, "%c", dvi_buf[k]);
-}
-
-@ To put a byte in the buffer without paying the cost of invoking a procedure
-each time, we use the macro |dvi_out|.
-
-@d dvi_out(A) @+{@+dvi_buf[dvi_ptr]=A;incr(dvi_ptr);
-  if (dvi_ptr==dvi_limit) dvi_swap();
-  }
-
-@p static void dvi_swap(void) /*outputs half of the buffer*/
-{@+if (dvi_limit==dvi_buf_size)
-  {@+write_dvi(0, half_buf-1);dvi_limit=half_buf;
-  dvi_offset=dvi_offset+dvi_buf_size;dvi_ptr=0;
-  }
-else{@+write_dvi(half_buf, dvi_buf_size-1);dvi_limit=dvi_buf_size;
-  }
-dvi_gone=dvi_gone+half_buf;
-}
-
-
-@ The |dvi_four| procedure outputs four bytes in two's complement notation,
-without risking arithmetic overflow.
-
-@p static void dvi_four(int @!x)
-{@+if (x >= 0) dvi_out(x/0100000000)@;
-else{@+x=x+010000000000;
-  x=x+010000000000;
-  dvi_out((x/0100000000)+128);
-  }
-x=x%0100000000;dvi_out(x/0200000);
-x=x%0200000;dvi_out(x/0400);
-dvi_out(x%0400);
-}
-
-@ A mild optimization of the output is performed by the |dvi_pop|
-routine, which issues a |pop| unless it is possible to cancel a
-`|push| |pop|' pair. The parameter to |dvi_pop| is the byte address
-following the old |push| that matches the new |pop|.
-
-@p static void dvi_pop(int @!l)
-{@+if ((l==dvi_offset+dvi_ptr)&&(dvi_ptr > 0)) decr(dvi_ptr);
-else dvi_out(pop);
-}
-
-@ Here's a procedure that outputs a font definition. Since \TeX82 uses at
-most 256 different fonts per job, |fnt_def1| is always used as the command code.
-
-@p static void dvi_font_def(internal_font_number @!f)
-{@+int k; /*index into |str_pool|*/
-dvi_out(fnt_def1);
-dvi_out(f-font_base-1);@/
-dvi_out(qo(font_check[f].b0));
-dvi_out(qo(font_check[f].b1));
-dvi_out(qo(font_check[f].b2));
-dvi_out(qo(font_check[f].b3));@/
-dvi_four(font_size[f]);
-dvi_four(font_dsize[f]);@/
-dvi_out(length(font_area[f]));
-dvi_out(length(font_name[f]));
-@<Output the font name whose internal number is |f|@>;
-}
-
-@ @<Output the font name whose internal number is |f|@>=
-for (k=str_start[font_area[f]]; k<=str_start[font_area[f]+1]-1; k++)
-  dvi_out(so(str_pool[k]));
-for (k=str_start[font_name[f]]; k<=str_start[font_name[f]+1]-1; k++)
-  dvi_out(so(str_pool[k]))
-
-@ Versions of \TeX\ intended for small computers might well choose to omit
-the ideas in the next few parts of this program, since it is not really
-necessary to optimize the \.{DVI} code by making use of the |w0|, |x0|,
-|y0|, and |z0| commands. Furthermore, the algorithm that we are about to
-describe does not pretend to give an optimum reduction in the length
-of the \.{DVI} code; after all, speed is more important than compactness.
-But the method is surprisingly effective, and it takes comparatively little
-time.
-
-We can best understand the basic idea by first considering a simpler problem
-that has the same essential characteristics. Given a sequence of digits,
-say $3\,1\,4\,1\,5\,9\,2\,6\,5\,3\,5\,8\,9$, we want to assign subscripts
-$d$, $y$, or $z$ to each digit so as to maximize the number of ``$y$-hits''
-and ``$z$-hits''; a $y$-hit is an instance of two appearances of the same
-digit with the subscript $y$, where no $y$'s intervene between the two
-appearances, and a $z$-hit is defined similarly. For example, the sequence
-above could be decorated with subscripts as follows:
-$$3_z\,1_y\,4_d\,1_y\,5_y\,9_d\,2_d\,6_d\,5_y\,3_z\,5_y\,8_d\,9_d.$$
-There are three $y$-hits ($1_y\ldots1_y$ and $5_y\ldots5_y\ldots5_y$) and
-one $z$-hit ($3_z\ldots3_z$); there are no $d$-hits, since the two appearances
-of $9_d$ have $d$'s between them, but we don't count $d$-hits so it doesn't
-matter how many there are. These subscripts are analogous to the \.{DVI}
-commands called \\{down}, $y$, and $z$, and the digits are analogous to
-different amounts of vertical motion; a $y$-hit or $z$-hit corresponds to
-the opportunity to use the one-byte commands |y0| or |z0| in a \.{DVI} file.
-
-\TeX's method of assigning subscripts works like this: Append a new digit,
-say $\delta$, to the right of the sequence. Now look back through the
-sequence until one of the following things happens: (a)~You see
-$\delta_y$ or $\delta_z$, and this was the first time you encountered a
-$y$ or $z$ subscript, respectively.  Then assign $y$ or $z$ to the new
-$\delta$; you have scored a hit. (b)~You see $\delta_d$, and no $y$
-subscripts have been encountered so far during this search.  Then change
-the previous $\delta_d$ to $\delta_y$ (this corresponds to changing a
-command in the output buffer), and assign $y$ to the new $\delta$; it's
-another hit.  (c)~You see $\delta_d$, and a $y$ subscript has been seen
-but not a $z$.  Change the previous $\delta_d$ to $\delta_z$ and assign
-$z$ to the new $\delta$. (d)~You encounter both $y$ and $z$ subscripts
-before encountering a suitable $\delta$, or you scan all the way to the
-front of the sequence. Assign $d$ to the new $\delta$; this assignment may
-be changed later.
-
-The subscripts $3_z\,1_y\,4_d\ldots\,$ in the example above were, in fact,
-produced by this procedure, as the reader can verify. (Go ahead and try it.)
-
-@ In order to implement such an idea, \TeX\ maintains a stack of pointers
-to the \\{down}, $y$, and $z$ commands that have been generated for the
-current page. And there is a similar stack for \\{right}, |w|, and |x|
-commands. These stacks are called the down stack and right stack, and their
-top elements are maintained in the variables |down_ptr| and |right_ptr|.
-
-Each entry in these stacks contains four fields: The |width| field is
-the amount of motion down or to the right; the |location| field is the
-byte number of the \.{DVI} command in question (including the appropriate
-|dvi_offset|); the |link| field points to the next item below this one
-on the stack; and the |info| field encodes the options for possible change
-in the \.{DVI} command.
-
-@d movement_node_size 3 /*number of words per entry in the down and right stacks*/
-@d location(A) mem[A+2].i /*\.{DVI} byte number for a movement command*/
-
-@<Glob...@>=
-static pointer @!down_ptr, @!right_ptr; /*heads of the down and right stacks*/
-
-@ @<Set init...@>=
-down_ptr=null;right_ptr=null;
-
-@ Here is a subroutine that produces a \.{DVI} command for some specified
-downward or rightward motion. It has two parameters: |w| is the amount
-of motion, and |o| is either |down1| or |right1|. We use the fact that
-the command codes have convenient arithmetic properties: |y1-down1==w1-right1|
-and |z1-down1==x1-right1|.
-
-@p static void movement(scaled @!w, eight_bits @!o)
-{@+
-small_number mstate; /*have we seen a |y| or |z|?*/
-pointer @!p, @!q; /*current and top nodes on the stack*/
-int @!k; /*index into |dvi_buf|, modulo |dvi_buf_size|*/
-q=get_node(movement_node_size); /*new node for the top of the stack*/
-width(q)=w;location(q)=dvi_offset+dvi_ptr;
-if (o==down1)
-  {@+link(q)=down_ptr;down_ptr=q;
-  }
-else{@+link(q)=right_ptr;right_ptr=q;
-  }
-@<Look at the other stack entries until deciding what sort of \.{DVI} command
-to generate; |goto found| if node |p| is a ``hit''@>;
-@<Generate a |down| or |right| command for |w| and |return|@>;
-found: @<Generate a |y0| or |z0| command in order to reuse a previous appearance
-of~|w|@>;
-}
-
-@ The |info| fields in the entries of the down stack or the right stack
-have six possible settings: |y_here| or |z_here| mean that the \.{DVI}
-command refers to |y| or |z|, respectively (or to |w| or |x|, in the
-case of horizontal motion); |yz_OK| means that the \.{DVI} command is
-\\{down} (or \\{right}) but can be changed to either |y| or |z| (or
-to either |w| or |x|); |y_OK| means that it is \\{down} and can be changed
-to |y| but not |z|; |z_OK| is similar; and |d_fixed| means it must stay
-\\{down}.
-
-The four settings |yz_OK|, |y_OK|, |z_OK|, |d_fixed| would not need to
-be distinguished from each other if we were simply solving the
-digit-subscripting problem mentioned above. But in \TeX's case there is
-a complication because of the nested structure of |push| and |pop|
-commands. Suppose we add parentheses to the digit-subscripting problem,
-redefining hits so that $\delta_y\ldots \delta_y$ is a hit if all $y$'s between
-the $\delta$'s are enclosed in properly nested parentheses, and if the
-parenthesis level of the right-hand $\delta_y$ is deeper than or equal to
-that of the left-hand one. Thus, `(' and `)' correspond to `|push|'
-and `|pop|'. Now if we want to assign a subscript to the final 1 in the
-sequence
-$$2_y\,7_d\,1_d\,(\,8_z\,2_y\,8_z\,)\,1$$
-we cannot change the previous $1_d$ to $1_y$, since that would invalidate
-the $2_y\ldots2_y$ hit. But we can change it to $1_z$, scoring a hit
-since the intervening $8_z$'s are enclosed in parentheses.
-
-The program below removes movement nodes that are introduced after a |push|,
-before it outputs the corresponding |pop|.
-
-@d y_here 1 /*|info| when the movement entry points to a |y| command*/
-@d z_here 2 /*|info| when the movement entry points to a |z| command*/
-@d yz_OK 3 /*|info| corresponding to an unconstrained \\{down} command*/
-@d y_OK 4 /*|info| corresponding to a \\{down} that can't become a |z|*/
-@d z_OK 5 /*|info| corresponding to a \\{down} that can't become a |y|*/
-@d d_fixed 6 /*|info| corresponding to a \\{down} that can't change*/
-
-@ When the |movement| procedure gets to the label |found|, the value of
-|info(p)| will be either |y_here| or |z_here|. If it is, say, |y_here|,
-the procedure generates a |y0| command (or a |w0| command), and marks
-all |info| fields between |q| and |p| so that |y| is not OK in that range.
-
-@<Generate a |y0| or |z0| command...@>=
-info(q)=info(p);
-if (info(q)==y_here)
-  {@+dvi_out(o+y0-down1); /*|y0| or |w0|*/
-  while (link(q)!=p)
-    {@+q=link(q);
-    switch (info(q)) {
-    case yz_OK: info(q)=z_OK;@+break;
-    case y_OK: info(q)=d_fixed;@+break;
-    default:do_nothing;
-    }
-    }
-  }
-else{@+dvi_out(o+z0-down1); /*|z0| or |x0|*/
-  while (link(q)!=p)
-    {@+q=link(q);
-    switch (info(q)) {
-    case yz_OK: info(q)=y_OK;@+break;
-    case z_OK: info(q)=d_fixed;@+break;
-    default:do_nothing;
-    }
-    }
-  }
-
-@ @<Generate a |down| or |right|...@>=
-info(q)=yz_OK;
-if (abs(w) >= 040000000)
-  {@+dvi_out(o+3); /*|down4| or |right4|*/
-  dvi_four(w);return;
-  }
-if (abs(w) >= 0100000)
-  {@+dvi_out(o+2); /*|down3| or |right3|*/
-  if (w < 0) w=w+0100000000;
-  dvi_out(w/0200000);w=w%0200000;goto label2;
-  }
-if (abs(w) >= 0200)
-  {@+dvi_out(o+1); /*|down2| or |right2|*/
-  if (w < 0) w=w+0200000;
-  goto label2;
-  }
-dvi_out(o); /*|down1| or |right1|*/
-if (w < 0) w=w+0400;
-goto label1;
-label2: dvi_out(w/0400);
-label1: dvi_out(w%0400);return
-
-@ As we search through the stack, we are in one of three states,
-|y_seen|, |z_seen|, or |none_seen|, depending on whether we have
-encountered |y_here| or |z_here| nodes. These states are encoded as
-multiples of 6, so that they can be added to the |info| fields for quick
-decision-making.
-@^inner loop@>
-
-@d none_seen 0 /*no |y_here| or |z_here| nodes have been encountered yet*/
-@d y_seen 6 /*we have seen |y_here| but not |z_here|*/
-@d z_seen 12 /*we have seen |z_here| but not |y_here|*/
-
-@<Look at the other stack entries until deciding...@>=
-p=link(q);mstate=none_seen;
-while (p!=null)
-  {@+if (width(p)==w) @<Consider a node with matching width; |goto found|
-if it's a hit@>@;
-  else switch (mstate+info(p)) {
-    case none_seen+y_here: mstate=y_seen;@+break;
-    case none_seen+z_here: mstate=z_seen;@+break;
-    case y_seen+z_here: case z_seen+y_here: goto not_found;
-    default:do_nothing;
-    }
-  p=link(p);
-  }
-not_found:
-
-@ We might find a valid hit in a |y| or |z| byte that is already gone
-from the buffer. But we can't change bytes that are gone forever; ``the
-moving finger writes, $\ldots\,\,$.''
-
-@<Consider a node with matching width...@>=
-switch (mstate+info(p)) {
-case none_seen+yz_OK: case none_seen+y_OK:
-  case z_seen+yz_OK: case z_seen+y_OK: @t@>@;@/
-  if (location(p) < dvi_gone) goto not_found;
-  else@<Change buffered instruction to |y| or |w| and |goto found|@>@;@+break;
-case none_seen+z_OK: case y_seen+yz_OK:
-  case y_seen+z_OK: @t@>@;@/
-  if (location(p) < dvi_gone) goto not_found;
-  else@<Change buffered instruction to |z| or |x| and |goto found|@>@;@+break;
-case none_seen+y_here: case none_seen+z_here:
-  case y_seen+z_here: case z_seen+y_here: goto found;
-default:do_nothing;
-}
-
-@ @<Change buffered instruction to |y| or |w| and |goto found|@>=
-{@+k=location(p)-dvi_offset;
-if (k < 0) k=k+dvi_buf_size;
-dvi_buf[k]=dvi_buf[k]+y1-down1;
-info(p)=y_here;goto found;
-}
-
-@ @<Change buffered instruction to |z| or |x| and |goto found|@>=
-{@+k=location(p)-dvi_offset;
-if (k < 0) k=k+dvi_buf_size;
-dvi_buf[k]=dvi_buf[k]+z1-down1;
-info(p)=z_here;goto found;
-}
-
-@ In case you are wondering when all the movement nodes are removed from
-\TeX's memory, the answer is that they are recycled just before
-|hlist_out| and |vlist_out| finish outputting a box. This restores the
-down and right stacks to the state they were in before the box was output,
-except that some |info|'s may have become more restrictive.
-
-@p static void prune_movements(int @!l)
-   /*delete movement nodes with |location >= l|*/
-{@+
-pointer p; /*node being deleted*/
-while (down_ptr!=null)
-  {@+if (location(down_ptr) < l) goto done;
-  p=down_ptr;down_ptr=link(p);free_node(p, movement_node_size);
-  }
-done: while (right_ptr!=null)
-  {@+if (location(right_ptr) < l) return;
-  p=right_ptr;right_ptr=link(p);free_node(p, movement_node_size);
-  }
-}
-
-@ The actual distances by which we want to move might be computed as the
-sum of several separate movements. For example, there might be several
-glue nodes in succession, or we might want to move right by the width of
-some box plus some amount of glue. More importantly, the baselineskip
-distances are computed in terms of glue together with the depth and
-height of adjacent boxes, and we want the \.{DVI} file to lump these
-three quantities together into a single motion.
-
-Therefore, \TeX\ maintains two pairs of global variables: |dvi_h| and |dvi_v|
-are the |h| and |v| coordinates corresponding to the commands actually
-output to the \.{DVI} file, while |cur_h| and |cur_v| are the coordinates
-corresponding to the current state of the output routines. Coordinate
-changes will accumulate in |cur_h| and |cur_v| without being reflected
-in the output, until such a change becomes necessary or desirable; we
-can call the |movement| procedure whenever we want to make |dvi_h==cur_h|
-or |dvi_v==cur_v|.
-
-The current font reflected in the \.{DVI} output is called |dvi_f|;
-there is no need for a `\\{cur\_f}' variable.
-
-The depth of nesting of |hlist_out| and |vlist_out| is called |cur_s|;
-this is essentially the depth of |push| commands in the \.{DVI} output.
-
-@d synch_h if (cur_h!=dvi_h)
-    {@+movement(cur_h-dvi_h, right1);dvi_h=cur_h;
-    }
-@d synch_v if (cur_v!=dvi_v)
-    {@+movement(cur_v-dvi_v, down1);dvi_v=cur_v;
-    }
-
-@<Glob...@>=
-static scaled @!dvi_h, @!dvi_v; /*a \.{DVI} reader program thinks we are here*/
-static scaled @!cur_h, @!cur_v; /*\TeX\ thinks we are here*/
-static internal_font_number @!dvi_f; /*the current font*/
-static int @!cur_s; /*current depth of output box nesting, initially $-1$*/
-
-@ When |hlist_out| is called, its duty is to output the box represented
-by the |hlist_node| pointed to by |temp_ptr|. The reference point of that
-box has coordinates |(cur_h, cur_v)|.
-
-Similarly, when |vlist_out| is called, its duty is to output the box represented
-by the |vlist_node| pointed to by |temp_ptr|. The reference point of that
-box has coordinates |(cur_h, cur_v)|.
-@^recursion@>
-
-@p static void vlist_out(void); /*|hlist_out| and |vlist_out| are mutually
-  recursive*/
-
-@ The recursive procedures |hlist_out| and |vlist_out| each have local variables
-|save_h| and |save_v| to hold the values of |dvi_h| and |dvi_v| just before
-entering a new level of recursion.  In effect, the values of |save_h| and
-|save_v| on \TeX's run-time stack correspond to the values of |h| and |v|
-that a \.{DVI}-reading program will push onto its coordinate stack.
-
-@p @t\4@>@<Declare procedures needed in |hlist_out|, |vlist_out|@>@t@>@/
-static void hlist_out(void) /*output an |hlist_node| box*/
-{@+
-scaled base_line; /*the baseline coordinate for this box*/
-scaled @!left_edge; /*the left coordinate for this box*/
-scaled @!save_h, @!save_v; /*what |dvi_h| and |dvi_v| should pop to*/
-pointer @!this_box; /*pointer to containing box*/
-glue_ord @!g_order; /*applicable order of infinity for glue*/
-int @!g_sign; /*selects type of glue*/
-pointer @!p; /*current position in the hlist*/
-int @!save_loc; /*\.{DVI} byte location upon entry*/
-pointer @!leader_box; /*the leader box being replicated*/
-scaled @!leader_wd; /*width of leader box being replicated*/
-scaled @!lx; /*extra space between leader boxes*/
-bool @!outer_doing_leaders; /*were we doing leaders?*/
-scaled @!edge; /*left edge of sub-box, or right edge of leader space*/
-double @!glue_temp; /*glue value before rounding*/
-double @!cur_glue; /*glue seen so far*/
-scaled @!cur_g; /*rounded equivalent of |cur_glue| times the glue ratio*/
-cur_g=0;cur_glue=float_constant(0);
-this_box=temp_ptr;g_order=glue_order(this_box);
-g_sign=glue_sign(this_box);p=list_ptr(this_box);
-incr(cur_s);
-if (cur_s > 0) dvi_out(push);
-if (cur_s > max_push) max_push=cur_s;
-save_loc=dvi_offset+dvi_ptr;base_line=cur_v;left_edge=cur_h;
-while (p!=null) @<Output node |p| for |hlist_out| and move to the next node,
-maintaining the condition |cur_v=base_line|@>;
-prune_movements(save_loc);
-if (cur_s > 0) dvi_pop(save_loc);
-decr(cur_s);
-}
-
-@ We ought to give special care to the efficiency of one part of |hlist_out|,
-since it belongs to \TeX's inner loop. When a |char_node| is encountered,
-we save a little time by processing several nodes in succession until
-reaching a non-|char_node|. The program uses the fact that |set_char_0==0|.
-@^inner loop@>
-
-@<Output node |p| for |hlist_out|...@>=
-reswitch: if (is_char_node(p))
-  {@+synch_h;synch_v;
-  @/do@+{f=font(p);c=character(p);
-  if (f!=dvi_f) @<Change font |dvi_f| to |f|@>;
-  if (c >= qi(128)) dvi_out(set1);
-  dvi_out(qo(c));@/
-  cur_h=cur_h+char_width(f, c);
-  p=link(p);
-  }@+ while (!(!is_char_node(p)));
-  dvi_h=cur_h;
-  }
-else@<Output the non-|char_node| |p| for |hlist_out| and move to the next
-node@>@;
-
-@ @<Change font |dvi_f| to |f|@>=
-{@+if (!font_used[f])
-  {@+dvi_font_def(f);font_used[f]=true;
-  }
-if (f <= 64+font_base) dvi_out(f-font_base-1+fnt_num_0)@;
-else{@+dvi_out(fnt1);dvi_out(f-font_base-1);
-  }
-dvi_f=f;
-}
-
-@ @<Output the non-|char_node| |p| for |hlist_out|...@>=
-{@+switch (type(p)) {
-case hlist_node: case vlist_node: @<Output a box in an hlist@>@;@+break;
-case rule_node: {@+rule_ht=height(p);rule_dp=depth(p);rule_wd=width(p);
-  goto fin_rule;
-  }
-case whatsit_node: @<Output the whatsit node |p| in an hlist@>;@+break;
-case glue_node: @<Move right or output leaders@>@;
-case kern_node: case math_node: cur_h=cur_h+width(p);@+break;
-case ligature_node: @<Make node |p| look like a |char_node| and |goto reswitch|@>@;
-default:do_nothing;
-} @/
-goto next_p;
-fin_rule: @<Output a rule in an hlist@>;
-move_past: cur_h=cur_h+rule_wd;
-next_p: p=link(p);
-}
-
-@ @<Output a box in an hlist@>=
-if (list_ptr(p)==null) cur_h=cur_h+width(p);
-else{@+save_h=dvi_h;save_v=dvi_v;
-  cur_v=base_line+shift_amount(p); /*shift the box down*/
-  temp_ptr=p;edge=cur_h;
-  if (type(p)==vlist_node) vlist_out();@+else hlist_out();
-  dvi_h=save_h;dvi_v=save_v;
-  cur_h=edge+width(p);cur_v=base_line;
-  }
-
-@ @<Output a rule in an hlist@>=
-if (is_running(rule_ht)) rule_ht=height(this_box);
-if (is_running(rule_dp)) rule_dp=depth(this_box);
-rule_ht=rule_ht+rule_dp; /*this is the rule thickness*/
-if ((rule_ht > 0)&&(rule_wd > 0))  /*we don't output empty rules*/
-  {@+synch_h;cur_v=base_line+rule_dp;synch_v;
-  dvi_out(set_rule);dvi_four(rule_ht);dvi_four(rule_wd);
-  cur_v=base_line;dvi_h=dvi_h+rule_wd;
-  }
-
-@ @d billion float_constant(1000000000)
-@d vet_glue(A) glue_temp=A;
-  if (glue_temp > billion)
-           glue_temp=billion;
-  else if (glue_temp < -billion)
-           glue_temp=-billion
-
-@<Move right or output leaders@>=
-{@+g=glue_ptr(p);rule_wd=width(g)-cur_g;
-if (g_sign!=normal)
-  {@+if (g_sign==stretching)
-    {@+if (stretch_order(g)==g_order)
-      {@+cur_glue=cur_glue+stretch(g);
-      vet_glue(unfix(glue_set(this_box))*cur_glue);
-@^real multiplication@>
-      cur_g=round(glue_temp);
-      }
-    }
-  else if (shrink_order(g)==g_order)
-      {@+cur_glue=cur_glue-shrink(g);
-      vet_glue(unfix(glue_set(this_box))*cur_glue);
-      cur_g=round(glue_temp);
-      }
-  }
-rule_wd=rule_wd+cur_g;
-if (subtype(p) >= a_leaders)
-  @<Output leaders in an hlist, |goto fin_rule| if a rule or to |next_p| if
-done@>;
-goto move_past;
-}
-
-@ @<Output leaders in an hlist...@>=
-{@+leader_box=leader_ptr(p);
-if (type(leader_box)==rule_node)
-  {@+rule_ht=height(leader_box);rule_dp=depth(leader_box);
-  goto fin_rule;
-  }
-leader_wd=width(leader_box);
-if ((leader_wd > 0)&&(rule_wd > 0))
-  {@+rule_wd=rule_wd+10; /*compensate for floating-point rounding*/
-  edge=cur_h+rule_wd;lx=0;
-  @<Let |cur_h| be the position of the first box, and set |leader_wd+lx| to
-the spacing between corresponding parts of boxes@>;
-  while (cur_h+leader_wd <= edge)
-    @<Output a leader box at |cur_h|, then advance |cur_h| by |leader_wd+lx|@>;
-  cur_h=edge-10;goto next_p;
-  }
-}
-
-@ The calculations related to leaders require a bit of care. First, in the
-case of |a_leaders| (aligned leaders), we want to move |cur_h| to
-|left_edge| plus the smallest multiple of |leader_wd| for which the result
-is not less than the current value of |cur_h|; i.e., |cur_h| should become
-$|left_edge|+|leader_wd|\times\lceil
-(|cur_h|-|left_edge|)/|leader_wd|\rceil$.  The program here should work in
-all cases even though some implementations of \PASCAL\ give nonstandard
-results for the |/| operation when |cur_h| is less than |left_edge|.
-
-In the case of |c_leaders| (centered leaders), we want to increase |cur_h|
-by half of the excess space not occupied by the leaders; and in the
-case of |x_leaders| (expanded leaders) we increase |cur_h|
-by $1/(q+1)$ of this excess space, where $q$ is the number of times the
-leader box will be replicated. Slight inaccuracies in the division might
-accumulate; half of this rounding error is placed at each end of the leaders.
-
-@<Let |cur_h| be the position of the first box,...@>=
-if (subtype(p)==a_leaders)
-  {@+save_h=cur_h;
-  cur_h=left_edge+leader_wd*((cur_h-left_edge)/leader_wd);
-  if (cur_h < save_h) cur_h=cur_h+leader_wd;
-  }
-else{@+lq=rule_wd/leader_wd; /*the number of box copies*/
-  lr=rule_wd%leader_wd; /*the remaining space*/
-  if (subtype(p)==c_leaders) cur_h=cur_h+(lr/2);
-  else{@+lx=lr/(lq+1);
-    cur_h=cur_h+((lr-(lq-1)*lx)/2);
-    }
-  }
-
-@ The `\\{synch}' operations here are intended to decrease the number of
-bytes needed to specify horizontal and vertical motion in the \.{DVI} output.
-
-@<Output a leader box at |cur_h|,...@>=
-{@+cur_v=base_line+shift_amount(leader_box);synch_v;save_v=dvi_v;@/
-synch_h;save_h=dvi_h;temp_ptr=leader_box;
-outer_doing_leaders=doing_leaders;doing_leaders=true;
-if (type(leader_box)==vlist_node) vlist_out();@+else hlist_out();
-doing_leaders=outer_doing_leaders;
-dvi_v=save_v;dvi_h=save_h;cur_v=base_line;
-cur_h=save_h+leader_wd+lx;
-}
-
-@ The |vlist_out| routine is similar to |hlist_out|, but a bit simpler.
-
-@p static void vlist_out(void) /*output a |vlist_node| box*/
-{@+
-scaled left_edge; /*the left coordinate for this box*/
-scaled @!top_edge; /*the top coordinate for this box*/
-scaled @!save_h, @!save_v; /*what |dvi_h| and |dvi_v| should pop to*/
-pointer @!this_box; /*pointer to containing box*/
-glue_ord @!g_order; /*applicable order of infinity for glue*/
-int @!g_sign; /*selects type of glue*/
-pointer @!p; /*current position in the vlist*/
-int @!save_loc; /*\.{DVI} byte location upon entry*/
-pointer @!leader_box; /*the leader box being replicated*/
-scaled @!leader_ht; /*height of leader box being replicated*/
-scaled @!lx; /*extra space between leader boxes*/
-bool @!outer_doing_leaders; /*were we doing leaders?*/
-scaled @!edge; /*bottom boundary of leader space*/
-double @!glue_temp; /*glue value before rounding*/
-double @!cur_glue; /*glue seen so far*/
-scaled @!cur_g; /*rounded equivalent of |cur_glue| times the glue ratio*/
-cur_g=0;cur_glue=float_constant(0);
-this_box=temp_ptr;g_order=glue_order(this_box);
-g_sign=glue_sign(this_box);p=list_ptr(this_box);
-incr(cur_s);
-if (cur_s > 0) dvi_out(push);
-if (cur_s > max_push) max_push=cur_s;
-save_loc=dvi_offset+dvi_ptr;left_edge=cur_h;cur_v=cur_v-height(this_box);
-top_edge=cur_v;
-while (p!=null) @<Output node |p| for |vlist_out| and move to the next node,
-maintaining the condition |cur_h=left_edge|@>;
-prune_movements(save_loc);
-if (cur_s > 0) dvi_pop(save_loc);
-decr(cur_s);
-}
-
-@ @<Output node |p| for |vlist_out|...@>=
-{@+if (is_char_node(p)) confusion("vlistout");
-@:this can't happen vlistout}{\quad vlistout@>
-else@<Output the non-|char_node| |p| for |vlist_out|@>;
-next_p: p=link(p);
-}
-
-@ @<Output the non-|char_node| |p| for |vlist_out|@>=
-{@+switch (type(p)) {
-case hlist_node: case vlist_node: @<Output a box in a vlist@>@;@+break;
-case rule_node: {@+rule_ht=height(p);rule_dp=depth(p);rule_wd=width(p);
-  goto fin_rule;
-  }
-case whatsit_node: @<Output the whatsit node |p| in a vlist@>;@+break;
-case glue_node: @<Move down or output leaders@>@;
-case kern_node: cur_v=cur_v+width(p);@+break;
-default:do_nothing;
-} @/
-goto next_p;
-fin_rule: @<Output a rule in a vlist, |goto next_p|@>;
-move_past: cur_v=cur_v+rule_ht;
-}
-
-@ The |synch_v| here allows the \.{DVI} output to use one-byte commands
-for adjusting |v| in most cases, since the baselineskip distance will
-usually be constant.
-
-@<Output a box in a vlist@>=
-if (list_ptr(p)==null) cur_v=cur_v+height(p)+depth(p);
-else{@+cur_v=cur_v+height(p);synch_v;
-  save_h=dvi_h;save_v=dvi_v;
-  cur_h=left_edge+shift_amount(p); /*shift the box right*/
-  temp_ptr=p;
-  if (type(p)==vlist_node) vlist_out();@+else hlist_out();
-  dvi_h=save_h;dvi_v=save_v;
-  cur_v=save_v+depth(p);cur_h=left_edge;
-  }
-
-@ @<Output a rule in a vlist...@>=
-if (is_running(rule_wd)) rule_wd=width(this_box);
-rule_ht=rule_ht+rule_dp; /*this is the rule thickness*/
-cur_v=cur_v+rule_ht;
-if ((rule_ht > 0)&&(rule_wd > 0))  /*we don't output empty rules*/
-  {@+synch_h;synch_v;
-  dvi_out(put_rule);dvi_four(rule_ht);dvi_four(rule_wd);
-  }
-goto next_p
-
-@ @<Move down or output leaders@>=
-{@+g=glue_ptr(p);rule_ht=width(g)-cur_g;
-if (g_sign!=normal)
-  {@+if (g_sign==stretching)
-    {@+if (stretch_order(g)==g_order)
-      {@+cur_glue=cur_glue+stretch(g);
-      vet_glue(unfix(glue_set(this_box))*cur_glue);
-@^real multiplication@>
-      cur_g=round(glue_temp);
-      }
-    }
-  else if (shrink_order(g)==g_order)
-      {@+cur_glue=cur_glue-shrink(g);
-      vet_glue(unfix(glue_set(this_box))*cur_glue);
-      cur_g=round(glue_temp);
-      }
-  }
-rule_ht=rule_ht+cur_g;
-if (subtype(p) >= a_leaders)
-  @<Output leaders in a vlist, |goto fin_rule| if a rule or to |next_p| if
-done@>;
-goto move_past;
-}
-
-@ @<Output leaders in a vlist...@>=
-{@+leader_box=leader_ptr(p);
-if (type(leader_box)==rule_node)
-  {@+rule_wd=width(leader_box);rule_dp=0;
-  goto fin_rule;
-  }
-leader_ht=height(leader_box)+depth(leader_box);
-if ((leader_ht > 0)&&(rule_ht > 0))
-  {@+rule_ht=rule_ht+10; /*compensate for floating-point rounding*/
-  edge=cur_v+rule_ht;lx=0;
-  @<Let |cur_v| be the position of the first box, and set |leader_ht+lx| to
-the spacing between corresponding parts of boxes@>;
-  while (cur_v+leader_ht <= edge)
-    @<Output a leader box at |cur_v|, then advance |cur_v| by |leader_ht+lx|@>;
-  cur_v=edge-10;goto next_p;
-  }
-}
-
-@ @<Let |cur_v| be the position of the first box,...@>=
-if (subtype(p)==a_leaders)
-  {@+save_v=cur_v;
-  cur_v=top_edge+leader_ht*((cur_v-top_edge)/leader_ht);
-  if (cur_v < save_v) cur_v=cur_v+leader_ht;
-  }
-else{@+lq=rule_ht/leader_ht; /*the number of box copies*/
-  lr=rule_ht%leader_ht; /*the remaining space*/
-  if (subtype(p)==c_leaders) cur_v=cur_v+(lr/2);
-  else{@+lx=lr/(lq+1);
-    cur_v=cur_v+((lr-(lq-1)*lx)/2);
-    }
-  }
-
-@ When we reach this part of the program, |cur_v| indicates the top of a
-leader box, not its baseline.
-
-@<Output a leader box at |cur_v|,...@>=
-{@+cur_h=left_edge+shift_amount(leader_box);synch_h;save_h=dvi_h;@/
-cur_v=cur_v+height(leader_box);synch_v;save_v=dvi_v;
-temp_ptr=leader_box;
-outer_doing_leaders=doing_leaders;doing_leaders=true;
-if (type(leader_box)==vlist_node) vlist_out();@+else hlist_out();
-doing_leaders=outer_doing_leaders;
-dvi_v=save_v;dvi_h=save_h;cur_h=left_edge;
-cur_v=save_v-height(leader_box)+leader_ht+lx;
-}
 
 @ The |hlist_out| and |vlist_out| procedures are now complete, so we are
 ready for the |ship_out| routine that gets them started in the first place.
@@ -14056,7 +12792,7 @@ not equivalent (as explained above).
 
 @<Declare procedures needed for displaying...@>=
 static void show_info(void); /*|show_node_list(info(temp_ptr))|*/
-static void print_subsidiary_data(pointer @!p, ASCII_code @!c)
+static void print_subsidiary_data(pointer @!p, UTF8_code @!c)
    /*display a noad field*/
 {@+if (cur_length >= depth_threshold)
   {@+if (math_type(p)!=empty) print(" []");
@@ -15503,7 +14239,7 @@ static const int @!magic_offset=-9*ord_noad; /*used to find inter-element spacin
 
 @ @<Append inter-element spacing based on |r_type| and |t|@>=
 if (r_type > 0)  /*not the first noad*/
-  {@+switch (so(math_spacing[r_type*8+t+magic_offset])) {
+  {@+switch (math_spacing[r_type*8+t+magic_offset]) {
   case '0': x=0;@+break;
   case '1': if (cur_style < script_style) x=thin_mu_skip_code;@+else x=0;@+break;
   case '2': x=thin_mu_skip_code;@+break;
@@ -18017,8 +16753,8 @@ terminating node $p_m$. All characters that do not have the same font as
 $c_1$ will be treated as nonletters. The |hyphen_char| for that font
 must be between 0 and 255, otherwise hyphenation will not be attempted.
 \TeX\ looks ahead for as many consecutive letters $c_1\ldots c_n$ as
-possible; however, |n| must be less than 64, so a character that would
-otherwise be $c_{64}$ is effectively not a letter. Furthermore $c_n$ must
+possible; however, |n| must be less than |max_hyph_length|, so a character that would
+otherwise be $c_{|max_hyph_length|}$ is effectively not a letter. Furthermore $c_n$ must
 not be in the middle of a ligature.  In this way we obtain a string of
 letters $c_1\ldots c_n$ that are generated by nodes $p_a\ldots p_b$, where
 |1 <= a <= b+1 <= m|. If |n >= l_hyf+r_hyf|, this string qualifies for hyphenation;
@@ -18038,6 +16774,8 @@ Algorithms} was typeset by \TeX, only about 1.2 hyphenations needed to be
 tried per paragraph, since the line breaking algorithm needed to use two
 passes on only about 5 per cent of the paragraphs.
 
+@d max_hyph_length 256 /*maximum length for a word to be hyphenated*/
+
 @<Initialize for hyphenating...@>=
 {
 #ifdef @!INIT
@@ -18054,17 +16792,32 @@ nodes $p_{a-1}$ and~$p_b$ in the description above are placed into variables
 |ha| and |hb|; and the font number is placed into |hf|.
 
 @<Glob...@>=
-static int16_t @!hc[66]; /*word to be hyphenated*/
-static int @!hn; /*the number of positions occupied in |hc|;
-                                  not always a |small_number|*/
+static int32_t @!hc[max_hyph_length+4]; /*word to be hyphenated*/
+static int @!hn; /*the number of positions occupied in |hc|*/
 static pointer @!ha, @!hb; /*nodes |ha dotdot hb| should be replaced by the hyphenated result*/
 static internal_font_number @!hf; /*font number of the letters in |hc|*/
-static int16_t @!hu[64]; /*like |hc|, before conversion to lowercase*/
+static int32_t @!hu[max_hyph_length+2]; /*like |hc|, before conversion to lowercase*/
 static int @!hyf_char; /*hyphen character of the relevant font*/
-static ASCII_code @!cur_lang, @!init_cur_lang; /*current hyphenation table of interest*/
+static int @!cur_lang, @!init_cur_lang; /*current hyphenation table of interest*/
 static int @!l_hyf, @!r_hyf, @!init_l_hyf, @!init_r_hyf; /*limits on fragment sizes*/
 static halfword @!hyf_bchar; /*boundary character after $c_n$*/
+static int @!max_hyph_char; /*largest character occuring in a pattern*/
 
+@ We set a limit on the maximum character code that might occur in a pattern.
+This is necessary, since the table compression uses characters as indices
+into arrays and we need to make these arrays large enough.
+Following the example of \XeTeX\ we also keep track of the largest character
+code that actually occurs in all of the patterns in the valiable |max_hyp_char|.
+This variable is initialized using the maximim number of languages, because
+the language is used like a character to find the right entry point into
+the compressed table.
+
+@d max_language 255 /*the largest hyphenation language*/
+@d max_pattern_char 0x3000 /*the largest character in a pattern*/
+@d biggest_char 0x10FFFF /*the largest UTF character*/
+
+@<Set initial values of key variables@>=
+max_hyph_char=max_language+1;
 
 @ When the following code is activated, the |line_break| procedure is in its
 second pass, and |cur_p| points to a glue node.
@@ -18078,7 +16831,7 @@ static void hyphenate_word(void)@t\2\2@>@/
   prev_s=cur_p;s=link(prev_s);
 if (s!=null)
   {@+@<Skip to node |ha|, or |goto done1| if no hyphenation should be attempted@>;
-  if (l_hyf+r_hyf > 63) goto done1;
+  if (l_hyf+r_hyf >  max_hyph_length-1) goto done1;
   @<Skip to node |hb|, putting letters into |hu| and |hc|@>;
   @<Check that the nodes following |hb| permit hyphenation and that at least
 |l_hyf+r_hyf| letters have been found, otherwise |goto done1|@>;
@@ -18122,7 +16875,7 @@ resume: prev_s=s;s=link(prev_s);
   }
 done2: hyf_char=hyphen_char[hf];
 if (hyf_char < 0) goto done1;
-if (hyf_char > 255) goto done1;
+if (hyf_char > biggest_char) goto done1;
 ha=prev_s
 
 @ The word to be hyphenated is now moved to the |hu| and |hc| arrays.
@@ -18134,7 +16887,8 @@ loop@+{@+if (is_char_node(s))
     hyf_bchar=character(s);c=qo(hyf_bchar);
     set_lc_code(c);
     if (hc[0]==0) goto done3;
-    if (hn==63) goto done3;
+    if (hc[0] > max_hyph_char) goto done3;
+    if (hn== max_hyph_length-1) goto done3;
     hb=s;incr(hn);hu[hn]=c;hc[hn]=hc[0];hyf_bchar=non_char;
     }
   else if (type(s)==ligature_node)
@@ -18161,7 +16915,8 @@ while (q > null)
   {@+c=qo(character(q));
   set_lc_code(c);
   if (hc[0]==0) goto done3;
-  if (j==63) goto done3;
+  if (hc[0]>max_hyph_char) goto done3;
+  if (j==max_hyph_length) goto done3;
   incr(j);hu[j]=c;hc[j]=hc[0];@/
   q=link(q);
   }
@@ -18172,12 +16927,12 @@ if (odd(subtype(s))) hyf_bchar=font_bchar[hf];@+else hyf_bchar=non_char;
 @ @<Check that the nodes following |hb| permit hyphenation...@>=
 if (hn < l_hyf+r_hyf) goto done1; /*|l_hyf| and |r_hyf| are | >= 1|*/
 loop@+{@+if (!(is_char_node(s)))
-    switch (type(s)) {
+  switch (type(s)) {
     case ligature_node: do_nothing;@+break;
     case kern_node: if (subtype(s)!=normal) goto done4;@+break;
     case whatsit_node: case glue_node:
-  case penalty_node: case ins_node: case adjust_node:
-  case mark_node:
+    case penalty_node: case ins_node: case adjust_node:
+    case mark_node:
       goto done4;
     default:goto done1;
     }
@@ -18194,7 +16949,7 @@ it finds, since it is better to work on this part of the program before
 forgetting what |ha| and |hb|, etc., are all about.
 
 @<Glob...@>=
-static int8_t @!hyf[65]; /*odd values indicate discretionary hyphens*/
+static int8_t @!hyf[max_hyph_length+2]; /*odd values indicate discretionary hyphens*/
 static pointer @!init_list; /*list of punctuation characters preceding the word*/
 static bool @!init_lig; /*does |init_list| represent a ligature?*/
 static bool @!init_lft; /*if so, did the ligature involve a left boundary?*/
@@ -18238,7 +16993,7 @@ else if (type(ha)==ligature_node)
   else{@+init_list=lig_ptr(ha);init_lig=true;init_lft=(subtype(ha) > 1);
     hu[0]=qo(character(lig_char(ha)));
     if (init_list==null) if (init_lft)
-      {@+hu[0]=256;init_lig=false;
+      {@+hu[0]=max_hyph_char;init_lig=false;
       }  /*in this case a ligature will be reconstructed from scratch*/
     free_node(ha, small_node_size);
     }
@@ -18250,7 +17005,7 @@ else{@+ /*no punctuation found; look for left boundary*/
 s=cur_p; /*we have |cur_p!=ha| because |type(cur_p)==glue_node|*/
 while (link(s)!=ha) s=link(s);
 j=0;goto common_ending;
-found2: s=ha;j=0;hu[0]=256;init_lig=false;init_list=null;
+found2: s=ha;j=0;hu[0]=max_hyph_char;init_lig=false;init_list=null;
 common_ending: flush_node_list(r);
 @<Reconstitute nodes for the hyphenated word, inserting discretionary hyphens@>;
 flush_list(init_list)
@@ -18497,7 +17252,7 @@ we need a few new local variables:
 @<Local variables for hyph...@>=
 pointer @!major_tail, @!minor_tail; /*the end of lists in the main and
   discretionary branches being reconstructed*/
-ASCII_code @!c; /*character temporarily replaced by a hyphen*/
+uint32_t @!c; /*character temporarily replaced by a hyphen*/
 int @!c_loc; /*where that character came from*/
 int @!r_count; /*replacement count for discretionary*/
 pointer @!hyf_node; /*the hyphen, if it exists*/
@@ -18570,7 +17325,7 @@ if (hyf_node!=null)
 @<Put the \(c)characters |hu[i+1..]| into |post_break(r)|...@>=
 minor_tail=null;post_break(r)=null;c_loc=0;
 if (bchar_label[hf]!=non_address)  /*put left boundary at beginning of new line*/
-  {@+decr(l);c=hu[l];c_loc=l;hu[l]=256;
+  {@+decr(l);c=hu[l];c_loc=l;hu[l]=max_hyph_char;
   }
 while (l < j)
   {@+@/do@+{l=reconstitute(l, hn, bchar, non_char)+1;
@@ -18596,7 +17351,7 @@ while (link(major_tail) > null) advance_major_tail;
 
 @ Ligature insertion can cause a word to grow exponentially in size. Therefore
 we must test the size of |r_count| here, even though the hyphenated text
-was at most 63 characters long.
+was at most |max_hyph_length| characters long.
 
 @<Move pointer |s| to the end of the current list...@>=
 if (r_count > 127)  /*we have to forget the discretionary hyphen*/
@@ -18660,8 +17415,8 @@ and |v=hyf_next[v]|; repeat, if necessary, until |v==min_quarterword|.
 typedef int32_t trie_pointer; /*an index into |trie|*/
 
 @ @d trie_link(A) trie[A].rh /*``downward'' link in a trie*/
-@d trie_char(A) trie[A].b1 /*character matched at this trie location*/
-@d trie_op(A) trie[A].b0 /*program for hyphenation at this trie location*/
+@d trie_char(A) trie[A].b24 /*character matched at this trie location*/
+@d trie_op(A) trie[A].b8 /*program for hyphenation at this trie location*/
 
 @<Glob...@>=
 static two_halves @!trie[trie_size+1]; /*|trie_link|, |trie_char|, |trie_op|*/
@@ -18671,7 +17426,7 @@ static small_number @!hyf_num0[trie_op_size],
   *const @!hyf_num = @!hyf_num0-1; /*value of $n_j$*/
 static quarterword @!hyf_next0[trie_op_size],
   *const @!hyf_next = @!hyf_next0-1; /*continuation code*/
-static uint16_t @!op_start[256]; /*offset for current language*/
+static uint16_t @!op_start[max_language+1]; /*offset for current language*/
 
 @ @<Local variables for hyph...@>=
 trie_pointer @!z; /*an index into |trie|*/
@@ -18687,7 +17442,7 @@ for (j=0; j<=hn; j++) hyf[j]=0;
 @<Look for the word |hc[1..hn]| in the exception table, and |goto found| (with
 |hyf| containing the hyphens) if an entry is found@>;
 if (trie_char(cur_lang+1)!=qi(cur_lang)) return; /*no patterns for |cur_lang|*/
-hc[0]=0;hc[hn+1]=0;hc[hn+2]=256; /*insert delimiters*/
+hc[0]=0;hc[hn+1]=0;hc[hn+2]=max_hyph_char; /*insert delimiters*/
 for (j=0; j<=hn-r_hyf+1; j++)
   {@+z=trie_link(cur_lang+1)+hc[j];l=j;
   while (hc[l]==qo(trie_char(z)))
@@ -18769,8 +17524,8 @@ k=hyph_word[h];if (k==0) goto not_found;
 if (length(k) < hn) goto not_found;
 if (length(k)==hn)
   {@+j=1;u=str_start[k];
-  @/do@+{if (so(str_pool[u]) < hc[j]) goto not_found;
-  if (so(str_pool[u]) > hc[j]) goto done;
+  @/do@+{if (str_pool[u] < hc[j]) goto not_found;
+  if (str_pool[u] > hc[j]) goto done;
   incr(j);incr(u);
   }@+ while (!(j > hn));
   @<Insert hyphens as specified in |hyph_list[h]|@>;
@@ -18799,7 +17554,7 @@ When \TeX\ has scanned `\.{\\hyphenation}', it calls on a procedure named
 |new_hyph_exceptions| to do the right thing.
 
 @d set_cur_lang if (language <= 0) cur_lang=0;
-  else if (language > 255) cur_lang=0;
+  else if (language > max_language) cur_lang=0;
   else cur_lang=language
 
 @p static void new_hyph_exceptions(void) /*enters new exceptions*/
@@ -18861,13 +17616,13 @@ else{@+set_lc_code(cur_chr);
       "Proceed; I'll ignore the character I just read.");
     error();
     }
-  else if (n < 63)
+  else if (n < max_hyph_length)
     {@+incr(n);hc[n]=hc[0];
     }
   }
 
 @ @<Append the value |n| to list |p|@>=
-{@+if (n < 63)
+{@+if (n < max_hyph_length)
   {@+q=get_avail();link(q)=p;info(q)=n;p=q;
   }
 }
@@ -18952,9 +17707,9 @@ is |trie_op_ptr|.
 static uint16_t @!trie_op_hash0[trie_op_size+trie_op_size+1],
   *const @!trie_op_hash = @!trie_op_hash0+trie_op_size;
    /*trie op codes for quadruples*/
-static quarterword @!trie_used[256];
+static quarterword @!trie_used[max_language+1];
    /*largest opcode used so far for this language*/
-static ASCII_code @!trie_op_lang0[trie_op_size],
+static uint8_t @!trie_op_lang0[trie_op_size],
   *const @!trie_op_lang = @!trie_op_lang0-1;
    /*language part of a hashed quadruple*/
 static quarterword @!trie_op_val0[trie_op_size],
@@ -19006,7 +17761,7 @@ final form needed by our hyphenation algorithm.
 
 @<Sort \(t)the hyphenation op tables into proper order@>=
 op_start[0]=-min_quarterword;
-for (j=1; j<=255; j++) op_start[j]=op_start[j-1]+qo(trie_used[j-1]);
+for (j=1; j<=max_language; j++) op_start[j]=op_start[j-1]+qo(trie_used[j-1]);
 for (j=1; j<=trie_op_ptr; j++)
   trie_op_hash[j]=op_start[trie_op_lang[j]]+trie_op_val[j]; /*destination*/
 for (j=1; j<=trie_op_ptr; j++) while (trie_op_hash[j] > j)
@@ -19022,7 +17777,7 @@ mentioned so far, let's write down the code that gets them started.
 
 @<Initialize table entries...@>=
 for (k=-trie_op_size; k<=trie_op_size; k++) trie_op_hash[k]=0;
-for (k=0; k<=255; k++) trie_used[k]=min_quarterword;
+for (k=0; k<=max_language; k++) trie_used[k]=min_quarterword;
 trie_op_ptr=0;
 
 @ The linked trie that is used to preprocess hyphenation patterns appears
@@ -19045,7 +17800,7 @@ ordered by their |c| fields.
 
 @<Glob...@>=
 #ifdef @!INIT
-static packed_ASCII_code @!trie_c[trie_size+1];
+static uint32_t @!trie_c[trie_size+1];
    /*characters to match*/
 @t\hskip10pt@>static quarterword @!trie_o[trie_size+1];
    /*operations to perform*/
@@ -19130,12 +17885,13 @@ entries.
 @d trie_ref trie_hash /*where linked trie families go into |trie|*/
 @d trie_back(A) trie[A].lh /*backward links in |trie| holes*/
 
+
 @<Glob...@>=
 #ifdef @!INIT
 static bool @!trie_taken0[trie_size],
   *const @!trie_taken = @!trie_taken0-1;
    /*does a family start here?*/
-@t\hskip10pt@>static trie_pointer @!trie_min[256];
+@t\hskip10pt@>static trie_pointer @!trie_min[max_pattern_char+1];
    /*the first possible slot for each character*/
 @t\hskip10pt@>static trie_pointer @!trie_max; /*largest location used in |trie|*/
 @t\hskip10pt@>static bool @!trie_not_ready; /*is the trie still in linked form?*/
@@ -19148,7 +17904,7 @@ will change to |false| when the trie is compressed; this will disable
 further patterns.
 
 @<Initialize table entries...@>=
-trie_not_ready=true;trie_root=0;trie_c[0]=si(0);trie_ptr=0;
+trie_not_ready=true;trie_root=0;trie_c[0]=0;trie_ptr=0;
 
 @ Here is how the trie-compression data structures are initialized.
 If storage is tight, it would be possible to overlap |trie_op_hash|,
@@ -19161,7 +17917,7 @@ for (p=0; p<=trie_size; p++) trie_hash[p]=0;
 hyph_root=compress_trie(hyph_root);
 trie_root=compress_trie(trie_root); /*identify equivalent subtries*/
 for (p=0; p<=trie_ptr; p++) trie_ref[p]=0;
-for (p=0; p<=255; p++) trie_min[p]=p+1;
+for (p=0; p<=max_pattern_char; p++) trie_min[p]=p+1;
 trie_link(0)=1;trie_max=0
 
 @ The |first_fit| procedure finds the smallest hole |z| in |trie| such that
@@ -19177,49 +17933,52 @@ static void first_fit(trie_pointer @!p) /*packs a family into |trie|*/
 trie_pointer h; /*candidate for |trie_ref[p]|*/
 trie_pointer @!z; /*runs through holes*/
 trie_pointer @!q; /*runs through the family starting at |p|*/
-ASCII_code @!c; /*smallest character in the family*/
+uint32_t @!c; /*smallest character in the family*/
 trie_pointer @!l, @!r; /*left and right neighbors*/
 int @!ll; /*upper limit of |trie_min| updating*/
-c=so(trie_c[p]);
+c=trie_c[p];
 z=trie_min[c]; /*get the first conceivably good hole*/
 loop@+{@+h=z-c;@/
-  @<Ensure that |trie_max>=h+256|@>;
+  @<Ensure that |trie_max>=h+max_hyph_char|@>;
   if (trie_taken[h]) goto not_found;
   @<If all characters of the family fit relative to |h|, then |goto found|,\30\
 otherwise |goto not_found|@>;
-  not_found: z=trie_link(z); /*move to the next hole*/
+  not_found:
+  z=trie_link(z); /*move to the next hole*/
   }
 found: @<Pack the family into |trie| relative to |h|@>;
 }
 
-@ By making sure that |trie_max| is at least |h+256|, we can be sure that
+@ By making sure that |trie_max| is at least |h+max_hyph_char|, we can be sure that
 |trie_max > z|, since |h==z-c|. It follows that location |trie_max| will
 never be occupied in |trie|, and we will have |trie_max >= trie_link(z)|.
 
-@<Ensure that |trie_max>=h+256|@>=
-if (trie_max < h+256)
-  {@+if (trie_size <= h+256) overflow("pattern memory", trie_size);
+@<Ensure that |trie_max>=h+max_hyph_char|@>=
+if (trie_max < h+max_hyph_char)
+  {@+if (trie_size <= h+max_hyph_char) overflow("pattern memory", trie_size);
 @:TeX capacity exceeded pattern memory}{\quad pattern memory@>
   @/do@+{incr(trie_max);trie_taken[trie_max]=false;
   trie_link(trie_max)=trie_max+1;trie_back(trie_max)=trie_max-1;
-  }@+ while (!(trie_max==h+256));
+  }@+ while (!(trie_max==h+max_hyph_char));
   }
 
 @ @<If all characters of the family fit relative to |h|...@>=
 q=trie_r[p];
 while (q > 0)
-  {@+if (trie_link(h+so(trie_c[q]))==0) goto not_found;
+  {@+if (trie_link(h+trie_c[q])==0) goto not_found;
   q=trie_r[q];
   }
 goto found
 
 @ @<Pack the family into |trie| relative to |h|@>=
 trie_taken[h]=true;trie_ref[p]=h;q=p;
-@/do@+{z=h+so(trie_c[q]);l=trie_back(z);r=trie_link(z);
+@/do@+{
+z=h+trie_c[q];l=trie_back(z);r=trie_link(z);
 trie_back(r)=l;trie_link(l)=r;trie_link(z)=0;
-if (l < 256)
-  {@+if (z < 256) ll=z;@+else ll=256;
+if (l < max_hyph_char)
+  {@+if (z < max_hyph_char) ll=z;@+else ll=max_hyph_char;
   @/do@+{trie_min[l]=r;incr(l);
+
   }@+ while (!(l==ll));
   }
 q=trie_r[q];
@@ -19248,8 +18007,8 @@ value~0, which properly implements an ``empty'' family.
 h.rh=0;h.b0=min_quarterword;h.b1=min_quarterword; /*|trie_link=0|,
   |trie_op=min_quarterword|, |trie_char=qi(0)|*/
 if (trie_max==0)  /*no patterns were given*/
-  {@+for (r=0; r<=256; r++) trie[r]=h;
-  trie_max=256;
+  {@+for (r=0; r<=max_language+1; r++) trie[r]=h;
+  trie_max=max_language+1;
   }
 else{@+if (hyph_root > 0) trie_fix(hyph_root);
   if (trie_root > 0) trie_fix(trie_root); /*this fixes the non-holes in |trie|*/
@@ -19268,10 +18027,10 @@ took to build the uncompressed trie.
 @<Declare procedures for preprocessing hyph...@>=
 static void trie_fix(trie_pointer @!p) /*moves |p| and its siblings into |trie|*/
 {@+trie_pointer q; /*a local variable that need not be saved on recursive calls*/
-ASCII_code @!c; /*another one that need not be saved*/
+int @!c; /*another one that need not be saved*/
 trie_pointer @!z; /*|trie| reference; this local variable must be saved*/
 z=trie_ref[p];
-@/do@+{q=trie_l[p];c=so(trie_c[p]);
+@/do@+{q=trie_l[p];c=trie_c[p];
 trie_link(z+c)=trie_ref[q];trie_char(z+c)=qi(c);trie_op(z+c)=trie_o[p];
 if (q > 0) trie_fix(q);
 p=trie_r[p];
@@ -19337,11 +18096,14 @@ if (digit_sensed||(cur_chr < '0')||(cur_chr > '9'))
       help1("(See Appendix H.)");error();
       }
     }
-  if (k < 63)
-    {@+incr(k);hc[k]=cur_chr;hyf[k]=0;digit_sensed=false;
+  if (cur_chr > max_pattern_char-1)
+    overflow("character code in pattern",max_pattern_char-1);
+  if (cur_chr > max_hyph_char) max_hyph_char=cur_chr;
+  if (k < max_hyph_length)
+  {@+incr(k);hc[k]=cur_chr;hyf[k]=0;digit_sensed=false;
     }
   }
-else if (k < 63)
+else if (k < max_hyph_length)
   {@+hyf[k]=cur_chr-'0';digit_sensed=true;
   }
 
@@ -19354,10 +18116,10 @@ n_k$ appears in |hyf[0 dotdot k]|.
 q=0;hc[0]=cur_lang;
 while (l <= k)
   {@+c=hc[l];incr(l);p=trie_l[q];first_child=true;
-  while ((p > 0)&&(c > so(trie_c[p])))
+  while ((p > 0)&&(c > trie_c[p]))
     {@+q=p;p=trie_r[q];first_child=false;
     }
-  if ((p==0)||(c < so(trie_c[p])))
+  if ((p==0)||(c < trie_c[p]))
     @<Insert a new trie node between |q| and |p|, and make |p| point to it@>;
   q=p; /*now node |q| represents $p_1\ldots p_{l-1}$*/
   }
@@ -19374,7 +18136,7 @@ trie_o[q]=v;
 @:TeX capacity exceeded pattern memory}{\quad pattern memory@>
 incr(trie_ptr);trie_r[trie_ptr]=p;p=trie_ptr;trie_l[p]=0;
 if (first_child) trie_l[q]=p;@+else trie_r[q]=p;
-trie_c[p]=si(c);trie_o[p]=min_quarterword;
+trie_c[p]=c;trie_o[p]=min_quarterword;
 }
 
 @ @<Compute the trie op code, |v|...@>=
@@ -19399,6 +18161,8 @@ static void init_trie(void)
 int @!j, @!k, @!t; /*all-purpose registers for initialization*/
 int @!r, @!s; /*used to clean up the packed |trie|*/
 two_halves @!h; /*template used to zero out |trie|'s holes*/
+
+incr(max_hyph_char);
 @<Get ready to compress the trie@>;
 if (trie_root!=0)
   {@+first_fit(trie_root);trie_pack(trie_root);
@@ -21658,7 +20422,7 @@ because the user cannot remove these nodes nor access them via \.{\\lastkern}.
 @^real division@>
 if (IS_X_FONT(f))
 { hb_codepoint_t glyph;
-  if (x_glyph(g,c,&glyph))
+  if (x_glyph(f,character(q),&glyph))
   { scaled dummy;
     w=x_glyph_width(f,glyph);
     x_glyph_height_depth(f,glyph,&h,&dummy);
@@ -23100,6 +21864,8 @@ case def_code: if (chr_code==utf_cat_code_base) print_esc("catcode");
   else if (chr_code==utf_lc_code_base) print_esc("lccode");
   else if (chr_code==utf_uc_code_base) print_esc("uccode");
   else if (chr_code==utf_sf_code_base) print_esc("sfcode");
+  else if (chr_code==math_code_base) print_esc("mathcode");
+  else if (chr_code==sf_code_base) print_esc("sfcode");
   else print_esc("delcode");@+break;
 case def_family: print_size(chr_code-math_font_base);@+break;
 
@@ -23468,6 +22234,8 @@ int @!f; /*runs through existing fonts*/
 str_number @!t; /*name for the frozen font identifier*/
 int @!old_setting; /*holds |selector| setting*/
 str_number @!flushable_string; /*string not yet referenced*/
+bool @!file_opened; /*was the file successfully opened?*/
+char* path = NULL; /*the path of the new font file*/
 if (job_name==0) open_log_file();
    /*avoid confusing \.{texput} with the font name*/
 @.texput@>
@@ -23480,13 +22248,23 @@ else{@+old_setting=selector;selector=new_string;
 @.FONTx@>
   str_room(1);t=make_string();
   }
-define(u, set_font, null_font);scan_optional_equals();scan_file_name();
+define(u, set_font, null_font);scan_optional_equals();scan_font_name();
 @<Scan the font size specification@>;
 @<Trace the font specification@>@;
 @<If this font has already been loaded, set |f| to the internal font number
 and |goto common_ending|@>;
-f=read_font_info(u, cur_name, cur_area, s);
+@<Open |tfm_file| for input@>;
+if (file_opened) 
+f=read_font_info(u, cur_name, cur_area, cur_ext, s);
+else
+{ @<Open an extended font file for input@>@;
+  if (path!=NULL)
+    f=read_extended_font(u, cur_name, cur_area, cur_ext, s, path);
+  else
+    f=null_font;
+}
 common_ending:
+
 define(u, set_font, f);eqtb[font_id_base+f]=eqtb[u];font_id_text(f)=t;
 }
 
@@ -23521,12 +22299,13 @@ if ((s <= 0)||(s >= 01000000000))
 
 @ When the user gives a new identifier to a font that was previously loaded,
 the new name becomes the font identifier of record. Font names `\.{xyz}' and
-`\.{XYZ}' are considered to be different.
+`\.{XYZ}' are considered to be different. The following test will not cover
+the extended fonts. These are tested later.
 
 @<If this font has already been loaded...@>=
 flushable_string=str_ptr-1;
 for (f=font_base+1; f<=font_ptr; f++)
-  if (str_eq_str(font_name[f], cur_name)&&str_eq_str(font_area[f], cur_area))
+  if (!IS_X_FONT(f) && str_eq_str(font_name[f], cur_name)&&str_eq_str(font_area[f], cur_area))
     {@+if (cur_name==flushable_string)
       {@+flush_string;cur_name=font_name[f];
       }
@@ -24025,8 +22804,8 @@ undump_int(x);
 if (x!=hyph_size) goto bad_fmt
 
 @ @d dump_four_ASCII
-  w.b0=qi(so(str_pool[k]));w.b1=qi(so(str_pool[k+1]));
-  w.b2=qi(so(str_pool[k+2]));w.b3=qi(so(str_pool[k+3]));
+  w.b0=qi(str_pool[k]);w.b1=qi(str_pool[k+1]);
+  w.b2=qi(str_pool[k+2]);w.b3=qi(str_pool[k+3]);
   dump_qqqq(w)
 
 @<Dump the string pool@>=
@@ -24043,8 +22822,8 @@ print_int(pool_ptr)
 
 @ @d undump_four_ASCII
   undump_qqqq(w);
-  str_pool[k]=si(qo(w.b0));str_pool[k+1]=si(qo(w.b1));
-  str_pool[k+2]=si(qo(w.b2));str_pool[k+3]=si(qo(w.b3))
+  str_pool[k]=qo(w.b0);str_pool[k+1]=qo(w.b1);
+  str_pool[k+2]=qo(w.b2);str_pool[k+3]=qo(w.b3)
 
 @<Undump the string pool@>=
 undump_size(0, pool_size,"string pool size", pool_ptr);
@@ -24294,6 +23073,7 @@ if (trie_not_ready) init_trie();
 dump_int(trie_max);
 dump_int(hyph_start);
 for (k=0; k<=trie_max; k++) dump_hh(trie[k]);
+dump_int(max_hyph_char);
 dump_int(trie_op_ptr);
 for (k=1; k<=trie_op_ptr; k++)
   {@+dump_int(hyf_distance[k]);
@@ -24305,7 +23085,7 @@ print_nl("Hyphenation trie of length ");print_int(trie_max);
 print(" has ");print_int(trie_op_ptr);print(" op");
 if (trie_op_ptr!=1) print_char('s');
 print(" out of ");print_int(trie_op_size);
-for (k=255; k>=0; k--) if (trie_used[k] > min_quarterword)
+for (k=max_language; k>=0; k--) if (trie_used[k] > min_quarterword)
   {@+print_nl("  ");print_int(qo(trie_used[k]));
   print(" for language ");print_int(k);
   dump_int(k);dump_int(qo(trie_used[k]));
@@ -24326,6 +23106,7 @@ trie_max=j;
 #endif
 undump(0, j, hyph_start);
 for (k=0; k<=j; k++) undump_hh(trie[k]);
+undump_int(max_hyph_char);
 undump_size(0, trie_op_size,"trie op size", j);
 #ifdef @!INIT
 trie_op_ptr=j;
@@ -24336,7 +23117,7 @@ for (k=1; k<=j; k++)
   undump(min_quarterword, max_quarterword, hyf_next[k]);
   }
 #ifdef @!INIT
-for (k=0; k<=255; k++) trie_used[k]=min_quarterword;
+for (k=0; k<=max_language; k++) trie_used[k]=min_quarterword;
 #endif
 @;@/
 k=256;
@@ -25737,15 +24518,8 @@ adv_past(cur_p)
 @ @<Advance \(p)past a whatsit node in the \(p)pre-hyphenation loop@>=@+
 adv_past(s)
 
-
 @ @<Process whatsit |p| in |vert_break| loop, |goto not_found|@>=
 goto not_found
-
-@ @<Output the whatsit node |p| in a vlist@>=
-out_what(p)
-
-@ @<Output the whatsit node |p| in an hlist@>=
-out_what(p)
 
 @ After all this preliminary shuffling, we come finally to the routines
 that actually send out the requested data. Let's do \.{\\special} first
@@ -25827,10 +24601,7 @@ help2("On this page there's a \\write with fewer real {'s than }'s.",@/
 }@+ while (!(cur_tok==end_write_token));
 }
 
-@ The |out_what| procedure takes care of outputting whatsit nodes for
-|vlist_out| and |hlist_out|\kern-.3pt.
-
-@<Declare procedures needed in |hlist_out|, |vlist_out|@>=
+@ @<Declare procedures needed in |hlist_out|, |vlist_out|@>=
 
 static void out_what(pointer @!p)
 {@+small_number j; /*write stream number*/
@@ -25888,9 +24659,9 @@ a non-|clang| language is being appended to the current paragraph.
 
 @<Declare action...@>=
 static void fix_language(void)
-{@+ASCII_code @!l; /*the new current language*/
+{@+int @!l; /*the new current language*/
 if (language <= 0) l=0;
-else if (language > 255) l=0;
+else if (language > max_language) l=0;
 else l=language;
 if (l!=clang)
   {@+new_whatsit(language_node, small_node_size);
@@ -25905,7 +24676,7 @@ if (abs(mode)!=hmode) report_illegal_case();
 else{@+new_whatsit(language_node, small_node_size);
   scan_int();
   if (cur_val <= 0) clang=0;
-  else if (cur_val > 255) clang=0;
+  else if (cur_val > max_language) clang=0;
   else clang=cur_val;
   what_lang(tail)=clang;
   what_lhm(tail)=norm_min(left_hyphen_min);
@@ -26570,8 +25341,8 @@ flush_string;
 }
 
 @ @<Convert string |s| into a new pseudo file@>=
-str_pool[pool_ptr]=si(' ');l=str_start[s];
-nl=si(new_line_char);
+str_pool[pool_ptr]=' ';l=str_start[s];
+nl=new_line_char;
 p=get_avail();q=p;
 while (l < pool_ptr)
   {@+m=l;
@@ -26581,18 +25352,18 @@ while (l < pool_ptr)
   r=get_node(sz);link(q)=r;q=r;info(q)=hi(sz);
   while (sz > 2)
     {@+decr(sz);incr(r);
-    w.b0=qi(so(str_pool[m]));w.b1=qi(so(str_pool[m+1]));
-    w.b2=qi(so(str_pool[m+2]));w.b3=qi(so(str_pool[m+3]));
+    w.b0=qi(str_pool[m]);w.b1=qi(str_pool[m+1]);
+    w.b2=qi(str_pool[m+2]);w.b3=qi(str_pool[m+3]);
     mem[r].qqqq=w;m=m+4;
     }
   w.b0=qi(' ');w.b1=qi(' ');w.b2=qi(' ');w.b3=qi(' ');
   if (l > m)
-    {@+w.b0=qi(so(str_pool[m]));
+    {@+w.b0=qi(str_pool[m]);
     if (l > m+1)
-      {@+w.b1=qi(so(str_pool[m+1]));
+      {@+w.b1=qi(str_pool[m+1]);
       if (l > m+2)
-        {@+w.b2=qi(so(str_pool[m+2]));
-        if (l > m+3) w.b3=qi(so(str_pool[m+3]));
+        {@+w.b2=qi(str_pool[m+2]);
+        if (l > m+3) w.b3=qi(str_pool[m+3]);
         }
       }
     }
@@ -28098,8 +26869,8 @@ hyph_root=0;hyph_start=0;
 @ @<Store hyphenation codes for current language@>=
 {@+c=cur_lang;first_child=false;p=0;
 @/do@+{q=p;p=trie_r[q];
-}@+ while (!((p==0)||(c <= so(trie_c[p]))));
-if ((p==0)||(c < so(trie_c[p])))
+}@+ while (!((p==0)||(c <= trie_c[p])));
+if ((p==0)||(c < trie_c[p]))
   @<Insert a new trie node between |q| and |p|, and make |p| point to it@>;
 q=p; /*now node |q| represents |cur_lang|*/
 @<Store all current |lc_code| values@>;
@@ -28117,7 +26888,7 @@ for (c=0; c<=255; c++)
     {@+if (p==0)
       @<Insert a new trie node between |q| and |p|, and make |p| point to
 it@>@;
-    else trie_c[p]=si(c);
+    else trie_c[p]=c;
     trie_o[p]=qi(lc_code(c));
     q=p;p=trie_r[q];first_child=false;
     }
@@ -28440,11 +27211,11 @@ the procedure to flush it if wanted.
 @<Declare \Prote\ procedures for strings@>=
 static void str_to_name(str_number @!s)
 {@+int k; /*number of positions filled in |name_of_file|*/
-ASCII_code @!c; /*character being packed*/
+UTF8_code @!c; /*character being packed*/
 int @!j; /*index into |str_pool|*/
 k=0;for (j=str_start[s]; j<=str_start[s+1]-1; j++) {@+
-  c=so(str_pool[j]);incr(k);
-  if (k <= file_name_size) name_of_file[k]=xchr[c];
+  c=str_pool[j];incr(k);
+  if (k <= file_name_size) name_of_file[k]=c;
   }
 name_length=k;
 name_of_file[name_length+1]=0;
@@ -28715,12 +27486,8 @@ case strcmp_code: print_esc("strcmp");@+break;
 
 @ It should be noted that the strings comparison is \TeX\ strings
 comparison: the arguments are subject to the manipulation done when
-scanning a general text (squeezing non escaped blanks), and the
-characters are converted according to the |xord| array. Thus it is
-an |ASCII_code|---in the \TeX\ sense explained at the very beginning
-of the web file, part 2---comparison and the result is the same,
-as long as relative characters are mapped to the same value, whatever
-the system. Null strings are valid.
+scanning a general text (squeezing non escaped blanks). 
+Null strings are valid.
 
 @<Cases of `Scan the argument for command |c|'@>=
 case strcmp_code: {@+scan_general_x_text();toks_to_str();
@@ -29472,23 +28239,6 @@ case normal_deviate_code: print_int(cur_val);
 
 @*1 DVI related primitives.
 
-These primitives are related to positions in the DVI output.
-
-The \TeX\ and DVI system coordinates relate to an origin that is at the
-upper left corner. The \TeX\ coordinates are computed relative to an
-origin that has $(0,0)$ coordinates. Coordinates grow then rightward and
-downward. This is the {\sl page} coordinates relative to what is
-typeset (what \TeX\ is dealing with).
-
-But this typesetting material has to be put on what we will call {\sl
-paper}. The material put into shape by \TeX\ is put on the paper. On
-this paper, where will be put the \TeX\ origin? It is considered to be
-$1in$ at the right and $1in$ down from the upper left corner of the
-paper (see m.590, alinea 2).
-
-@d DVI_std_x_offset 4736286 /*1 inch in sp*/
-@d DVI_std_y_offset 4736286 /*1 inch in sp*/
-
 @ But the paper size is not specified in the DVI file and is not being
 dealt with by \TeX.
 
@@ -29820,7 +28570,7 @@ static void hline_break(int final_widow_penalty)
   scaled par_max_depth=0;
   bool par_shape_fix=false;
   @<initialize the color stack@>@,
-#if DEBUG
+#ifdef DEBUG
   if (DBGTEX&debugflags)
   { print_ln();print("Before hline_break:\n");
     breadth_max=200;
@@ -30207,7 +28957,7 @@ static int next_colorset(ColorSet c)
   if (max_color>=colors_allocated)
     RESIZE(colors,colors_allocated,ColorSet);
   colorset_copy(colors[max_color],c);
-#if DEBUG
+#ifdef DEBUG
   if (debugflags&DBGDEF)
   { print_nl("HINT Defining new color "); print_int(max_color);print(": ");
     print_color_spec(max_color); }
@@ -30225,7 +28975,7 @@ memcpy(colors,color_defaults,sizeof(ColorSet)*(max_color+1));
 @ Next we implement a procedure to print a color specification.
 
 @ @<Hi\TeX\ auxiliary routines@>=
-
+#ifdef DEBUG
 static bool is_default_color_pair(ColorSet c, int m, int s)
 { return c[6*m+2*s] == colors[0][6*m+2*s]
       && c[6*m+2*s+1] == colors[0][6*m+2*s+1];
@@ -30256,6 +29006,7 @@ static void print_color_triple(ColorSet c, int m)
   { print_char(' '); print_color_pair(c,m,2); }
 }
 
+
 static void print_color_spec(int i)
 { if (i>max_color) {print("undefined color "); print_int(i);}
   else if (i<0 || i>0xFF) { print("illegal color "); print_int(i);}
@@ -30268,9 +29019,7 @@ static void print_color_spec(int i)
     print(" dark "); print_color_triple(colors[i],1);
   }
 }
-
-@ @<Forward declarations@>=
-static void print_color_spec(int i);
+#endif
 
 @ To create a color node you can use the following function:
 @<Hi\TeX\ auxiliary routines@>=
@@ -30282,7 +29031,9 @@ static pointer new_color_node(uint8_t c)
 }
 
 @ @<Forward declarations@>=
+#ifdef DEBUG
 static void print_color_spec(int i);
+#endif
 static pointer new_color_node(uint8_t c);
 
 @ Writing a color node to the output is simple.
@@ -31815,7 +30566,6 @@ static void hint_open(void)
   DBG(DBGBASIC,"Output file %s opened\n",(char *)name_of_file+1);
 }
 
-#define HITEX_VERSION "1.1"
 static void  hput_definitions();
 extern int option_global;
 static void hout_terminate(void)
@@ -31824,9 +30574,10 @@ static void hout_terminate(void)
   hput_content_end();
   hput_definitions();
   option_global=true; /* use global names in the directory */
+  @<record the names of files in optional sections@>@;
+  @<Compute subset fonts if requested@>@;
   hput_directory();
   s = hput_hint("created by HiTeX Version " HITEX_VERSION);
-  @<record the names of files in optional sections@>@;
   print_nl("Output written on "); slow_print(output_file_name);
 @.Output written on x@>
   print(" (1 page, "); print_int(s); print(" bytes).");
@@ -31871,6 +30622,8 @@ for (i=3; i<= max_section_no;i++)
   max_section_no=i;
   if (max_section_no>0xFFFF) QUIT("Too many sections");
   dir[i].section_no=i;
+
+
 @ @<Hi\TeX\ macros@>=
 #define @[RESIZE(P,S,T)@]	      \
 { int _n = (S)*1.4142136 +0.5;        \
@@ -32780,11 +31533,10 @@ static char *hfind_glyphs(char *filename)
 { char *fname=NULL;
   kpse_glyph_file_type file_ret;
   fname=kpse_find_file(filename,kpse_type1_format,true);
+  /* the unlikely case of a TrueType/OpenType font with TFM file */
   if (fname==NULL) fname=kpse_find_file(filename,kpse_truetype_format,true);
   if (fname==NULL) fname=kpse_find_file(filename,kpse_opentype_format,true);
   if (fname==NULL) fname = kpse_find_glyph(filename, option_dpi,kpse_pk_format, &file_ret);
-  if (fname==NULL)
-   fprintf(stderr,"Unable to find glyph data for font %s\n",filename),exit(1);
   return fname;
 }
 
@@ -32796,7 +31548,6 @@ static uint8_t hget_font_no(uint8_t f)
     return 0;@+
   }
   g=hmap_font[f];
-  DBG(DBGFONT,"Mapping TeX font %d->%d\n",f,g);
   if (g>=0) return g;
   DBG(DBGDEF,"New TeX font %d\n",f);
   if (max_ref[font_kind]>=0x100)
@@ -32826,6 +31577,7 @@ static uint8_t hget_font_no(uint8_t f)
     hfonts[g]->y= hnew_file_section(n);
     free(n);
   }
+  DBG(DBGFONT,"Mapping TeX font %d->%d\n",f,g);
   return g;
 }
 
@@ -32878,7 +31630,7 @@ static void hout_string(int s)
   uint8_t c;
   j= str_start[s];
   while(j<str_start[s+1])
-  { c= so(str_pool[j++]);
+  { c= str_pool[j++];
     if (c=='%' || c < 0x20 ||c >= 0x7F)
     { char str[4];
       snprintf(str,4,"%%%02X",c);/* convert to printable ASCII */
@@ -33031,6 +31783,7 @@ small variations for all kinds of nodes.
 { Glyph g;
   g.f=hget_font_no(font(p));
   g.c = character(p);
+  @<Register character node |p| in the font subset@>@;
   tag=hput_glyph(&g);
 }
 @*1 Penalties.
@@ -34229,11 +32982,16 @@ else if (ARGUMENT_IS("version")){@+
     printf("Prote version %s\n", Prote_version_string);
 #else
        printf(banner@, "\n"@/
+#ifdef eTeX_version_string
+       "eTeX version "@,eTeX_version_string@,"\n"@/
+#endif	      
 #ifdef HINT_VERSION_STRING
-              "HINT version "@,HINT_VERSION_STRING@,"\n"@/
+       "HINT version "@,HINT_VERSION_STRING@,"\n"@/
 #endif
-              "Prote version "@, Prote_version_string@, "\n");
+#ifdef Prote_version_string
+       "Prote version "@, Prote_version_string@, "\n"
 #endif
+       );
        exit(0);@+
 }
 
@@ -34842,7 +33600,7 @@ static void input_add_char(unsigned int c)
      if (max_buf_stack==buf_size)
        @<Report overflow of the input buffer, and abort@>;
   }
-  buffer[last]=xord[c];incr(last);
+  buffer[last]=c;incr(last);
 }
 
 static void input_add_str(const char *str)
@@ -34944,7 +33702,7 @@ static void update_name_of_file(const char *@!s, int @!k)
 {@+ int j;
   if (k <= file_name_size) name_length=k;@+
   else name_length=file_name_size;
-  for (j=0; j<name_length;j++)  name_of_file[j+1]=xchr[(int)s[j]];
+  for (j=0; j<name_length;j++)  name_of_file[j+1]=s[j];
   name_of_file[name_length+1]=0;
 }
 
@@ -34974,9 +33732,14 @@ static bool a_open_in(alpha_file *f) /*open a text file for input*/
    return f->f!=NULL && ferror(f->f)==0;
 }
 
-static bool b_open_in(byte_file *f)   /*open a binary file for input*/
-{@+f->f= open_in((char *)name_of_file+1,kpse_tfm_format,"rb");
-   if (f->f!=NULL) get(*f);
+static bool b_open_in(byte_file *f, char *fname)   /*used only for .tfm files*/
+{@+FILE*tfm= NULL;
+   tfm= fopen(fname,"rb");
+   if (tfm!=NULL) recorder_record_input(fname);
+   if (full_name_of_file!=NULL) free(full_name_of_file);
+   full_name_of_file=fname;@+
+   f->f= tfm;
+   get(*f);
    return f->f!=NULL && ferror(f->f)==0;
 }
 
@@ -35294,13 +34057,13 @@ if (i <= k)
 {  d=b[i]; incr(i); 
    if ((d&0xC0)!=0x80 && scanner_status!=skipping)
    { print_err("Invalid UTF8 continuation byte in the input");
-     cur_chr=invalid_code;
+     cur_chr=biggest_char;
      return i;
    }
 }
 else if (scanner_status!=skipping)
 { print_err("Missing UTF8 continuation byte in the input");
-  cur_chr=invalid_code;
+  cur_chr=biggest_char;
   return i;
 }
 
@@ -35333,7 +34096,7 @@ if ((cur_chr&0xF8)==0xF0)
   cur_chr= (cur_chr<<6)+(d&0x3F);
   if (cur_chr>0x10FFFF && scanner_status!=skipping)
   { print_err("UTF8 code out of range in the input");
-    cur_chr=invalid_code;
+    cur_chr=biggest_char;
   }
   return i;
 }
@@ -35354,14 +34117,41 @@ buffer and returns the updated value.
   @<input a three byte utf8 code@>@;
   @<input a four byte utf8 code@>@;
   print_err("Malformed UTF8 code in the input; character ignored");
-  cur_chr=invalid_code;
+  cur_chr=biggest_char;
   return i;
 }
 
 @ This process can be reverted by printing an UTF8 character
 assuming the user's terminal and log file are UTF8 capable.
+The parameters of |utf8_put_char| are a pointer |b| into an array of byte where
+the next characters is inserted at index |i|, and a maximum value for
+the index |k|. The function advances the index |i| for each byte put into the
+buffer and returns the updated value.
+A slightly simpler version is |print_utf8| which writes the character
+to the output.
 
-@p static void print_utf8(uint32_t c)
+@d append_utf8(A)  /*put UTF8 codes \# at the end of |str_pool|*/
+{@+int i=utf8_put_char(str_pool,pool_ptr,pool_size,A); pool_ptr=i;
+}
+
+@p
+static int utf8_put_char(unsigned char *b, int i, int k, uint32_t c)
+{ if (i+4 > k) /*put a multibyte character in the buffer*/
+      overflow("utf8 buffer size", k);
+  if (c<0x80) 
+  { b[i++]=c; }
+  else if (c<0x800)@/
+  { b[i++]=0xC0|(c>>6); b[i++]=0x80|(c&0x3F); } 
+  else if (c<0x10000)@/
+  { b[i++]=(0xE0|(c>>12)); b[i++]=(0x80|((c>>6)&0x3F));
+    b[i++]=(0x80|(c&0x3F)); } 
+  else if (c<0x180000)@/
+  { b[i++]=(0xF0|(c>>18)); b[i++]=(0x80|((c>>12)&0x3F)); 
+    b[i++]=(0x80|((c>>6)&0x3F)); b[i++]=(0x80|(c&0x3F)); }
+  return i;
+}
+
+static void print_utf8(uint32_t c)
 {@+ if (c<0x80) 
   { print_char(c); }
   else if (c<0x800)@/
@@ -35483,7 +34273,7 @@ to store these values in the available halfword (32 bit) of |eqtb|.
 @d math_code_class(A) (((A)>>21)&0x7)
 @d math_code_char(A) ((A)&0x1FFFFF)
 @d Umath_to_math(A) { int fam=math_code_fam(A); int class=math_code_class(A); int cp=math_code_char(A);
-  if (cp<=0xFF && fam<=0xF && class<=0xF) A =(((class<<4)|fam)<<8)|cp; }
+  if (cp<=0xFF && fam<=0xF && class<=0xF) A =(((class<<4)|fam)<<8)|cp; else A=0; }
 @d math_to_Umath(A) { int class = (A>>12)&0xF, fam = (A>>8)&0xF, cp = A&0xFF; A =(((fam<<3)|class)<<21)|cp;}
 
 
@@ -35633,6 +34423,7 @@ for (k=248; k<=255; k++)
 
 @ @<Forward declarations@>=
 static int utf8_get_cur_chr(unsigned char *b, int i, int k);
+static int utf8_put_char(unsigned char *b, int i, int k, uint32_t c);
 static void print_utf8(uint32_t c);
 static uint8_t utf_catcode(uint32_t i);
 static uint32_t utf_set_catcode(uint32_t i, uint8_t cat);
@@ -35672,7 +34463,7 @@ with \.{otftotfm}, this is not the best solution, because modern font
 files contain much more information about the best way to typeset a
 given text than what would fit into a \.{TFM} file.  This is
 especially true for ``non-latin'' texts. For this reason, modern \TeX\
-engines, like \.{luatex} or \.{xetex}, load and use the font files
+engines, like \LuaTeX\ or \XeTeX, load and use the font files
 directly. 
 
 To convert a unicode encoded text into a list of glyphs and
@@ -35758,24 +34549,159 @@ such fonts will often have an |x_|\dots\  prefix in their name.
 
 While Hi\TeX\ wants to be compatible with other \TeX\ engines, its
 implementation of the \.{\\font} primitive still uses a simplified
-version of the extended syntax used in \.{xetex}.  For now when the
-\.{\\font} primitive calls the |read_font_info| procedure, the current
-file name may must simply be a file name; it is permissible however to
-enclose the file name in double quotes, curly braces, or square
-brackets. Trailing text after the closing square bracket is ignored.
+version of the extended syntax used in \XeTeX. The procedure is
+called |scan_font_name| and is a modified version of |scan_file_name|.
+
+@<Declare procedures that scan font-related stuff@>=
+static void begin_name(void);
+static bool more_name(uint32_t @!c);
+static void end_name(void);
+static void scan_font_name(void)
+{@+pool_pointer @!j, k; /*index into |str_pool|*/
+  int @!old_setting; /*holds |selector| setting*/
+  char *f_name=NULL;
+  name_in_progress=true;begin_name();
+  @<Get the next non-blank non-relax...@>;
+  if (cur_cmd==left_brace)
+    @<Define a general text file name and |goto done|@>@;
+  loop@+{@+if ((cur_cmd > other_char)||(cur_chr > biggest_char))  /*not a character*/
+    {@+back_input();goto done;
+    }
+    if (!more_name(cur_chr)) goto done;
+    get_x_token();
+  }
+done:
+  @<Split the font name into its components@>@;
+  end_name();
+  name_in_progress=false;
+}
+
+@ @<Glob...@>=
+  int f_index;
+  int f_delimiter;
+
+
+@ When we try to split the font name into its components,
+the users input string is in |str_pool| starting at |str_start[str_ptr]|
+up to |pool_ptr-1| its lenght is |cur_length|.
+We have |area_delimiter==0| or equal to the string length up to the
+last |DIR_SEP| character.
+We have |ext_delimiter==0| or equal to the string length up to the
+last |'.'| character.
+We look for brackets and prefixes
+then try to get the right file path using the kpse_find_file
+function. 
+Finaly, we put the area, the name and the extension back into the
+string pool and set |cur_area|, |cur_name|, and |cur_ext| using
+|end_name|. The font index and the font options will go into
+separate global variables. 
+
 
 @<Split the font name into its components@>=
-{ int i=1;
-  int name_start=1;
-  if (name_of_file[i]=='[')
-  { i++;
-    name_start=i;
-    while (name_of_file[i]!=0)
-      if (name_of_file[i]==']') 
-      { name_of_file[i]=0; break; }
-      else i++;
+{ f_name= (char *)str_pool+str_start[str_ptr];
+  int l = cur_length;
+  int i=0;
+  int d;
+  if (f_name[i]=='[')
+  { d=1;
+    @<Find a bracketed file name@>@;
   }
-  f_name=(char*)name_of_file+name_start;
+  else if (strncmp("file:",f_name,5)==0)
+  { d=5;
+    @<Find a non-bracketed file name@>@;
+  }
+  else if (strncmp("name:",f_name,5)==0)
+  { d=5;
+    @<Find a font by name@>@;
+  }
+  else
+  { /* Assuming a missing file: prefix*/
+    d=0;
+    @<Find a non-bracketed file name@>@;
+  }
+  if (i<l && f_name[i]=='(')
+  { i++;
+    @<Find font selector@>@;
+  }
+  else
+    f_index=0;
+  if (i<l && f_name[i]==':')
+  { begin_diagnostic();
+    print_nl("Font features not yet implemented!");
+    end_diagnostic(false);
+  }
+  pool_ptr=str_start[str_ptr]+f_delimiter; /*flush the remaining string*/
+}
+
+@ A bracketed file name starts and ends with a \.{[}.
+Since at this point |name_of_file| does not contain the extention,
+the closing bracket might be missing if it was after the extension.
+@<Find a bracketed file name@>=
+{
+  i+=d;
+  f_delimiter=area_delimiter=ext_delimiter=0;
+  while (i<l)
+  { f_name[i-d]=f_name[i];
+    if (f_name[i]==']')
+    {  f_delimiter=i-d;
+       d=2;
+      i++;
+      break;
+    }
+    else if (IS_DIR_SEP(f_name[i])) {@+area_delimiter=i+1-d;ext_delimiter=0; }
+    else if (f_name[i]=='.') ext_delimiter=i+1-d;
+    i++;
+  }
+  if (d!=2)
+  { begin_diagnostic();
+    print_nl("Bracketed font file name with missing ']'");
+    end_diagnostic(false);
+  }
+}
+
+@ A non bracketed file name is terminated either by the opening parenthesis
+that starts the font selector, or by the colon that starts the font features,
+or by the end of the string
+@<Find a non-bracketed file name@>=
+{ i+=d;
+  f_delimiter=area_delimiter=ext_delimiter=0;
+  while (i<l)
+  { f_name[i-d]=f_name[i];
+    if (f_name[i]=='(' || f_name[i]==':')
+      break;
+    else if (IS_DIR_SEP(f_name[i])) {@+area_delimiter=i+1-d;ext_delimiter=0; }
+    else if (f_name[i]=='.') ext_delimiter=i+1-d;
+    i++;
+  }
+  f_delimiter=i-d;
+}
+
+
+@ A font selector is enclosed in parentheses and currently is allways in integer.
+It would be nice, if \HiTeX\ could use |scan_int|, but that would need a completely
+different syntay for font specifications.
+
+
+@<Find font selector@>=
+{ char *end_ptr=NULL;
+  f_index=strtol((char *)f_name+i,&end_ptr,10);
+  i=(end_ptr-f_name);
+  if (*end_ptr==')')
+    i++;
+  else
+    {@+begin_diagnostic();
+     print_nl("Missing ]): There is no ) to terminate the font selector!");
+@.Missing ]@>
+     end_diagnostic(false);
+    }
+}
+
+
+
+@ The name based font lookup needs to be implemented.
+@<Find a font by name@>=
+{ i+=d;
+  fatal_error("Finding fonts by name not yet implemented");
 }
 
 @ If a file name was given, we use the kpathsearch library to find the file.
@@ -35785,21 +34711,15 @@ one should use \.{afm2tfm} to convert the \.{.afm} files to \.{tfm}
 files and put the new \.{tfm} files in a place where the \.{kpathsearch} library
 can find them. Then run \.{mktexls}.
 
+The following code ignores a given file extension. So if a font
+is available in both formats, it will find the OpenType font even
+if ``.ttf'' was given as an extension.
+
 @<Open an extended font file for input@>=
-{  char *f_name;
-   int f_index=0; 
- /*As soon as I allow other index values, options, and features,
-   I have to extend the test for ``If this font has already been loaded\dots''*/
-   pack_file_name(nom, aire,empty_string,""); /* \TeX\ Live */
-   @<Split the font name into its components@>@;
-   path=kpse_find_file(f_name, kpse_opentype_format, 0);
+{  pack_file_name(cur_name, cur_area, empty_string,""); /* \TeX\ Live */
+   path=kpse_find_file((char *)name_of_file+1, kpse_opentype_format, 0);
    if (path == NULL)
-     path = kpse_find_file(f_name, kpse_truetype_format, 0);
-   if (path!=NULL)
-   { @<load an extended font@>@;
-     if (g!=null_font) file_opened=true; 
-     goto done;
-   }
+     path = kpse_find_file((char *)name_of_file+1, kpse_truetype_format, 0);
 }
 
 
@@ -35812,7 +34732,7 @@ if (tracing_fonts>0)
 {@+
   begin_diagnostic();
   print_nl("Requested font \"");
-   printn(cur_area);printn(cur_name);
+   printn(cur_area);printn(cur_name);printn(cur_ext);
   print_char('"');
   if (s < 0) {@+
     print(" scaled ");
@@ -35827,20 +34747,20 @@ if (tracing_fonts>0)
 
 @ After a font file was found, we trace it with this code:
 
-@<Trace the new font@>=
+@<Trace the new extended font@>=
 if (tracing_fonts>0)
 {@+begin_diagnostic();
    print_nl(" -> ");
    if (path!=NULL)
    {  print(path);
-      if (!file_opened) print_nl("Not loadable: font file not found");
+      if (g==null_font) print_nl("Not loadable: font file not found");
    }
    else
      print("no matching file found.");
   if (g==null_font) print_nl("Font not found, using \"nullfont\"");
   end_diagnostic(false);
 }
-#if DEBUG
+#ifdef DEBUG
 if (IS_X_FONT(g))
 { int x_scale, y_scale;
   unsigned int x_ppem,y_ppem;
@@ -35909,17 +34829,119 @@ the code has stabilized.
 
 
 
-@*Font subsets.
-Very often only a small subset of the glyphs in a font are used in the document at hand.
-For example, the title of this document is ``Hi\TeX'' and if set using a special font,
-only 5 glyphs are actually used. In such cases, it is a waste of memory to embed the
-entire font in the \HINT\ document. So it is desirable to construct from a font
-a subset font, that contains only a subset of all glyphs in the font.
-This can be done easily using the Harfbuzz library.
+@* Font subsets.
+Very often only a small subset of the glyphs in a font are used in the
+document at hand.  For example, this program is part of the \HINT\
+project, and if the project name is typeset using a special font, only
+4 glyphs are actually used. In such cases, it is a waste of memory to
+embed the entire font in the \HINT\ document. Instead it is desirable to
+construct from a font a subset font, that contains only a subset of
+all glyphs in the font.  This can be done easily using the Harfbuzz
+library.
 
-Embedding only subsets is the default for Hi\TeX. This can be changed by using the
-option \.{-no-subset} on the command line setting the |option_subset| variable to |false|.
+Embedding only subsets is the default for Hi\TeX. This can be changed
+by using the option \.{-no-subset} on the command line setting the
+|option_subset| variable to |false|.
 
+
+@<Initialize font |g| for subsetting@>=
+if (option_subset)
+{ x_font[g]->sub=hb_subset_input_create_or_fail ();
+  if (x_font[g]->sub!=NULL)
+  { x_font[g]->subset = hb_subset_input_unicode_set (x_font[g]->sub);
+    hb_subset_input_set_flags ( x_font[g]->sub, HB_SUBSET_FLAGS_NO_HINTING);
+  }
+  else
+    x_font[g]->subset=NULL;
+  if (x_font[g]->subset!=NULL)
+    hb_set_clear(x_font[g]->subset);
+}
+else x_font[g]->subset=NULL;
+
+
+@ Whenever a character node |p| is written to the output, either in the
+content section or in the definition section, \HiTeX registers the
+character in the font subset.
+
+
+@<Register character node |p| in the font subset@>=
+  if (x_font[font(p)]!=NULL && x_font[font(p)]->subset!=NULL)
+    hb_set_add (x_font[font(p)]->subset,  character(p));
+
+
+@ After content and definition section are written to the output
+and before the directory section can be written,
+the font subsets are computed and the directory is updated appropriately.
+
+@<Compute subset fonts if requested@>=
+{ int i;
+  for (i=0;i<=font_ptr;i++)
+    if (IS_X_FONT(i) &&  x_font[i]->f!=NULL )
+    { hb_blob_t *blob=NULL;
+      const char *buf=NULL;
+      unsigned int size;
+      bool is_subset=false;
+
+      if (x_font[i]->sub!=NULL)
+      { hb_face_t *fin, *fout=NULL;
+        fin= hb_font_get_face(x_font[i]->f);
+        if (fin!=NULL)
+	   fout= hb_subset_or_fail (fin, x_font[i]->sub);
+        if (fout==NULL)
+        { print_err("Unable to compute subset for font "); printn_esc(font_id_text(i));print_ln();
+          error();
+        }
+        else
+        { blob = hb_face_reference_blob (fout);
+	}
+        hb_subset_input_destroy(x_font[i]->sub);
+	x_font[i]->sub=NULL;
+        x_font[i]->subset=NULL;	
+      }
+      if (blob!=NULL)
+         is_subset=true;
+      else
+	 blob = x_font[i]->blob;
+      if (blob!=NULL)
+        buf = hb_blob_get_data (blob, &size);
+      if (buf!=NULL && size>0 )
+      { int g;
+        g=hmap_font[i];
+        if (g>=0 && hfonts[g]!=NULL && hfonts[g]->y>2) 
+        { int y= hfonts[g]->y;
+	  dir[y].size=size;
+	  dir[y].buffer=(uint8_t*)buf;
+	  if (is_subset)
+	  { DBG(DBGFONT,"Creating subset for font %s (size %d)",dir[y].file_name,size);
+	    @<mark the file name by appending ``.subset''@>@;
+	  }
+	}
+      }
+    }
+}
+
+
+@ Because programs like {\tt stretch} that unpack binary \HINT\ files can copy auxiliar files to disk,
+it is important not to confuse a possibly very small subset of a font file with the original font file.
+Therefore the string ``.subset'' is appended to the file name just before the file extension.
+Whe \HiTeX\ makes a subset from a subset, the marking is not duplicated.
+
+@<mark the file name by appending ``.subset''@>=
+{ char *n =dir[y].file_name;
+  int i, k;
+  i=k=strlen(n);
+  while (k>0)
+  { k--;
+    if (n[k]=='.') break;
+  }
+  if (k<7 || strncmp(".subset",n+k-7,7)!=0)
+  { ALLOCATE(dir[y].file_name,i+7+1,char); /*|file_name|,|".subset"|,zero byte*/
+    strncpy(dir[y].file_name,n,k);
+    strncpy(dir[y].file_name+k,".subset",8);
+    strncpy(dir[y].file_name+k+7,n+k,i-k);
+    free(n);
+  }
+}
 
 
 @* Harfbuzz.
@@ -35933,6 +34955,7 @@ HarfBuzz that is included in \TeX\ Live when doing a ``native'' build there.
 @<Header files and function declarations@>=
 #include "hb.h"
 #include "hb-ot.h"
+#include "hb-subset.h"
 
 @ When we define an extended font, we allocate an |x_font_info| record
 for the necessary data and store a pointer to it in the |x_font| array
@@ -35955,6 +34978,8 @@ primitive will issue an error message if it encounters an extended font.
 typedef struct {
   hb_blob_t *blob; /* can be shared for different faces */
   hb_font_t *f;
+  hb_subset_input_t *sub;
+  hb_set_t *subset;
   int i; /* index */
   scaled s; /* size */
 } x_font_info;
@@ -35964,39 +34989,65 @@ static x_font_ptr @!x_font0[font_max-font_base+1]={NULL},
   *const @!x_font = @!x_font0-font_base;
 
 @ @<load an extended font@>=
-{ hb_blob_t *blob;
-  hb_face_t *face;
+{ hb_face_t *face;
   hb_font_t *f;
   scaled f_dsize;
-
-  blob = hb_blob_create_from_file(path); 
-  if (blob==NULL) fatal_error("Unable to open extended font file!");
-  face = hb_face_create(blob, f_index);
+  
+  if (font_ptr==font_max|| fmem_ptr+8 > font_mem_size)
+    @<Apologize for not loading the font, |goto done|@>;
+  font_ptr++;
+  g=font_ptr;
+  ALLOCATE(x_font[g],1,x_font_info);
+  font_name[g]=nom;
+  @<Search for a font with the same |path| or load the |path|@>@;
+  
+  face = hb_face_create(x_font[g]->blob, f_index);
   if (face==NULL) fatal_error("Unable to open extended font face!");
   f = hb_font_create(face);
   if (f==NULL)
     fatal_error("Unable to open extended font!");
-  if (font_ptr==font_max|| fmem_ptr+8 > font_mem_size)
-  @<Apologize for not loading the font, |goto done|@>;
-  font_ptr++;
-  g=font_ptr;
+  x_font[g]->f=f;
+
   @<determine the design size@>@;
   @<adjust the extended font for the given scale factor@>@; 
-  @<initialize the font tables for the extended font |g|@>@;
+  @<Initialize the font tables for the extended font |g|@>@;
+}
+
+@ It is quite common to create several font faces from the same
+font file. For example using the font at different sizes.
+In the \HINT\ file, we do not want to include the file multiple times,
+so here is the place to look for an exiting font using the same
+file.
+
+@<Search for a font with the same |path| or load the |path|@>=
+{ int i;
+  x_font[g]->blob=NULL;
+  x_font[g]->sub=NULL;
+  x_font[g]->subset=NULL;
+  for (i=1; i<g; i++)
+    if (IS_X_FONT(i) && str_eq_buf(font_area[i],path))
+    { font_area[g]=font_area[i];
+      x_font[g]->blob=x_font[i]->blob;
+      x_font[g]->subset=x_font[i]->subset;
+      break;
+    }
+  if (x_font[g]->blob==NULL)
+  { x_font[g]->blob = hb_blob_create_from_file(path);
+    if (x_font[g]->blob==NULL) fatal_error("Unable to open extended font file!");
+    font_name[g]=nom;font_area[g]=s_no(path);
+    @<Initialize font |g| for subsetting@>@;
+  }
 }
 
 @ Most of the info in \TeX's font tables is not needed for extended fonts.
 Hi\TeX\ uses the |font_name| and |font_area|, as well as the |font_size|
 and the |font_dsize|.
 
-@<initialize the font tables for the extended font |g|@>=
-x_font[g]= (x_font_ptr)xmalloc(sizeof(x_font_info));
-x_font[g]->blob=blob;
+@<Initialize the font tables for the extended font |g|@>=
 x_font[g]->i=f_index;
-x_font[g]->f=f;
+
 x_font[g]->s=s;
 
-font_name[g]=s_no(f_name);font_area[g]=s_no(path);
 font_size[g]=s;font_dsize[g]=f_dsize;
 hyphen_char[g]='-';skew_char[g]=-1;
 bchar_label[g]=non_address;
@@ -36019,6 +35070,7 @@ font_used[g]=false;
   hb_face_collect_unicodes (face,uset);
   font_bc[g]=hb_set_get_min (uset);
   font_ec[g]=hb_set_get_max (uset);
+  hb_set_destroy(uset);
 }
 
 @ Last, we look at the space character.
@@ -36059,7 +35111,7 @@ if (s<0)
 {  if (s==-1000) s=f_dsize;
   else s= xn_over_d(f_dsize,-s, 1000);
 }
-#if DEBUG
+#if 0
 fprintf(stderr,"\thb: scale %d(0x%x)\n",HB_FROM_SCALED(s),HB_FROM_SCALED(s));
 #endif
 hb_font_set_scale(f,HB_FROM_SCALED(s), HB_FROM_SCALED(s));

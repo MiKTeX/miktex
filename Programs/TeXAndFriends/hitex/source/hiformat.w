@@ -1,5 +1,5 @@
 % This file is part of HINT
-% Copyright 2017-2021 Martin Ruckert, Hochschule Muenchen, Lothstrasse 64, 80336 Muenchen
+% Copyright 2017-2026 Martin Ruckert, Hochschule Muenchen, Lothstrasse 64, 80336 Muenchen
 %
 % Permission is hereby granted, free of charge, to any person obtaining a copy
 % of this software and associated documentation files (the "Software"), to deal
@@ -159,7 +159,7 @@ ISBN-13: 979-854992684-4\par
 First printing: August 2019\par
 Second edition: August 2021\par
 \medskip
-Last commit: Tue Nov 4 17:08:38 2025
+Last commit: Mon Jan 19 09:58:39 2026
 \par
 }
 }
@@ -6093,7 +6093,7 @@ a suitable color concept.
 %causes for a color change: The doument author's requests for a color
 %change and the user interface's requests for a color change either
 %by switching between day and night mode or by searching.
-%While switching beween day and night mode requires the author to
+%While switching between day and night mode requires the author to
 %supply two complete color schemas, searching just needs to change
 %the color of glyphs according the the given color schema.
 %While the color change for links is always known from the document,
@@ -7203,9 +7203,9 @@ ALLOCATE(range_pos,2*(max_ref[range_kind]+1),RangePos);
 
 @<hint macros@>=
 #define @[ALLOCATE(R,S,T)@] @/((R)=@[(T *)calloc((S),sizeof(T)),\
-        (((R)==NULL)?QUIT("Out of memory for " #R):0))
+        (((R)==NULL)?QUIT("Out of memory for " #R):(void)0))
 #define @[REALLOCATE(R,S,T)@] @/((R)=@[(T *)realloc((R),(S)*sizeof(T)),\
-        (((R)==NULL)?QUIT("Out of memory for " #R):0))
+        (((R)==NULL)?QUIT("Out of memory for " #R):(void)0))
 @
 
 \readcode
@@ -8350,8 +8350,8 @@ size, we need to determine the file.
 { int i;
   ALLOCATE(aux_names,max_section_no+1,char *); 
   for (i=3;i<=max_section_no;i++)
+  if (dir[i].size==0)
   { struct stat s; 
-
     if (!option_global)
     { char * aux_name=NULL;
       @<compute a local |aux_name|@>@;
@@ -8396,12 +8396,27 @@ are described in the directory entries 3 and above to a \HINT\ file in short for
 \putcode
 @<put functions@>=
 static size_t hput_optional_section(int i)
-{ FILE *f;
-  size_t fsize;
-  char *file_name=dir[i].file_name;
-  DBG(DBGDIR,"Adding file %d: %s\n",dir[i].section_no,file_name);
+{ size_t fsize;
   if (dir[i].xsize!=0) @/
     DBG(DBGDIR,"Compressing of auxiliary files currently not supported");
+  if (dir[i].buffer==NULL)
+    @<append section |i| from file@>@;
+  else
+    @<append section |i| from |buffer|@>@;
+  if (fsize!=dir[i].size) 
+    QUIT(@["Size written " SIZE_F " does not match section %d size %u"@],
+         @|fsize, i, dir[i].size);
+  return fsize;
+}
+@
+
+If the content of the auxiliar section |i| was not loaded into |dir[i].buffer|
+earlier, the file i loaded from disk and appended to the output.
+
+@<append section |i| from file@>=  
+{ FILE *f;
+  char *file_name=dir[i].file_name;
+  DBG(DBGDIR,"Adding file %d: %s\n",dir[i].section_no,file_name);
   f=fopen(file_name,"rb");
   if (f==NULL) QUIT("Unable to read section %d, file %s",
     dir[i].section_no,file_name);
@@ -8411,18 +8426,20 @@ static size_t hput_optional_section(int i)
     char buffer[1<<13]; /* 8kByte */       
     s=fread(buffer,1,1<<13,f);@/
     t=fwrite(buffer,1,s,hout);
-    if (s!=t) QUIT("writing file %s",file_name);
+    if (s!=t) QUIT("Unable to write file %s",file_name);
     fsize=fsize+t;
   }
   fclose(f);
-  if (fsize!=dir[i].size) 
-    QUIT(@["File size " SIZE_F " does not match section[0] size %u"@],
-           @|fsize,dir[i].size);
-  return fsize;
 }
 @
 
+In the simpler case, that the file was loaded already into the buffer.,
+the buffer is appended to the output.
 
+@<append section |i| from |buffer|@>=
+{ fsize=fwrite(dir[i].buffer,1,dir[i].size,hout);
+}
+@
 
 \section{Definition Section}\index{definition section}
 \label{defsection}
@@ -8456,6 +8473,7 @@ in the directory.
 @s definition_list symbol
 @s definition symbol
 @s DEFINITIONS symbol
+
 @<symbols@>=
 %token DEFINITIONS "definitions"
 @
@@ -9185,7 +9203,7 @@ static void hget_font_params(void)
 
 
 void hget_font_def(Info i, uint8_t f)
-{ char *n; @+Dimen s=0;@+uint16_t m,y; 
+{ char *n; @+Dimen s=0;@+uint16_t m=0,y; 
   HGET_STRING(n);@+ hwrite_string(n);@+  hfont_name[f]=strdup(n);
   HGET32(s); @+ hwrite_dimension(s);
   DBG(DBGDEF,"Font %s size 0x%x\n", n, s); 
@@ -11706,7 +11724,7 @@ extern int yylex(void);
 
 @t{}@>
 
-%error_verbose
+%define parse.error verbose
 %start hint
 @t@>
 @<symbols@>@/
