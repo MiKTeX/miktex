@@ -24,11 +24,14 @@
   else print_nl("! ");
   print(#);
   end
-@d print_ignored_err(#)==begin if interaction=error_stop_mode then
-  wake_up_terminal;
-  if file_line_error_style_p then print_file_line
-  else print_nl("");
-  print("ignored: "); print(#);
+@d print_ignored_err(#)==begin
+  {An error in original \TeX, but we want to send it only to the log in
+   other engines, and without the word |"error"|, which humans and
+   software look for.}
+  old_selector_ignored_err := selector;
+  selector := log_only;
+  wlog_cr; wlog('ignored: '); print(#);
+  selector := old_selector_ignored_err;
   end
 @z
 
@@ -70,6 +73,15 @@ end;
 @d suppress_outer_error==int_par(suppress_outer_error_code)
 @d suppress_mathpar_error==int_par(suppress_mathpar_error_code)
 @d ignore_primitive_error==int_par(ignore_primitive_error_code)
+@z
+
+@x
+@<Glob...@>=
+@!old_setting:0..max_selector;
+@y
+@<Glob...@>=
+@!old_setting:0..max_selector;
+@!old_selector_ignored_err:0..max_selector; { for |print_ignored_err|}
 @z
 
 @x @<Finish line, emit a \.{\\par}@>
