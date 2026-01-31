@@ -3,6 +3,11 @@
  * John Bowman, Orest Shardt, and Supakorn "Jamie" Rassameemasmuang
  * Render 3D Bezier paths and surfaces.
  *****/
+#if defined(_WIN32) || defined(_WIN64)
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <Windows.h>
+#endif
 
 #ifdef __CYGWIN__
 #define _POSIX_C_SOURCE 200809L
