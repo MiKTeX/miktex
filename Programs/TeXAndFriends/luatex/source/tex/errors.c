@@ -147,22 +147,26 @@ void print_ignored_err(const char *s)
     if (interaction == error_stop_mode) {
         wake_up_terminal();
     }
+    err_old_setting = selector;
     if (callback_id > 0) {
-        err_old_setting = selector;
         selector = new_string;
         in_error = 1 ;
+    } else {
+        selector = log_only;
     }
     if (filelineerrorstylep) {
         print_file_line();
     } else {
-        tprint_nl("ignored: ");
+        tprint_nl("");
     }
+    tprint("ignored: ");
     tprint(s);
     if (callback_id <= 0) {
         xfree(last_error);
         last_error = (string) xmalloc((unsigned) (strlen(s) + 1));
         strcpy(last_error,s);
     }
+    selector = err_old_setting;
 }
 
 /*tex

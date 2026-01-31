@@ -1,4 +1,4 @@
-% Copyright 1996-2025 Han The Thanh, <thanh@pdftex.org>
+% Copyright 1996-2026 Han The Thanh, <thanh@pdftex.org>
 %
 % This file is part of pdfTeX.
 %
@@ -27,14 +27,6 @@
 @y
 @d banner==pdfTeX_banner
 @d banner_k==pdfTeX_banner
-@z
-
-@x pdftex.web l.1891 - have print_ignored_err respect --file-line-error
-  print_nl("ignored: "); print(#);
-@y
-  if file_line_error_style_p then print_file_line
-  else print_nl("");
-  print("ignored: "); print(#);
 @z
 
 % See also tex.ch l.1204, etex.ch l.2226. Not sure what's going on here.

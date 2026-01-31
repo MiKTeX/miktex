@@ -1,4 +1,4 @@
-% Copyright 1996-2025 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh,
+% Copyright 1996-2026 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh,
 % <thanh@@pdftex.org>
 
 % This file is part of pdfTeX.
@@ -1887,8 +1887,14 @@ amounts of user interaction:
 @d print_err(#)==begin if interaction=error_stop_mode then wake_up_terminal;
   print_nl("! "); print(#);
   end
-@d print_ignored_err(#)==begin if interaction=error_stop_mode then wake_up_terminal;
-  print_nl("ignored: "); print(#);
+@d print_ignored_err(#)==begin
+  {An error in original \TeX, but we want to send it only to the log in
+   other engines, and without the word |"error"|, which humans and
+   software look for.}
+  old_selector_ignored_err := selector;
+  selector := log_only;
+  wlog_cr; wlog('ignored: '); print(#);
+  selector := old_selector_ignored_err;
   end
 
 @<Glob...@>=
@@ -6221,6 +6227,8 @@ routines are going to work.
 
 @<Glob...@>=
 @!old_setting:0..max_selector;
+@!old_selector_ignored_err:0..max_selector; { for |print_ignored_err|}
+
 @!sys_time,@!sys_day,@!sys_month,@!sys_year:integer;
     {date and time supplied by external system}
 
