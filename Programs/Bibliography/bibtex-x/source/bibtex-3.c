@@ -3437,9 +3437,9 @@ Loop_Exit_Label:
       case QUESTION_MARK:
       case EXCLAMATION_MARK:
 #ifdef UTF_8
-      case 0x203C: case 0x203D: case 0x2047: /* ? ? ? */
-      case 0x2048: case 0x2049: case 0x3002: /* ? ? ? */
-      case 0xFF01: case 0xFF0E: case 0xFF1F: /* ! . ? */
+      case 0x203C: case 0x203D: case 0x2047: /* ‼ ‽ ⁇ */
+      case 0x2048: case 0x2049: case 0x3002: /* ⁈ ⁉ 。 */
+      case 0xFF01: case 0xFF0E: case 0xFF1F: /* ！ ． ？ */
 #endif
         REPUSH_STRING;
         break;

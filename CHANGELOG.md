@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## next
+
+### Upgraded programs
+
+* bibtex-x 4.03
+
 ## 26.1 - 2026-1-18
 
 ### Upgraded programs

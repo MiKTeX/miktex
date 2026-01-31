@@ -2828,6 +2828,9 @@ BEGIN
 #if U_ICU_VERSION_MAJOR_NUM > 73
           case UBLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_I:
 #endif
+#if U_ICU_VERSION_MAJOR_NUM > 77
+          case UBLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_J:
+#endif
 #endif
             string_width |= 0x001;
             break;
