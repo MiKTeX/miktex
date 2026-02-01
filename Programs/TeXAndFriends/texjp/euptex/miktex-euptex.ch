@@ -1,6 +1,6 @@
 %% miktex-euptex.ch
 %%
-%% Copyright (C) 2021-2024 Christian Schenk
+%% Copyright (C) 2021-2026 Christian Schenk
 %% 
 %% This file is free software; the copyright holder gives
 %% unlimited permission to copy and/or distribute it, with or
@@ -10,12 +10,6 @@
 %
 % [6.76]
 % _____________________________________________________________________________
-
-@x
-  if file_line_error_style_p then print_file_line
-@y
-  if miktex_c_style_error_messages_p then print_file_line
-@z
 
 @x
   if file_line_error_style_p then print_file_line
