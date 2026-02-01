@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2015-2024 Christian Schenk
+## Copyright (C) 2015-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -71,16 +71,17 @@ set(libxxhash_sources
 )
 
 set(libbrotli_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/version.hpp
     source/libs/brotli/common/constants.c
     source/libs/brotli/common/constants.h
     source/libs/brotli/common/context.c
     source/libs/brotli/common/context.h
     source/libs/brotli/common/dictionary.c
     source/libs/brotli/common/dictionary.h
+    source/libs/brotli/common/dictionary_inc.h
     source/libs/brotli/common/platform.c
     source/libs/brotli/common/platform.h
     source/libs/brotli/common/shared_dictionary_internal.h
+    source/libs/brotli/common/static_init.h
     source/libs/brotli/common/transform.c
     source/libs/brotli/common/transform.h
     source/libs/brotli/common/version.h
@@ -111,6 +112,7 @@ set(libbrotli_sources
     source/libs/brotli/enc/compress_fragment_two_pass.h
     source/libs/brotli/enc/dictionary_hash.c
     source/libs/brotli/enc/dictionary_hash.h
+    source/libs/brotli/enc/dictionary_hash_inc.h
     source/libs/brotli/enc/encode.c
     source/libs/brotli/enc/encoder_dict.c
     source/libs/brotli/enc/encoder_dict.h
@@ -121,11 +123,14 @@ set(libbrotli_sources
     source/libs/brotli/enc/fast_log.h
     source/libs/brotli/enc/find_match_length.h
     source/libs/brotli/enc/hash.h
+    source/libs/brotli/enc/hash_base.h
     source/libs/brotli/enc/hash_composite_inc.h
     source/libs/brotli/enc/hash_forgetful_chain_inc.h
     source/libs/brotli/enc/hash_longest_match64_inc.h
+    source/libs/brotli/enc/hash_longest_match64_simd_inc.h
     source/libs/brotli/enc/hash_longest_match_inc.h
     source/libs/brotli/enc/hash_longest_match_quickly_inc.h
+    source/libs/brotli/enc/hash_longest_match_simd_inc.h
     source/libs/brotli/enc/hash_rolling_inc.h
     source/libs/brotli/enc/hash_to_binary_tree_inc.h
     source/libs/brotli/enc/histogram.c
@@ -133,6 +138,7 @@ set(libbrotli_sources
     source/libs/brotli/enc/histogram_inc.h
     source/libs/brotli/enc/literal_cost.c
     source/libs/brotli/enc/literal_cost.h
+    source/libs/brotli/enc/matching_tag_mask.h
     source/libs/brotli/enc/memory.c
     source/libs/brotli/enc/memory.h
     source/libs/brotli/enc/metablock.c
@@ -145,7 +151,11 @@ set(libbrotli_sources
     source/libs/brotli/enc/state.h
     source/libs/brotli/enc/static_dict.c
     source/libs/brotli/enc/static_dict.h
+    source/libs/brotli/enc/static_dict_lut.c
     source/libs/brotli/enc/static_dict_lut.h
+    source/libs/brotli/enc/static_dict_lut_inc.h
+    source/libs/brotli/enc/static_init.c
+    source/libs/brotli/enc/static_init.h
     source/libs/brotli/enc/utf8_util.c
     source/libs/brotli/enc/utf8_util.h
     source/libs/brotli/enc/write_bits.h
@@ -489,6 +499,7 @@ set(libdvisvgm_sources
     source/src/XMLString.hpp
     source/src/XXHashFunction.hpp
     source/src/ZLibOutputStream.hpp
+    source/src/algorithm.hpp
     source/src/macros.hpp
     source/src/psdefs.cpp
     source/src/utility.cpp

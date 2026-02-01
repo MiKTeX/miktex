@@ -21,6 +21,9 @@
 #if defined(MIKTEX)
 #include <config.h>
 #endif
+#include <numeric>
+#include "algorithm.hpp"
+#include "Calculator.hpp"
 #include "InputBuffer.hpp"
 #include "InputReader.hpp"
 #include "MessageException.hpp"
