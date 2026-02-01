@@ -44,12 +44,12 @@ namespace ttf {
 class TTFWriter {
 	public:
 		TTFWriter (const PhysicalFont &font, const std::set<int> &chars);
-		bool writeTTF (std::ostream &os);
+		bool writeTTF (std::ostream &os) const;
 		bool writeWOFF (std::ostream &os);
-		bool writeWOFF2 (std::ostream &os);
-		bool writeTTF (const std::string &ttfname);
+		bool writeWOFF2 (std::ostream &os) const;
+		bool writeTTF (const std::string &ttfname) const;
 		bool writeWOFF (const std::string &woffname);
-		bool writeWOFF2 (const std::string &woff2name);
+		bool writeWOFF2 (const std::string &woff2name) const;
 		static bool convertTTFToWOFF (std::istream &is, std::ostream &os);
 		static bool convertTTFToWOFF2 (std::istream &is, std::ostream &os);
 		static bool convertTTFToWOFF (const std::string &ttfname, const std::string &woffname);
@@ -85,7 +85,7 @@ class TTFWriter {
 #endif
 
 	protected:
-		std::list<TableBuffer> createTableBuffers ();
+		std::list<TableBuffer> createTableBuffers () const;
 
 	private:
 		const PhysicalFont &_font;

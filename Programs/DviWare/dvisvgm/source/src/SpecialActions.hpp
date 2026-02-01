@@ -34,7 +34,7 @@
 class XMLElement;
 class XMLNode;
 
-struct SpecialException : public MessageException {
+struct SpecialException : MessageException {
 	explicit SpecialException (const std::string &msg) : MessageException(msg) {}
 };
 

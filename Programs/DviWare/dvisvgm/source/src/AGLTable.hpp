@@ -32,7 +32,7 @@ struct HashCodepointPair {
 	uint32_t codepoint;
 };
 
-std::array<HashCodepointPair, 4048> hash2unicode {{
+std::array<HashCodepointPair, 4057> hash2unicode {{
 	{0x001cf4a9, 0x0118}, // Eogonek
 	{0x003b11fb, 0x055f}, // abbreviationmarkarmenian
 	{0x0050a316, 0x0444}, // afii10086
@@ -1054,6 +1054,7 @@ std::array<HashCodepointPair, 4048> hash2unicode {{
 	{0x4144d56c, 0x016d}, // ubreve
 	{0x414507c4, 0x05b9}, // holamnarrowhebrew
 	{0x414a0074, 0x3336}, // hekutaarusquare
+	{0x4156a20e, 0xfb06}, // s_t
 	{0x4156eb7c, 0x3123}, // enbopomofo
 	{0x415d9061, 0xff42}, // bmonospace
 	{0x415fae27, 0x0398}, // Theta
@@ -1469,6 +1470,7 @@ std::array<HashCodepointPair, 4048> hash2unicode {{
 	{0x5bc1fa37, 0xfb47}, // qofdageshhebrew
 	{0x5be94211, 0xff24}, // Dmonospace
 	{0x5beb1e0f, 0x24cf}, // Zcircle
+	{0x5bf0ba5d, 0xfb04}, // f_f_l
 	{0x5c0e8b47, 0x0426}, // afii10040
 	{0x5c185e06, 0x0250}, // aturned
 	{0x5c299659, 0x250c}, // SF010000
@@ -1764,6 +1766,7 @@ std::array<HashCodepointPair, 4048> hash2unicode {{
 	{0x6df8e451, 0x2203}, // existential
 	{0x6dfa6cea, 0x0a66}, // zerogurmukhi
 	{0x6dff449c, 0xff79}, // kekatakanahalfwidth
+	{0x6e002bb5, 0xfb05}, // longs_t
 	{0x6e298b2c, 0x3380}, // paampssquare
 	{0x6e2b4011, 0x2213}, // minusplus
 	{0x6e2e0a97, 0xfe66}, // equalsmall
@@ -2874,6 +2877,7 @@ std::array<HashCodepointPair, 4048> hash2unicode {{
 	{0xb25b34dc, 0x0e1a}, // bobaimaithai
 	{0xb26943db, 0x0420}, // afii10034
 	{0xb27e91f4, 0x01bb}, // twostroke
+	{0xb27fe618, 0xfb03}, // f_f_i
 	{0xb290d64a, 0xfe88}, // alefhamzabelowfinalarabic
 	{0xb2bbd0d4, 0xfeb0}, // zainfinalarabic
 	{0xb2cc02c2, 0x1e38}, // Ldotbelowmacron
@@ -2896,6 +2900,7 @@ std::array<HashCodepointPair, 4048> hash2unicode {{
 	{0xb3dbcf55, 0x323d}, // ideographicenterpriseparen
 	{0xb3e6b497, 0x03c9}, // omega
 	{0xb3ed41be, 0x328f}, // ideographearthcircle
+	{0xb3f4ae6c, 0x1e9e}, // germandblS
 	{0xb40169ac, 0x05b0}, // sheva22
 	{0xb405e3e3, 0x0439}, // afii10075
 	{0xb41baecc, 0x2487}, // twentyparen
@@ -2903,6 +2908,7 @@ std::array<HashCodepointPair, 4048> hash2unicode {{
 	{0xb4344c30, 0x090f}, // edeva
 	{0xb43bb55a, 0x3263}, // rieulcirclekorean
 	{0xb448d464, 0x0391}, // Alpha
+	{0xb457e11d, 0xfb00}, // f_f
 	{0xb45a5763, 0x201b}, // quoteleftreversed
 	{0xb45ef9b7, 0x03c0}, // pi
 	{0xb497903a, 0x01dd}, // eturned
@@ -3237,6 +3243,7 @@ std::array<HashCodepointPair, 4048> hash2unicode {{
 	{0xca2dd9fa, 0x2590}, // rtblock
 	{0xca5ed753, 0x0269}, // iotalatin
 	{0xca65e972, 0x0646}, // noonarabic
+	{0xca9389a5, 0xa75b}, // roundr
 	{0xcab40374, 0x1e1f}, // fdotaccent
 	{0xcabe62a6, 0x0e16}, // thothungthai
 	{0xcac3bcb6, 0x33a8}, // moverssquaredsquare
@@ -3461,6 +3468,7 @@ std::array<HashCodepointPair, 4048> hash2unicode {{
 	{0xd91584cd, 0xfe31}, // emdashvertical
 	{0xd92072b9, 0x0493}, // ghestrokecyrillic
 	{0xd92d9608, 0x0acd}, // viramagujarati
+	{0xd9321a82, 0xfb01}, // f_i
 	{0xd932c15c, 0x30ac}, // gakatakana
 	{0xd93c2940, 0x33cf}, // ktsquare
 	{0xd94d846e, 0x321a}, // phieuphaparenkorean
@@ -3908,6 +3916,7 @@ std::array<HashCodepointPair, 4048> hash2unicode {{
 	{0xf47c7f06, 0x05a5}, // merkhalefthebrew
 	{0xf498c20b, 0xfb2c}, // shindageshshindothebrew
 	{0xf4a2e6c9, 0xff8e}, // hokatakanahalfwidth
+	{0xf4bd2095, 0xfb02}, // f_l
 	{0xf4c721dd, 0x0415}, // afii10022
 	{0xf4d1afd1, 0x015b}, // sacute
 	{0xf4d731e8, 0x0e2b}, // hohipthai

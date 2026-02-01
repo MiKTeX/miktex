@@ -101,8 +101,8 @@ BoundingBox EPSFile::bbox () const {
 	BoundingBox box;
 	std::istream &is = EPSFile::istream();
 	if (is) {
-		char buf[64];
 		while (is) {
+			char buf[64];
 			size_t linelen = getline(is, buf, 64);
 			if (strncmp(buf, "%%BoundingBox:", 14) == 0) {
 				CharInputBuffer ib(buf, linelen);

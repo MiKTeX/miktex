@@ -24,7 +24,7 @@
 #include "Length.hpp"
 #include "MessageException.hpp"
 
-struct PageSizeException : public MessageException {
+struct PageSizeException : MessageException {
 	explicit PageSizeException (const std::string &msg) : MessageException(msg) {}
 };
 

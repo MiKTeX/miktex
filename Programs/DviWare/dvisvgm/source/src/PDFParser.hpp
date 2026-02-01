@@ -55,7 +55,7 @@ class Dictionary {
 		}
 
 		std::pair<typename Map::iterator,bool> emplace (const K &key, V &&value) {
-			return _map.emplace(key, std::forward<V>(value));
+			return _map.emplace(key, static_cast<V&&>(value));
 		}
 
 	private:
@@ -178,7 +178,7 @@ class PDFParser {
 
 
 /** If errors occur while parsing a sequence of PDF objects, an instance of this exception is thrown. */
-struct PDFException : public MessageException {
+struct PDFException : MessageException {
 	explicit PDFException (const std::string &msg) : MessageException(msg) {}
 };
 

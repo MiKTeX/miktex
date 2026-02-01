@@ -60,7 +60,7 @@ class ShadingPatch {
 };
 
 
-struct ShadingException : public MessageException {
+struct ShadingException : MessageException {
 	explicit ShadingException (const std::string &msg) : MessageException(msg) {}
 };
 

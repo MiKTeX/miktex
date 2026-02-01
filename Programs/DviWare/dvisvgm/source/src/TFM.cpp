@@ -23,6 +23,7 @@
 #endif
 #include <fstream>
 #include <vector>
+#include "algorithm.hpp"
 #include "Length.hpp"
 #include "Message.hpp"
 #include "StreamReader.hpp"
@@ -74,7 +75,7 @@ void TFM::read (istream &is) {
 }
 
 
-void TFM::readHeader (StreamReader &reader) {
+void TFM::readHeader (const StreamReader &reader) {
 	_checksum = reader.readUnsigned(4);
 	_designSize = double(FixWord(reader.readSigned(4)))*Length::pt2bp;
 }
@@ -86,17 +87,15 @@ void TFM::readTables (StreamReader &reader, int nw, int nh, int nd, int ni) {
 	read_words(reader, _heightTable, nh);
 	read_words(reader, _depthTable, nd);
 	read_words(reader, _italicTable, ni);
-	for (FixWord h : _heightTable)
-		_ascent = max(_ascent, h);
-	for (FixWord d : _depthTable)
-		_descent = max(_descent, d);
+	_ascent = nh > 0 ? *algo::max_element(_heightTable) : 0;
+	_descent = nd > 0 ? *algo::max_element(_depthTable) : 0;
 }
 
 
 /** Read the values from the param section of the TFM file.
  *  @param[in] reader read from this stream
- *  @param[in] np number of paramaters to read */
-void TFM::readParameters (StreamReader &reader, int np) {
+ *  @param[in] np number of parameters to read */
+void TFM::readParameters (const StreamReader &reader, int np) {
 	_params.resize(7);
 	np = min(np, 7);
 	for (int i=0; i < np; i++)

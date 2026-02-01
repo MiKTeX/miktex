@@ -35,7 +35,7 @@ class NoPsSpecialHandler : public SpecialHandler {
 		void dviEndPage (unsigned pageno, SpecialActions &actions) override;
 
 	private:
-		size_t _count=0;  // number of PS specials skipped
+		size_t _ignoreCount=0;  // number of PS specials skipped
 };
 
 #endif

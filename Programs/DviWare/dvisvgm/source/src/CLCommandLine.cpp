@@ -21,9 +21,9 @@
 #if defined(MIKTEX)
 #include <config.h>
 #endif
-#include <algorithm>
 #include <cstring>
 #include <unordered_map>
+#include "algorithm.hpp"
 #include "CLCommandLine.hpp"
 #include "version.hpp"
 
@@ -96,7 +96,7 @@ static void type_error (const Option &option, bool shortname) {
 }
 
 
-void CommandLine::parseShortOption (istringstream &iss, int argc, char **argv, int &argn) {
+void CommandLine::parseShortOption (istringstream &iss, int argc, char **argv, int &argn) const {
 	bool combined = false;
 	do {
 		char shortname = static_cast<char>(iss.get());
@@ -125,7 +125,7 @@ void CommandLine::parseShortOption (istringstream &iss, int argc, char **argv, i
 }
 
 
-void CommandLine::parseLongOption (istream &is) {
+void CommandLine::parseLongOption (istream &is) const {
 	string optname;
 	while (isalnum(is.peek()) || (!optname.empty() && is.peek() == '-'))
 		optname += char(is.get());
@@ -134,21 +134,20 @@ void CommandLine::parseLongOption (istream &is) {
 	vector<Option*> options = lookupOption(optname);
 	if (options.empty())
 		throw CommandLineException("unknown option --"+optname);
-	else if (options.size() == 1) {
+	if (options.size() == 1) {
 		if (!options[0]->parse(is, true))
 			type_error(*options[0], false);
 	}
 	else {  // is partially given option ambiguous?
-		sort(options.begin(), options.end(), [](const Option *opt1, const Option *opt2) {
+		algo::sort(options, [](const Option *opt1, const Option *opt2) {
 			return opt1->longName() < opt2->longName();
 		});
 		string msg = "option --" + optname + " is ambiguous (";
-		for (const Option *opt : options) {
-			if (opt != options[0])
-				msg += ", ";
-			msg += opt->longName();
-		}
-		msg += ')';
+		msg = algo::accumulate(options, msg, [](const string &str, const Option *opt) {
+			return str + opt->longName() + ", ";
+		});
+		msg.pop_back();
+		msg.back() = ')';
 		throw CommandLineException(msg);
 	}
 }
@@ -173,7 +172,7 @@ vector<Option*> CommandLine::lookupOption (const string &optname) const {
 
 /** Returns the option that match the given short name. */
 Option* CommandLine::lookupOption (char optchar) const {
-	auto it = find_if(options().begin(), options().end(), [=](const OptSectPair &optsect) {
+	auto it = algo::find_if(options(), [&](const OptSectPair &optsect) {
 		return optsect.first->shortName() == optchar;
 	});
 	return (it != options().end()) ? it->first : nullptr;
@@ -212,7 +211,7 @@ void CommandLine::help (ostream &os, int mode) const {
 		}
 	}
 	if (mode > 0) {
-		bool (*isless)(const OptSectPair&, const OptSectPair&) = [](const OptSectPair &p1, const OptSectPair &p2) {
+		auto isless = +[](const OptSectPair &p1, const OptSectPair &p2) {
 			return p1.first->longName() < p2.first->longName();
 		};
 		if (mode == 1) {
@@ -225,7 +224,7 @@ void CommandLine::help (ostream &os, int mode) const {
 				return tolower(c1) < tolower(c2);
 			};
 		}
-		sort(options().begin(), options().end(), isless);
+		algo::sort(options(), isless);
 	}
 
 	// print summary of options

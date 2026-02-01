@@ -76,9 +76,16 @@ bool PdfSpecialHandler::process (const string&, istream &is, SpecialActions &act
 		{"eannot",   &PdfSpecialHandler::processEndAnn},
 		{"endann",   &PdfSpecialHandler::processEndAnn},
 		{"dest",     &PdfSpecialHandler::processDest},
+		// No need to handle the following specials here because they have
+		// already been completely processed in the preprocessing stage.
+		{"pagesize", nullptr},
+		{"mapfile",  nullptr},
+		{"mapline",  nullptr}
 	};
 	auto it = commands.find(cmdstr);
-	if (it != commands.end())
+	if (it == commands.end())
+		_ignoreCount++;
+	else if (it->second)
 		(this->*it->second)(ir, actions);
 	return true;
 }
@@ -113,7 +120,7 @@ void PdfSpecialHandler::preprocessPagesize (StreamInputReader &ir, SpecialAction
 			}
 			papersizeHandler->storePaperSize(actions.getCurrentPageNumber(), width, height);
 		}
-		catch (UnitException &e) { // ignore invalid length units for now
+		catch (UnitException &) { // ignore invalid length units for now
 		}
 	}
 }
@@ -160,7 +167,7 @@ void PdfSpecialHandler::preprocessDest (StreamInputReader &ir, SpecialActions &a
 	// get target info from array [pageno /XYZ xpos ypos zpos]
 	if (name && dest && dest->size() >= 4 && dest->at(0).get<int>()) {
 		int pageno = *dest->at(0).get<int>();
-		HyperlinkManager::instance().addNameAchor(*name, pageno);
+		HyperlinkManager::instance().addNameAnchor(*name, pageno);
 	}
 }
 
@@ -282,6 +289,12 @@ void PdfSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
 	if (_active) {
 		HyperlinkManager::instance().createViews(pageno, actions);
 		_active = false;
+	}
+	if (_ignoreCount > 0) {
+		string suffix = (_ignoreCount > 1 ? "s" : "");
+		Message::wstream(true) << _ignoreCount << " PDF special" << suffix << " ignored."
+			<< " The resulting SVG might look wrong.\n";
+		_ignoreCount = 0;
 	}
 }
 

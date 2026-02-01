@@ -37,7 +37,7 @@ void HtmlSpecialHandler::preprocess (const string&, istream &is, SpecialActions 
 	if (ir.check("<a ") && ir.parseAttributes(attribs, true, "\"") > 0) {
 		map<string,string>::iterator it;
 		if ((it = attribs.find("name")) != attribs.end())
-			HyperlinkManager::instance().addNameAchor(it->second, actions.getCurrentPageNumber());
+			HyperlinkManager::instance().addNameAnchor(it->second, actions.getCurrentPageNumber());
 		else if ((it = attribs.find("href")) != attribs.end())
 			HyperlinkManager::instance().addHrefAnchor(it->second);
 	}

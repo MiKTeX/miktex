@@ -46,7 +46,7 @@ class AttributeExtractor : public OptimizerModule {
 		void execute (XMLElement*, XMLElement *context) override {execute(context, true);};
 		const char* info () const override;
 		static bool groupable (const XMLElement &elem);
-		static bool extractable (const Attribute &attr, XMLElement &element);
+		static bool extractable (const Attribute &attr, const XMLElement &element);
 
 	protected:
 		void execute (XMLElement *context, bool recurse);

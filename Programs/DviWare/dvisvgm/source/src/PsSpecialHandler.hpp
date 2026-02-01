@@ -115,15 +115,15 @@ class PsSpecialHandler : public SpecialHandler, protected PSActions {
 		void executeAndSync (std::istream &is, bool updatePos);
 		void processHeaderFile (const char *fname);
 		void imgfile (FileType type, const std::string &fname, const std::map<std::string,std::string> &attr);
-		ImageNode createImageNode (FileType type, const std::string &fname, int pageno, BoundingBox bbox, bool clip);
-		ImageNode createBitmapNode (const std::string &fname, const std::string &path, int pageno, BoundingBox bbox);
-		ImageNode createPSNode (const std::string &fname, const std::string &path, int pageno, BoundingBox bbox, bool clip);
-		ImageNode createPDFNode (const std::string &fname, const std::string &path, int pageno, BoundingBox bbox, bool clip);
+		ImageNode createImageNode (FileType type, const std::string &fname, int pageno, const BoundingBox &bbox, bool clip);
+		ImageNode createBitmapNode (const std::string &fname, const std::string &path, int pageno, const BoundingBox &bbox) const;
+		ImageNode createPSNode (const std::string &fname, const std::string &path, int pageno, const BoundingBox &bbox, bool clip);
+		ImageNode createPDFNode (const std::string &fname, const std::string &path, int pageno, const BoundingBox &bbox, bool clip);
 		void dviBeginPage (unsigned int pageno, SpecialActions &actions) override;
 		void dviEndPage (unsigned pageno, SpecialActions &actions) override;
 		void clip (Path path, bool evenodd);
-		void processSequentialPatchMesh (int shadingTypeID, ColorSpace cspace, VectorIterator<double> &it);
-		void processLatticeTriangularPatchMesh (ColorSpace colorSpace, VectorIterator<double> &it);
+		void processSequentialPatchMesh (int shadingTypeID, ColorSpace cspace, VectorIterator<double> &it) const;
+		void processLatticeTriangularPatchMesh (ColorSpace colorSpace, VectorIterator<double> &it) const;
 
 		/// scale given value by current PS scale factors
 		double scale (double v) const {return v*(_sx*(1-_cos*_cos) + _sy*_cos*_cos);}

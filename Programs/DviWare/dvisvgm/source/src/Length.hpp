@@ -43,7 +43,7 @@ class Length {
 		explicit constexpr Length (long double pt) : _pt(static_cast<double>(pt)) {}
 		Length (double val, Unit unit)                  {set(val, unit);}
 		Length (double val, const std::string &unitstr) {set(val, unitstr);}
-		explicit Length (const std::string &lenstr)     {set(lenstr);}
+		Length (const std::string &lenstr) {set(lenstr);}
 		void set (double val, Unit unit);
 		void set (double val, std::string unit);
 		void set (const std::string &lenstr);
@@ -80,13 +80,13 @@ class Length {
 };
 
 
-constexpr Length operator "" _pt (long double pt) {return Length(pt);}
-constexpr Length operator "" _bp (long double bp) {return Length(bp/Length::pt2bp);}
-constexpr Length operator "" _mm (long double mm) {return Length(mm/Length::pt2mm);}
-constexpr Length operator "" _in (long double in) {return Length(in/Length::pt2in);}
-constexpr Length operator "" _pt (unsigned long long pt) {return Length(static_cast<double>(pt));}
-constexpr Length operator "" _bp (unsigned long long bp) {return Length(static_cast<double>(bp)/Length::pt2bp);}
-constexpr Length operator "" _mm (unsigned long long mm) {return Length(static_cast<double>(mm)/Length::pt2mm);}
-constexpr Length operator "" _in (unsigned long long in) {return Length(static_cast<double>(in)/Length::pt2in);}
+constexpr Length operator ""_pt (long double pt) {return Length(pt);}
+constexpr Length operator ""_bp (long double bp) {return Length(bp/Length::pt2bp);}
+constexpr Length operator ""_mm (long double mm) {return Length(mm/Length::pt2mm);}
+constexpr Length operator ""_in (long double in) {return Length(in/Length::pt2in);}
+constexpr Length operator ""_pt (unsigned long long pt) {return Length(static_cast<double>(pt));}
+constexpr Length operator ""_bp (unsigned long long bp) {return Length(static_cast<double>(bp)/Length::pt2bp);}
+constexpr Length operator ""_mm (unsigned long long mm) {return Length(static_cast<double>(mm)/Length::pt2mm);}
+constexpr Length operator ""_in (unsigned long long in) {return Length(static_cast<double>(in)/Length::pt2in);}
 
 #endif

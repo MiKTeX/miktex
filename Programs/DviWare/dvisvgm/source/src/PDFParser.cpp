@@ -205,7 +205,7 @@ using NumberVariant = mpark::variant<int, double>;
 /** Parses a PDF number from a string. The number is either integer or real.
  *  @param[in] str string to parse
  *  @param[out] nv variant holding the numeric value
- *  @return true if entire string has been parsed succesfully */
+ *  @return true if entire string has been parsed successfully */
 static bool parse_number (const string &str, NumberVariant &nv) {
 	if (str.empty())
 		return false;
@@ -229,7 +229,7 @@ static bool parse_number (const string &str, NumberVariant &nv) {
 		nv = NumberVariant(stod(str, &count));
 		return count == str.length();
 	}
-	catch (invalid_argument &e) {
+	catch (invalid_argument &) {
 		return false;
 	}
 }
@@ -311,7 +311,7 @@ static PDFObjectRef parse_object_ref (vector<PDFObject> &objects) {
 }
 
 
-/** Replaces all occurences of "#XX" (XX are two hex digits) with the corresponding character. */
+/** Replaces all occurrences of "#XX" (XX are two hex digits) with the corresponding character. */
 static string& subst_numeric_chars (string &str) {
 	for (auto pos=str.find('#'); pos != string::npos; pos=str.find('#', pos+1)) {
 		if (pos > str.length()-3)
@@ -401,7 +401,7 @@ template<> double ToDoubleVisitor::operator () (const string &val) {
 	try {
 		return stod(val);
 	}
-	catch (exception &e) {
+	catch (exception &) {
 		return 0;
 	}
 }

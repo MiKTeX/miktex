@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include <algorithm>
 #include <array>
 #include <cctype>
 #include <cmath>
@@ -28,6 +27,7 @@
 #include <ostream>
 #include <type_traits>
 #include <mpark/variant.hpp>
+#include "algorithm.hpp"
 #include "BoundingBox.hpp"
 #include "EllipticalArc.hpp"
 #include "Matrix.hpp"
@@ -57,8 +57,9 @@ class Command : public CommandBase {
  		 *  @params[in] matrix describes the affine transformation to apply
 		 *  @params[in] currentPoint the untransformed end point of the preceding command */
 		void transform (const Matrix &matrix, const Pair<T> &currentPoint) {
-			for (Pair<T> &p : points)
-				p = matrix * p;
+			algo::transform(points, points.begin(), [&matrix](const Pair<T> &p) {
+				return matrix * p;
+			});
 		}
 
 		/** Returns true if all points are identical to those of another command. */
@@ -78,27 +79,27 @@ class Command : public CommandBase {
 };
 
 template <typename T>
-struct MoveTo : public Command<T, 1> {
+struct MoveTo : Command<T, 1> {
 	explicit MoveTo (const Pair<T> &p) : Command<T, 1>({p}) {}
 };
 
 template <typename T>
-struct LineTo : public Command<T, 1> {
+struct LineTo : Command<T, 1> {
 	explicit LineTo (const Pair<T> &p) : Command<T, 1>({p}) {}
 };
 
 template <typename T>
-struct CubicTo : public Command<T, 3> {
+struct CubicTo : Command<T, 3> {
 	explicit CubicTo (const Pair<T> &p1, const Pair<T> &p2, const Pair<T> &p3) : Command<T, 3>({p1, p2, p3}) {}
 };
 
 template <typename T>
-struct QuadTo : public Command<T, 2> {
+struct QuadTo : Command<T, 2> {
 	explicit QuadTo (const Pair<T> &p1, const Pair<T> &p2) : Command<T, 2>({p1, p2}) {}
 };
 
 template <typename T>
-struct ClosePath : public Command<T, 0> {
+struct ClosePath : Command<T, 0> {
 	ClosePath () : Command<T, 0>() {}
 };
 
@@ -144,7 +145,7 @@ void ArcTo<T>::transform (const Matrix &matrix, const Pair<T> &currentPoint) {
 
 /** Returns true if two path command objects are identical (same command and same parameters). */
 template <typename Cmd1, typename Cmd2>
-inline typename std::enable_if<std::is_base_of<CommandBase, Cmd1>::value, bool>::type
+typename std::enable_if<std::is_base_of<CommandBase, Cmd1>::value, bool>::type
 operator == (const Cmd1 &cmd1, const Cmd2 &cmd2) {
 	if (std::is_convertible<Cmd1, Cmd2>::value && std::is_convertible<Cmd2, Cmd1>::value)
 		return cmd1.pointsEqual(cmd2);
@@ -153,7 +154,7 @@ operator == (const Cmd1 &cmd1, const Cmd2 &cmd2) {
 
 /** Returns true if two path command objects differ (different commands or different parameters). */
 template <typename Cmd1, typename Cmd2>
-inline typename std::enable_if<std::is_base_of<CommandBase, Cmd1>::value, bool>::type
+typename std::enable_if<std::is_base_of<CommandBase, Cmd1>::value, bool>::type
 operator != (const Cmd1 &cmd1, const Cmd2 &cmd2) {
 	if (std::is_convertible<Cmd1, Cmd2>::value && std::is_convertible<Cmd2, Cmd1>::value)
 		return !cmd1.pointsEqual(cmd2);
@@ -482,6 +483,18 @@ class GraphicsPath {
 		void lineto (const Point &p) {
 			_commands.emplace_back(LineTo{p});
 			_finalPoint = p;
+		}
+
+		void rect (const T &x1, const T &y1, const T &x2, const T &y2) {
+			rect(Point(x1, y1), Point(x2, y2));
+		}
+
+		void rect (const Point &p1, const Point &p2) {
+			moveto(p1.x(), p1.y());
+			lineto(p2.x(), p1.y());
+			lineto(p2.x(), p2.y());
+			lineto(p1.x(), p2.y());
+			closepath();
 		}
 
 		void quadto (const T &x1, const T &y1, const T &x2, const T &y2) {

@@ -31,7 +31,7 @@ class TemporaryFile {
 		~TemporaryFile () {close();}
 		bool create ();
 		bool opened () const {return _fd >= 0;}
-		bool write (const char *buf, size_t len);
+		bool write (const char *buf, size_t len) const;
 		bool close ();
 		const std::string& path () const {return _path;}
 

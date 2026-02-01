@@ -38,7 +38,7 @@ struct FontEncoding {
 };
 
 
-struct NamedFontEncoding : public FontEncoding {
+struct NamedFontEncoding : FontEncoding {
 	virtual const char* name () const =0;
 	virtual const char* path () const =0;
 };

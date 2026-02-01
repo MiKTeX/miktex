@@ -51,7 +51,7 @@ struct FontMetrics {
 };
 
 
-struct NullFontMetrics : public FontMetrics {
+struct NullFontMetrics : FontMetrics {
 	double getDesignSize () const override      {return 1;}
 	double getCharWidth (int c) const override  {return 0;}
 	double getCharHeight (int c) const override {return 0;}
@@ -70,7 +70,7 @@ struct NullFontMetrics : public FontMetrics {
 };
 
 
-struct FontMetricException : public MessageException {
+struct FontMetricException : MessageException {
 	explicit FontMetricException (const std::string &msg) : MessageException(msg) {}
 };
 

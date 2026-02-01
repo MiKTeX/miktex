@@ -21,8 +21,8 @@
 #if defined(MIKTEX)
 #  include <config.h>
 #endif
-#include <algorithm>
 #include <array>
+#include "algorithm.hpp"
 #include "FontWriter.hpp"
 #include "Message.hpp"
 #include "utility.hpp"
@@ -46,7 +46,7 @@ const array<FontWriter::FontFormatInfo, 4> FontWriter::_formatInfos {{
 /** Returns the corresponding FontFormat for a given format name (e.g. "svg", "woff" etc.). */
 FontWriter::FontFormat FontWriter::toFontFormat (string formatstr) {
 	formatstr = util::tolower(formatstr);
-	auto it = find_if(_formatInfos.begin(), _formatInfos.end(), [&](const FontFormatInfo &info) {
+	auto it = algo::find_if(_formatInfos, [&](const FontFormatInfo &info) {
 		return info.formatstr_short == formatstr;
 	});
 	return it != _formatInfos.end() ? it->format : FontFormat::UNKNOWN;
@@ -55,7 +55,7 @@ FontWriter::FontFormat FontWriter::toFontFormat (string formatstr) {
 
 /** Returns the corresponding FontFormatInfo for a given FontFormat. */
 const FontWriter::FontFormatInfo* FontWriter::fontFormatInfo (FontFormat format) {
-	auto it = find_if(_formatInfos.begin(), _formatInfos.end(), [&](const FontFormatInfo &info) {
+	auto it = algo::find_if(_formatInfos, [&](const FontFormatInfo &info) {
 		return info.format == format;
 	});
 	return it != _formatInfos.end() ? &(*it) : nullptr;
@@ -65,11 +65,11 @@ const FontWriter::FontFormatInfo* FontWriter::fontFormatInfo (FontFormat format)
 /** Returns the names of all supported font formats. */
 vector<string> FontWriter::supportedFormats () {
 	vector<string> formats;
-	for (const FontFormatInfo &info : _formatInfos)
-		formats.push_back(info.formatstr_short);
+	algo::transform(_formatInfos, std::back_inserter(formats), [](const FontFormatInfo &info) {
+		return info.formatstr_short;
+	});
 	return formats;
 }
-
 
 #include <config.h>
 
@@ -179,7 +179,7 @@ bool FontWriter::writeCSSFontFace (FontFormat format, const set<int> &charcodes,
 			os << "@font-face{"
 				<< "font-family:" << _font.name() << ';'
 				<< "src:url(data:" << info->mimetype << ";base64,";
-			util::base64_copy(ifs, os);
+			util::base64_encode(ifs, os);
 			os << ") format('" << info->formatstr_long << "');}\n";
 			ifs.close();
 			if (!PhysicalFont::KEEP_TEMP_FILES)

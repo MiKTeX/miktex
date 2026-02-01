@@ -50,7 +50,7 @@ class CharProperty {
 		void changed (bool c)         {_changed = c;}
 
 	private:
-		T _value;
+		T _value=T();
 		bool _changed=false;
 };
 

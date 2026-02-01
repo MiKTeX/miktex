@@ -48,7 +48,7 @@ void PSPattern::apply (SpecialActions &actions) {
 
 /////////////////////////////////////////////////////////////////////////////
 
-PSTilingPattern::PSTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep)
+PSTilingPattern::PSTilingPattern (int id, const BoundingBox &bbox, const Matrix &matrix, double xstep, double ystep)
 	: PSPattern(id), _bbox(bbox), _matrix(matrix), _xstep(xstep), _ystep(ystep)
 {
 	_groupNode = PSTilingPattern::createGroupNode();
@@ -123,7 +123,7 @@ void PSTilingPattern::apply (SpecialActions &actions) {
 
 /////////////////////////////////////////////////////////////////////////////
 
-PSColoredTilingPattern::PSColoredTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep)
+PSColoredTilingPattern::PSColoredTilingPattern (int id, const BoundingBox &bbox, const Matrix &matrix, double xstep, double ystep)
 	: PSTilingPattern(id, bbox, matrix, xstep, ystep)
 {
 }
@@ -131,7 +131,7 @@ PSColoredTilingPattern::PSColoredTilingPattern (int id, BoundingBox &bbox, Matri
 
 /////////////////////////////////////////////////////////////////////////////
 
-PSUncoloredTilingPattern::PSUncoloredTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep)
+PSUncoloredTilingPattern::PSUncoloredTilingPattern (int id, const BoundingBox &bbox, const Matrix &matrix, double xstep, double ystep)
 	: PSTilingPattern(id, bbox, matrix, xstep, ystep), _applied()
 {
 }

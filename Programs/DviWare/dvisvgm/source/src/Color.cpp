@@ -22,13 +22,13 @@
 #include <config.h>
 #endif
 #include <array>
-#include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <iomanip>
 #include <sstream>
+#include "algorithm.hpp"
 #include "Color.hpp"
 #include "utility.hpp"
 
@@ -151,7 +151,7 @@ bool Color::setPSName (string name, bool case_sensitive) {
 		const uint32_t rgb;
 	};
 	// converted color constants from color.pro
-	static const array<ColorConstant, 68> constants {{
+	static constexpr array<ColorConstant, 68> constants {{
 		{"Apricot",        0xFFAD7A},
 		{"Aquamarine",     0x2DFFB2},
 		{"Bittersweet",    0xC10200},
@@ -223,11 +223,9 @@ bool Color::setPSName (string name, bool case_sensitive) {
 	}};
 	if (case_sensitive) {
 		const ColorConstant cmppair = {name.c_str(), 0};
-		auto it = lower_bound(constants.begin(), constants.end(), cmppair,
-			[](const ColorConstant &c1, const ColorConstant &c2) {
-				return strcmp(c1.name, c2.name) < 0;
-			}
-		);
+		auto it = algo::lower_bound(constants, cmppair, [](const ColorConstant &c1, const ColorConstant &c2) {
+			return strcmp(c1.name, c2.name) < 0;
+		});
 		if (it != constants.end() && it->name == name) {
 			_value = it->rgb;
 			return true;
@@ -235,7 +233,7 @@ bool Color::setPSName (string name, bool case_sensitive) {
 	}
 	else {
 		name = util::tolower(name);
-		auto it = find_if(constants.begin(), constants.end(), [&](const ColorConstant &cc) {
+		auto it = algo::find_if(constants, [&](const ColorConstant &cc) {
 			return name == util::tolower(cc.name);
 		});
 		if (it != constants.end()) {
@@ -332,7 +330,7 @@ string Color::svgColorString (bool rgbonly) const {
 			uint32_t rgb;
 			const char *name;
 		};
-		static const array<ColorName, 138> colornames {{
+		static constexpr array<ColorName, 138> colornames {{
 			{0x000000, "black"},
 			{0x000080, "navy"},
 			{0x00008b, "darkblue"},
@@ -473,7 +471,7 @@ string Color::svgColorString (bool rgbonly) const {
 			{0xffffff, "white"}
 		}};
 		ColorName cmppair = {_value, nullptr};
-		auto it = lower_bound(colornames.begin(), colornames.end(), cmppair, [](const ColorName &c1, const ColorName &c2) {
+		auto it = algo::lower_bound(colornames, cmppair, [](const ColorName &c1, const ColorName &c2) {
 			return c1.rgb < c2.rgb;
 		});
 		if (it != colornames.end() && it->rgb == _value)

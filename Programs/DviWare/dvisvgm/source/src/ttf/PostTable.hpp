@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include <algorithm>
-#include <map>
 #include "TTFTable.hpp"
 
 namespace ttf {

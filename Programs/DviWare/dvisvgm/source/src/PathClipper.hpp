@@ -42,8 +42,8 @@ class PathClipper {
 	protected:
 		CurvedPath combine (ClipperLib::ClipType op, const CurvedPath &p1, const CurvedPath &p2);
 		void flatten (const CurvedPath &gp, ClipperLib::Paths &polygons);
-		void reconstruct (const ClipperLib::Path &polygon, CurvedPath &path);
-		void reconstruct (const ClipperLib::Paths &polygons, CurvedPath &path);
+		void reconstruct (const ClipperLib::Path &polygon, CurvedPath &path) const;
+		void reconstruct (const ClipperLib::Paths &polygons, CurvedPath &path) const;
 		static void callback (IntPoint &e1bot, IntPoint &e1top, IntPoint &e2bot, IntPoint &e2top, IntPoint &ip);
 
 	private:

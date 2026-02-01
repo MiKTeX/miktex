@@ -10,12 +10,10 @@
 #define WOFF2_WOFF2_OUT_H_
 
 #include <algorithm>
+#include <cstdint>
 #include <cstring>
 #include <memory>
 #include <string>
-#if defined(MIKTEX)
-#include <cstdint>
-#endif
 
 namespace woff2 {
 

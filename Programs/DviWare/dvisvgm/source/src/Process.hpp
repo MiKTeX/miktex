@@ -44,9 +44,9 @@ class Process {
 		Process (std::string cmd, std::string paramstr);
 		Process (const Process &orig) =delete;
 		Process (Process &&orig) =delete;
-		bool run (std::string *out=nullptr, PipeFlags flags=PF_STDOUT);
-		bool run (const std::string &dir, std::string *out=nullptr, PipeFlags flags=PF_STDOUT);
-		bool run (std::string *out, const SearchPattern &pattern, PipeFlags flags=PF_STDOUT);
+		bool run (std::string *out=nullptr, PipeFlags flags=PF_STDOUT) const;
+		bool run (const std::string &dir, std::string *out=nullptr, PipeFlags flags=PF_STDOUT) const;
+		bool run (std::string *out, const SearchPattern &pattern, PipeFlags flags=PF_STDOUT) const;
 
 	private:
 		std::string _cmd;

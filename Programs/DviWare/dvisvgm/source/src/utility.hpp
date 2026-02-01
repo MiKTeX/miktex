@@ -50,7 +50,7 @@ double integral (double t0, double t1, int n, const std::function<double(double)
 
 /** Signum function (returns x/abs(x) if x != 0, and 0 otherwise). */
 template <typename T>
-inline int sgn (T x) {return (x > T(0)) - (x < T(0));}
+int sgn (T x) {return (x > T(0)) - (x < T(0));}
 
 inline double clip (double x, double min, double max) {
 	return x < min ? min : (x > max ? max : x);
@@ -59,6 +59,10 @@ inline double clip (double x, double min, double max) {
 } // namespace math
 
 namespace util {
+
+struct IsEmptyString : std::function<bool(std::string)> {
+	bool operator () (const std::string &str) const {return str.empty();}
+};
 
 template <typename T>
 std::string tohex (T val) {
@@ -106,7 +110,7 @@ std::vector<uint8_t> bytes (T val, int n=0) {
  *  @param[in] dest first position of the destination range
  *  @param[in] wrap if > 0, add a newline after the given number of characters written */
 template <typename InputIterator, typename OutputIterator>
-void base64_copy (InputIterator first, InputIterator last, OutputIterator dest, int wrap=0) {
+void base64_encode (InputIterator first, InputIterator last, OutputIterator dest, int wrap= 0) {
 	static const char *base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	int count=0;
 	while (first != last) {
@@ -141,8 +145,9 @@ void base64_copy (InputIterator first, InputIterator last, OutputIterator dest, 
 }
 
 
-inline void base64_copy (std::istream &is, std::ostream &os, int wrap=0) {
-	base64_copy(std::istreambuf_iterator<char>(is), std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(os), wrap);
+inline void base64_encode (std::istream &is, std::ostream &os, int wrap= 0) {
+	base64_encode(std::istreambuf_iterator<char>(is), std::istreambuf_iterator<char>(),
+					  std::ostreambuf_iterator<char>(os), wrap);
 }
 
 
@@ -150,7 +155,7 @@ inline void base64_copy (std::istream &is, std::ostream &os, int wrap=0) {
  *  Constructs an object of class T on the heap and returns a unique_ptr<T> to it.
  *  @param[in] args arguments forwarded to an constructor of T */
 template<typename T, typename... Args>
-inline std::unique_ptr<T> make_unique (Args&&... args) {
+std::unique_ptr<T> make_unique (Args&&... args) {
 	return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
@@ -159,13 +164,13 @@ inline std::unique_ptr<T> make_unique (Args&&... args) {
  *  Constructs an array of class T on the heap and returns a unique_ptr<T>(size) to it.
  *  @param[in] size size of array */
 template<typename T>
-inline std::unique_ptr<T> make_unique (std::size_t size) {
+std::unique_ptr<T> make_unique (std::size_t size) {
 	return std::unique_ptr<T>(new typename std::remove_extent<T>::type[size]());
 }
 
 
 template<typename T, typename U>
-inline std::unique_ptr<T> static_unique_ptr_cast (std::unique_ptr<U> &&old){
+std::unique_ptr<T> static_unique_ptr_cast (std::unique_ptr<U> &&old){
 	return std::unique_ptr<T>{static_cast<T*>(old.release())};
 }
 

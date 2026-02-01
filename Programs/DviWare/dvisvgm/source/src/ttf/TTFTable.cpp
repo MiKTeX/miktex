@@ -85,7 +85,7 @@ TableBuffer TTFTable::createBuffer () const {
 	write(vecstream);
 	vector<char> vec;
 	vecstream.swap_vector(vec);  // move data from vector stream to vec
-	return TableBuffer(tag(), std::move(vec));
+	return {tag(), std::move(vec)};
 }
 
 

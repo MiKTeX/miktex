@@ -43,8 +43,8 @@ class CommandLine {
 
 	protected:
 		using OptSectPair = std::pair<Option*,int>;
-		void parseShortOption (std::istringstream &is, int argc, char **argv, int &argn);
-		void parseLongOption (std::istream &is);
+		void parseShortOption (std::istringstream &is, int argc, char **argv, int &argn) const;
+		void parseLongOption (std::istream &is) const;
 		virtual std::vector<OptSectPair>& options () const =0;
 		virtual const char* section (size_t n) const {return nullptr;}
 		Option* lookupOption (char optchar) const;
@@ -59,7 +59,7 @@ class CommandLine {
 };
 
 
-struct CommandLineException : public MessageException {
+struct CommandLineException : MessageException {
 	explicit CommandLineException (const std::string &msg) : MessageException(msg) {}
 };
 

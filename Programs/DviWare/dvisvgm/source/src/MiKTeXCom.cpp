@@ -62,7 +62,7 @@ MiKTeXCom::~MiKTeXCom () {
 
 
 /** Returns the MiKTeX version number. */
-string MiKTeXCom::getVersion () {
+string MiKTeXCom::getVersion () const {
 #ifdef _MSC_VER
 	MiKTeXSetupInfo info = _session->GetMiKTeXSetupInfo();
 #else
@@ -74,7 +74,7 @@ string MiKTeXCom::getVersion () {
 
 
 /** Returns the path of the directory where the MiKTeX binaries are located. */
-string MiKTeXCom::getBinDir () {
+string MiKTeXCom::getBinDir () const {
 #ifdef _MSC_VER
 	MiKTeXSetupInfo info = _session->GetMiKTeXSetupInfo();
 #else
@@ -82,14 +82,14 @@ string MiKTeXCom::getBinDir () {
 	_session->GetMiKTeXSetupInfo(&info);
 #endif
 	_bstr_t bindir = info.binDirectory;
-	return string(bindir);
+	return {bindir};
 }
 
 
 /** Try to lookup a given file in the MiKTeX directory tree.
  *  @param[in] fname name of file to lookup
  *  @return path of the file or 0 if it can't be found */
-const char* MiKTeXCom::findFile (const char *fname) {
+const char* MiKTeXCom::findFile (const char *fname) const {
 	try {
 		_bstr_t path;
 		static string ret;

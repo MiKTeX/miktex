@@ -21,9 +21,9 @@
 #if defined(MIKTEX)
 #include <config.h>
 #endif
-#include <algorithm>
 #include <sstream>
 #include <vectorstream.hpp>
+#include "algorithm.hpp"
 #include "Color.hpp"
 #include "DVIActions.hpp"
 #include "DVIReader.hpp"
@@ -56,7 +56,7 @@ void DVIReader::executeAll () {
 		try {
 			opcode = executeCommand();
 		}
-		catch (const DVIPrematureEOFException &e) {
+		catch (const DVIPrematureEOFException &) {
 			// end of stream reached
 			opcode = -1;
 		}
@@ -71,7 +71,7 @@ void DVIReader::executeAll () {
 bool DVIReader::executePage (unsigned n) {
 	clearStream();    // reset all status bits
 	if (!isStreamValid())
-		throw DVIException("invalid DVI file (page "+to_string(n)+" not found");
+		throwDVIException("invalid DVI file (page "+to_string(n)+" not found");
 	if (n < 1 || n > numberOfPages())
 		return false;
 
@@ -88,17 +88,17 @@ bool DVIReader::executePage (unsigned n) {
  *  @param[in] pageno number of page to process (1-based)
  *  @param[in,out] hashFunc hash function to use
  *  @return true on success, hashFunc contains the resulting hash value */
-bool DVIReader::computePageHash (size_t pageno, HashFunction &hashFunc) {
+bool DVIReader::computePageHash (size_t pageno, HashFunction &hashFunc) const {
 	if (pageno == 0 || pageno > numberOfPages())
 		return false;
 
 	hashFunc.reset();
 	clearStream();
 	seek(_bopOffsets[pageno-1]+45);  // now on first command after bop of selected page
-	const size_t BUFSIZE = 4096;
-	char buf[BUFSIZE];
 	size_t numBytes = numberOfPageBytes(pageno-1)-46;  // number of bytes excluding bop and eop
 	while (numBytes > 0) {
+		constexpr size_t BUFSIZE = 4096;
+		char buf[BUFSIZE];
 		getInputStream().read(buf, min(numBytes, BUFSIZE));
 		hashFunc.update(buf, getInputStream().gcount());
 		numBytes -= getInputStream().gcount();
@@ -117,7 +117,7 @@ void DVIReader::cmdPre (int) {
 	uint32_t numer = readUnsigned(4);  // numerator units of measurement
 	uint32_t denom = readUnsigned(4);  // denominator units of measurement
 	if (denom == 0)
-		throw DVIException("denominator of measurement unit is zero");
+		throwDVIException("denominator of measurement unit is zero");
 	_mag = readUnsigned(4);        // magnification
 	uint32_t k = readUnsigned(1);  // length of following comment
 	string comment = readString(k);
@@ -135,14 +135,14 @@ void DVIReader::cmdPost (int) {
 	uint32_t numer = readUnsigned(4);
 	uint32_t denom = readUnsigned(4);
 	if (denom == 0)
-		throw DVIException("denominator of measurement unit is zero");
+		throwDVIException("denominator of measurement unit is zero");
 	_mag = readUnsigned(4);
 	uint32_t pageHeight = readUnsigned(4); // height of tallest page in dvi units
 	uint32_t pageWidth  = readUnsigned(4); // width of widest page in dvi units
 	uint16_t stackDepth = readUnsigned(2); // max. stack depth required
 	uint16_t numPages = readUnsigned(2);
 	if (numPages != (numberOfPages() & 0xffff))
-		throw DVIException("page count in postamble doesn't match actual number of pages");
+		throwDVIException("page count in postamble doesn't match actual number of pages");
 
 	// 1 dviunit * num/den == multiples of 0.0000001m
 	// 1 dviunit * _dvi2bp: length of 1 dviunit in PS points * _mag/1000
@@ -181,7 +181,7 @@ void DVIReader::cmdBop (int) {
 /** Reads and executes End-Of-Page command. */
 void DVIReader::cmdEop (int) {
 	if (!_stateStack.empty())
-		throw DVIException("stack not empty at end of page");
+		throwDVIException("stack not empty at end of page");
 	_inPage = false;
 	dviEop();
 }
@@ -197,21 +197,21 @@ void DVIReader::cmdPush (int) {
 /** Reads and executes pop command (restores pushed position information). */
 void DVIReader::cmdPop (int) {
 	if (_stateStack.empty())
-		throw DVIException("stack empty at pop command");
+		throwDVIException("stack empty at pop command");
 	_dviState = _stateStack.top();
 	_stateStack.pop();
 	dviPop();
 }
 
 
-/** Helper function that handles charaters from virtual fonts (VF).
+/** Helper function that handles characters from virtual fonts (VF).
  *  It is called by the cmdSetChar and cmdPutChar methods.
  *  @param[in] font current font (corresponding to _currFontNum)
  *  @param[in] c character to typeset */
 void DVIReader::putVFChar (Font *font, uint32_t c) {
 	if (auto vf = font_cast<VirtualFont*>(font)) { // is current font a virtual font?
 		FontManager &fm = FontManager::instance();
-		const auto *dvi = vf->getDVI(c);    // try to get DVI snippet that represents character c
+		const auto *dvi = vf->getDVI(c);    // try to get DVI sequence that represents character c
 		Font *firstFont = fm.vfFirstFont(vf);
 		if (!dvi) {
 			const FontMetrics *ffm = firstFont ? firstFont->getMetrics() : nullptr;
@@ -234,7 +234,7 @@ void DVIReader::putVFChar (Font *font, uint32_t c) {
 			try {
 				executeAll();  // execute DVI fragment
 			}
-			catch (const DVIException &e) {
+			catch (const DVIException &) {
 				// Message::estream(true) << "invalid dvi in vf: " << e.getMessage() << endl; // @@
 			}
 			replaceStream(is);       // restore previous input stream
@@ -250,57 +250,63 @@ void DVIReader::putVFChar (Font *font, uint32_t c) {
 /** Reads and executes set_char_x command. Puts a character at the current
  *  position and advances the cursor.
  *  @param[in] c character to set
- *  @throw DVIException if method is called ouside a bop/eop pair */
+ *  @throw DVIException if method is called outside a bop/eop pair */
 void DVIReader::cmdSetChar0 (int c) {
 	if (!_inPage)
-		throw DVIException("setchar outside of page");
-	Font *font = FontManager::instance().getFont(_currFontNum);
-	dviSetChar0(c, font); // template method that may trigger further actions
-	putVFChar(font, c);   // further character processing if current font is a virtual font
-	moveRight(font->charWidth(c)*font->scaleFactor()*_mag/1000.0, MoveMode::SETCHAR);
+		throwDVIException("setchar outside of page");
+	if (Font *font = FontManager::instance().getFont(_currFontNum)) {
+		dviSetChar0(c, font); // template method that may trigger further actions
+		putVFChar(font, c);   // further character processing if current font is a virtual font
+		moveRight(font->charWidth(c)*font->scaleFactor()*_mag/1000.0, MoveMode::SETCHAR);
+	}
+	else throwDVIException("no font selected prior to setchar");
 }
 
 
 /** Reads and executes setx command. Puts a character at the current
  *  position and advances the cursor.
  *  @param[in] len number of parameter bytes (possible values: 1-4)
- *  @throw DVIException if method is called ouside a bop/eop pair */
+ *  @throw DVIException if method is called outside a bop/eop pair */
 void DVIReader::cmdSetChar (int len) {
 	if (!_inPage)
-		throw DVIException("setchar outside of page");
+		throwDVIException("setchar outside of page");
 	// According to the dvi specification all character codes are unsigned
 	// except len == 4. At the moment all char codes are treated as unsigned...
 	uint32_t c = readUnsigned(len); // if len == 4 c may be signed
-	Font *font = FontManager::instance().getFont(_currFontNum);
-	dviSetChar(c, font); // template method that may trigger further actions
-	putVFChar(font, c);  // further character processing if current font is a virtual font
-	moveRight(font->charWidth(c)*font->scaleFactor()*_mag/1000.0, MoveMode::SETCHAR);
+	if (Font *font = FontManager::instance().getFont(_currFontNum)) {
+		dviSetChar(c, font); // template method that may trigger further actions
+		putVFChar(font, c);  // further character processing if current font is a virtual font
+		moveRight(font->charWidth(c)*font->scaleFactor()*_mag/1000.0, MoveMode::SETCHAR);
+	}
+	else throwDVIException("no font selected prior to setchar");
 }
 
 
 /** Reads and executes putx command. Puts a character at the current
  *  position but doesn't change the cursor position.
  *  @param[in] len number of parameter bytes (possible values: 1-4)
- *  @throw DVIException if method is called ouside a bop/eop pair */
+ *  @throw DVIException if method is called outside a bop/eop pair */
 void DVIReader::cmdPutChar (int len) {
 	if (!_inPage)
-		throw DVIException("putchar outside of page");
+		throwDVIException("putchar outside of page");
 	// According to the dvi specification all character codes are unsigned
 	// except len == 4. At the moment all char codes are treated as unsigned...
 	int32_t c = readUnsigned(len);
-	Font *font = FontManager::instance().getFont(_currFontNum);
-	dviPutChar(c, font);
-	putVFChar(font, c);
+	if (Font *font = FontManager::instance().getFont(_currFontNum)) {
+		dviPutChar(c, font);
+		putVFChar(font, c);
+	}
+	else throwDVIException("no font selected prior to putchar");
 }
 
 
 /** Reads and executes set_rule command. Puts a solid rectangle at the current
  *  position and updates the cursor position.
  *  Format: set_rule h[+4] w[+4]
- *  @throw DVIException if method is called ouside a bop/eop pair */
+ *  @throw DVIException if method is called outside a bop/eop pair */
 void DVIReader::cmdSetRule (int) {
 	if (!_inPage)
-		throw DVIException("set_rule outside of page");
+		throwDVIException("set_rule outside of page");
 	double height = _dvi2bp*readSigned(4);
 	double width  = _dvi2bp*readSigned(4);
 	dviSetRule(height, width);
@@ -311,10 +317,10 @@ void DVIReader::cmdSetRule (int) {
 /** Reads and executes set_rule command. Puts a solid rectangle at the current
  *  position but leaves the cursor position unchanged.
  *  Format: put_rule h[+4] w[+4]
- *  @throw DVIException if method is called ouside a bop/eop pair */
+ *  @throw DVIException if method is called outside a bop/eop pair */
 void DVIReader::cmdPutRule (int) {
 	if (!_inPage)
-		throw DVIException("put_rule outside of page");
+		throwDVIException("put_rule outside of page");
 	double height = _dvi2bp*readSigned(4);
 	double width  = _dvi2bp*readSigned(4);
 	dviPutRule(height, width);
@@ -399,7 +405,7 @@ void DVIReader::cmdDir (int) {
 	if (wmode == 4)  // yoko mode (4) equals default LR mode (0)
 		wmode = 0;
 	if (wmode == 2 || wmode > 3)
-		throw DVIException("invalid writing mode value " + std::to_string(wmode) + " (0, 1, 3, or 4 expected)");
+		throwDVIException("invalid writing mode value " + std::to_string(wmode) + " (0, 1, 3, or 4 expected)");
 	_dviState.d = (WritingMode)wmode;
 	dviDir(_dviState.d);
 }
@@ -407,7 +413,7 @@ void DVIReader::cmdDir (int) {
 
 void DVIReader::cmdXXX (int len) {
 	if (!_inPage)
-		throw DVIException("special outside of page");
+		throwDVIException("special outside of page");
 	uint32_t numBytes = readUnsigned(len);
 	string str = readString(numBytes);
 	dviXXX(str);
@@ -424,7 +430,7 @@ void DVIReader::setFont (int fontnum, SetFontMode mode) {
 		dviFontNum(uint32_t(fontnum), mode, font);
 	}
 	else
-		throw DVIException("undefined font number " + std::to_string(fontnum));
+		throwDVIException("undefined font number " + std::to_string(fontnum));
 }
 
 
@@ -545,7 +551,7 @@ void DVIReader::defineVFFont (uint32_t fontnum, const string &path, const string
 /** This template method is called by the VFReader after reading a character definition from a VF file.
  *  @param[in] c character number
  *  @param[in] dvi DVI fragment describing the character */
-void DVIReader::defineVFChar (uint32_t c, vector<char> &&dvi) {
+void DVIReader::defineVFChar (uint32_t c, vector<char> dvi) {
 	FontManager::instance().assignVFChar(c, std::move(dvi));
 }
 
@@ -614,12 +620,12 @@ void DVIReader::cmdXFontDef (int) {
  *  @param[in] font assigned font
  *  @return width in bp units */
 static double string_width (const vector<uint16_t> &glyphs, const Font *font) {
-	double width=0;
 	if (auto nfont = font_cast<const NativeFont*>(font)) {
-		for (auto glyph: glyphs)
-			width += nfont->hAdvance(Character(Character::INDEX, glyph));
+		return algo::accumulate(glyphs, 0.0, [&nfont](double w, uint16_t gid) {
+			return w + nfont->hAdvance(Character(Character::INDEX, gid));
+		});
 	}
-	return width;
+	return 0;
 }
 
 
@@ -632,7 +638,7 @@ void DVIReader::cmdXGlyphArray (int) {
 	double width = putGlyphArray(false, dx, dy, glyphs);
 	Font *font = FontManager::instance().getFont(_currFontNum);
 	if (!font)
-		throw DVIException("missing setfont prior to xglypharray");
+		throwDVIException("missing setfont prior to xglypharray");
 	dviXGlyphArray(dx, dy, glyphs, *font);
 	double diff = abs(string_width(glyphs, font) - width);
 	// if the given width differs from the actual width of the string,
@@ -650,7 +656,7 @@ void DVIReader::cmdXGlyphString (int) {
 	double width = putGlyphArray(true, dx, dy, glyphs);
 	Font *font = FontManager::instance().getFont(_currFontNum);
 	if (!font)
-		throw DVIException("missing setfont prior to xglyphstring");
+		throwDVIException("missing setfont prior to xglyphstring");
 	dviXGlyphString(dx, glyphs, *font);
 	double diff = abs(string_width(glyphs, font) - width);
 	// if the given width differs from the actual width of the string,
@@ -675,7 +681,7 @@ void DVIReader::cmdXTextAndGlyphs (int) {
 	double width = putGlyphArray(false, x, y, glyphs);
 	Font *font = FontManager::instance().getFont(_currFontNum);
 	if (!font)
-		throw DVIException("missing setfont prior to xtextandglyphs");
+		throwDVIException("missing setfont prior to xtextandglyphs");
 	dviXTextAndGlyphs(x, y, chars, glyphs, *font);
 	double diff = abs(string_width(glyphs, font) - width);
 	// if the given width differs from the actual width of the string,
@@ -690,7 +696,7 @@ void DVIReader::cmdXTextAndGlyphs (int) {
  *  @param[out] dy relative vertical positions of each glyph
  *  @param[out] glyphs FreeType indices of the glyphs to typeset
  *  @return total width of the glyph array */
-double DVIReader::putGlyphArray (bool xonly, vector<double> &dx, vector<double> &dy, vector<uint16_t> &glyphs) {
+double DVIReader::putGlyphArray (bool xonly, vector<double> &dx, vector<double> &dy, vector<uint16_t> &glyphs) const {
 	double strwidth = _dvi2bp*readSigned(4);
 	uint16_t num_glyphs = readUnsigned(2);
 	dx.resize(num_glyphs);

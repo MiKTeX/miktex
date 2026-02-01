@@ -51,9 +51,9 @@ class TFM : public FontMetrics {
 		uint32_t lastChar () const override    {return _lastChar;}
 
 	protected:
-		void readHeader (StreamReader &reader);
+		void readHeader (const StreamReader &reader);
 		void readTables (StreamReader &reader, int nw, int nh, int nd, int ni);
-		void readParameters (StreamReader &reader, int np);
+		void readParameters (const StreamReader &reader, int np);
 		virtual size_t charIndex (int c) const;
 		void setCharRange (int firstchar, int lastchar) {_firstChar=firstchar; _lastChar=lastchar;}
 

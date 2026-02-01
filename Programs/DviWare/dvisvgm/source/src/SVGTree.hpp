@@ -59,18 +59,18 @@ class SVGTree {
 		void popDefsContext ();
 		void pushPageContext (std::unique_ptr<SVGElement> node);
 		void popPageContext ();
-		void setBBox (const BoundingBox &bbox);
-		void setFont (int id, const Font &font);
+		void setBBox (const BoundingBox &bbox) const;
+		void setFont (int id, const Font &font) const;
 		std::pair<int,const Font*> getFontPair () const;
 		static bool setFontFormat (std::string formatstr);
 		void setX (double x)                {_charHandler->notifyXAdjusted();}
 		void setY (double y)                {_charHandler->notifyYAdjusted();}
 		void setMatrix (const Matrix &m)    {_charHandler->setMatrix(m);}
-		void setFillColor (const Color &c);
-		void setStrokeColor (const Color &c);
+		void setFillColor (const Color &c) const;
+		void setStrokeColor (const Color &c) const;
 		void setOpacity (const Opacity &op) {_charHandler->setOpacity(op);}
 		void setVertical (bool state)       {_charHandler->setVertical(state);}
-		void transformPage (const Matrix &m);
+		void transformPage (const Matrix &m) const;
 		Color getFillColor () const         {return _charHandler->getFillColor();}
 		Color getStrokeColor () const       {return _charHandler->getStrokeColor();}
 		const Opacity& getOpacity () const  {return _charHandler->getOpacity();}

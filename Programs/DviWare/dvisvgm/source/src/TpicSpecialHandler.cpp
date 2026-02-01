@@ -152,7 +152,7 @@ void TpicSpecialHandler::drawLines (double ddist, SpecialActions &actions) {
  *  from the first point to the mid-point of the first line.  The spline ends
  *  with a straight line from the mid-point of the last line to the last point.
  *  If ddist=0, the spline is stroked solid. Otherwise ddist denotes the length
- *  of the dashes and the gaps inbetween.
+ *  of the dashes and the gaps in between.
  *  @param[in] ddist length of dashes and gaps
  *  @param[in] actions object providing the actions that can be performed by the SpecialHandler */
 void TpicSpecialHandler::drawSplines (double ddist, SpecialActions &actions) {
@@ -275,7 +275,7 @@ bool TpicSpecialHandler::process (const string &prefix, istream &is, SpecialActi
 	if (prefix.length() != 2)
 		return false;
 	_dviColor = actions.getFillColor();
-	const double mi2bp=0.072; // factor for milli-inch to PS points
+	constexpr double mi2bp=0.072; // factor for milli-inch to PS points
 	StreamInputBuffer ib(is);
 	BufferInputReader ir(ib);
 	switch (cmd_id(prefix.c_str())) {

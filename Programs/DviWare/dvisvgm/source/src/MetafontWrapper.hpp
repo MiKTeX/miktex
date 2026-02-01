@@ -29,8 +29,8 @@ class FileFinder;
 class MetafontWrapper {
 	public:
 		MetafontWrapper (std::string fname, std::string dir);
-		bool call (const std::string &mode, double mag);
-		bool make (const std::string &mode, double mag);
+		bool call (const std::string &mode, double mag) const;
+		bool make (const std::string &mode, double mag) const;
 		bool success () const;
 
 	protected:

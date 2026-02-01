@@ -21,7 +21,6 @@
 #if defined(MIKTEX)
 #include <config.h>
 #endif
-#include <algorithm>
 #include <cstring>
 #include <fstream>
 #include <iomanip>

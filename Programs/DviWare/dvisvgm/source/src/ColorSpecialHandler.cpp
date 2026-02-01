@@ -24,6 +24,7 @@
 #include <cstring>
 #include <sstream>
 #include <vector>
+#include "algorithm.hpp"
 #include "ColorSpecialHandler.hpp"
 #include "SpecialActions.hpp"
 
@@ -45,8 +46,9 @@ static double read_double (istream &is) {
  *  @param[in]  is stream to be read from
  *  @param[out] vec the resulting values */
 static void read_doubles (istream &is, vector<double> &vec) {
-	for (double &val : vec)
-		val = read_double(is);
+	algo::generate(vec, [&is]() {
+		return read_double(is);
+	});
 }
 
 

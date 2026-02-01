@@ -21,7 +21,7 @@
 #if defined(MIKTEX)
 #include <config.h>
 #endif
-#include <algorithm>
+#include "algorithm.hpp"
 #include "BgColorSpecialHandler.hpp"
 #include "ColorSpecialHandler.hpp"
 #include "SpecialActions.hpp"
@@ -34,8 +34,8 @@ using namespace std;
  *  not all but only selected DVI pages are converted. */
 void BgColorSpecialHandler::preprocess (const string&, std::istream &is, SpecialActions &actions) {
 	Color color = ColorSpecialHandler::readColor(is);
-	unsigned pageno = actions.getCurrentPageNumber();
 	if (_pageColors.empty() || _pageColors.back().second != color) {
+		unsigned pageno = actions.getCurrentPageNumber();
 		if (!_pageColors.empty() && _pageColors.back().first == pageno)
 			_pageColors.back().second = color;
 		else
@@ -50,14 +50,14 @@ bool BgColorSpecialHandler::process (const string&, istream&, SpecialActions&) {
 
 
 void BgColorSpecialHandler::dviBeginPage (unsigned pageno, SpecialActions &actions) {
-	// Ensure that the background color of the preceeding page is set as the
+	// Ensure that the background color of the preceding page is set as the
 	// default background color of the current page because this special affects
 	// the current and all subsequent pages until the next change.
 	// See the documentation of the color package, section 3.5.
 	if (_pageColors.empty())
 		return;
 	// find number of page with bg color change not lower than the current one
-	auto it = lower_bound(_pageColors.begin(), _pageColors.end(), PageColor(pageno, Color::BLACK));
+	auto it = algo::lower_bound(_pageColors, PageColor(pageno, Color::BLACK));
 	if (it != _pageColors.end() && it->first == pageno)
 		actions.setBgColor(it->second);
 	else if (it != _pageColors.begin())

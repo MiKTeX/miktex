@@ -47,7 +47,7 @@ inline unique_ptr<SpecialHandler> createPsSpecialHandler () {
 
 
 /** Replaces this handler proxy with the actual PS special handler. */
-SpecialHandler* PsSpecialHandlerProxy::replaceHandler () {
+SpecialHandler* PsSpecialHandlerProxy::replaceHandler () const {
 	auto psSpecialHandler = createPsSpecialHandler();
 	if (_pswarning) {
 #ifdef DISABLE_GS

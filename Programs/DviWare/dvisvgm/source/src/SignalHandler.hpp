@@ -24,7 +24,7 @@
 #include <exception>
 #include <memory>
 
-struct SignalException : public std::exception {
+struct SignalException : std::exception {
 };
 
 

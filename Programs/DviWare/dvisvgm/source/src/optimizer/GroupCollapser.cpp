@@ -21,10 +21,10 @@
 #if defined(MIKTEX)
 #include <config.h>
 #endif
-#include <algorithm>
 #include <array>
 #include <string>
 #include <vector>
+#include "../algorithm.hpp"
 #include "GroupCollapser.hpp"
 #include "TransformSimplifier.hpp"
 #include "../XMLNode.hpp"
@@ -58,7 +58,7 @@ static XMLElement* only_child_element (XMLElement *elem) {
 
 
 /** Removes all whitespace child nodes from a given element. */
-static void remove_ws_nodes (XMLElement *elem) {
+static void remove_ws_nodes (const XMLElement *elem) {
 	XMLNode *node = elem->firstChild();
 	while (node) {
 		if (!node->toWSNode())
@@ -149,7 +149,7 @@ bool GroupCollapser::collapsible (const XMLElement &element) {
 	static const char *names[] = {
 		"animate", "animateColor", "animateMotion", "animateTransform", "set"
 	};
-	auto it = find_if(begin(names), end(names), [&](const string &name) {
+	auto it = algo::find_if(names, [&](const string &name) {
 		return element.name() == name;
 	});
 	return it == end(names);
@@ -175,7 +175,7 @@ bool GroupCollapser::unwrappable (const XMLElement &source, const XMLElement &de
 	static const char *attribs[] = {
 		"class", "id", "filter", "mask", "style"
 	};
-	auto it = find_if(begin(attribs), end(attribs), [&](const string &name) {
+	auto it = algo::find_if(attribs, [&](const string &name) {
 		return source.hasAttribute(name) || dest.hasAttribute(name);
 	});
 	return it == end(attribs);

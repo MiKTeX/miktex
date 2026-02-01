@@ -21,13 +21,12 @@
 #if defined(MIKTEX)
 #include <config.h>
 #endif
-#include <algorithm>
 #include <limits>
 #include <cmath>
-#include <numeric>
 #include <sstream>
 #include "GlyfTable.hpp"
 #include "TTFWriter.hpp"
+#include "../algorithm.hpp"
 #include "../Bezier.hpp"
 #include "../Font.hpp"
 
@@ -137,17 +136,15 @@ void Contour::reduceNumberOfPoints () {
 		}
 	}
 	// actually remove marked points from vector
-	_pointInfos.erase(
-		remove_if(_pointInfos.begin(), _pointInfos.end(), [](const PointInfo &pi) {
-			return pi.removed();
-		}),
-		_pointInfos.end());
+	algo::erase_if(_pointInfos, [](const PointInfo &pi) {
+		return pi.removed();
+	});
 }
 
 
 /** Bits of the "Simple Glyph Flags". See section "Simple Glyph Description" of glyf table documentation. */
 enum : uint8_t {
-	ON_CURVE_PT = 1,   ///< if set, corresponing point is on the curve, otherwise off the curve (= control point)
+	ON_CURVE_PT = 1,   ///< if set, corresponding point is on the curve, otherwise off the curve (= control point)
 	X_SHORT = 2,       ///< if set, the corresponding x-coordinate is 1 byte long, otherwise it's two bytes long
 	Y_SHORT = 4,       ///< if set, the corresponding y-coordinate is 1 byte long, otherwise it's two bytes long
 	REPEAT_FLAG = 8,   ///< if set, the next byte specifies the number of additional times this flag is to be repeated
@@ -215,7 +212,7 @@ size_t GlyfTable::writeGlyphContours (ostream &os, uint32_t charcode) const {
 		return 0;
 	}
 	ttfWriter()->updateContourInfo(contours.size(),
-		std::accumulate(contours.begin(), contours.end(), size_t(0), [](size_t sum, const Contour &contour) {
+		algo::accumulate(contours, size_t(0), [](size_t sum, const Contour &contour) {
 			return sum + contour.numPoints();
 		}));
 	auto offset = os.tellp();

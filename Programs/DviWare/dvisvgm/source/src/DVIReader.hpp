@@ -43,32 +43,29 @@ class DVIReader : public BasicDVIReader, public VFActions {
 		enum class MoveMode {SETCHAR, CHANGEPOS};
 
 		struct DVIState {
-			double h, v;        ///< horizontal and vertical cursor position
-			double x, w, y, z;  ///< additional registers to store horizontal (x, w) and vertical (y, z) positions
-			WritingMode d;      ///< direction: 0: horizontal, 1: vertical(top->bottom), 3: vertical (bottom->top)
-			DVIState ()   {reset();}
+			double h=0, v=0;               ///< horizontal and vertical cursor position
+			double x=0, w=0, y=0, z=0;     ///< additional registers to store horizontal (x, w) and vertical (y, z) positions
+			WritingMode d=WritingMode::LR; ///< direction: 0: horizontal, 1: vertical(top->bottom), 3: vertical (bottom->top)
 			void reset () {h = v = x = w = y = z = 0.0; d=WritingMode::LR;}
 		};
 
 	public:
 		explicit DVIReader (std::istream &is);
-		bool executeDocument ();
 		void executeAll ();
 		bool executePage (unsigned n);
 		double getXPos () const override             {return _dviState.h;}
 		double getYPos () const override             {return _dviState.v;}
 		int stackDepth () const override             {return _stateStack.size();}
-		int currentFontNumber () const               {return _currFontNum;}
 		unsigned currentPageNumber () const override {return _currPageNum;}
 		unsigned numberOfPages () const              {return _bopOffsets.empty() ? 0 : _bopOffsets.size()-1;}
 
 	protected:
 		size_t numberOfPageBytes (int n) const {return _bopOffsets.size() > 1 ? _bopOffsets[n+1]-_bopOffsets[n] : 0;}
-		bool computePageHash (size_t pageno, HashFunction &hashFunc);
+		bool computePageHash (size_t pageno, HashFunction &hashFunc) const;
 		virtual void moveRight (double dx, MoveMode mode);
 		virtual void moveDown (double dy, MoveMode mode);
 		void putVFChar (Font *font, uint32_t c);
-		double putGlyphArray (bool xonly, std::vector<double> &dx, std::vector<double> &dy, std::vector<uint16_t> &glyphs);
+		double putGlyphArray (bool xonly, std::vector<double> &dx, std::vector<double> &dy, std::vector<uint16_t> &glyphs) const;
 		const Font* defineFont (uint32_t fontnum, const std::string &name, uint32_t cs, double dsize, double ssize);
 		void setFont (int num, SetFontMode mode);
 		const DVIState& dviState() const {return _dviState;}
@@ -77,7 +74,7 @@ class DVIReader : public BasicDVIReader, public VFActions {
 
 		// VFAction methods
 		void defineVFFont (uint32_t fontnum, const std::string &path, const std::string &name, uint32_t checksum, double dsize, double ssize) override;
-		void defineVFChar (uint32_t c, std::vector<char> &&dvi) override;
+		void defineVFChar (uint32_t c, std::vector<char> dvi) override;
 
 		// The following template methods provide higher-level access to the DVI commands.
 		// In contrast to their cmdXXX pendants, they don't require any handling of the input stream.

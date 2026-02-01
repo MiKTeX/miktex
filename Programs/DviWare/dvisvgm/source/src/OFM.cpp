@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <string>
+#include "algorithm.hpp"
 #include "Length.hpp"
 #include "OFM.hpp"
 
@@ -103,10 +104,8 @@ void OFM::readTables (StreamReader &reader, const FileDimensions &dim) {
 	reader.skip(8*dim.nl + 4*dim.nk + 8*dim.ne);
 	read_words(reader, _params, min(dim.np, 7u));  // we only need params 0-6
 	_params.resize(7, 0);   // ensure 7 parameters
-	for (FixWord h : _heightTable)
-		_ascent = max(_ascent, h);
-	for (FixWord d : _depthTable)
-		_descent = max(_descent, d);
+	_ascent = dim.nh > 0 ? *algo::max_element(_heightTable) : 0;
+	_descent = dim.nd > 0 ? *algo::max_element(_depthTable) : 0;
 }
 
 

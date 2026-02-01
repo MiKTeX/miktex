@@ -105,7 +105,7 @@ template<> constexpr const char* typeString<double> ()      {return "floating po
 template<> constexpr const char* typeString<std::string> () {return "string";}
 
 template <typename T>
-inline T parseValue (std::istream &is) {
+T parseValue (std::istream &is) {
 	T value;
 	is >> value;
 	return value;

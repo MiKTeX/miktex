@@ -38,7 +38,7 @@ double Calculator::eval (istream &is) const {
 		// check if expression has been fully evaluated (next token is of type bool)
 		mpark::get<bool>(lookAhead(is));
 	}
-	catch (mpark::bad_variant_access &e) {
+	catch (mpark::bad_variant_access &) {
 		throw CalculatorException("expression syntax error");
 	}
 	return ret;
@@ -135,7 +135,7 @@ double Calculator::prim (istream &is, bool skip) const { // prim:
 					if (mpark::get<char>(lookAhead(is)) != ')')
 						throw CalculatorException("')' expected");
 				}
-				catch (mpark::bad_variant_access &e) {
+				catch (mpark::bad_variant_access &) {
 					throw CalculatorException("')' expected");
 				}
 				is.get();   // skip processed char

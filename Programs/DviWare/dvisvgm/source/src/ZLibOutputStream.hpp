@@ -36,7 +36,7 @@
 #  include <io.h>
 #endif
 
-struct ZLibException : public MessageException {
+struct ZLibException : MessageException {
 	explicit ZLibException (const std::string &msg) : MessageException(msg) {}
 };
 

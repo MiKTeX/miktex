@@ -35,9 +35,9 @@ class MiKTeXCom {
 	public:
 		MiKTeXCom ();
 		~MiKTeXCom ();
-		std::string getBinDir ();
-		std::string getVersion ();
-		const char* findFile (const char* fname);
+		std::string getBinDir () const;
+		std::string getVersion () const;
+		const char* findFile (const char* fname) const;
 
 	private:
 #ifdef _MSC_VER

@@ -79,46 +79,39 @@ class XMLNode {
 };
 
 
-class XMLNodeIterator {
+template <typename T>
+class XMLNodeIteratorTempl {
 	public:
-		XMLNodeIterator () =default;
-		explicit XMLNodeIterator (XMLNode *curr) : _curr(curr) {}
-		XMLNodeIterator& operator ++ ()   {_curr = _curr->next(); return *this;}
-		XMLNodeIterator& operator -- ()   {_curr = _curr->prev(); return *this;}
-		XMLNodeIterator operator ++ (int) {auto p=_curr; _curr = _curr->next(); return XMLNodeIterator(p);}
-		XMLNodeIterator operator -- (int) {auto p=_curr; _curr = _curr->prev(); return XMLNodeIterator(p);}
-		XMLNode* operator * ()     {return _curr;}
-		XMLNode& operator -> ()    {return *_curr;}
-		bool operator == (const XMLNodeIterator &it) const {return _curr == it._curr;}
-		bool operator != (const XMLNodeIterator &it) const {return _curr != it._curr;}
+		using iterator_category = std::forward_iterator_tag;
+		using value_type = T*;
+		using difference_type = std::ptrdiff_t;
+		using pointer = T*;
+		using reference = T&;
+
+		XMLNodeIteratorTempl () =default;
+		explicit XMLNodeIteratorTempl (XMLNode *curr) : _curr(curr) {}
+		XMLNodeIteratorTempl& operator ++ ()   {_curr = _curr->next(); return *this;}
+		XMLNodeIteratorTempl& operator -- ()   {_curr = _curr->prev(); return *this;}
+		XMLNodeIteratorTempl operator ++ (int) {auto p=_curr; _curr = _curr->next(); return XMLNodeIterator(p);}
+		XMLNodeIteratorTempl operator -- (int) {auto p=_curr; _curr = _curr->prev(); return XMLNodeIterator(p);}
+		T* operator * ()     {return _curr;}
+		T& operator -> ()    {return *_curr;}
+		bool operator == (const XMLNodeIteratorTempl &it) const {return _curr == it._curr;}
+		bool operator != (const XMLNodeIteratorTempl &it) const {return _curr != it._curr;}
 
 	private:
-		XMLNode *_curr=nullptr;
+		T *_curr=nullptr;
 };
 
-
-class ConstXMLNodeIterator {
-	public:
-		ConstXMLNodeIterator () =default;
-		explicit ConstXMLNodeIterator (const XMLNode *curr) : _curr(curr) {}
-		ConstXMLNodeIterator& operator ++ ()   {_curr = _curr->next(); return *this;}
-		ConstXMLNodeIterator& operator -- ()   {_curr = _curr->prev(); return *this;}
-		ConstXMLNodeIterator operator ++ (int) {auto p=_curr; _curr = _curr->next(); return ConstXMLNodeIterator(p);}
-		ConstXMLNodeIterator operator -- (int) {auto p=_curr; _curr = _curr->prev(); return ConstXMLNodeIterator(p);}
-		const XMLNode* operator * ()     {return _curr;}
-		const XMLNode& operator -> ()    {return *_curr;}
-		bool operator == (const ConstXMLNodeIterator &it) const {return _curr == it._curr;}
-		bool operator != (const ConstXMLNodeIterator &it) const {return _curr != it._curr;}
-
-	private:
-		const XMLNode *_curr=nullptr;
-};
+using XMLNodeIterator = XMLNodeIteratorTempl<XMLNode>;
+using ConstXMLNodeIterator = XMLNodeIteratorTempl<const XMLNode>;
 
 
 class XMLElement : public XMLNode {
 	public:
 		struct Attribute {
 			Attribute (std::string nam, std::string val) : name(std::move(nam)), value(std::move(val)) {}
+			Attribute (std::pair<std::string, std::string> attr) : name(std::move(attr.first)), value(std::move(attr.second)) {}
 			bool inheritable () const;
 			std::string name;
 			std::string value;
@@ -135,12 +128,13 @@ class XMLElement : public XMLNode {
 		void clear () override;
 		void addAttribute (const std::string &name, const std::string &value);
 		void addAttribute (const std::string &name, double value);
+		void addAttributes (const std::map<std::string, std::string> &attribs);
 		void removeAttribute (const std::string &name);
 		XMLNode* append (std::unique_ptr<XMLNode> child);
 		XMLNode* append (const std::string &str);
 		XMLNode* prepend (std::unique_ptr<XMLNode> child);
 		XMLNode* insertAfter (std::unique_ptr<XMLNode> child, XMLNode *sibling);
-		XMLNode* insertBefore (std::unique_ptr<XMLNode> child, XMLNode *sibling);
+		XMLNode* insertBefore (std::unique_ptr<XMLNode> child, const XMLNode *sibling);
 		bool hasAttribute (const std::string &name) const;
 		const char* getAttributeValue (const std::string &name) const;
 		bool getDescendants (const char *name, const char *attrName, std::vector<XMLElement*> &descendants) const;
@@ -160,7 +154,7 @@ class XMLElement : public XMLNode {
 		const Attribute* getAttribute (const std::string &name) const;
 
 		static std::unique_ptr<XMLNode> detach (XMLNode *node);
-		static XMLElement* wrap (XMLNode *first, XMLNode *last, const std::string &name);
+		static XMLElement* wrap (XMLNode *first, const XMLNode *last, const std::string &name);
 		static XMLNode* unwrap (XMLElement *child);
 
 	protected:
@@ -182,9 +176,9 @@ class XMLText : public XMLNode {
 		std::unique_ptr<XMLNode> clone () const override {return util::make_unique<XMLText>(*this);}
 		void clear () override {_text.clear();}
 		void append (std::unique_ptr<XMLNode> node);
-		void append (std::unique_ptr<XMLText> node);
+		void append (const std::unique_ptr<XMLText> &node);
 		void append (const std::string &str);
-		void prepend (std::unique_ptr<XMLNode> node);
+		void prepend (const std::unique_ptr<XMLNode> &node);
 		std::ostream& write (std::ostream &os) const override {return os << _text;}
 		const std::string& getText () const {return _text;}
 		const XMLText* toText () const override {return this;}
@@ -214,7 +208,7 @@ class XMLCData : public XMLNode {
 		explicit XMLCData (std::string data) : _data(std::move(data)) {}
 		std::unique_ptr<XMLNode> clone () const override {return util::make_unique<XMLCData>(*this);}
 		void clear () override                {_data.clear();}
-		void append (std::string &&str);
+		void append (std::string str);
 		std::ostream& write (std::ostream &os) const override;
 		const XMLCData* toCData () const override {return this;}
 

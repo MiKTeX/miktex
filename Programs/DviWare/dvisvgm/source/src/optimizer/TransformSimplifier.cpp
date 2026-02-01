@@ -83,7 +83,7 @@ bool TransformSimplifier::incorporateTransform (XMLElement *elem, const Matrix &
 			y = strtod(ystr, nullptr);
 		// width and height attributes must not become negative. Hence, only apply the scaling
 		// values if they are non-negative. Otherwise, keep a scaling matrix. Also retain scaling
-		// transformations in image elements to avoid the need of attribute 'preseveAspectRatio'.
+		// transformations in image elements to avoid the need of attribute 'preserveAspectRatio'.
 		if (sx < 0 || sy < 0 || elem->name() == "image") {
 			x += (sx == 0 ? 0 : tx/sx);
 			y += (sy == 0 ? 0 : ty/sy);

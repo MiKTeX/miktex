@@ -53,7 +53,7 @@ void TensorProductPatch::setFirstMatrixColumn (DPair source[4][4], int col, bool
  *    1 12 15  8
  *    2 13 14  7
  *    3  4  5  6
- *  If the edge flag is 1,2, or 3, the points of the first matrix collumn
+ *  If the edge flag is 1,2, or 3, the points of the first matrix column
  *  are omitted, and taken from a reference patch instead.
  *  @param[in] points the control points in "spiral" order as described in the PS reference, p. 286
  *  @param[in] edgeflag defines how to connect this patch with another one
@@ -102,7 +102,7 @@ void TensorProductPatch::setPoints (const PointVec &points, int edgeflag, Shadin
  *  c30 ---- c33
  *  If the edge flag is 1,2, or 3, the colors c00 and c30 are omitted,
  *  and taken from a reference patch instead.
- *  @param[in] points the color values in the order c00, c30, c33, c03
+ *  @param[in] colors the color values in the order c00, c30, c33, c03
  *  @param[in] edgeflag defines how to connect this patch with another one
  *  @param[in] patch reference patch required if edgeflag > 0 */
 void TensorProductPatch::setColors (const ColorVec &colors, int edgeflag, ShadingPatch* patch) {
@@ -186,7 +186,7 @@ GraphicsPath<double> TensorProductPatch::getBoundaryPath () const {
 /** Computes the bicubically interpolated isoparametric Bézier curve P(u,t) that
  *  runs "vertically" from P(u,0) to P(u,1) through the patch P.
  *  @param[in] u "horizontal" parameter in the range from 0 to 1
- *  @param[out] bezier the resulting Bézier curve */
+ *  @return the resulting Bézier curve */
 CubicBezier TensorProductPatch::verticalCurve (double u) const {
 	CubicBezier bezier;
 	// check for simple cases (boundary curves) first
@@ -210,7 +210,7 @@ CubicBezier TensorProductPatch::verticalCurve (double u) const {
 /** Computes the bicubically interpolated isoparametric Bézier curve P(t,v) that
  *  runs "horizontally" from P(0,v) to P(1,v) through the patch P.
  *  @param[in] v "vertical" parameter in the range from 0 to 1
- *  @param[out] bezier the resulting Bézier curve */
+ *  @return the resulting Bézier curve */
 CubicBezier TensorProductPatch::horizontalCurve (double v) const {
 	CubicBezier bezier;
 	// check for simple cases (boundary curves) first
@@ -344,9 +344,8 @@ void TensorProductPatch::approximate (int gridsize, bool overlap, double delta, 
 
 BoundingBox TensorProductPatch::getBBox () const {
 	BoundingBox bbox;
-	CubicBezier bezier;
 	for (int i=0; i <= 1; i++) {
-		bezier = horizontalCurve(i);
+		CubicBezier bezier = horizontalCurve(i);
 		bbox.embed(bezier.getBBox());
 		bezier = verticalCurve(i);
 		bbox.embed(bezier.getBBox());
@@ -428,7 +427,7 @@ CoonsPatch::CoonsPatch (const PointVec &points, const ColorVec &colors, Color::C
 }
 
 
-inline DPair internal_control_point (const DPair p[4][4], array<int,16> i) {
+inline DPair internal_control_point (const DPair p[4][4], const array<int,16> &i) {
 	const DPair &a = p[i[ 0]][i[ 1]];
 	const DPair &b = p[i[ 2]][i[ 3]];
 	const DPair &c = p[i[ 4]][i[ 5]];

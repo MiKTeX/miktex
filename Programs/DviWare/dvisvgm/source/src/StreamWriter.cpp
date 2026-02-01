@@ -31,7 +31,7 @@ using namespace std;
 /** Writes an unsigned integer to the output stream.
  *  @param[in] val the value to write
  *  @param[in] n number of bytes to be considered */
-void StreamWriter::writeUnsigned (uint32_t val, int n) {
+void StreamWriter::writeUnsigned (uint32_t val, int n) const {
 	for (n--; n >= 0; n--)
 		_os.put(char((val >> (8*n)) & 0xff));
 }
@@ -40,22 +40,22 @@ void StreamWriter::writeUnsigned (uint32_t val, int n) {
 /** Writes a signed integer to the output stream.
  *  @param[in] val the value to write
  *  @param[in] n number of bytes to be considered */
-void StreamWriter::writeSigned (int32_t val, int n) {
+void StreamWriter::writeSigned (int32_t val, int n) const {
 	writeUnsigned(uint32_t(val), n);
 }
 
 
-void StreamWriter::writeBytes (const std::vector<uint8_t> &bytes) {
+void StreamWriter::writeBytes (const std::vector<uint8_t> &bytes) const {
 	_os.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
 }
 
 
-void StreamWriter::writeBytes (const uint8_t *buf, size_t bufsize) {
+void StreamWriter::writeBytes (const uint8_t *buf, size_t bufsize) const {
 	_os.write(reinterpret_cast<const char*>(buf), bufsize);
 }
 
 
-void StreamWriter::writeBytes (int byte, size_t count) {
+void StreamWriter::writeBytes (int byte, size_t count) const {
 	while (count-- > 0)
 		_os.put(byte);
 }
@@ -64,11 +64,8 @@ void StreamWriter::writeBytes (int byte, size_t count) {
 /** Writes a string to the output stream.
  *  @param[in] str the string to write
  *  @param[in] finalZero if true, a final 0-byte is appended */
-void StreamWriter::writeString (const string &str, bool finalZero) {
-	for (char c : str)
-		_os.put(c);
-	if (finalZero)
-		_os.put(0);
+void StreamWriter::writeString (const string &str, bool finalZero) const {
+	_os.write(str.c_str(), str.length() + (finalZero ? 1 : 0));
 }
 
 
@@ -76,7 +73,7 @@ void StreamWriter::writeString (const string &str, bool finalZero) {
  *  @param[in] val the value to write
  *  @param[in] n number of bytes to be considered
  *  @param[in,out] hashfunc hash to update */
-void StreamWriter::writeUnsigned (uint32_t val, int n, HashFunction &hashfunc) {
+void StreamWriter::writeUnsigned (uint32_t val, int n, HashFunction &hashfunc) const {
 	writeUnsigned(val, n);
 	hashfunc.update(util::bytes(val, n));
 }
@@ -86,8 +83,8 @@ void StreamWriter::writeUnsigned (uint32_t val, int n, HashFunction &hashfunc) {
  *  @param[in] val the value to write
  *  @param[in] n number of bytes to be considered
  *  @param[in,out] hashfunc hash to update */
-void StreamWriter::writeSigned (int32_t val, int n, HashFunction &hashfunc) {
-	writeUnsigned(uint32_t(val), n, hashfunc);
+void StreamWriter::writeSigned (int32_t val, int n, HashFunction &hashfunc) const {
+	writeUnsigned(static_cast<uint32_t>(val), n, hashfunc);
 }
 
 
@@ -95,7 +92,7 @@ void StreamWriter::writeSigned (int32_t val, int n, HashFunction &hashfunc) {
  *  @param[in] str the string to write
  *  @param[in,out] hashfunc hash to update
  *  @param[in] finalZero if true, a final 0-byte is appended */
-void StreamWriter::writeString (const std::string &str, HashFunction &hashfunc, bool finalZero) {
+void StreamWriter::writeString (const std::string &str, HashFunction &hashfunc, bool finalZero) const {
 	writeString(str, finalZero);
 	hashfunc.update(str.data(), str.length() + (finalZero ? 1 : 0));
 }

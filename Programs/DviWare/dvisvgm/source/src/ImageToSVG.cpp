@@ -181,7 +181,7 @@ void ImageToSVG::progress (const char *id) {
 		Message::mstream(false) << "\n";
 	}
 	if (draw && ((System::time() - time > 0.05) || id == nullptr)) {
-		const size_t DIGITS=6;
+		constexpr size_t DIGITS=6;
 		Message::mstream(false, Message::MC_PROGRESS)
 			<< string(DIGITS-min(DIGITS, static_cast<size_t>(log10(count))), ' ')
 			<< count << " PostScript instructions processed\r";

@@ -21,11 +21,11 @@
 #if defined(MIKTEX)
 #include <config.h>
 #endif
-#include <algorithm>
 #include <cstring>
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
+#include "algorithm.hpp"
 #include "FileFinder.hpp"
 #include "FileSystem.hpp"
 #include "InputReader.hpp"
@@ -42,6 +42,13 @@ using namespace std;
 PSInterpreter::PSInterpreter (PSActions *actions)
 	: _mode(PS_NONE), _actions(actions)
 {
+}
+
+
+PSInterpreter::~PSInterpreter () {
+	// don't process any further PS code that might be received when exiting GS
+	_gs.finalize();
+	_actions = nullptr;
 }
 
 
@@ -92,7 +99,7 @@ PSActions* PSInterpreter::setActions (PSActions *actions) {
 
 
 /** Checks if the given status value returned by Ghostscript indicates an error.
- *  @param[in] status status value returned by Ghostscript after the execution of a PS snippet
+ *  @param[in] status status value returned by Ghostscript after the execution of a PS fragment
  *  @throw PSException if the status value indicates a PostScript error */
 void PSInterpreter::checkStatus (int status) {
 	if (status < 0) {
@@ -118,6 +125,11 @@ bool PSInterpreter::execute (const char *str, size_t len, bool flush) {
 	init();
 	if (_mode == PS_QUIT)
 		return false;
+	if (_mode == PS_EXCEPTION) {
+		if (_errorMessage.empty())
+			return false;
+		throw PSException(_errorMessage);
+	}
 
 	int status=0;
 	if (_mode == PS_NONE) {
@@ -161,9 +173,9 @@ bool PSInterpreter::execute (const char *str, size_t len, bool flush) {
  *  @param[in] flush If true, a final 'flush' is sent which forces the output buffer to be written immediately.
  *  @return true if the assigned number of bytes have been read */
 bool PSInterpreter::execute (istream &is, bool flush) {
-	char buf[4096];
 	bool finished = false;
 	while (is && !is.eof() && !finished) {
+		char buf[4096];
 		is.read(buf, 4096);
 		finished = execute(buf, is.gcount(), false);
 	}
@@ -186,7 +198,7 @@ bool PSInterpreter::executeRaw (const string &str, int n) {
  *  @param[in] buf takes the read characters
  *  @param[in] len size of buffer buf
  *  @return number of characters read */
-int GSDLLCALL PSInterpreter::input (void *inst, char *buf, int len) {
+int GSDLLCALL PSInterpreter::input (void *inst, char *buf, int len) noexcept {
 	return 0;
 }
 
@@ -196,66 +208,70 @@ int GSDLLCALL PSInterpreter::input (void *inst, char *buf, int len) {
  *  Ghostscript sends the text in chunks by several calls of this function.
  *  Unfortunately, the PostScript specification wants error messages also to be sent to stdout
  *  instead of stderr. Thus, we must collect and concatenate the chunks until an evaluable text
- *  snippet is completely received. Furthermore, error messages have to be recognized and to be
+ *  fragment is completely received. Furthermore, error messages have to be recognized and to be
  *  filtered out.
  *  @param[in] inst pointer to calling instance of PSInterpreter
  *  @param[in] buf contains the characters to be output
  *  @param[in] len number of characters in buf
  *  @return number of processed characters (equals 'len') */
-int GSDLLCALL PSInterpreter::output (void *inst, const char *buf, int len) {
+int GSDLLCALL PSInterpreter::output (void *inst, const char *buf, int len) noexcept {
 	auto self = static_cast<PSInterpreter*>(inst);
-	if (self && self->_actions) {
-		const size_t MAXLEN = 512;    // maximal line length (longer lines are of no interest)
-		const char *end = buf+len-1;  // last position of buf
-		for (const char *first=buf, *last=buf; first <= end; last++, first=last) {
-			// move first and last to begin and end of the next line, respectively
-			while (last < end && *last != '\n')
-				last++;
-			size_t linelength = last-first+1;
-			if (linelength > MAXLEN)  // skip long lines since they don't contain any relevant information
-				continue;
+	if (!self || !self->_actions || self->_mode == PS_EXCEPTION)
+		return len;
 
-			vector<char> &linebuf = self->_linebuf;  // just a shorter name...
-			if ((*last == '\n' || !self->active()) || self->_inError) {
-				if (linelength + linebuf.size() > 1) {  // prefix "dvi." plus final newline
-					SplittedCharInputBuffer ib(linebuf.empty() ? nullptr : &linebuf[0], linebuf.size(), first, linelength);
-					BufferInputReader in(ib);
-					if (self->_inError)
-						self->_errorMessage += string(first, linelength);
-					else {
-						in.skipSpace();
-						if (in.check("Unrecoverable error: ")) {
-							self->_errorMessage.clear();
-							while (!in.eof())
-								self->_errorMessage += char(in.get());
-							self->_inError = true;
-						}
-						else if (in.check("dvi."))
-							self->callActions(in);
-					}
-				}
-				linebuf.clear();
+	try {
+		SplittedCharInputBuffer ib(self->_unprocessedChars.data(), self->_unprocessedChars.length(), buf, len);
+		BufferInputReader ir(ib);
+		while (!ir.eof()) {
+			if (self->_inError) {
+				self->_errorMessage += ib.toString();
+				ib.invalidate();
 			}
-			else { // no line end found =>
-				// save remaining characters and prepend them to the next incoming chunk of characters
-				if (linebuf.size() + linelength > MAXLEN)
-					linebuf.clear();   // don't care for long lines
+			else if (ir.check("Unrecoverable error: ")) {
+				self->_errorMessage = ib.toString();
+				ib.invalidate();
+				self->_inError = true;
+			}
+			else {
+				ir.skipSpace();
+				int spacepos = ib.find(' ');
+				if (spacepos <= 0)  // no separating space found?
+					break;           // => wait for more data
+				string entry = ir.getString(spacepos);
+				if (self->_command.empty()) {   // not yet collecting command parameters?
+					if (entry.length() < 4 || entry.substr(0, 4) != "dvi.")
+						ir.skipUntil("\n");
+					else
+						self->_command.emplace_back(entry.substr(4));
+				}
+				else if (entry[0] != '|') {   // not yet at end of command?
+					self->_command.emplace_back(std::move(entry));
+				}
 				else {
-					size_t currsize = linebuf.size();
-					linebuf.resize(currsize+linelength);
-					memcpy(&linebuf[currsize], first, linelength);
+					self->processCommand();
+					self->_command.clear();
+					ir.skipSpace();
 				}
 			}
 		}
+		if (ir.eof())
+			self->_unprocessedChars.clear();
+		else
+			self->_unprocessedChars = ib.toString();
+	}
+	catch (exception &e) {
+		self->_mode = PS_EXCEPTION;
+		self->_errorMessage = e.what();
 	}
 	return len;
 }
 
 
 /** Evaluates a command emitted by Ghostscript and invokes the corresponding
- *  method of interface class PSActions.
- *  @param[in] in reader pointing to the next command */
-void PSInterpreter::callActions (InputReader &in) {
+ *  method of interface class PSActions. */
+void PSInterpreter::processCommand () {
+	if (!_actions || _command.empty())
+		return;
 	struct Operator {
 		int pcount;       // number of parameters (< 0 : variable number of parameters)
 		void (PSActions::*handler)(vector<double> &p);  // operation handler
@@ -279,7 +295,6 @@ void PSInterpreter::callActions (InputReader &in) {
 		{"moveto",                 { 2, &PSActions::moveto}},
 		{"newpath",                { 1, &PSActions::newpath}},
 		{"querypos",               { 2, &PSActions::querypos}},
-		{"raw",                    {-1, nullptr}},
 		{"restore",                { 1, &PSActions::restore}},
 		{"rotate",                 { 1, &PSActions::rotate}},
 		{"save",                   { 1, &PSActions::save}},
@@ -306,44 +321,20 @@ void PSInterpreter::callActions (InputReader &in) {
 		{"stroke",                 { 0, &PSActions::stroke}},
 		{"translate",              { 2, &PSActions::translate}},
 	};
-	if (_actions) {
-		in.skipSpace();
-		auto it = operators.find(in.getWord());
+
+	if (_command[0] == "raw") {
+		_rawData.resize(_command.size()-1);
+		std::copy(_command.begin()+1, _command.end(), _rawData.begin());
+	}
+	else {
+		vector<double> numbers(_command.size()-1);
+		transform(_command.begin()+1, _command.end(), numbers.begin(), [](const string &str) {
+			return stod(str);
+		});
+		auto it = operators.find(_command[0]);
 		if (it != operators.end()) {
-			if (!it->second.handler) { // raw string data received?
-				_rawData.clear();
-				in.skipSpace();
-				while (!in.eof()) {
-					_rawData.push_back(in.getString());
-					in.skipSpace();
-				}
-			}
-			else {
-				// collect parameters
-				vector<string> params;
-				int pcount = it->second.pcount;
-				if (pcount < 0) {       // variable number of parameters?
-					in.skipSpace();
-					while (!in.eof()) {  // read all available parameters
-						params.push_back(in.getString());
-						in.skipSpace();
-					}
-				}
-				else {   // fix number of parameters
-					for (int i=0; i < pcount; i++) {
-						in.skipSpace();
-						params.push_back(in.getString());
-					}
-				}
-				// convert parameter strings to doubles
-				vector<double> v(params.size());
-				transform(params.begin(), params.end(), v.begin(), [](const string &str) {
-					return stod(str);
-				});
-				// call operator handler
-				(_actions->*it->second.handler)(v);
-				_actions->executed();
-			}
+			(_actions->*it->second.handler)(numbers);
+			_actions->executed();
 		}
 	}
 }
@@ -354,7 +345,7 @@ void PSInterpreter::callActions (InputReader &in) {
  *  @param[in] buf contains the characters to be output
  *  @param[in] len number of chars in buf
  *  @return number of processed characters */
-int GSDLLCALL PSInterpreter::error (void *inst, const char *buf, int len) {
+int GSDLLCALL PSInterpreter::error (void *inst, const char *buf, int len) noexcept {
 	return len;
 }
 
@@ -422,7 +413,7 @@ bool PSInterpreter::imageDeviceKnown (string deviceStr) {
 	if (colonpos != string::npos)
 		deviceStr.resize(colonpos);  // strip optional argument
 	auto infos = getImageDeviceInfos();
-	auto it = find_if(infos.begin(), infos.end(), [&](const PSDeviceInfo &info) {
+	auto it = algo::find_if(infos, [&](const PSDeviceInfo &info) {
 		return info.name == deviceStr;
 	});
 	return it != infos.end();

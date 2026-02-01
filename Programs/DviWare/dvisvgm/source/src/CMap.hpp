@@ -21,7 +21,6 @@
 #ifndef CMAP_HPP
 #define CMAP_HPP
 
-#include <algorithm>
 #include <cstdint>
 #include <ostream>
 #include <vector>
@@ -29,7 +28,7 @@
 #include "RangeMap.hpp"
 
 
-struct CMap : public NamedFontEncoding {
+struct CMap : NamedFontEncoding {
 	virtual bool vertical () const =0;
 	virtual bool mapsToCID () const =0;
 	virtual uint32_t cid (uint32_t c) const =0;
@@ -47,7 +46,7 @@ struct CMap : public NamedFontEncoding {
 };
 
 
-struct IdentityCMap : public CMap {
+struct IdentityCMap : CMap {
 	uint32_t cid (uint32_t c) const override      {return c;}
 	uint32_t bfcode (uint32_t cid) const override {return 0;}
 	std::string getROString () const override     {return "Adobe-Identity";}
@@ -55,19 +54,19 @@ struct IdentityCMap : public CMap {
 };
 
 
-struct IdentityHCMap : public IdentityCMap {
+struct IdentityHCMap : IdentityCMap {
 	bool vertical () const override    {return false;}
 	const char* name () const override {return "Identity-H";}
 };
 
 
-struct IdentityVCMap : public IdentityCMap {
+struct IdentityVCMap : IdentityCMap {
 	bool vertical () const override    {return true;}
 	const char* name () const override {return "Identity-V";}
 };
 
 
-struct UnicodeCMap : public CMap {
+struct UnicodeCMap : CMap {
 	bool vertical () const override               {return false;}
 	const char* name () const override            {return "unicode";}
 	bool mapsToCID () const override              {return false;}

@@ -21,7 +21,6 @@
 #ifndef MESSAGE_HPP
 #define MESSAGE_HPP
 
-#include <algorithm>
 #include <cstdint>
 #include <string>
 #include <ostream>

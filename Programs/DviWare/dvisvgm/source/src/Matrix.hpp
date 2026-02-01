@@ -29,7 +29,7 @@
 #include "Pair.hpp"
 
 
-struct ParserException : public MessageException {
+struct ParserException : MessageException {
 	explicit ParserException (const std::string &msg) : MessageException(msg) {}
 };
 
@@ -42,7 +42,7 @@ class Matrix {
 	public:
 		Matrix () {set(0);}
 		Matrix (double d);
-		Matrix (const std::string &cmds, Calculator &calc);
+		Matrix (const std::string &cmds, const Calculator &calc);
 		explicit Matrix (const std::string &svgMatrix);
 		explicit Matrix (const double *v, unsigned size=9);
 		explicit Matrix (const std::vector<double> &v, int start=0);
@@ -50,7 +50,7 @@ class Matrix {
 		Matrix& set (double d);
 		Matrix& set (const double *v, unsigned size);
 		Matrix& set (const std::vector<double> &v, int start=0);
-		Matrix& set (const std::string &cmds, Calculator &calc);
+		Matrix& set (const std::string &cmds, const Calculator &calc);
 		double get (int row, int col) const {return _values[row][col];}
 		Matrix& transpose ();
 		Matrix& invert ();
@@ -76,8 +76,8 @@ class Matrix {
 		std::string toSVG () const;
 		std::ostream& write (std::ostream &os) const;
 
-		static Matrix parse (std::istream &is, Calculator &c);
-		static Matrix parse (const std::string &cmds, Calculator &c);
+		static Matrix parse (std::istream &is, const Calculator &c);
+		static Matrix parse (const std::string &cmds, const Calculator &c);
 		static Matrix parseSVGTransform (const std::string &transform);
 
 	private:
@@ -85,27 +85,27 @@ class Matrix {
 };
 
 
-struct TranslationMatrix : public Matrix {
+struct TranslationMatrix : Matrix {
 	TranslationMatrix (double tx, double ty);
 };
 
 
-struct ScalingMatrix : public Matrix {
+struct ScalingMatrix : Matrix {
 	ScalingMatrix (double sx, double sy);
 };
 
 
-struct RotationMatrix : public Matrix {
+struct RotationMatrix : Matrix {
 	explicit RotationMatrix (double deg);
 };
 
 
-struct XSkewingMatrix : public Matrix {
+struct XSkewingMatrix : Matrix {
 	explicit XSkewingMatrix (double deg);
 };
 
 
-struct YSkewingMatrix : public Matrix {
+struct YSkewingMatrix : Matrix {
 	explicit YSkewingMatrix (double deg);
 };
 

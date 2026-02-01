@@ -25,15 +25,15 @@
 
 /** Creates SVG path elements for all characters. */
 class SVGCharPathHandler : public SVGCharHandler {
-	using AppendMethod = void (SVGCharPathHandler::*)(uint32_t c, double x, double y, const Matrix &matrix);
+	using AppendMethod = void (SVGCharPathHandler::*)(uint32_t c, double x, double y, const Matrix &matrix) const;
 
 	public:
 		SVGCharPathHandler (bool createUseElements, bool relativePathsCommands);
 		void appendChar (uint32_t c, double x, double y) override;
 
 	protected:
-		void appendUseElement (uint32_t c, double x, double y, const Matrix &matrix);
-		void appendPathElement (uint32_t c, double x, double y, const Matrix &matrix);
+		void appendUseElement (uint32_t c, double x, double y, const Matrix &matrix) const;
+		void appendPathElement (uint32_t c, double x, double y, const Matrix &matrix) const;
 		void resetContextNode () override;
 
 	private:

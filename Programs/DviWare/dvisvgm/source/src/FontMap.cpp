@@ -110,7 +110,7 @@ bool FontMap::read (const string &fname, FontMap::Mode mode, vector<string> *inc
 
 /** Reads and evaluates a single font map file.
  *  @param[in] fname path/name of map file to read (it's not looked up via FileFinder)
- *  @param[in] mode character '+', '-', or '=' to determine how the map file entries are merged into the global map tree
+ *  @param[in] modechar character '+', '-', or '=' to determine how the map file entries are merged into the global map tree
  *  @param[in,out] includedFilesRef pointer to sequence of (nested) file paths currently being included
  *  @return true if file could be opened */
 bool FontMap::read (const string &fname, char modechar, vector<string> *includedFilesRef) {

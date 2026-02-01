@@ -30,7 +30,7 @@
 using namespace std;
 
 /** Constructs a new glyph tracer.
- *  @param[in] is GF input stream
+ *  @param[in] fname name/path of GF input file
  *  @param[in] upp target units per PS point */
 GFGlyphTracer::GFGlyphTracer (const string &fname, double upp, Callback *cb)
 	: GFTracer(_ifs, upp), _callback(cb)

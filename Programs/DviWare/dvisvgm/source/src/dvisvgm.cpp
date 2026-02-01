@@ -19,14 +19,15 @@
 *************************************************************************/
 
 #include <config.h>
-#include <algorithm>
 #include <clipper.hpp>
 #include <fstream>
 #include <iostream>
+#include <numeric>
 #include <potracelib.h>
 #include <sstream>
 #include <vector>
 #include <zlib.h>
+#include "algorithm.hpp"
 #include "CommandLine.hpp"
 #include "DVIToSVG.hpp"
 #include "DVIToSVGActions.hpp"
@@ -146,7 +147,7 @@ static bool set_cache_dir (const CommandLine &args) {
 			if (!PhysicalFont::CACHE_PATH.empty())
 				FontCache::fontinfo(PhysicalFont::CACHE_PATH, cout, true);
 		}
-		catch (StreamReaderException &e) {
+		catch (StreamReaderException &) {
 			Message::wstream(true) << "failed reading cache data\n";
 		}
 		return false;
@@ -176,7 +177,7 @@ static void check_bbox (const string &bboxstr) {
 		try {
 			PageSize size(bboxstr);
 		}
-		catch (const PageSizeException &e) {
+		catch (const PageSizeException &) {
 			throw MessageException("invalid bounding box format '" + bboxstr + "'");
 		}
 	}
@@ -204,12 +205,10 @@ class VersionInfo {
 		}
 
 		void add (const string &name, const vector<int> &versionComponents) {
-			string version;
-			for (auto it=versionComponents.begin(); it != versionComponents.end(); ++it) {
-				if (it != versionComponents.begin())
-					version += '.';
-				version += to_string(*it);
-			}
+			string version = algo::accumulate(versionComponents, string(), [](const string &ver, int comp) {
+				return ver + to_string(comp) + ".";
+			});
+			version.pop_back();
 			append(name, version);
 		}
 
@@ -234,12 +233,12 @@ class VersionInfo {
 		/** Writes the version information to the given output stream. */
 		void write (ostream &os) {
 			using Entry = pair<string,string>;
-			sort(_versionPairs.begin(), _versionPairs.end(), [](const Entry &e1, const Entry &e2) {
+			algo::sort(_versionPairs, [](const Entry &e1, const Entry &e2) {
 				return util::tolower(e1.first) < util::tolower(e2.first);
 			});
-			size_t maxNameLength=0;
-			for (const Entry &versionPair : _versionPairs)
-				maxNameLength = max(maxNameLength, versionPair.first.length());
+			size_t maxNameLength = algo::accumulate(_versionPairs, 0, [](size_t len, const Entry &e) {
+				return max(len, e.first.length());
+			});
 			for (const Entry &versionPair : _versionPairs) {
 				string name = versionPair.first+":";
 				os << left << setw(maxNameLength+2) << name;
@@ -295,12 +294,11 @@ static void init_fontmap (const CommandLine &cmdline) {
 		mapseq = cmdline.fontmapOpt.value();
 	bool additional = !mapseq.empty() && strchr("+-=", mapseq[0]);
 	if (mapseq.empty() || additional) {
-		bool found = false;
-		for (string mapfile : {"dvisvgm", "ps2pk", "pdftex", "dvipdfm", "psfonts"}) {
-			if ((found = FontMap::instance().read(mapfile+".map")))
-				break;
-		}
-		if (!found)
+		string mapfiles[] = {"dvisvgm", "ps2pk", "pdftex", "dvipdfm", "psfonts"};
+		auto it = algo::find_if(mapfiles, [](const string &mapfile) {
+			return FontMap::instance().read(mapfile+".map");
+		});
+		if (it == std::end(mapfiles))
 			Message::wstream(true) << "none of the default map files could be found\n";
 	}
 	if (!mapseq.empty())
@@ -361,8 +359,8 @@ static void set_variables (const CommandLine &cmdline) {
 		string msg = "unknown font format '"+cmdline.fontFormatOpt.value()+"' (supported formats: ";
 		for (const string &format : FontWriter::supportedFormats())
 			msg += format + ", ";
-		msg.erase(msg.end()-2, msg.end());
-		msg += ")";
+		msg.pop_back();
+		msg.back() = ')';
 		throw CL::CommandLineException(msg);
 	}
 	SVGTree::CREATE_USE_ELEMENTS = cmdline.noFontsOpt.value() < 1;
@@ -449,9 +447,9 @@ static void convert_file (size_t fnameIndex, const CommandLine &cmdline) {
 		init_fontmap(cmdline);
 		DVIToSVG dvi2svg(srcin.getInputStream(), out);
 		if (!list_page_hashes(cmdline, dvi2svg)) {
-			const char *ignore_specials = nullptr;
+			string ignore_specials;
 			if (cmdline.noSpecialsOpt.given())
-				ignore_specials = cmdline.noSpecialsOpt.value().empty() ? "*" : cmdline.noSpecialsOpt.value().c_str();
+				ignore_specials = cmdline.noSpecialsOpt.value().empty() ? "*" : cmdline.noSpecialsOpt.value();
 			dvi2svg.setProcessSpecials(ignore_specials, true);
 			dvi2svg.setPageTransformation(get_transformation_string(cmdline));
 			dvi2svg.setPageSize(cmdline.bboxOpt.value());
@@ -461,6 +459,7 @@ static void convert_file (size_t fnameIndex, const CommandLine &cmdline) {
 		}
 	}
 }
+
 #if defined(MIKTEX)
 int MIKTEXCEECALL Main(int argc, char **argv) {
 #else
@@ -518,7 +517,7 @@ int main (int argc, char *argv[]) {
 		Message::estream() << "\nXML error: " << e.what() << '\n';
 		return -5;
 	}
-	catch (SignalException &e) {
+	catch (SignalException &) {
 		Message::wstream().clearline();
 		Message::wstream(true) << "execution interrupted by user\n";
 		return -3;

@@ -209,9 +209,7 @@ void DVIToSVGActions::special (const string &spc, double dvi2bp, bool preprocess
 
 
 /** This method is called when a "begin of page (bop)" command was found in the DVI file.
- *  @param[in] pageno physical page number
- *  @param[in] c array with 10 components representing \\count0 ... \\count9. c[0] contains the
- *               current (printed) page number (may differ from page count) */
+ *  @param[in] pageno physical page number */
 void DVIToSVGActions::beginPage (unsigned pageno, const vector<int32_t>&) {
 	_svg.newPage(++_pageCount);
 	_bbox = BoundingBox();  // clear bounding box

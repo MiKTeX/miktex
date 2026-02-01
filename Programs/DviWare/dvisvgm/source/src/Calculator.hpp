@@ -27,7 +27,7 @@
 #include <mpark/variant.hpp>
 #include "MessageException.hpp"
 
-struct CalculatorException : public MessageException {
+struct CalculatorException : MessageException {
 	explicit CalculatorException (const std::string &msg) : MessageException(msg) {}
 };
 

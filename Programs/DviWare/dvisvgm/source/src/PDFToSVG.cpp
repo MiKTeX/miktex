@@ -24,10 +24,6 @@
 #include <cstdlib>
 #include "Message.hpp"
 #include "PDFToSVG.hpp"
-#if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/PathNameUtil>
-#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
-#endif
 
 using namespace std;
 
@@ -42,6 +38,21 @@ PDFToSVG::PDFToSVG (const string &fname, SVGOutputBase &out) : ImageToSVG(fname,
 	}
 	if (!_useGS)
 		_pdfHandler.assignSVGTree(_svg);
+
+	ifstream ifs(filename());
+	if (ifs) {
+		string buf(5, 0);
+		ifs.read(&buf[0], 5);
+		if (buf == "%PDF-") {
+			int major=0, minor=0;
+			ifs >> major;
+			if (ifs.get() == '.')
+				ifs >> minor;
+			else
+				major = 0;  // missing dot => invalid PDF version
+			_pdfVersion = major*100 + minor;
+		}
+	}
 }
 
 
@@ -50,10 +61,10 @@ void PDFToSVG::checkGSAndFileFormat () {
 		ImageToSVG::checkGSAndFileFormat();
 	else {
 		if (!PDFHandler::available()) {
-			ostringstream oss;
 			if (gsVersion() > 0) {
+				ostringstream oss;
 				oss << "To process PDF files, either Ghostscript < 10.01.0 or mutool is required.\n";
-				oss << "The installed Ghostscript version " << Ghostscript().revisionstr() << " isn't supported.\n";
+				oss << "The installed Ghostscript version " << Ghostscript().revisionstr() << " is not supported.\n";
 				throw MessageException(oss.str());
 			}
 		}
@@ -78,17 +89,7 @@ int PDFToSVG::totalPageCount () const {
 
 
 bool PDFToSVG::imageIsValid () const {
-#if defined(MIKTEX_WINDOWS)
-	ifstream ifs(EXPATH_(filename()));
-#else
-	ifstream ifs(filename());
-#endif
-	if (ifs) {
-		char buf[16];
-		ifs.getline(buf, 16);
-		return std::strncmp(buf, "%PDF-1.", 7) == 0;
-	}
-	return false;
+	return _pdfVersion > 0;
 }
 
 

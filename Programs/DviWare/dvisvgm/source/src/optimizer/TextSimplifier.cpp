@@ -24,6 +24,7 @@
 #include <vector>
 #include "AttributeExtractor.hpp"
 #include "TextSimplifier.hpp"
+#include "../algorithm.hpp"
 #include "../XMLNode.hpp"
 
 using namespace std;
@@ -42,10 +43,10 @@ static XMLElement::Attributes common_inheritable_attributes (const vector<XMLEle
 		if (commonAttribs.empty()) {
 			if (intersected)
 				break;
-			for (const auto &attrib : elem->attributes()) {
-				if (attrib.inheritable())
-					commonAttribs.push_back(attrib);
-			}
+			auto attribs = elem->attributes();
+			algo::copy_if(attribs, back_inserter(commonAttribs), [](const XMLElement::Attribute &attrib) {
+				return attrib.inheritable();
+			});
 		}
 		else {
 			for (auto it = commonAttribs.begin(); it != commonAttribs.end();) {

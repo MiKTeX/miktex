@@ -44,7 +44,7 @@ namespace internal {
 }
 
 
-struct GraphicsPathParserException : public MessageException {
+struct GraphicsPathParserException : MessageException {
 	explicit GraphicsPathParserException (const std::string &msg) : MessageException(msg) {}
 };
 

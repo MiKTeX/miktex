@@ -21,7 +21,6 @@
 #ifndef INPUTBUFFER_HPP
 #define INPUTBUFFER_HPP
 
-#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <istream>
@@ -51,7 +50,7 @@ class StreamInputBuffer : public InputBuffer {
 		void operator = (const StreamInputBuffer &ib) =delete;
 
 	protected:
-		size_t fillBuffer (std::vector<uint8_t> &buf);
+		size_t fillBuffer (std::vector<uint8_t> &buf) const;
 
 	private:
 		std::istream &_is;
@@ -121,6 +120,8 @@ class SplittedCharInputBuffer : public InputBuffer {
 		int peek (size_t n) const override;
 		bool eof () const override  {return _size[_index] == 0;}
 		void invalidate () override {_size[_index] = 0;}
+		std::string toString () const;
+		int find (char c) const;
 
 	private:
 		const char *_buf[2];

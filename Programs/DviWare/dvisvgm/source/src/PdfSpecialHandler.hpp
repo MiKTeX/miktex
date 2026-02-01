@@ -50,6 +50,7 @@ class PdfSpecialHandler : public SpecialHandler {
 
 	private:
 		bool _active=false;
+		unsigned _ignoreCount=0;  ///< number of ignored PDF specials
 };
 
 #endif

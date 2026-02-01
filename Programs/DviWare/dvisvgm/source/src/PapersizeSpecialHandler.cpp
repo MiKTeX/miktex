@@ -21,6 +21,7 @@
 #if defined(MIKTEX)
 #include <config.h>
 #endif
+#include "algorithm.hpp"
 #include "Message.hpp"
 #include "PapersizeSpecialHandler.hpp"
 #include "SpecialActions.hpp"
@@ -30,9 +31,9 @@ using namespace std;
 void PapersizeSpecialHandler::preprocess (const string&, std::istream &is, SpecialActions &actions) {
 	string params;
 	is >> params;
-	Length w, h;
 	const auto splitpos = params.find(',');
 	try {
+		Length w, h;
 		if (splitpos == string::npos) {
 			w.set(params);
 			h.set(params);
@@ -43,7 +44,7 @@ void PapersizeSpecialHandler::preprocess (const string&, std::istream &is, Speci
 		}
 		storePaperSize(actions.getCurrentPageNumber(), w, h);
 	}
-	catch (UnitException &e) { // ignore invalid length units for now
+	catch (UnitException &) { // ignore invalid length units for now
 	}
 }
 
@@ -69,7 +70,7 @@ void PapersizeSpecialHandler::storePaperSize (unsigned pageno, Length width, Len
 /** Applies the previously recorded size to a given page. */
 void PapersizeSpecialHandler::applyPaperSize (unsigned pageno, SpecialActions &actions) {
 	// find page n >= pageno that contains a papersize special
-	auto lb_it = lower_bound(_pageSizes.begin(), _pageSizes.end(), PageSize(pageno, DoublePair()),
+	auto lb_it = algo::lower_bound(_pageSizes, PageSize(pageno, DoublePair()),
 		[](const PageSize &ps1, const PageSize &ps2) {
 			// order PageSize objects by page number
 			return ps1.first < ps2.first;
@@ -83,7 +84,7 @@ void PapersizeSpecialHandler::applyPaperSize (unsigned pageno, SpecialActions &a
 		Message::wstream(true) << "no valid papersize special found\n";
 	else {
 		DoublePair size = it->second;
-		const double border = -72;  // DVI standard: coordinates of upper left paper corner are (-72bp, -72bp)
+		constexpr double border = -72;  // DVI standard: coordinates of upper left paper corner are (-72bp, -72bp)
 		actions.bbox() = BoundingBox(border, border, size.first+border, size.second+border);
 	}
 }

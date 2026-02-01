@@ -21,10 +21,10 @@
 #if defined(MIKTEX)
 #include <config.h>
 #endif
-#include <algorithm>
 #include <array>
 #include <map>
 #include <set>
+#include "../algorithm.hpp"
 #include "SVGOptimizer.hpp"
 #include "../SVGTree.hpp"
 
@@ -112,7 +112,7 @@ void SVGOptimizer::listModules (ostream &os) const {
  *  @param[in] namestr comma-separated list of module names
  *  @param[out] unknownNames names not recognized
  *  @return true if all names are known */
-bool SVGOptimizer::checkModuleString (string &namestr, vector<string> &unknownNames) const {
+bool SVGOptimizer::checkModuleString (const string &namestr, vector<string> &unknownNames) const {
 	unknownNames.clear();
 	if (namestr.empty() || namestr == "none" || namestr == "all" || namestr.substr(0,4) == "all,")
 		return true;
@@ -128,11 +128,11 @@ bool SVGOptimizer::checkModuleString (string &namestr, vector<string> &unknownNa
 
 
 OptimizerModule* SVGOptimizer::getModule (const string &name) const {
-	auto it = find_if(_moduleEntries.begin(), _moduleEntries.end(), [&](const ModuleEntry &entry) {
+	auto it = algo::find_if(_moduleEntries, [&](const ModuleEntry &entry) {
 		return entry.modname == name;
 	});
 	if (it != _moduleEntries.end())
-		return (*it).module.get();
+		return it->module.get();
 	return nullptr;
 }
 

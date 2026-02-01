@@ -29,15 +29,15 @@ class HashFunction;
 class StreamWriter {
 	public:
 		explicit StreamWriter (std::ostream &os) : _os(os) {}
-		void writeUnsigned (uint32_t val, int n);
-		void writeSigned (int32_t val, int n);
-		void writeBytes (const std::vector<uint8_t> &bytes);
-		void writeBytes (const uint8_t *buf, size_t bufsize);
-		void writeBytes (int byte, size_t count);
-		void writeString (const std::string &str, bool finalZero=false);
-		void writeUnsigned (uint32_t val, int n, HashFunction &hashfunc);
-		void writeSigned (int32_t val, int n, HashFunction &hashfunc);
-		void writeString (const std::string &str, HashFunction &hashfunc, bool finalZero=false);
+		void writeUnsigned (uint32_t val, int n) const;
+		void writeSigned (int32_t val, int n) const;
+		void writeBytes (const std::vector<uint8_t> &bytes) const;
+		void writeBytes (const uint8_t *buf, size_t bufsize) const;
+		void writeBytes (int byte, size_t count) const;
+		void writeString (const std::string &str, bool finalZero=false) const;
+		void writeUnsigned (uint32_t val, int n, HashFunction &hashfunc) const;
+		void writeSigned (int32_t val, int n, HashFunction &hashfunc) const;
+		void writeString (const std::string &str, HashFunction &hashfunc, bool finalZero=false) const;
 
 	private:
 		std::ostream &_os;

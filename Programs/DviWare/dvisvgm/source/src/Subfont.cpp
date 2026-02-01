@@ -159,9 +159,9 @@ bool Subfont::read () {
 					// build mapping array
 					_mapping.resize(256, 0);
 					long pos=0;
-					char buf[1024];
 					bool complete=false;
 					while (!complete) {
+						char buf[1024];
 						is.getline(buf, 1024);
 						complete = scan_line(buf, lineno, _mapping, _sfd.filename(), pos);
 					}
@@ -192,10 +192,10 @@ uint16_t Subfont::decode (unsigned char c) {
  *  @param[in] is stream to read from
  *  @return number of lines skipped */
 static int skip_mapping_data (istream &is) {
-	char buf[1024];
 	bool complete=false;
 	int lines=0;
 	while (is && !complete) {
+		char buf[1024];
 		is.getline(buf, 1024);
 		if (is.gcount() > 1)
 			lines++;

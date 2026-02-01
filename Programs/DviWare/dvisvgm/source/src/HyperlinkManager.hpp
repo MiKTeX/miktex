@@ -46,7 +46,7 @@ class HyperlinkManager {
 		HyperlinkManager (const HyperlinkManager&) =delete;
 		HyperlinkManager (HyperlinkManager&&) =delete;
 		void addHrefAnchor (const std::string &uri);
-		void addNameAchor (const std::string &name, int pageno);
+		void addNameAnchor (const std::string &name, int pageno);
 		void setActiveNameAnchor (const std::string &name, SpecialActions &actions);
 		void closeAnchor (SpecialActions &actions);
 		void checkNewLine (SpecialActions &actions);
@@ -60,7 +60,7 @@ class HyperlinkManager {
 
 	protected:
 		HyperlinkManager () =default;
-		void markLinkedBox (SpecialActions &actions);
+		void markLinkedBox (SpecialActions &actions) const;
 
 		enum class MarkerType {NONE, LINE, BOX, BGCOLOR};
 		static MarkerType MARKER_TYPE;  ///< selects how to mark linked areas

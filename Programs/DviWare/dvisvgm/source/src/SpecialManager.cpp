@@ -88,9 +88,9 @@ void SpecialManager::registerHandlers (vector<unique_ptr<SpecialHandler>> &handl
 
 
 /** Removes a handler and the corresponding prefixes. */
-void SpecialManager::unregisterHandler (SpecialHandler *handler) {
+void SpecialManager::unregisterHandler (const SpecialHandler *handler) {
 	if (handler) {
-		auto it = find_if(_handlerPool.begin(), _handlerPool.end(), [=](unique_ptr<SpecialHandler> &h) {
+		auto it = algo::find_if(_handlerPool, [&](const unique_ptr<SpecialHandler> &h) {
 			return h.get() == handler;
 		});
 		if (it != _handlerPool.end()) {
@@ -117,11 +117,11 @@ SpecialHandler* SpecialManager::findHandlerByPrefix (const string &prefix) const
  *  @param[in] name name of handler to look for, e.g. "papersize"
  *  @return in case of success: pointer to handler, 0 otherwise */
 SpecialHandler* SpecialManager::findHandlerByName (const string &name) const {
-	for (auto &handler : _handlerPool) {
-		if (handler->name() == name)
-			return handler.get();
-	}
-	return nullptr;
+	using HandlerPtr = unique_ptr<SpecialHandler>;
+	auto it = algo::find_if(_handlerPool, [&](const HandlerPtr &hptr) {
+		return hptr->name() == name;
+	});
+	return it != _handlerPool.end() ? it->get() : nullptr;
 }
 
 

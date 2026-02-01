@@ -31,7 +31,7 @@
 class CharInfo;
 
 
-struct GFException : public MessageException {
+struct GFException : MessageException {
 	explicit GFException (const std::string &msg) : MessageException(msg) {}
 };
 
@@ -67,9 +67,9 @@ class GFReader {
 		uint32_t getChecksum () const      {return _checksum;}
 
 	protected:
-		int32_t readSigned (int bytes);
-		uint32_t readUnsigned (int bytes);
-		std::string readString (int len);
+		int32_t readSigned (int bytes) const;
+		uint32_t readUnsigned (int bytes) const;
+		std::string readString (int len) const;
 		int executeCommand ();
 		std::istream& getInputStream () const {return _in;}
 

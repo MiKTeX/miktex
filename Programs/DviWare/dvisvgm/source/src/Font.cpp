@@ -46,7 +46,7 @@ uint32_t Font::unicode (uint32_t c) const {
 }
 
 
-/** Returns the encoding object of this font which is asigned in a map file.
+/** Returns the encoding object of this font which is assigned in a map file.
  *  If there's no encoding assigned, the function returns 0. */
 const FontEncoding* Font::encoding () const {
 	if (const FontMap::Entry *entry = fontMapEntry())
@@ -203,7 +203,7 @@ bool PhysicalFont::isCIDFont () const {
 }
 
 
-/** Retrieve the IDs of all charachter maps available in the font file.
+/** Retrieve the IDs of all character maps available in the font file.
  *  @param[out] charMapIDs IDs of the found character maps
  *  @return number of found character maps */
 int PhysicalFont::collectCharMapIDs (std::vector<CharMapID> &charMapIDs) const {
@@ -221,7 +221,7 @@ int PhysicalFont::collectCharMapIDs (std::vector<CharMapID> &charMapIDs) const {
 Character PhysicalFont::decodeChar (uint32_t c) const {
 	if (const FontEncoding *enc = encoding())
 		return enc->decode(c);
-	return Character(Character::CHRCODE, c);
+	return {Character::CHRCODE, c};
 }
 
 
@@ -349,22 +349,20 @@ bool PhysicalFont::getGlyph (int c, GraphicsPath<int32_t> &glyph, GFGlyphTracer:
 			glyph = *cached_glyph;
 			return true;
 		}
-		else {
-			string gfname;
-			if (createGF(gfname)) {
-				try {
-					double ds = getMetrics() ? getMetrics()->getDesignSize() : 1;
-					GFGlyphTracer tracer(gfname, unitsPerEm()/ds, callback);
-					tracer.setGlyph(glyph);
-					tracer.executeChar(c);
-					glyph.closeOpenSubPaths();
-					if (!CACHE_PATH.empty())
-						_cache.setGlyph(c, glyph);
-					return true;
-				}
-				catch (GFException &e) {
-					// @@ print error message
-				}
+		string gfname;
+		if (createGF(gfname)) {
+			try {
+				double ds = getMetrics() ? getMetrics()->getDesignSize() : 1;
+				GFGlyphTracer tracer(gfname, unitsPerEm()/ds, callback);
+				tracer.setGlyph(glyph);
+				tracer.executeChar(c);
+				glyph.closeOpenSubPaths();
+				if (!CACHE_PATH.empty())
+					_cache.setGlyph(c, glyph);
+				return true;
+			}
+			catch (GFException &) {
+				// @@ print error message
 			}
 		}
 	}
@@ -410,15 +408,15 @@ int PhysicalFont::traceAllGlyphs (bool includeCached, GFGlyphTracer::Callback *c
 	int count = 0;
 	if (type() == Type::MF && !CACHE_PATH.empty()) {
 		if (const FontMetrics *metrics = getMetrics()) {
-			int fchar = metrics->firstChar();
-			int lchar = metrics->lastChar();
 			string gfname;
-			Glyph glyph;
 			if (createGF(gfname)) {
 				_cache.read(name(), CACHE_PATH);
 				double ds = getMetrics() ? getMetrics()->getDesignSize() : 1;
 				GFGlyphTracer tracer(gfname, unitsPerEm()/ds, cb);
+				Glyph glyph;
 				tracer.setGlyph(glyph);
+				int fchar = metrics->firstChar();
+				int lchar = metrics->lastChar();
 				for (int i=fchar; i <= lchar; i++) {
 					if (includeCached || !_cache.getGlyph(i)) {
 						glyph.clear();
@@ -439,7 +437,7 @@ int PhysicalFont::traceAllGlyphs (bool includeCached, GFGlyphTracer::Callback *c
 /** Computes the exact bounding box of a glyph.
  *  @param[in]  c character code of the glyph
  *  @param[out] bbox the computed bounding box
- *  @param[in]  cb optional calback object forwarded to the tracer
+ *  @param[in]  cb optional callback object forwarded to the tracer
  *  @return true if the box could be computed successfully */
 bool PhysicalFont::getExactGlyphBox (int c, BoundingBox& bbox, GFGlyphTracer::Callback* cb) const {
 	Glyph glyph;
@@ -539,6 +537,10 @@ uint32_t PhysicalFontImpl::unicode (uint32_t c) const {
 	if (type() == Type::MF)
 		return Font::unicode(c);
 	Character chr = decodeChar(c);
+	if (_localCharMap) {
+		if (uint32_t mapped_char = _localCharMap->valueAt(chr.number()))
+			return mapped_char;
+	}
 	if (type() == Type::PFB) {
 		// try to get the Unicode point from the character name
 		string glyphname = glyphName(c);
@@ -555,10 +557,6 @@ uint32_t PhysicalFontImpl::unicode (uint32_t c) const {
 	if (chr.type() == Character::NAME || chr.number() == 0)
 		return Unicode::charToCodepoint(chr.number());
 
-	if (_localCharMap) {
-		if (uint32_t mapped_char = _localCharMap->valueAt(chr.number()))
-			return mapped_char;
-	}
 	// No Unicode equivalent found in the font file.
 	// Now we should look for a smart alternative but at the moment
 	// it's sufficient to simply choose a valid unused codepoint.
@@ -678,7 +676,7 @@ bool NativeFontImpl::findAndAssignBaseFontMap () {
 	FontEngine &fe = FontEngine::instance();
 	fe.setFont(*this);
 	fe.setUnicodeCharMap();
-	fe.buildGidToCharCodeMap(_toUnicodeMap);
+	_toUnicodeMap = fe.buildGidToUnicodeMap();
 	if (!_toUnicodeMap.addMissingMappings(fe.getNumGlyphs()))
 		Message::wstream(true) << "incomplete Unicode mapping for native font " << name() << " (" << filename() << ")\n";
 	return true;
@@ -720,7 +718,7 @@ const char* VirtualFontImpl::path () const {
 }
 
 
-void VirtualFontImpl::assignChar (uint32_t c, DVIVector &&dvi) {
+void VirtualFontImpl::assignChar (uint32_t c, DVIVector dvi) {
 	_charDefs.emplace(c, std::move(dvi));
 }
 

@@ -48,7 +48,7 @@ class PSPattern {
 		virtual std::unique_ptr<XMLElement> createPatternNode () const =0;
 
 	private:
-		int _id;  ///< PostSCript ID of this pattern
+		int _id;  ///< PostScript ID of this pattern
 };
 
 
@@ -60,7 +60,7 @@ class PSTilingPattern : public PSPattern {
 
 
 	protected:
-		PSTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep);
+		PSTilingPattern (int id, const BoundingBox &bbox, const Matrix &matrix, double xstep, double ystep);
 		std::unique_ptr<XMLElement> createPatternNode () const override;
 		virtual std::unique_ptr<XMLElement> createClipNode () const;
 		virtual std::unique_ptr<XMLElement> createGroupNode () const;
@@ -70,7 +70,7 @@ class PSTilingPattern : public PSPattern {
 	private:
 		BoundingBox _bbox;           ///< bounding box of the tile graphics
 		Matrix _matrix;              ///< tile transformation
-		double _xstep, _ystep;       ///< horizontal and vertical distance between neighboured tiles
+		double _xstep, _ystep;       ///< horizontal and vertical distance between neighbouring tiles
 		mutable std::unique_ptr<XMLElement> _groupNode;  ///< group containing the drawing elements
 		XMLElement *_groupNodePtr; ///< keeps a pointer to the group node even after moving _groupNode to the SVGTree
 };
@@ -78,13 +78,13 @@ class PSTilingPattern : public PSPattern {
 
 class PSColoredTilingPattern final : public PSTilingPattern {
 	public:
-		PSColoredTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep);
+		PSColoredTilingPattern (int id, const BoundingBox &bbox, const Matrix &matrix, double xstep, double ystep);
 };
 
 
 class PSUncoloredTilingPattern final : public PSTilingPattern {
 	public:
-		PSUncoloredTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep);
+		PSUncoloredTilingPattern (int id, const BoundingBox &bbox, const Matrix &matrix, double xstep, double ystep);
 		std::string svgID () const override;
 		void setColor (Color color) override {_currentColor = color;}
 		void apply (SpecialActions &actions) override;

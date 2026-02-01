@@ -62,7 +62,7 @@ struct Ghostscript {
 
 /** Wrapper class of (a subset of) the Ghostscript API. */
 class Ghostscript
-#if !defined(HAVE_LIBGS)
+#ifndef HAVE_LIBGS
 : public DLLoader
 #endif
 {
@@ -75,24 +75,29 @@ class Ghostscript
 		Ghostscript ();
 		Ghostscript (int argc, const char **argv, void *caller=nullptr);
 		Ghostscript (const Ghostscript &gs) =delete;
+#ifdef HAVE_LIBGS
 		~Ghostscript ();
+#else
+		~Ghostscript () override;
+#endif
 		bool init (int argc, const char **argv, void *caller=nullptr);
-		bool available ();
+		void finalize ();
+		bool available () const;
 		bool revision (gsapi_revision_t *r) const;
 		int revision () const;
-		std::string revisionstr ();
-		int set_stdio (Stdin in, Stdout out, Stderr err);
-		int run_string_begin (int user_errors, int *pexit_code);
-		int run_string_continue (const char *str, unsigned int length, int user_errors, int *pexit_code);
-		int run_string_end (int user_errors, int *pexit_code);
-		int exit ();
-		const char* error_name (int code);
+		std::string revisionstr () const;
+		int set_stdio (Stdin in, Stdout out, Stderr err) const;
+		int run_string_begin (int user_errors, int *pexit_code) const;
+		int run_string_continue (const char *str, unsigned int length, int user_errors, int *pexit_code) const;
+		int run_string_end (int user_errors, int *pexit_code) const;
+		int exit () const;
+		static const char* error_name (int code);
 
 		static std::string LIBGS_NAME;
 
 	protected:
-		int init_with_args (int argc, char **argv);
-		int new_instance (void **psinst, void *caller);
+		int init_with_args (int argc, char **argv) const;
+		int new_instance (void **psinst, void *caller) const;
 		void delete_instance ();
 
 	private:

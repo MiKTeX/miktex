@@ -25,7 +25,7 @@
 #include "MessageException.hpp"
 
 
-struct IteratorException : public MessageException {
+struct IteratorException : MessageException {
 	explicit IteratorException (const std::string &msg) : MessageException(msg) {}
 };
 

@@ -25,7 +25,7 @@
 #include "StreamReader.hpp"
 
 
-struct VFException : public MessageException {
+struct VFException : MessageException {
 	explicit VFException (const std::string &msg) : MessageException(msg) {}
 };
 
@@ -46,10 +46,10 @@ class VFReader : public StreamReader {
 		// the following methods represent the VF commands
 		// they are called by executeCommand and should not be used directly
 		void cmdPre ();
-		void cmdPost ();
-		void cmdShortChar (int pl);
-		void cmdLongChar ();
-		void cmdFontDef (int len);
+		void cmdPost () const;
+		void cmdShortChar (int pl) const;
+		void cmdLongChar () const;
+		void cmdFontDef (int len) const;
 
 	private:
 		VFActions *_actions=nullptr; ///< actions to execute when reading a VF command

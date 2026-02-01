@@ -29,7 +29,7 @@
 using namespace std;
 
 
-inline string get_color_string (SpecialActions &actions, Color (SpecialActions::*getColor)() const) {
+inline string get_color_string (const SpecialActions &actions, Color (SpecialActions::*getColor)() const) {
 	return SVGElement::USE_CURRENTCOLOR && SVGElement::CURRENTCOLOR == (actions.*getColor)()
 		? "currentColor"
 		: (actions.*getColor)().svgColorString();
@@ -38,7 +38,7 @@ inline string get_color_string (SpecialActions &actions, Color (SpecialActions::
 
 /** Replaces constants of the form {?name} by their corresponding value.
  *  @param[in,out] str text to expand
- *  @param[in] actions interfcae to the world outside the special handler */
+ *  @param[in] actions interface to the world outside the special handler */
 static void expand_constants (string &str, SpecialActions &actions) {
 	bool repl_bbox = true;
 	while (repl_bbox) {
@@ -90,7 +90,8 @@ static void expand_constants (string &str, SpecialActions &actions) {
 
 /** Evaluates substrings of the form {?(expr)} where 'expr' is a math expression,
  *  and replaces the substring by the computed value.
- *  @param[in,out] str string to scan for expressions */
+ *  @param[in,out] str string to scan for expressions
+ *  @param[in] actions interface to external fuctionality available in special handlers */
 static void evaluate_expressions (string &str, const SpecialActions &actions) {
 	auto left = str.find("{?(");             // start position of expression macro
 	while (left != string::npos) {

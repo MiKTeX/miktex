@@ -92,13 +92,13 @@ string Subprocess::read (const SearchPattern &pattern, bool *error) {
 			matchendpos = it->position() + it->length();
 			matched = true;
 		}
-		const size_t MAX_OVERLAP=50;
+		constexpr size_t MAX_OVERLAP=50;
 		size_t overlappos;
 		if (matched)
 			overlappos = max(bufendpos - min(bufendpos, MAX_OVERLAP), matchendpos);
 		else
 			overlappos = matchendpos - min(MAX_OVERLAP, matchendpos);
-		copy(_rdbuf.begin()+overlappos, _rdbuf.begin()+bufendpos, _rdbuf.begin());
+		std::copy(_rdbuf.begin()+overlappos, _rdbuf.begin()+bufendpos, _rdbuf.begin());
 		_bufstartpos = bufendpos-overlappos;
 	}
 	return result;
@@ -116,12 +116,12 @@ Process::Process (string cmd, string paramstr)
  *  @return true if process terminated properly
  *  @throw SignalException if CTRL-C was pressed during execution */
 
-bool Process::run (string *out, PipeFlags flags) {
+bool Process::run (string *out, PipeFlags flags) const {
 	return run(out, SearchPattern(), flags);
 }
 
 
-bool Process::run (string *out, const SearchPattern &pattern, PipeFlags flags) {
+bool Process::run (string *out, const SearchPattern &pattern, PipeFlags flags) const {
 	Subprocess subprocess;
 	if (!subprocess.run(_cmd, _paramstr, flags))
 		return false;
@@ -143,7 +143,7 @@ bool Process::run (string *out, const SearchPattern &pattern, PipeFlags flags) {
  *  @param[out] out takes the output written to stdout by the executed process
  *  @return true if process terminated properly
  *  @throw SignalException if CTRL-C was pressed during execution */
-bool Process::run (const string &dir, string *out, PipeFlags flags) {
+bool Process::run (const string &dir, string *out, PipeFlags flags) const {
 	bool ret = false;
 	string cwd = FileSystem::getcwd();
 	if (FileSystem::chdir(dir)) {
@@ -178,8 +178,7 @@ Subprocess::~Subprocess () {
  *  is not empty and the line currently processed doesn't match, the line isn't
  *  appended to the output string.
  *  @param[out] out read output is appended to this string
- *  @param[in] searchPattern regex pattern applied to each line
- *  @param[in] replacePattern replacement for all lines matching the search pattern
+ *  @param[in] pattern regex pattern applied to each line
  *  @returns false on errors */
 bool Subprocess::readFromPipe (string &out, const SearchPattern &pattern) {
 	if (!_pipeReadHandle)

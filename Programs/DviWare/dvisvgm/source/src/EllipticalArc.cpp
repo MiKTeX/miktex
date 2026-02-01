@@ -169,7 +169,7 @@ static CubicBezier approx_unit_arc (double phi, double delta) {
 	DPair p4(cos(phi+delta), sin(phi+delta));
 	DPair p2(p1.x()-c*p1.y(), p1.y()+c*p1.x());
 	DPair p3(p4.x()+c*p4.y(), p4.y()-c*p4.x());
-	return CubicBezier(p1, p2, p3, p4);
+	return {p1, p2, p3, p4};
 }
 
 

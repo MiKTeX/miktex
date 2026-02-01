@@ -21,7 +21,6 @@
 #if defined(MIKTEX)
 #include <config.h>
 #endif
-#include <algorithm>
 #include "CmapTable.hpp"
 #include "TTFWriter.hpp"
 #include "../Font.hpp"

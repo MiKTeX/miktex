@@ -23,7 +23,11 @@
 
 // Prevent defining the macros min and max present in windows.h
 #ifndef NOMINMAX
-	#define NOMINMAX
+#define NOMINMAX
+#endif
+
+#ifndef NOGDI
+#define NOGDI
 #endif
 
 #include <windows.h>

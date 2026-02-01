@@ -32,7 +32,7 @@ class PsSpecialHandlerProxy : public SpecialHandler {
 		std::vector<const char*> prefixes () const override;
 
 	protected:
-		SpecialHandler* replaceHandler ();
+		SpecialHandler* replaceHandler () const;
 
 	private:
 		bool _pswarning;

@@ -116,7 +116,7 @@ void SVGCharPathHandler::appendChar (uint32_t c, double x, double y) {
 }
 
 
-void SVGCharPathHandler::appendUseElement (uint32_t c, double x, double y, const Matrix &matrix) {
+void SVGCharPathHandler::appendUseElement (uint32_t c, double x, double y, const Matrix &matrix) const {
 	string id = "#g" + to_string(FontManager::instance().fontID(_font)) + "-" + to_string(c);
 	auto useNode = util::make_unique<SVGElement>("use");
 	useNode->addAttribute("x", x);
@@ -128,7 +128,7 @@ void SVGCharPathHandler::appendUseElement (uint32_t c, double x, double y, const
 }
 
 
-void SVGCharPathHandler::appendPathElement (uint32_t c, double x, double y, const Matrix &matrix) {
+void SVGCharPathHandler::appendPathElement (uint32_t c, double x, double y, const Matrix &matrix) const {
 	Glyph glyph;
 	auto pf = font_cast<const PhysicalFont*>(_font.get());
 	if (pf && pf->getGlyph(c, glyph, nullptr)) {

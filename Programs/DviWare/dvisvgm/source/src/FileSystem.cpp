@@ -68,7 +68,7 @@ FileSystem::TemporaryDirectory FileSystem::_tmpdir;
 
 
 /** Private wrapper function for mkdir: creates a single folder.
- *  @param[in] dir folder name
+ *  @param[in] dirname folder name
  *  @return true on success */
 static bool s_mkdir (const string &dirname) {
 	bool success = true;
@@ -212,7 +212,7 @@ string FileSystem::getcwd (char drive) {
 
 
 /** Changes the work directory.
- *  @param[in] dir path to new work directory
+ *  @param[in] dirname path to new work directory
  *  @return true on success */
 bool FileSystem::chdir (const std::string &dirname) {
 	bool success = false;
@@ -256,7 +256,7 @@ const char* FileSystem::userdir () {
 
 
 /** Returns the path of the temporary folder.
- *  @param[in] inpace if true, don't create a uniquely named subfolder */
+ *  @param[in] inplace if true, don't create a uniquely named subfolder */
 string FileSystem::tmpdir (bool inplace) {
 	if (_tmpdir.path().empty()) {
 		string basedir;
@@ -296,7 +296,7 @@ string FileSystem::tmpdir (bool inplace) {
 
 /** Creates a new folder relative to the current work directory. If necessary,
  *  the parent folders are also created.
- *  @param[in] dir single folder name or path to folder
+ *  @param[in] dirname single folder name or path to folder
  *  @return true if folder(s) could be created */
 bool FileSystem::mkdir (const string &dirname) {
 	bool success = false;

@@ -36,20 +36,20 @@ using namespace std;
  *  @param[in] maxIndex largest character index to consider
  *  @return true on success */
 bool ToUnicodeMap::addMissingMappings (uint32_t maxIndex) {
-	bool success=true;
 	// collect Unicode points already in assigned
 	NumericRanges<uint32_t> codepoints;
-	for (size_t i=0; i < numRanges() && success; i++)
-		codepoints.addRange(rangeAt(i).minval(), rangeAt(i).maxval());
+	for (size_t i=0; i < numRanges(); i++)
+		codepoints.addRange(getRange(i).minval(), getRange(i).maxval());
 	// fill unmapped ranges
+	bool success;
 	if (empty()) // no Unicode mapping present at all?
 		success = fillRange(1, maxIndex, 1, codepoints, true);
 	else {   // (partial) Unicode mapping present?
-		success = fillRange(1, rangeAt(0).min()-1, rangeAt(0).minval()-1, codepoints, false);
+		success = fillRange(1, getRange(0).min()-1, getRange(0).minval()-1, codepoints, false);
 		for (size_t i=0; i < numRanges()-1 && success; i++)
-			success = fillRange(rangeAt(i).max()+1, rangeAt(i+1).min()-1, rangeAt(i).maxval()+1, codepoints, true);
+			success = fillRange(getRange(i).max()+1, getRange(i+1).min()-1, getRange(i).maxval()+1, codepoints, true);
 		if (success)
-			success = fillRange(rangeAt(numRanges()-1).max()+1, maxIndex, rangeAt(numRanges()-1).maxval()+1, codepoints, true);
+			success = fillRange(getRange(numRanges()-1).max()+1, maxIndex, getRange(numRanges()-1).maxval()+1, codepoints, true);
 	}
 	return success;
 }

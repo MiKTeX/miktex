@@ -72,7 +72,7 @@ int StreamInputBuffer::peek (size_t n) const {
 /** Fills the buffer by reading a sequence of characters from the assigned input stream.
  *  @param[in] buf buffer to be filled
  *  @return number of characters read */
-size_t StreamInputBuffer::fillBuffer (vector<uint8_t> &buf) {
+size_t StreamInputBuffer::fillBuffer (vector<uint8_t> &buf) const {
 	if (_is && !_is.eof()) {
 		_is.read(reinterpret_cast<char*>(buf.data()), streamsize(buf.size()));
 		return _is.gcount();
@@ -94,7 +94,7 @@ SplittedCharInputBuffer::SplittedCharInputBuffer (const char *buf1, size_t s1, c
 int SplittedCharInputBuffer::get () {
 	if (_size[_index] == 0)
 		return -1;
-	int ret = *_buf[_index]++;
+	int ret = static_cast<unsigned char>(*_buf[_index]++);
 	_size[_index]--;
 	if (_index == 0 && _size[0] == 0)
 		_index++;
@@ -113,6 +113,35 @@ int SplittedCharInputBuffer::peek (size_t n) const {
 	n -= _size[_index];
 	if (_index == 0 && n < _size[1])
 		return _buf[1][n];
+	return -1;
+}
+
+
+/** Returns the buffer contents as string. */
+string SplittedCharInputBuffer::toString () const {
+	size_t size = _size[1];
+	if (_index == 0)
+		size += _size[0];
+	string ret;
+	ret.reserve(size);
+	if (_index == 0 && _size[0] > 0)
+		ret = string(_buf[0], _size[0]);
+	ret += string(_buf[1], _size[1]);
+	return ret;
+}
+
+
+/** Looks for the first occurrence of a given character and returns its
+ *  position relative to the current reading position. */
+int SplittedCharInputBuffer::find (char c) const {
+	int pos=0;
+	for (int i=_index; i < 2; i++) {
+		for (size_t j=0; j < _size[i]; j++) {
+			if (_buf[i][j] == c)
+				return pos;
+			pos++;
+		}
+	}
 	return -1;
 }
 

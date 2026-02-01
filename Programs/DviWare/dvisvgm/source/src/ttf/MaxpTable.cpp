@@ -48,6 +48,6 @@ void MaxpTable::write (ostream &os) const {
 
 
 void MaxpTable::updateContourInfo (uint16_t maxPoints, uint16_t maxContours) {
-	_maxPoints = max(_maxPoints, maxPoints);
-	_maxContours = max(_maxContours, maxContours);
+	_maxPoints = std::max(_maxPoints, maxPoints);
+	_maxContours = std::max(_maxContours, maxContours);
 }

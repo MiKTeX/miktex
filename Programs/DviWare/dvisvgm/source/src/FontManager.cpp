@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <set>
+#include "algorithm.hpp"
 #include "CMap.hpp"
 #include "Font.hpp"
 #include "fonts/Base14Fonts.hpp"
@@ -68,10 +69,10 @@ int FontManager::fontID (int n) const {
  *  @param[in] font pointer to font object to be identified
  *  @return non-negative font ID if font was found, -1 otherwise */
 int FontManager::fontID (const Font *font) const {
-	for (size_t i=0; i < _fonts.size(); i++)
-		if (_fonts[i].get() == font)
-			return i;
-	return -1;
+	auto it = algo::find_if(_fonts, [&](const unique_ptr<Font> &f) {
+		return f.get() == font;
+	});
+	return it != _fonts.end() ? std::distance(_fonts.begin(), it) : -1;
 }
 
 
@@ -88,31 +89,28 @@ int FontManager::fontID (const string &name) const {
 
 int FontManager::fontID (string name, double ptsize) const {
 	std::replace(name.begin(), name.end(), '+', '-');
-	for (auto it = _fonts.begin(); it != _fonts.end(); ++it) {
-		if (auto nativeFont = font_cast<NativeFont*>(it->get())) {
-			if (nativeFont->name() == name && nativeFont->scaledSize() == ptsize)
-				return int(std::distance(_fonts.begin(), it));
-		}
-	}
-	return -1;
+	auto it = algo::find_if(_fonts, [&](const unique_ptr<Font> &f) {
+		auto nativeFont = font_cast<NativeFont*>(f.get());
+		return nativeFont && nativeFont->name() == name && nativeFont->scaledSize() == ptsize;
+	});
+	return it != _fonts.end() ? std::distance(_fonts.begin(), it) : -1;
 }
 
 
 int FontManager::fontnum (int id) const {
-	if (id < 0 || size_t(id) > _fonts.size())
-		return -1;
-	if (_vfStack.empty()) {
-		for (const auto &entry : _num2id)
-			if (entry.second == id)
-				return entry.first;
-	}
-	else {
-		auto it = _vfnum2id.find(_vfStack.top());
-		if (it == _vfnum2id.end())
-			return -1;
-		for (const auto &entry : it->second)
-			if (entry.second == id)
-				return entry.first;
+	if (id >= 0 && size_t(id) < _fonts.size()) {
+		const Num2IdMap *idmap = &_num2id;
+		if (!_vfStack.empty()) {
+			auto it = _vfnum2id.find(_vfStack.top());
+			idmap = it != _vfnum2id.end() ? &it->second : nullptr;
+		}
+		if (idmap) {
+			auto it = algo::find_if(*idmap, [&](const pair<uint32_t,int> &entry) {
+				return entry.second == id;
+			});
+			if (it != idmap->end())
+				return it->first;
+		}
 	}
 	return -1;
 }
@@ -159,6 +157,18 @@ Font* FontManager::getFontById (int id) const {
 	if (id < 0 || size_t(id) >= _fonts.size())
 		return nullptr;
 	return _fonts[id].get();
+}
+
+
+vector<const Font*> FontManager::getUniqueFonts () const {
+	vector<const Font*> fonts;
+	fonts.reserve(_fonts.size());
+	for (auto &font : _fonts) {
+		auto it = _usedChars.find(font.get());
+		if (it != _usedChars.end())
+			fonts.push_back(font.get());
+	}
+	return fonts;
 }
 
 
@@ -300,10 +310,10 @@ int FontManager::registerFont (uint32_t fontnum, const string &filename, int fon
 	else {
 		if (!FileSystem::exists(path)) {
 			const char *fontFormats[] = {nullptr, "otf", "ttf"};
-			for (const char *format : fontFormats) {
-				if ((path = FileFinder::instance().lookup(filename, format, false)) != nullptr)
-					break;
-			}
+			auto it = algo::find_if(fontFormats, [&](const char *format) {
+				return FileFinder::instance().lookup(filename, format, false) != nullptr;
+			});
+			path = it != end(fontFormats) ? *it : nullptr;
 		}
 		if (path) {
 			newfont.reset(new NativeFontImpl(path, fontIndex, ptsize, style, color));
@@ -380,7 +390,7 @@ void FontManager::leaveVF () {
 /** Assigns a sequence of DVI commands to a char code.
  * @param[in] c character code
  * @param[in] dvi DVI commands that describe character c */
-void FontManager::assignVFChar (int c, vector<char> &&dvi) {
+void FontManager::assignVFChar (int c, vector<char> dvi) {
 	if (!_vfStack.empty())
 		_vfStack.top()->assignChar(c, std::move(dvi));
 }

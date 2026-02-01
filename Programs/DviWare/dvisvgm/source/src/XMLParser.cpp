@@ -55,7 +55,7 @@ static string::size_type find_end_of_tag (const string &str, string::size_type s
 	char attrval_delim = 0;
 	bool expect_attrval = false;
 	for (auto i=startpos; i < str.length(); i++) {
-		if (attrval_delim) {  // inside attrubute value?
+		if (attrval_delim) {  // inside attribute value?
 			if (str[i] == attrval_delim)  // end of attribute value?
 				attrval_delim = 0;
 		}
@@ -188,11 +188,7 @@ XMLElement* XMLParser::openElement (const string &tag) {
 	string name = ir.getString("/ \t\n\r");
 	ir.skipSpace();
 	unique_ptr<XMLElement> elemNode{createElementPtr(name)};
-	map<string, string> attribs;
-	if (ir.parseAttributes(attribs, true, "\"'")) {
-		for (const auto &attrpair : attribs)
-			elemNode->addAttribute(attrpair.first, attrpair.second);
-	}
+	elemNode->addAttributes(ir.parseAttributes(true, "\"'"));
 	ir.skipSpace();
 	XMLElement *elemPtr = elemNode.get();
 	if (ir.peek() == '/')       // end of empty element tag

@@ -21,12 +21,13 @@
 #if defined(MIKTEX)
 #include <config.h>
 #endif
-#include <algorithm>
 #include <cctype>
 #include <cstddef>
 #include <iomanip>
 #include <sstream>
+#include <tuple>
 #include <xxhash.h>
+#include "algorithm.hpp"
 #include "Unicode.hpp"
 
 using namespace std;
@@ -39,17 +40,17 @@ bool Unicode::isValidCodepoint (uint32_t c) {
 	if ((c & 0xffff) == 0xfffe || (c & 0xffff) == 0xffff)
 		return false;
 
-	uint32_t ranges[] = {
-		0x0000, 0x0020,  // basic control characters + space
-		0x007f, 0x009f,  // use of control characters is discouraged by the XML standard
-		0x202a, 0x202e,  // bidi control characters
-		0xd800, 0xdfff,  // High Surrogates are not allowed in XML
-		0xfdd0, 0xfdef,  // non-characters for internal use by applications
+	using CPRange = pair<uint32_t, uint32_t>;
+	CPRange ranges[] = {
+		{0x0000, 0x0020},  // basic control characters + space
+		{0x007f, 0x009f},  // use of control characters is discouraged by the XML standard
+		{0x202a, 0x202e},  // bidi control characters
+		{0xd800, 0xdfff},  // High Surrogates are not allowed in XML
+		{0xfdd0, 0xfdef}   // non-characters for internal use by applications
 	};
-	for (size_t i=0; i < sizeof(ranges)/sizeof(uint32_t) && c >= ranges[i]; i+=2)
-		if (c <= ranges[i+1])
-			return false;
-	return true;
+	return algo::none_of(ranges, [&](const CPRange &range) {
+		return c <= range.second && c >= range.first;
+	});
 }
 
 
@@ -60,35 +61,37 @@ bool Unicode::isValidCodepoint (uint32_t c) {
  *  @param[in] permitSpace if true, space characters are treated as allowed code points
  *  @return the code point */
 uint32_t Unicode::charToCodepoint (uint32_t c, bool permitSpace) {
-	static uint32_t ranges[] = {
-		0x0000, 0x0020, 0xe000, // basic control characters + space
-		0x007f, 0x009f, 0xe021, // use of control characters is discouraged by the XML standard
-		0x202a, 0x202e, 0xe042, // bidi control characters
-		0xd800, 0xdfff, 0xe047, // High Surrogates are not allowed in XML
-		0xfdd0, 0xfdef, 0xe847, // non-characters for internal use by applications
-		0xfffe, 0xffff, 0xe867,
-		0x1fffe, 0x1ffff, 0xe869,
-		0x2fffe, 0x2ffff, 0xe86b,
-		0x3fffe, 0x3ffff, 0xe86d,
-		0x4fffe, 0x4ffff, 0xe86f,
-		0x5fffe, 0x5ffff, 0xe871,
-		0x6fffe, 0x6ffff, 0xe873,
-		0x7fffe, 0x7ffff, 0xe875,
-		0x8fffe, 0x8ffff, 0xe877,
-		0x9fffe, 0x9ffff, 0xe879,
-		0xafffe, 0xaffff, 0xe87b,
-		0xbfffe, 0xbffff, 0xe87d,
-		0xcfffe, 0xcffff, 0xe87f,
-		0xdfffe, 0xdffff, 0xe881,
-		0xefffe, 0xeffff, 0xe883,
-		0xffffe, 0xfffff, 0xe885,
-		0x10fffe, 0x10ffff, 0xe887
+	using Triple = tuple<uint32_t, uint32_t, uint32_t>;
+	static Triple ranges[] = {
+		{0x0000, 0x0020, 0xe000}, // basic control characters + space
+		{0x007f, 0x009f, 0xe021}, // use of control characters is discouraged by the XML standard
+		{0x202a, 0x202e, 0xe042}, // bidi control characters
+		{0xd800, 0xdfff, 0xe047}, // High Surrogates are not allowed in XML
+		{0xfdd0, 0xfdef, 0xe847}, // non-characters for internal use by applications
+		{0xfffe, 0xffff, 0xe867},
+		{0x1fffe, 0x1ffff, 0xe869},
+		{0x2fffe, 0x2ffff, 0xe86b},
+		{0x3fffe, 0x3ffff, 0xe86d},
+		{0x4fffe, 0x4ffff, 0xe86f},
+		{0x5fffe, 0x5ffff, 0xe871},
+		{0x6fffe, 0x6ffff, 0xe873},
+		{0x7fffe, 0x7ffff, 0xe875},
+		{0x8fffe, 0x8ffff, 0xe877},
+		{0x9fffe, 0x9ffff, 0xe879},
+		{0xafffe, 0xaffff, 0xe87b},
+		{0xbfffe, 0xbffff, 0xe87d},
+		{0xcfffe, 0xcffff, 0xe87f},
+		{0xdfffe, 0xdffff, 0xe881},
+		{0xefffe, 0xeffff, 0xe883},
+		{0xffffe, 0xfffff, 0xe885},
+		{0x10fffe, 0x10ffff, 0xe887}
 	};
 	if (!permitSpace || c != 0x20) {
-		for (size_t i=0; i < sizeof(ranges)/sizeof(uint32_t) && c >= ranges[i]; i+=3) {
-			if (c <= ranges[i+1])
-				return ranges[i+2]+c-ranges[i];
-		}
+		auto it = algo::find_if(ranges, [&](const Triple &range) {
+			return c < std::get<0>(range) || c <= std::get<1>(range);
+		});
+		if (it != end(ranges) && c >= std::get<0>(*it))
+			return std::get<2>(*it) + c - std::get<0>(*it);
 	}
 	return c;
 }
@@ -214,7 +217,7 @@ uint32_t Unicode::toLigature (const string &nonlig) {
 		{u8"VV",  0x0057}, {u8"tz",  0x0077},
 		{u8"VY",  0xA760}, {u8"tz",  0xA761},
 	};
-	auto it = find_if(begin(ligatures), end(ligatures), [&nonlig](const Ligature &l) {
+	auto it = algo::find_if(ligatures, [&nonlig](const Ligature &l) {
 		return l.nonlig == nonlig;
 	});
 	return it != end(ligatures) ? it->lig : 0;
@@ -282,7 +285,7 @@ int32_t Unicode::aglNameToCodepoint (const string &name) {
 
 	uint32_t hash = XXH32(&name[0], name.length(), 0);
 	const HashCodepointPair cmppair = {hash, 0};
-	auto it = lower_bound(hash2unicode.begin(), hash2unicode.end(), cmppair,
+	auto it = algo::lower_bound(hash2unicode, cmppair,
 		[](const HashCodepointPair &p1, const HashCodepointPair &p2) {
 			return p1.hash < p2.hash;
 		}

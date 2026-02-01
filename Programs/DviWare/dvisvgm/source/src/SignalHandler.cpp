@@ -36,7 +36,7 @@ class SignalHandler::Impl {
 	public:
 		Impl ();
 		bool setSigintHandler (HandlerFunc handler);
-		bool restoreSigintHandler ();
+		bool restoreSigintHandler () const;
 
 	private:
 #ifdef HAVE_SIGACTION
@@ -126,7 +126,7 @@ bool SignalHandler::Impl::setSigintHandler (HandlerFunc handler) {
 }
 
 
-bool SignalHandler::Impl::restoreSigintHandler () {
+bool SignalHandler::Impl::restoreSigintHandler () const {
 	if (_origSigaction.sa_handler == nullptr)
 		return false;
 	return (sigaction(SIGINT, &_origSigaction, nullptr) == 0);
@@ -144,7 +144,7 @@ bool SignalHandler::Impl::setSigintHandler (HandlerFunc handler) {
 }
 
 
-bool SignalHandler::Impl::restoreSigintHandler () {
+bool SignalHandler::Impl::restoreSigintHandler () const {
 	if (_origHandlerFunc == SIG_ERR)
 		return false;
 	return (signal(SIGINT, _origHandlerFunc) != SIG_ERR);

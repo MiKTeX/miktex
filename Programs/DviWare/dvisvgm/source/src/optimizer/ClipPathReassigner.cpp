@@ -21,7 +21,6 @@
 #if defined(MIKTEX)
 #include <config.h>
 #endif
-#include <algorithm>
 #include <set>
 #include <sstream>
 #include "ClipPathReassigner.hpp"

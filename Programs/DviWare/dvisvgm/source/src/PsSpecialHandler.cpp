@@ -28,6 +28,7 @@
 #include "FileFinder.hpp"
 #include "FilePath.hpp"
 #include "FileSystem.hpp"
+#include "InputReader.hpp"
 #include "Message.hpp"
 #include "PathClipper.hpp"
 #include "PSPattern.hpp"

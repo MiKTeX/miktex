@@ -62,7 +62,7 @@ Character FontEncodingPair::decode (uint32_t c) const {
 			chr = _enc2->decode(chr.number());
 		return chr;
 	}
-	return Character(Character::INDEX, 0);
+	return {Character::INDEX, 0};
 }
 
 

@@ -27,12 +27,12 @@
 #include "MessageException.hpp"
 #include "StreamReader.hpp"
 
-struct DVIException : public MessageException {
+struct DVIException : MessageException {
 	explicit DVIException (const std::string &msg) : MessageException(msg) {}
 };
 
 
-struct DVIPrematureEOFException : public DVIException {
+struct DVIPrematureEOFException : DVIException {
 	explicit DVIPrematureEOFException () : DVIException("premature end of DVI stream") {}
 };
 
@@ -65,6 +65,7 @@ class BasicDVIReader : public StreamReader {
 		virtual unsigned currentPageNumber () const {return 0;}
 
 	protected:
+		void throwDVIException (const std::string &msg) const;
 		void setDVIVersion (DVIVersion version);
 		DVIVersion getDVIVersion () const {return _dviVersion;}
 		virtual int evalCommand (CommandHandler &handler, int &param);

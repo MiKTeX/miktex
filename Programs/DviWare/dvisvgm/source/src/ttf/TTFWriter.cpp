@@ -25,7 +25,6 @@
 #include <iterator>
 #include <fstream>
 #include <list>
-#include <numeric>
 #include <woff2/encode.h>
 #include "TTFWriter.hpp"
 #include "../Font.hpp"
@@ -89,10 +88,9 @@ class TTFTableRecords : public TTFTable {
 		uint32_t tag () const override {return 0;}
 
 		void write (ostream &os) const override {
-			int numTables = 0;
-			for (const TableBuffer &buffer : _buffers)
-				if (buffer.tag())
-					numTables++;
+			size_t numTables = algo::count_if(_buffers, [](const TableBuffer &buffer) {
+				return buffer.tag() != 0;
+			});
 			uint32_t offset = 12 + 16*numTables;
 			for (const TableBuffer &buffer : _buffers) {
 				if (buffer.tag()) {
@@ -111,17 +109,16 @@ class TTFTableRecords : public TTFTable {
 
 
 /** Writes the font data in TrueType format to the given output stream. */
-bool TTFWriter::writeTTF (ostream &os) {
-	list<TableBuffer> buffers = createTableBuffers();
+bool TTFWriter::writeTTF (ostream &os) const {
 	// write TTF data
-	for (; !buffers.empty(); buffers.pop_front())
+	for (list<TableBuffer> buffers = createTableBuffers(); !buffers.empty(); buffers.pop_front())
 		buffers.front().write(os);
 	return true; // @@
 }
 
 
 /** Writes the font data in TrueType format to the given file. */
-bool TTFWriter::writeTTF (const string &ttfname) {
+bool TTFWriter::writeTTF (const string &ttfname) const {
 #if defined(MIKTEX_WINDOWS)
 	ofstream ofs(EXPATH_(ttfname), ios::binary);
 #else
@@ -136,7 +133,7 @@ bool TTFWriter::writeTTF (const string &ttfname) {
 /** Returns a list containing the binary TTF data segmented by the TTF tables.
  *  The first two list entries represent the TTF header (aka "offset table") and
  *  the table records, respectively. */
-std::list<TableBuffer> TTFWriter::createTableBuffers () {
+std::list<TableBuffer> TTFWriter::createTableBuffers () const {
 	list<TableBuffer> buffers;
 	for (const TTFTable *table : _tables)
 		buffers.emplace_back(table->createBuffer());
@@ -149,15 +146,15 @@ std::list<TableBuffer> TTFWriter::createTableBuffers () {
 	buffers.emplace_front(records.createBuffer());
 	buffers.emplace_front(header.createBuffer());
 	// compute global checksum (checkSumAdjustment entry of head table)
-	uint32_t checksum=0;
-	for (const TableBuffer &buffer : buffers)
-		checksum += buffer.checksum();
+	uint32_t checksum = algo::accumulate(buffers, 0, [](uint32_t sum, const TableBuffer &buf) {
+		return sum + buf.checksum();
+	});
 	checksum = 0xB1B0AFBA-checksum;
 	// write checksum directly to the head table buffer
-	auto headBufferIt = find_if(buffers.begin(), buffers.end(), [](const TableBuffer &buf) {
+	auto headBufferIt = algo::find_if(buffers, [](const TableBuffer &buf) {
 		return buf.tag() == TTFTable::name2id("head");
 	});
-	headBufferIt->setData(_head.offsetToChecksum(), checksum);
+	headBufferIt->setData(HeadTable::offsetToChecksum(), checksum);
 	return buffers;
 }
 
@@ -217,14 +214,14 @@ void TTFWriter::updateGlobalBbox (uint32_t c, int16_t xmin, int16_t ymin, int16_
  *  @param[in,out] os WOFF2 output stream
  *  @return true on success */
 static bool ttf_to_woff2 (const string &buffer, ostream &os) {
-	const uint8_t* input_data = reinterpret_cast<const uint8_t*>(buffer.data());
+	const auto input_data = reinterpret_cast<const uint8_t*>(buffer.data());
 	size_t output_size = woff2::MaxWOFF2CompressedSize(input_data, buffer.size());
 	string output(output_size, 0);
-	uint8_t* output_data = reinterpret_cast<uint8_t*>(&output[0]);
+	auto output_data = reinterpret_cast<uint8_t*>(&output[0]);
 	woff2::WOFF2Params params;
 	if (woff2::ConvertTTFToWOFF2(input_data, buffer.size(), output_data, &output_size, params)) {
 		output.resize(output_size);
-		copy(output.begin(), output.end(), ostream_iterator<uint8_t>(os));
+		algo::copy(output, ostream_iterator<uint8_t>(os));
 		return true;
 	}
 	return false;
@@ -232,7 +229,7 @@ static bool ttf_to_woff2 (const string &buffer, ostream &os) {
 
 
 /** Writes the font data in WOFF2 format to the given output stream. */
-bool TTFWriter::writeWOFF2 (ostream &os) {
+bool TTFWriter::writeWOFF2 (ostream &os) const {
 	ostringstream oss;
 	if (writeTTF(oss))
 		return ttf_to_woff2(oss.str(), os);
@@ -241,7 +238,7 @@ bool TTFWriter::writeWOFF2 (ostream &os) {
 
 
 /** Writes the font data in WOFF2 format to the given file. */
-bool TTFWriter::writeWOFF2 (const string &woff2name) {
+bool TTFWriter::writeWOFF2 (const string &woff2name) const {
 #if defined(MIKTEX_WINDOWS)
 	ofstream ofs(EXPATH_(woff2name), ios::binary);
 #else
@@ -345,14 +342,14 @@ class WOFFTableRecords : public TTFTable {
 
 
 static bool ttf_to_woff (list<TableBuffer> &&buffers, ostream &os) {
-	size_t ttfSize = std::accumulate(buffers.begin(), buffers.end(), size_t(0), [](size_t sum, const TableBuffer &buf) {
+	size_t ttfSize = algo::accumulate(buffers, size_t(0), [](size_t sum, const TableBuffer &buf) {
 		return sum + buf.paddedSize();
 	});
 	buffers.pop_front();  // remove TTF header
 	buffers.pop_front();  // remove TTF table records
 	for (TableBuffer &buffer : buffers)
 		buffer.compress();
-	size_t woffSize = std::accumulate(buffers.begin(), buffers.end(), size_t(0), [](size_t sum, const TableBuffer &buf) {
+	size_t woffSize = algo::accumulate(buffers, size_t(0), [](size_t sum, const TableBuffer &buf) {
 		return sum + buf.paddedSize();
 	});
 	woffSize += 44 + 20*buffers.size();  // add size of header and table records

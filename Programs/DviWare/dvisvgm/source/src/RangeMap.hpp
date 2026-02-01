@@ -26,7 +26,6 @@
 #include <ostream>
 #include <vector>
 
-
 class RangeMap {
 	class Range {
 		friend class RangeMap;
@@ -82,7 +81,7 @@ class RangeMap {
 			}
 
 			std::pair<uint32_t,uint32_t> operator * () const {
-				return std::pair<uint32_t,uint32_t>(_currentKey, _rangeMap.valueAt(_currentKey));
+				return {_currentKey, _rangeMap.valueAt(_currentKey)};
 			}
 
 			bool operator == (const Iterator &it) const {
@@ -122,14 +121,13 @@ class RangeMap {
 		bool empty () const                    {return _ranges.empty();}
 		void clear ()                          {_ranges.clear();}
 		const Range& getRange (size_t n) const {return _ranges[n];}
-		Iterator begin () const                {return Iterator(*this, _ranges.begin());}
-		Iterator end () const                  {return Iterator(*this, _ranges.end());}
+		Iterator begin () const                {return {*this, _ranges.begin()};}
+		Iterator end () const                  {return {*this, _ranges.end()};}
 		std::ostream& write (std::ostream &os) const;
 
 	protected:
 		void adaptNeighbors (Ranges::iterator it);
 		int lookup (uint32_t c) const;
-		const Range& rangeAt (size_t n) const {return _ranges[n];}
 
 	private:
 		Ranges _ranges;

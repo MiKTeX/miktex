@@ -32,6 +32,11 @@ BasicDVIReader::BasicDVIReader (std::istream &is) : StreamReader(is), _dviVersio
 }
 
 
+void BasicDVIReader::throwDVIException(const string &msg) const {
+	throw DVIException(msg + " at position " + to_string(tellg()));
+}
+
+
 /** Evaluates the next DVI command, and computes the corresponding handler.
  *  @param[out] handler handler for current DVI command
  *  @param[out] param the handler must be called with this parameter
@@ -103,7 +108,7 @@ int BasicDVIReader::evalCommand (CommandHandler &handler, int &param) {
 		num_param_bytes = 1;
 	}
 	else if (opcode > OP_POSTPOST)
-		throw DVIException("undefined DVI command (opcode " + to_string(opcode) + ")");
+		throwDVIException("undefined DVI command (opcode " + to_string(opcode) + ")");
 	else {
 		const int offset = opcode < OP_FNTNUM0 ? OP_SET1 : (OP_FNTNUM63+1)-(OP_FNTNUM0-OP_SET1);
 		handler = commands[opcode-offset].handler;
@@ -166,7 +171,7 @@ void BasicDVIReader::executePreamble () {
 			return;
 		}
 	}
-	throw DVIException("invalid DVI file (missing preamble)");
+	throwDVIException("invalid DVI file (missing preamble)");
 }
 
 
@@ -174,7 +179,7 @@ void BasicDVIReader::executePreamble () {
 void BasicDVIReader::goToPostamble () {
 	clearStream();
 	if (!isStreamValid())
-		throw DVIException("invalid DVI file (missing postamble)");
+		throwDVIException("invalid DVI file (missing postamble)");
 
 	seek(-1, ios::end);  // stream pointer to last byte
 	int count=0;
@@ -183,7 +188,7 @@ void BasicDVIReader::goToPostamble () {
 		count++;
 	}
 	if (count < 4)  // the standard requires at least 4 trailing fill bytes
-		throw DVIException("missing fill bytes at end of file");
+		throwDVIException("missing fill bytes at end of file");
 
 	seek(-4, ios::cur);            // now at first byte of q (pointer to begin of postamble)
 	uint32_t q = readUnsigned(4);  // pointer to begin of postamble
@@ -201,7 +206,7 @@ void BasicDVIReader::executePostamble () {
 void BasicDVIReader::executePostPost () {
 	clearStream();  // reset all status bits
 	if (!isStreamValid())
-		throw DVIException("invalid DVI file (missing postpost)");
+		throwDVIException("invalid DVI file (missing postpost)");
 
 	seek(-1, ios::end);       // stream pointer to last byte
 	int count=0;
@@ -210,7 +215,7 @@ void BasicDVIReader::executePostPost () {
 		count++;
 	}
 	if (count < 4)  // the standard requires at least 4 trailing fill bytes
-		throw DVIException("missing fill bytes at end of file");
+		throwDVIException("missing fill bytes at end of file");
 
 	setDVIVersion((DVIVersion)readUnsigned(1));
 }
@@ -235,14 +240,14 @@ vector<uint32_t> BasicDVIReader::collectBopOffsets () {
 		bopOffsets.push_back(offset);   // record offset
 		seek(offset);                    // now on previous bop
 		if (readByte() != OP_BOP)
-			throw DVIException("bop offset at "+to_string(offset)+" doesn't point to bop command" );
+			throwDVIException("bop offset at "+to_string(offset)+" doesn't point to bop command" );
 		seek(40, ios::cur);              // skip the 10 \count values => now on offset of previous bop
 		uint32_t prevOffset = readUnsigned(4);
 		if ((prevOffset >= offset && int32_t(prevOffset) != -1))
-			throw DVIException("invalid bop offset at "+to_string(tell()-static_cast<streamoff>(4)));
+			throwDVIException("invalid bop offset at "+to_string(tell()-static_cast<streamoff>(4)));
 		offset = prevOffset;
 	}
-	reverse(bopOffsets.begin(), bopOffsets.end());
+	std::reverse(bopOffsets.begin(), bopOffsets.end());
 	return bopOffsets;
 }
 
@@ -265,7 +270,7 @@ void BasicDVIReader::setDVIVersion (DVIVersion version) {
 		case DVI_XDV7:
 			break;
 		default:
-			throw DVIException("DVI version " + to_string(_dviVersion) + " not supported");
+			throwDVIException("DVI version " + to_string(_dviVersion) + " not supported");
 	}
 }
 

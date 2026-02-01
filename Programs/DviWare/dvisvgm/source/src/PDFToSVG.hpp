@@ -44,6 +44,7 @@ class PDFToSVG : public ImageToSVG {
 		mutable int _totalPageCount = -1;
 		PDFHandler _pdfHandler;
 		bool _useGS = true;
+		int _pdfVersion = 0; // PDF version of file being processed (major*100 + minor)
 };
 
 #endif

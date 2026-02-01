@@ -42,7 +42,7 @@ class SVGOptimizer {
 		explicit SVGOptimizer (SVGTree &svg) : SVGOptimizer(&svg) {}
 		void execute ();
 		void listModules (std::ostream &os) const;
-		bool checkModuleString (std::string &namestr, std::vector<std::string> &unknownNames) const;
+		bool checkModuleString (const std::string &namestr, std::vector<std::string> &unknownNames) const;
 
 		static std::string MODULE_SEQUENCE;
 
