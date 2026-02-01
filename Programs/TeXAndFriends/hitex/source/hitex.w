@@ -32992,6 +32992,7 @@ else if (ARGUMENT_IS("version")){@+
        "Prote version "@, Prote_version_string@, "\n"
 #endif
        );
+#endif
        exit(0);@+
 }
 
