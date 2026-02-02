@@ -17,6 +17,7 @@ include_directories(BEFORE
 )
 
 set(public_include_directories
+    ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src
 )
 
