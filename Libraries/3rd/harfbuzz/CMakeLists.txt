@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2013-2024 Christian Schenk
+## Copyright (C) 2013-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -39,6 +39,11 @@ list(APPEND harfbuzz_sources
 configure_file(
     miktex-harfbuzz-version.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/miktex-harfbuzz-version.h
+)
+
+configure_file(
+    source/src/hb-version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/hb-version.h
 )
 
 list(APPEND harfbuzz_sources
