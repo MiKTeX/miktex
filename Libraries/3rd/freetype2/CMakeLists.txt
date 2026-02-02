@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2007-2022 Christian Schenk
+## Copyright (C) 2007-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -205,6 +205,7 @@ set(sources
     source/include/freetype/internal/ftgloadr.h
     source/include/freetype/internal/fthash.h
     source/include/freetype/internal/ftmemory.h
+    source/include/freetype/internal/ftmmtypes.h
     source/include/freetype/internal/ftobjs.h
     source/include/freetype/internal/ftpsprop.h
     source/include/freetype/internal/ftrfork.h
@@ -245,12 +246,14 @@ set(sources
     source/include/freetype/tttables.h
     source/include/freetype/tttags.h
     source/include/ft2build.h
+    source/src/autofit/afadjust.h
     source/src/autofit/afblue.h
     source/src/autofit/afcjk.h
     source/src/autofit/afcover.h
     source/src/autofit/afdummy.h
     source/src/autofit/aferrors.h
     source/src/autofit/afglobal.h
+    source/src/autofit/afgsub.h
     source/src/autofit/afhints.h
     source/src/autofit/afindic.h
     source/src/autofit/aflatin.h
@@ -263,6 +266,10 @@ set(sources
     source/src/autofit/aftypes.h
     source/src/autofit/afws-decl.h
     source/src/autofit/afws-iter.h
+    source/src/autofit/ft-hb-ft.h
+    source/src/autofit/ft-hb-types.h
+    source/src/autofit/ft-hb.h
+    source/src/autofit/hb-script-list.h
     source/src/base/ftbase.h
     source/src/base/md5.h
     source/src/bdf/bdf.h
@@ -373,6 +380,7 @@ set(sources
     source/src/sfnt/ttcmapc.h
     source/src/sfnt/ttcolr.h
     source/src/sfnt/ttcpal.h
+    source/src/sfnt/ttgpos.h
     source/src/sfnt/ttkern.h
     source/src/sfnt/ttload.h
     source/src/sfnt/ttmtx.h
@@ -392,7 +400,6 @@ set(sources
     source/src/truetype/ttinterp.h
     source/src/truetype/ttobjs.h
     source/src/truetype/ttpload.h
-    source/src/truetype/ttsubpix.h
     source/src/type1/t1afm.h
     source/src/type1/t1driver.h
     source/src/type1/t1errors.h

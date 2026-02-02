@@ -4,7 +4,7 @@
  *
  *   FreeType PFR glyph loader (body).
  *
- * Copyright (C) 2002-2022 by
+ * Copyright (C) 2002-2025 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -42,8 +42,7 @@
   {
     FT_ZERO( glyph );
 
-    glyph->loader     = loader;
-    glyph->path_begun = 0;
+    glyph->loader = loader;
 
     FT_GlyphLoader_Rewind( loader );
   }
@@ -109,7 +108,7 @@
 
     /* don't add empty contours */
     if ( last >= first )
-      outline->contours[outline->n_contours++] = (short)last;
+      outline->contours[outline->n_contours++] = (FT_UShort)last;
 
     glyph->path_begun = 0;
   }
@@ -179,8 +178,8 @@
     error = FT_GLYPHLOADER_CHECK_POINTS( loader, 3, 0 );
     if ( !error )
     {
-      FT_Vector*  vec = outline->points         + outline->n_points;
-      FT_Byte*    tag = (FT_Byte*)outline->tags + outline->n_points;
+      FT_Vector*  vec = outline->points + outline->n_points;
+      FT_Byte*    tag = outline->tags   + outline->n_points;
 
 
       vec[0] = *control1;
@@ -190,7 +189,7 @@
       tag[1] = FT_CURVE_TAG_CUBIC;
       tag[2] = FT_CURVE_TAG_ON;
 
-      outline->n_points = (FT_Short)( outline->n_points + 3 );
+      outline->n_points += 3;
     }
 
   Exit:
@@ -389,7 +388,7 @@
           break;
 
         case 2:                                      /* horizontal line to */
-          FT_TRACE6(( "- horizontal line to cx.%d", format_low ));
+          FT_TRACE6(( "- horizontal line to cx.%u", format_low ));
           if ( format_low >= x_count )
             goto Failure;
           pos[0].x   = glyph->x_control[format_low];
@@ -399,7 +398,7 @@
           break;
 
         case 3:                                        /* vertical line to */
-          FT_TRACE6(( "- vertical line to cy.%d", format_low ));
+          FT_TRACE6(( "- vertical line to cy.%u", format_low ));
           if ( format_low >= y_count )
             goto Failure;
           pos[0].x   = pos[3].x;
@@ -409,7 +408,7 @@
           break;
 
         case 6:                            /* horizontal to vertical curve */
-          FT_TRACE6(( "- hv curve " ));
+          FT_TRACE6(( "- hv curve" ));
           args_format = 0xB8E;
           args_count  = 3;
           break;
@@ -445,7 +444,7 @@
             if ( idx >= x_count )
               goto Failure;
             cur->x = glyph->x_control[idx];
-            FT_TRACE7(( " cx#%d", idx ));
+            FT_TRACE7(( " cx#%u", idx ));
             break;
 
           case 1:                           /* 16-bit absolute value */
@@ -475,7 +474,7 @@
             if ( idx >= y_count )
               goto Failure;
             cur->y = glyph->y_control[idx];
-            FT_TRACE7(( " cy#%d", idx ));
+            FT_TRACE7(( " cy#%u", idx ));
             break;
 
           case 1:                           /* 16-bit absolute value */
@@ -561,8 +560,7 @@
                            FT_Byte*   limit )
   {
     FT_Error        error  = FT_Err_Ok;
-    FT_GlyphLoader  loader = glyph->loader;
-    FT_Memory       memory = loader->memory;
+    FT_Memory       memory = glyph->loader->memory;
     PFR_SubGlyph    subglyph;
     FT_UInt         flags, i, count, org_count;
     FT_Int          x_pos, y_pos;
@@ -756,7 +754,7 @@
 
       count = glyph->num_subs - old_count;
 
-      FT_TRACE4(( "compound glyph with %d element%s (offset %lu):\n",
+      FT_TRACE4(( "compound glyph with %u element%s (offset %lu):\n",
                   count,
                   count == 1 ? "" : "s",
                   offset ));
@@ -768,7 +766,7 @@
         PFR_SubGlyph  subglyph;
 
 
-        FT_TRACE4(( "  subglyph %d:\n", n ));
+        FT_TRACE4(( "  subglyph %u:\n", n ));
 
         subglyph   = glyph->subs + old_count + n;
         old_points = base->n_points;
@@ -812,7 +810,7 @@
         /* proceed to next sub-glyph */
       }
 
-      FT_TRACE4(( "end compound glyph with %d element%s\n",
+      FT_TRACE4(( "end compound glyph with %u element%s\n",
                   count,
                   count == 1 ? "" : "s" ));
     }

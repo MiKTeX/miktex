@@ -4,7 +4,7 @@
  *
  *   FreeType utility functions for bitmaps (body).
  *
- * Copyright (C) 2004-2022 by
+ * Copyright (C) 2004-2025 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -66,11 +66,8 @@
   {
     FT_Memory  memory;
     FT_Error   error  = FT_Err_Ok;
-
-    FT_Int    pitch;
-    FT_ULong  size;
-
-    FT_Int  source_pitch_sign, target_pitch_sign;
+    FT_Int     pitch;
+    FT_Int     flip;
 
 
     if ( !library )
@@ -82,53 +79,29 @@
     if ( source == target )
       return FT_Err_Ok;
 
-    source_pitch_sign = source->pitch < 0 ? -1 : 1;
-    target_pitch_sign = target->pitch < 0 ? -1 : 1;
-
-    if ( !source->buffer )
-    {
-      *target = *source;
-      if ( source_pitch_sign != target_pitch_sign )
-        target->pitch = -target->pitch;
-
-      return FT_Err_Ok;
-    }
+    flip = ( source->pitch < 0 && target->pitch > 0 ) ||
+           ( source->pitch > 0 && target->pitch < 0 );
 
     memory = library->memory;
-    pitch  = source->pitch;
+    FT_FREE( target->buffer );
 
+    *target = *source;
+
+    if ( flip )
+      target->pitch = -target->pitch;
+
+    if ( !source->buffer )
+      return FT_Err_Ok;
+
+    pitch  = source->pitch;
     if ( pitch < 0 )
       pitch = -pitch;
-    size = (FT_ULong)pitch * source->rows;
 
-    if ( target->buffer )
-    {
-      FT_Int    target_pitch = target->pitch;
-      FT_ULong  target_size;
-
-
-      if ( target_pitch < 0 )
-        target_pitch = -target_pitch;
-      target_size = (FT_ULong)target_pitch * target->rows;
-
-      if ( target_size != size )
-        FT_MEM_QREALLOC( target->buffer, target_size, size );
-    }
-    else
-      FT_MEM_QALLOC( target->buffer, size );
+    FT_MEM_QALLOC_MULT( target->buffer, target->rows, pitch );
 
     if ( !error )
     {
-      unsigned char *p;
-
-
-      p = target->buffer;
-      *target = *source;
-      target->buffer = p;
-
-      if ( source_pitch_sign == target_pitch_sign )
-        FT_MEM_COPY( target->buffer, source->buffer, size );
-      else
+      if ( flip )
       {
         /* take care of bitmap flow */
         FT_UInt   i;
@@ -146,6 +119,9 @@
           t -= pitch;
         }
       }
+      else
+        FT_MEM_COPY( target->buffer, source->buffer,
+                     (FT_Long)source->rows * pitch );
     }
 
     return error;
@@ -542,39 +518,31 @@
     case FT_PIXEL_MODE_LCD_V:
     case FT_PIXEL_MODE_BGRA:
       {
-        FT_Int    pad, old_target_pitch, target_pitch;
-        FT_ULong  old_size;
+        FT_Int  width = (FT_Int)source->width;
+        FT_Int  neg   = ( target->pitch == 0 && source->pitch < 0 ) ||
+                          target->pitch  < 0;
 
 
-        old_target_pitch = target->pitch;
-        if ( old_target_pitch < 0 )
-          old_target_pitch = -old_target_pitch;
-
-        old_size = target->rows * (FT_UInt)old_target_pitch;
+        FT_Bitmap_Done( library, target );
 
         target->pixel_mode = FT_PIXEL_MODE_GRAY;
         target->rows       = source->rows;
         target->width      = source->width;
 
-        pad = 0;
-        if ( alignment > 0 )
+        if ( alignment )
         {
-          pad = (FT_Int)source->width % alignment;
-          if ( pad != 0 )
-            pad = alignment - pad;
+          FT_Int  rem = width % alignment;
+
+
+          if ( rem )
+            width = alignment > 0 ? width - rem + alignment
+                                  : width - rem - alignment;
         }
 
-        target_pitch = (FT_Int)source->width + pad;
-
-        if ( target_pitch > 0                                               &&
-             (FT_ULong)target->rows > FT_ULONG_MAX / (FT_ULong)target_pitch )
-          return FT_THROW( Invalid_Argument );
-
-        if ( FT_QREALLOC( target->buffer,
-                          old_size, target->rows * (FT_UInt)target_pitch ) )
+        if ( FT_QALLOC_MULT( target->buffer, target->rows, width ) )
           return error;
 
-        target->pitch = target->pitch < 0 ? -target_pitch : target_pitch;
+        target->pitch = neg ? -width : width;
       }
       break;
 
@@ -908,13 +876,13 @@
 
 #ifdef FT_DEBUG_LEVEL_TRACE
     FT_TRACE5(( "FT_Bitmap_Blend:\n" ));
-    FT_TRACE5(( "  source bitmap: (%ld, %ld) -- (%ld, %ld); %d x %d\n",
+    FT_TRACE5(( "  source bitmap: (%ld, %ld) -- (%ld, %ld); %u x %u\n",
       source_llx / 64, source_lly / 64,
       source_urx / 64, source_ury / 64,
       source_->width, source_->rows ));
 
     if ( target->width && target->rows )
-      FT_TRACE5(( "  target bitmap: (%ld, %ld) -- (%ld, %ld); %d x %d\n",
+      FT_TRACE5(( "  target bitmap: (%ld, %ld) -- (%ld, %ld); %u x %u\n",
         target_llx / 64, target_lly / 64,
         target_urx / 64, target_ury / 64,
         target->width, target->rows ));
@@ -922,7 +890,7 @@
       FT_TRACE5(( "  target bitmap: empty\n" ));
 
     if ( final_width && final_rows )
-      FT_TRACE5(( "  final bitmap: (%ld, %ld) -- (%ld, %ld); %d x %d\n",
+      FT_TRACE5(( "  final bitmap: (%ld, %ld) -- (%ld, %ld); %u x %u\n",
         final_llx / 64, final_lly / 64,
         final_urx / 64, final_ury / 64,
         final_width, final_rows ));
@@ -956,7 +924,7 @@
 
       if ( FT_LONG_MAX / target->pitch < (int)target->rows )
       {
-        FT_TRACE5(( "FT_Blend_Bitmap: target bitmap too large (%d x %d)\n",
+        FT_TRACE5(( "FT_Blend_Bitmap: target bitmap too large (%u x %u)\n",
                      final_width, final_rows ));
         return FT_THROW( Invalid_Argument );
       }
@@ -984,7 +952,7 @@
 
       if ( FT_LONG_MAX / new_pitch < (int)final_rows )
       {
-        FT_TRACE5(( "FT_Blend_Bitmap: target bitmap too large (%d x %d)\n",
+        FT_TRACE5(( "FT_Blend_Bitmap: target bitmap too large (%u x %u)\n",
                      final_width, final_rows ));
         return FT_THROW( Invalid_Argument );
       }

@@ -4,7 +4,7 @@
  *
  *   FreeType high-level API and common types (specification only).
  *
- * Copyright (C) 1996-2022 by
+ * Copyright (C) 1996-2025 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -102,61 +102,25 @@ FT_BEGIN_HEADER
    */
 
 
-
-  /*************************************************************************/
-  /*************************************************************************/
-  /*                                                                       */
-  /*                        B A S I C   T Y P E S                          */
-  /*                                                                       */
-  /*************************************************************************/
-  /*************************************************************************/
-
-
   /**************************************************************************
    *
    * @section:
-   *   base_interface
+   *   font_testing_macros
    *
    * @title:
-   *   Base Interface
+   *   Font Testing Macros
    *
    * @abstract:
-   *   The FreeType~2 base font interface.
+   *   Macros to test various properties of fonts.
    *
    * @description:
-   *   This section describes the most important public high-level API
-   *   functions of FreeType~2.
+   *   Macros to test the most important font properties.
+   *
+   *   It is recommended to use these high-level macros instead of directly
+   *   testing the corresponding flags, which are scattered over various
+   *   structures.
    *
    * @order:
-   *   FT_Library
-   *   FT_Face
-   *   FT_Size
-   *   FT_GlyphSlot
-   *   FT_CharMap
-   *   FT_Encoding
-   *   FT_ENC_TAG
-   *
-   *   FT_FaceRec
-   *
-   *   FT_FACE_FLAG_SCALABLE
-   *   FT_FACE_FLAG_FIXED_SIZES
-   *   FT_FACE_FLAG_FIXED_WIDTH
-   *   FT_FACE_FLAG_HORIZONTAL
-   *   FT_FACE_FLAG_VERTICAL
-   *   FT_FACE_FLAG_COLOR
-   *   FT_FACE_FLAG_SFNT
-   *   FT_FACE_FLAG_CID_KEYED
-   *   FT_FACE_FLAG_TRICKY
-   *   FT_FACE_FLAG_KERNING
-   *   FT_FACE_FLAG_MULTIPLE_MASTERS
-   *   FT_FACE_FLAG_VARIATION
-   *   FT_FACE_FLAG_GLYPH_NAMES
-   *   FT_FACE_FLAG_EXTERNAL_STREAM
-   *   FT_FACE_FLAG_HINTER
-   *   FT_FACE_FLAG_SVG
-   *   FT_FACE_FLAG_SBIX
-   *   FT_FACE_FLAG_SBIX_OVERLAY
-   *
    *   FT_HAS_HORIZONTAL
    *   FT_HAS_VERTICAL
    *   FT_HAS_KERNING
@@ -176,20 +140,58 @@ FT_BEGIN_HEADER
    *   FT_IS_NAMED_INSTANCE
    *   FT_IS_VARIATION
    *
-   *   FT_STYLE_FLAG_BOLD
-   *   FT_STYLE_FLAG_ITALIC
+   */
+
+
+  /**************************************************************************
    *
-   *   FT_SizeRec
-   *   FT_Size_Metrics
+   * @section:
+   *   library_setup
    *
-   *   FT_GlyphSlotRec
-   *   FT_Glyph_Metrics
-   *   FT_SubGlyph
+   * @title:
+   *   Library Setup
    *
-   *   FT_Bitmap_Size
+   * @abstract:
+   *   Functions to start and end the usage of the FreeType library.
    *
+   * @description:
+   *   Functions to start and end the usage of the FreeType library.
+   *
+   *   Note that @FT_Library_Version and @FREETYPE_XXX are of limited use
+   *   because even a new release of FreeType with only documentation
+   *   changes increases the version number.
+   *
+   * @order:
+   *   FT_Library
    *   FT_Init_FreeType
    *   FT_Done_FreeType
+   *
+   *   FT_Library_Version
+   *   FREETYPE_XXX
+   *
+   */
+
+
+  /**************************************************************************
+   *
+   * @section:
+   *   face_creation
+   *
+   * @title:
+   *   Face Creation
+   *
+   * @abstract:
+   *   Functions to manage fonts.
+   *
+   * @description:
+   *   The functions and structures collected in this section operate on
+   *   fonts globally.
+   *
+   * @order:
+   *   FT_Face
+   *   FT_FaceRec
+   *   FT_FACE_FLAG_XXX
+   *   FT_STYLE_FLAG_XXX
    *
    *   FT_New_Face
    *   FT_Done_Face
@@ -198,9 +200,35 @@ FT_BEGIN_HEADER
    *   FT_Face_Properties
    *   FT_Open_Face
    *   FT_Open_Args
+   *   FT_OPEN_XXX
    *   FT_Parameter
    *   FT_Attach_File
    *   FT_Attach_Stream
+   *
+   */
+
+
+  /**************************************************************************
+   *
+   * @section:
+   *   sizing_and_scaling
+   *
+   * @title:
+   *   Sizing and Scaling
+   *
+   * @abstract:
+   *   Functions to manage font sizes.
+   *
+   * @description:
+   *   The functions and structures collected in this section are related to
+   *   selecting and manipulating the size of a font globally.
+   *
+   * @order:
+   *   FT_Size
+   *   FT_SizeRec
+   *   FT_Size_Metrics
+   *
+   *   FT_Bitmap_Size
    *
    *   FT_Set_Char_Size
    *   FT_Set_Pixel_Sizes
@@ -209,78 +237,158 @@ FT_BEGIN_HEADER
    *   FT_Size_Request_Type
    *   FT_Size_RequestRec
    *   FT_Size_Request
+   *
    *   FT_Set_Transform
    *   FT_Get_Transform
+   *
+   */
+
+
+  /**************************************************************************
+   *
+   * @section:
+   *   glyph_retrieval
+   *
+   * @title:
+   *   Glyph Retrieval
+   *
+   * @abstract:
+   *   Functions to manage glyphs.
+   *
+   * @description:
+   *   The functions and structures collected in this section operate on
+   *   single glyphs, of which @FT_Load_Glyph is most important.
+   *
+   * @order:
+   *   FT_GlyphSlot
+   *   FT_GlyphSlotRec
+   *   FT_Glyph_Metrics
+   *
    *   FT_Load_Glyph
-   *   FT_Get_Char_Index
-   *   FT_Get_First_Char
-   *   FT_Get_Next_Char
-   *   FT_Get_Name_Index
-   *   FT_Load_Char
-   *
-   *   FT_OPEN_MEMORY
-   *   FT_OPEN_STREAM
-   *   FT_OPEN_PATHNAME
-   *   FT_OPEN_DRIVER
-   *   FT_OPEN_PARAMS
-   *
-   *   FT_LOAD_DEFAULT
-   *   FT_LOAD_RENDER
-   *   FT_LOAD_MONOCHROME
-   *   FT_LOAD_LINEAR_DESIGN
-   *   FT_LOAD_NO_SCALE
-   *   FT_LOAD_NO_HINTING
-   *   FT_LOAD_NO_BITMAP
-   *   FT_LOAD_SBITS_ONLY
-   *   FT_LOAD_NO_AUTOHINT
-   *   FT_LOAD_COLOR
-   *
-   *   FT_LOAD_VERTICAL_LAYOUT
-   *   FT_LOAD_IGNORE_TRANSFORM
-   *   FT_LOAD_FORCE_AUTOHINT
-   *   FT_LOAD_NO_RECURSE
-   *   FT_LOAD_PEDANTIC
-   *
-   *   FT_LOAD_TARGET_NORMAL
-   *   FT_LOAD_TARGET_LIGHT
-   *   FT_LOAD_TARGET_MONO
-   *   FT_LOAD_TARGET_LCD
-   *   FT_LOAD_TARGET_LCD_V
-   *
+   *   FT_LOAD_XXX
    *   FT_LOAD_TARGET_MODE
+   *   FT_LOAD_TARGET_XXX
    *
    *   FT_Render_Glyph
    *   FT_Render_Mode
    *   FT_Get_Kerning
    *   FT_Kerning_Mode
    *   FT_Get_Track_Kerning
-   *   FT_Get_Glyph_Name
-   *   FT_Get_Postscript_Name
    *
+   */
+
+
+  /**************************************************************************
+   *
+   * @section:
+   *   character_mapping
+   *
+   * @title:
+   *   Character Mapping
+   *
+   * @abstract:
+   *   Functions to manage character-to-glyph maps.
+   *
+   * @description:
+   *   This section holds functions and structures that are related to
+   *   mapping character input codes to glyph indices.
+   *
+   *   Note that for many scripts the simplistic approach used by FreeType
+   *   of mapping a single character to a single glyph is not valid or
+   *   possible!  In general, a higher-level library like HarfBuzz or ICU
+   *   should be used for handling text strings.
+   *
+   * @order:
+   *   FT_CharMap
    *   FT_CharMapRec
+   *   FT_Encoding
+   *   FT_ENC_TAG
+   *
    *   FT_Select_Charmap
    *   FT_Set_Charmap
    *   FT_Get_Charmap_Index
    *
-   *   FT_Get_FSType_Flags
-   *   FT_Get_SubGlyph_Info
+   *   FT_Get_Char_Index
+   *   FT_Get_First_Char
+   *   FT_Get_Next_Char
+   *   FT_Load_Char
    *
+   */
+
+
+  /**************************************************************************
+   *
+   * @section:
+   *   information_retrieval
+   *
+   * @title:
+   *   Information Retrieval
+   *
+   * @abstract:
+   *   Functions to retrieve font and glyph information.
+   *
+   * @description:
+   *   Functions to retrieve font and glyph information.  Only some very
+   *   basic data is covered; see also the chapter on the format-specific
+   *   API for more.
+   *
+   *
+   * @order:
+   *   FT_Get_Name_Index
+   *   FT_Get_Glyph_Name
+   *   FT_Get_Postscript_Name
+   *   FT_Get_FSType_Flags
+   *   FT_FSTYPE_XXX
+   *   FT_Get_SubGlyph_Info
+   *   FT_SUBGLYPH_FLAG_XXX
+   *
+   */
+
+
+  /**************************************************************************
+   *
+   * @section:
+   *   other_api_data
+   *
+   * @title:
+   *   Other API Data
+   *
+   * @abstract:
+   *   Other structures, enumerations, and macros.
+   *
+   * @description:
+   *   Other structures, enumerations, and macros.  Deprecated functions are
+   *   also listed here.
+   *
+   * @order:
    *   FT_Face_Internal
    *   FT_Size_Internal
    *   FT_Slot_Internal
    *
-   *   FT_FACE_FLAG_XXX
-   *   FT_STYLE_FLAG_XXX
-   *   FT_OPEN_XXX
-   *   FT_LOAD_XXX
-   *   FT_LOAD_TARGET_XXX
-   *   FT_SUBGLYPH_FLAG_XXX
-   *   FT_FSTYPE_XXX
+   *   FT_SubGlyph
    *
    *   FT_HAS_FAST_GLYPHS
+   *   FT_Face_CheckTrueTypePatents
+   *   FT_Face_SetUnpatentedHinting
    *
    */
 
+
+  /*************************************************************************/
+  /*************************************************************************/
+  /*                                                                       */
+  /*                        B A S I C   T Y P E S                          */
+  /*                                                                       */
+  /*************************************************************************/
+  /*************************************************************************/
+
+
+  /**************************************************************************
+   *
+   * @section:
+   *   glyph_retrieval
+   *
+   */
 
   /**************************************************************************
    *
@@ -351,6 +459,13 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   sizing_and_scaling
+   *
+   */
+
+  /**************************************************************************
+   *
    * @struct:
    *   FT_Bitmap_Size
    *
@@ -408,6 +523,13 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*************************************************************************/
   /*************************************************************************/
+
+  /**************************************************************************
+   *
+   * @section:
+   *   library_setup
+   *
+   */
 
   /**************************************************************************
    *
@@ -483,7 +605,7 @@ FT_BEGIN_HEADER
   /**************************************************************************
    *
    * @section:
-   *   base_interface
+   *   face_creation
    *
    */
 
@@ -521,6 +643,13 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   sizing_and_scaling
+   *
+   */
+
+  /**************************************************************************
+   *
    * @type:
    *   FT_Size
    *
@@ -553,6 +682,13 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   glyph_retrieval
+   *
+   */
+
+  /**************************************************************************
+   *
    * @type:
    *   FT_GlyphSlot
    *
@@ -569,6 +705,13 @@ FT_BEGIN_HEADER
    */
   typedef struct FT_GlyphSlotRec_*  FT_GlyphSlot;
 
+
+  /**************************************************************************
+   *
+   * @section:
+   *   character_mapping
+   *
+   */
 
   /**************************************************************************
    *
@@ -646,7 +789,7 @@ FT_BEGIN_HEADER
    *
    * @note:
    *   Despite the name, this enumeration lists specific character
-   *   repertories (i.e., charsets), and not text encoding methods (e.g.,
+   *   repertoires (i.e., charsets), and not text encoding methods (e.g.,
    *   UTF-8, UTF-16, etc.).
    *
    *   Other encodings might be defined in the future.
@@ -668,7 +811,7 @@ FT_BEGIN_HEADER
    *   FT_ENCODING_MS_SYMBOL ::
    *     Microsoft Symbol encoding, used to encode mathematical symbols and
    *     wingdings.  For more information, see
-   *     'https://www.microsoft.com/typography/otspec/recom.htm#non-standard-symbol-fonts',
+   *     'https://learn.microsoft.com/typography/opentype/spec/recom#non-standard-symbol-fonts',
    *     'http://www.kostis.net/charsets/symbol.htm', and
    *     'http://www.kostis.net/charsets/wingding.htm'.
    *
@@ -779,7 +922,7 @@ FT_BEGIN_HEADER
    *   `encoding_id`.  If, for example, `encoding_id` is `TT_MAC_ID_ROMAN`
    *   and the language ID (minus~1) is `TT_MAC_LANGID_GREEK`, it is the
    *   Greek encoding, not Roman.  `TT_MAC_ID_ARABIC` with
-   *   `TT_MAC_LANGID_FARSI` means the Farsi variant the Arabic encoding.
+   *   `TT_MAC_LANGID_FARSI` means the Farsi variant of the Arabic encoding.
    */
   typedef enum  FT_Encoding_
   {
@@ -879,6 +1022,13 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   other_api_data
+   *
+   */
+
+  /**************************************************************************
+   *
    * @type:
    *   FT_Face_Internal
    *
@@ -891,6 +1041,13 @@ FT_BEGIN_HEADER
    */
   typedef struct FT_Face_InternalRec_*  FT_Face_Internal;
 
+
+  /**************************************************************************
+   *
+   * @section:
+   *   face_creation
+   *
+   */
 
   /**************************************************************************
    *
@@ -911,14 +1068,14 @@ FT_BEGIN_HEADER
    *     the face in the font file (starting with value~0).  They are set
    *     to~0 if there is only one face in the font file.
    *
-   *     [Since 2.6.1] Bits 16-30 are relevant to GX and OpenType variation
-   *     fonts only, holding the named instance index for the current face
-   *     index (starting with value~1; value~0 indicates font access without
-   *     a named instance).  For non-variation fonts, bits 16-30 are ignored.
-   *     If we have the third named instance of face~4, say, `face_index` is
-   *     set to 0x00030004.
+   *     [Since 2.6.1] Bits 16-30 are relevant to TrueType GX and OpenType
+   *     Font Variations only, holding the named instance index for the
+   *     current face index (starting with value~1; value~0 indicates font
+   *     access without a named instance).  For non-variation fonts, bits
+   *     16-30 are ignored.  If we have the third named instance of face~4,
+   *     say, `face_index` is set to 0x00030004.
    *
-   *     Bit 31 is always zero (this is, `face_index` is always a positive
+   *     Bit 31 is always zero (that is, `face_index` is always a positive
    *     value).
    *
    *     [Since 2.9] Changing the design coordinates with
@@ -935,10 +1092,10 @@ FT_BEGIN_HEADER
    *     the face; see @FT_STYLE_FLAG_XXX for the details.
    *
    *     [Since 2.6.1] Bits 16-30 hold the number of named instances
-   *     available for the current face if we have a GX or OpenType variation
-   *     (sub)font.  Bit 31 is always zero (this is, `style_flags` is always
-   *     a positive value).  Note that a variation font has always at least
-   *     one named instance, namely the default instance.
+   *     available for the current face if we have a TrueType GX or OpenType
+   *     Font Variation.  Bit 31 is always zero (that is, `style_flags` is
+   *     always a positive value).  Note that a variation font has always at
+   *     least one named instance, namely the default instance.
    *
    *   num_glyphs ::
    *     The number of glyphs in the face.  If the face is scalable and has
@@ -1002,7 +1159,7 @@ FT_BEGIN_HEADER
    *     Note that the bounding box might be off by (at least) one pixel for
    *     hinted fonts.  See @FT_Size_Metrics for further discussion.
    *
-   *     Note that the bounding box does not vary in OpenType variable fonts
+   *     Note that the bounding box does not vary in OpenType Font Variations
    *     and should only be used in relation to the default instance.
    *
    *   units_per_EM ::
@@ -1061,7 +1218,7 @@ FT_BEGIN_HEADER
    *   Fields may be changed after a call to @FT_Attach_File or
    *   @FT_Attach_Stream.
    *
-   *   For an OpenType variation font, the values of the following fields can
+   *   For OpenType Font Variations, the values of the following fields can
    *   change after a call to @FT_Set_Var_Design_Coordinates (and friends) if
    *   the font contains an 'MVAR' table: `ascender`, `descender`, `height`,
    *   `underline_position`, and `underline_thickness`.
@@ -1090,9 +1247,9 @@ FT_BEGIN_HEADER
 
     FT_Generic        generic;
 
-    /*# The following member variables (down to `underline_thickness`) */
-    /*# are only relevant to scalable outlines; cf. @FT_Bitmap_Size    */
-    /*# for bitmap fonts.                                              */
+    /* The following member variables (down to `underline_thickness`) */
+    /* are only relevant to scalable outlines; cf. @FT_Bitmap_Size    */
+    /* for bitmap fonts.                                              */
     FT_BBox           bbox;
 
     FT_UShort         units_per_EM;
@@ -1110,7 +1267,7 @@ FT_BEGIN_HEADER
     FT_Size           size;
     FT_CharMap        charmap;
 
-    /*@private begin */
+    /* private fields, internal to FreeType */
 
     FT_Driver         driver;
     FT_Memory         memory;
@@ -1122,8 +1279,6 @@ FT_BEGIN_HEADER
     void*             extensions; /* unused                         */
 
     FT_Face_Internal  internal;
-
-    /*@private end */
 
   } FT_FaceRec;
 
@@ -1167,9 +1322,13 @@ FT_BEGIN_HEADER
    *   FT_FACE_FLAG_KERNING ::
    *     The face contains kerning information.  If set, the kerning distance
    *     can be retrieved using the function @FT_Get_Kerning.  Otherwise the
-   *     function always return the vector (0,0).  Note that FreeType doesn't
-   *     handle kerning data from the SFNT 'GPOS' table (as present in many
-   *     OpenType fonts).
+   *     function always returns the vector (0,0).
+   *
+   *     Note that for TrueType fonts only, FreeType supports both the 'kern'
+   *     table and the basic, pair-wise kerning feature from the 'GPOS' table
+   *     (with `TT_CONFIG_OPTION_GPOS_KERNING` enabled), though FreeType does
+   *     not support the more advanced GPOS layout features; use a library
+   *     like HarfBuzz for those instead.
    *
    *   FT_FACE_FLAG_FAST_GLYPHS ::
    *     THIS FLAG IS DEPRECATED.  DO NOT USE OR TEST IT.
@@ -1177,7 +1336,7 @@ FT_BEGIN_HEADER
    *   FT_FACE_FLAG_MULTIPLE_MASTERS ::
    *     The face contains multiple masters and is capable of interpolating
    *     between them.  Supported formats are Adobe MM, TrueType GX, and
-   *     OpenType variation fonts.
+   *     OpenType Font Variations.
    *
    *     See section @multiple_masters for API details.
    *
@@ -1207,13 +1366,13 @@ FT_BEGIN_HEADER
    *     successfully; in all other cases you get an
    *     `FT_Err_Invalid_Argument` error.
    *
-   *     Note that CID-keyed fonts that are in an SFNT wrapper (this is, all
+   *     Note that CID-keyed fonts that are in an SFNT wrapper (that is, all
    *     OpenType/CFF fonts) don't have this flag set since the glyphs are
    *     accessed in the normal way (using contiguous indices); the
    *     'CID-ness' isn't visible to the application.
    *
    *   FT_FACE_FLAG_TRICKY ::
-   *     The face is 'tricky', this is, it always needs the font format's
+   *     The face is 'tricky', that is, it always needs the font format's
    *     native hinting engine to get a reasonable result.  A typical example
    *     is the old Chinese font `mingli.ttf` (but not `mingliu.ttc`) that
    *     uses TrueType bytecode instructions to move and scale all of its
@@ -1235,8 +1394,8 @@ FT_BEGIN_HEADER
    *   FT_FACE_FLAG_VARIATION ::
    *     [Since 2.9] Set if the current face (or named instance) has been
    *     altered with @FT_Set_MM_Design_Coordinates,
-   *     @FT_Set_Var_Design_Coordinates, or @FT_Set_Var_Blend_Coordinates.
-   *     This flag is unset by a call to @FT_Set_Named_Instance.
+   *     @FT_Set_Var_Design_Coordinates, @FT_Set_Var_Blend_Coordinates, or
+   *     @FT_Set_MM_WeightVector to select a non-default instance.
    *
    *   FT_FACE_FLAG_SVG ::
    *     [Since 2.12] The face has an 'SVG~' OpenType table.
@@ -1271,6 +1430,13 @@ FT_BEGIN_HEADER
 #define FT_FACE_FLAG_SBIX              ( 1L << 17 )
 #define FT_FACE_FLAG_SBIX_OVERLAY      ( 1L << 18 )
 
+
+  /**************************************************************************
+   *
+   * @section:
+   *   font_testing_macros
+   *
+   */
 
   /**************************************************************************
    *
@@ -1383,6 +1549,13 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   other_api_data
+   *
+   */
+
+  /**************************************************************************
+   *
    * @macro:
    *   FT_HAS_FAST_GLYPHS
    *
@@ -1392,6 +1565,13 @@ FT_BEGIN_HEADER
    */
 #define FT_HAS_FAST_GLYPHS( face )  0
 
+
+  /**************************************************************************
+   *
+   * @section:
+   *   font_testing_macros
+   *
+   */
 
   /**************************************************************************
    *
@@ -1429,7 +1609,7 @@ FT_BEGIN_HEADER
    *
    * @description:
    *   A macro that returns true whenever a face object is a named instance
-   *   of a GX or OpenType variation font.
+   *   of a TrueType GX or OpenType Font Variations.
    *
    *   [Since 2.9] Changing the design coordinates with
    *   @FT_Set_Var_Design_Coordinates or @FT_Set_Var_Blend_Coordinates does
@@ -1451,8 +1631,8 @@ FT_BEGIN_HEADER
    *
    * @description:
    *   A macro that returns true whenever a face object has been altered by
-   *   @FT_Set_MM_Design_Coordinates, @FT_Set_Var_Design_Coordinates, or
-   *   @FT_Set_Var_Blend_Coordinates.
+   *   @FT_Set_MM_Design_Coordinates, @FT_Set_Var_Design_Coordinates,
+   *   @FT_Set_Var_Blend_Coordinates, or @FT_Set_MM_WeightVector.
    *
    * @since:
    *   2.9
@@ -1630,6 +1810,13 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   face_creation
+   *
+   */
+
+  /**************************************************************************
+   *
    * @enum:
    *   FT_STYLE_FLAG_XXX
    *
@@ -1656,6 +1843,13 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   other_api_data
+   *
+   */
+
+  /**************************************************************************
+   *
    * @type:
    *   FT_Size_Internal
    *
@@ -1665,6 +1859,13 @@ FT_BEGIN_HEADER
    */
   typedef struct FT_Size_InternalRec_*  FT_Size_Internal;
 
+
+  /**************************************************************************
+   *
+   * @section:
+   *   sizing_and_scaling
+   *
+   */
 
   /**************************************************************************
    *
@@ -1819,6 +2020,13 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   other_api_data
+   *
+   */
+
+  /**************************************************************************
+   *
    * @struct:
    *   FT_SubGlyph
    *
@@ -1847,6 +2055,13 @@ FT_BEGIN_HEADER
    */
   typedef struct FT_Slot_InternalRec_*  FT_Slot_Internal;
 
+
+  /**************************************************************************
+   *
+   * @section:
+   *   glyph_retrieval
+   *
+   */
 
   /**************************************************************************
    *
@@ -1892,13 +2107,13 @@ FT_BEGIN_HEADER
    *     The advance width of the unhinted glyph.  Its value is expressed in
    *     16.16 fractional pixels, unless @FT_LOAD_LINEAR_DESIGN is set when
    *     loading the glyph.  This field can be important to perform correct
-   *     WYSIWYG layout.  Only relevant for outline glyphs.
+   *     WYSIWYG layout.  Only relevant for scalable glyphs.
    *
    *   linearVertAdvance ::
    *     The advance height of the unhinted glyph.  Its value is expressed in
    *     16.16 fractional pixels, unless @FT_LOAD_LINEAR_DESIGN is set when
    *     loading the glyph.  This field can be important to perform correct
-   *     WYSIWYG layout.  Only relevant for outline glyphs.
+   *     WYSIWYG layout.  Only relevant for scalable glyphs.
    *
    *   advance ::
    *     This shorthand is, depending on @FT_LOAD_IGNORE_TRANSFORM, the
@@ -1932,7 +2147,7 @@ FT_BEGIN_HEADER
    *     freed.
    *
    *     [Since 2.10.1] If @FT_LOAD_NO_SCALE is set, outline coordinates of
-   *     OpenType variation fonts for a selected instance are internally
+   *     OpenType Font Variations for a selected instance are internally
    *     handled as 26.6 fractional font units but returned as (rounded)
    *     integers, as expected.  To get unrounded font units, don't use
    *     @FT_LOAD_NO_SCALE but load the glyph with @FT_LOAD_NO_HINTING and
@@ -2094,6 +2309,13 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   library_setup
+   *
+   */
+
+  /**************************************************************************
+   *
    * @function:
    *   FT_Init_FreeType
    *
@@ -2148,6 +2370,13 @@ FT_BEGIN_HEADER
   FT_EXPORT( FT_Error )
   FT_Done_FreeType( FT_Library  library );
 
+
+  /**************************************************************************
+   *
+   * @section:
+   *   face_creation
+   *
+   */
 
   /**************************************************************************
    *
@@ -2411,14 +2640,14 @@ FT_BEGIN_HEADER
    *     the face in the font file (starting with value~0).  Set it to~0 if
    *     there is only one face in the font file.
    *
-   *     [Since 2.6.1] Bits 16-30 are relevant to GX and OpenType variation
-   *     fonts only, specifying the named instance index for the current face
-   *     index (starting with value~1; value~0 makes FreeType ignore named
-   *     instances).  For non-variation fonts, bits 16-30 are ignored.
-   *     Assuming that you want to access the third named instance in face~4,
-   *     `face_index` should be set to 0x00030004.  If you want to access
-   *     face~4 without variation handling, simply set `face_index` to
-   *     value~4.
+   *     [Since 2.6.1] Bits 16-30 are relevant to TrueType GX and OpenType
+   *     Font Variations only, specifying the named instance index for the
+   *     current face index (starting with value~1; value~0 makes FreeType
+   *     ignore named instances).  For non-variation fonts, bits 16-30 are
+   *     ignored.  Assuming that you want to access the third named instance
+   *     in face~4, `face_index` should be set to 0x00030004.  If you want
+   *     to access face~4 without variation handling, simply set
+   *     `face_index` to value~4.
    *
    *     `FT_Open_Face` and its siblings can be used to quickly check whether
    *     the font format of a given font resource is supported by FreeType.
@@ -2451,7 +2680,7 @@ FT_BEGIN_HEADER
    *   Each new face object created with this function also owns a default
    *   @FT_Size object, accessible as `face->size`.
    *
-   *   One @FT_Library instance can have multiple face objects, this is,
+   *   One @FT_Library instance can have multiple face objects, that is,
    *   @FT_Open_Face and its siblings can be called multiple times using the
    *   same `library` argument.
    *
@@ -2593,8 +2822,8 @@ FT_BEGIN_HEADER
    *   stream attachments.
    */
   FT_EXPORT( FT_Error )
-  FT_Attach_Stream( FT_Face        face,
-                    FT_Open_Args*  parameters );
+  FT_Attach_Stream( FT_Face              face,
+                    const FT_Open_Args*  parameters );
 
 
   /**************************************************************************
@@ -2652,6 +2881,13 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   sizing_and_scaling
+   *
+   */
+
+  /**************************************************************************
+   *
    * @function:
    *   FT_Select_Size
    *
@@ -2678,11 +2914,11 @@ FT_BEGIN_HEADER
    *   of the available glyphs at a given ppem value is available.  FreeType
    *   silently uses outlines if there is no bitmap for a given glyph index.
    *
-   *   For GX and OpenType variation fonts, a bitmap strike makes sense only
-   *   if the default instance is active (this is, no glyph variation takes
-   *   place); otherwise, FreeType simply ignores bitmap strikes.  The same
-   *   is true for all named instances that are different from the default
-   *   instance.
+   *   For TrueType GX and OpenType Font Variations, a bitmap strike makes
+   *   sense only if the default instance is active (that is, no glyph
+   *   variation takes place); otherwise, FreeType simply ignores bitmap
+   *   strikes.  The same is true for all named instances that are different
+   *   from the default instance.
    *
    *   Don't use this function if you are using the FreeType cache API.
    */
@@ -2842,7 +3078,7 @@ FT_BEGIN_HEADER
    *   is dependent entirely on how the size is defined in the source face.
    *   The font designer chooses the final size of each glyph relative to
    *   this size.  For more information refer to
-   *   'https://www.freetype.org/freetype2/docs/glyphs/glyphs-2.html'.
+   *   'https://freetype.org/freetype2/docs/glyphs/glyphs-2.html'.
    *
    *   Contrary to @FT_Set_Char_Size, this function doesn't have special code
    *   to normalize zero-valued widths, heights, or resolutions, which are
@@ -2944,6 +3180,13 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   glyph_retrieval
+   *
+   */
+
+  /**************************************************************************
+   *
    * @function:
    *   FT_Load_Glyph
    *
@@ -2976,7 +3219,7 @@ FT_BEGIN_HEADER
    *   glyph may be transformed.  See @FT_Set_Transform for the details.
    *
    *   For subsetted CID-keyed fonts, `FT_Err_Invalid_Argument` is returned
-   *   for invalid CID values (this is, for CID values that don't have a
+   *   for invalid CID values (that is, for CID values that don't have a
    *   corresponding glyph in the font).  See the discussion of the
    *   @FT_FACE_FLAG_CID_KEYED flag for more details.
    *
@@ -2989,6 +3232,13 @@ FT_BEGIN_HEADER
                  FT_UInt   glyph_index,
                  FT_Int32  load_flags );
 
+
+  /**************************************************************************
+   *
+   * @section:
+   *   character_mapping
+   *
+   */
 
   /**************************************************************************
    *
@@ -3035,6 +3285,13 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   glyph_retrieval
+   *
+   */
+
+  /**************************************************************************
+   *
    * @enum:
    *   FT_LOAD_XXX
    *
@@ -3077,7 +3334,7 @@ FT_BEGIN_HEADER
    *
    *   FT_LOAD_NO_HINTING ::
    *     Disable hinting.  This generally generates 'blurrier' bitmap glyphs
-   *     when the glyph are rendered in any of the anti-aliased modes.  See
+   *     when the glyphs are rendered in any of the anti-aliased modes.  See
    *     also the note below.
    *
    *     This flag is implied by @FT_LOAD_NO_SCALE.
@@ -3172,10 +3429,11 @@ FT_BEGIN_HEADER
    *
    *     [Since 2.12] If the glyph index maps to an entry in the face's
    *     'SVG~' table, load the associated SVG document from this table and
-   *     set the `format` field of @FT_GlyphSlotRec to @FT_GLYPH_FORMAT_SVG.
-   *     Note that FreeType itself can't render SVG documents; however, the
-   *     library provides hooks to seamlessly integrate an external renderer.
-   *     See sections @ot_svg_driver and @svg_fonts for more.
+   *     set the `format` field of @FT_GlyphSlotRec to @FT_GLYPH_FORMAT_SVG
+   *     ([since 2.13.1] provided @FT_LOAD_NO_SVG is not set).  Note that
+   *     FreeType itself can't render SVG documents; however, the library
+   *     provides hooks to seamlessly integrate an external renderer.  See
+   *     sections @ot_svg_driver and @svg_fonts for more.
    *
    *     [Since 2.10, experimental] If the glyph index maps to an entry in
    *     the face's 'COLR' table with a 'CPAL' palette table (as defined in
@@ -3183,11 +3441,16 @@ FT_BEGIN_HEADER
    *     blending of the color glyph layers associated with the glyph index,
    *     using the same bitmap format as embedded color bitmap images.  This
    *     is mainly for convenience and works only for glyphs in 'COLR' v0
-   *     tables (or glyphs in 'COLR' v1 tables that exclusively use v0
-   *     features).  For full control of color layers use
+   *     tables.  **There is no rendering support for 'COLR' v1** (with the
+   *     exception of v1 tables that exclusively use v0 features)!  You need
+   *     a graphics library like Skia or Cairo to interpret the graphics
+   *     commands stored in v1 tables.  For full control of color layers use
    *     @FT_Get_Color_Glyph_Layer and FreeType's color functions like
    *     @FT_Palette_Select instead of setting @FT_LOAD_COLOR for rendering
    *     so that the client application can handle blending by itself.
+   *
+   *   FT_LOAD_NO_SVG ::
+   *     [Since 2.13.1] Ignore SVG glyph data when loading.
    *
    *   FT_LOAD_COMPUTE_METRICS ::
    *     [Since 2.6.1] Compute glyph metrics from the glyph data, without the
@@ -3254,6 +3517,7 @@ FT_BEGIN_HEADER
 #define FT_LOAD_COLOR                        ( 1L << 20 )
 #define FT_LOAD_COMPUTE_METRICS              ( 1L << 21 )
 #define FT_LOAD_BITMAP_METRICS_ONLY          ( 1L << 22 )
+#define FT_LOAD_NO_SVG                       ( 1L << 24 )
 
   /* */
 
@@ -3374,6 +3638,13 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   sizing_and_scaling
+   *
+   */
+
+  /**************************************************************************
+   *
    * @function:
    *   FT_Set_Transform
    *
@@ -3434,7 +3705,7 @@ FT_BEGIN_HEADER
    *     are not interested in the value.
    *
    *   delta ::
-   *     A pointer a translation vector.  Set this to NULL if you are not
+   *     A pointer to a translation vector.  Set this to NULL if you are not
    *     interested in the value.
    *
    * @since:
@@ -3446,6 +3717,13 @@ FT_BEGIN_HEADER
                     FT_Matrix*  matrix,
                     FT_Vector*  delta );
 
+
+  /**************************************************************************
+   *
+   * @section:
+   *   glyph_retrieval
+   *
+   */
 
   /**************************************************************************
    *
@@ -3495,85 +3773,17 @@ FT_BEGIN_HEADER
    *     pixels and use the @FT_PIXEL_MODE_LCD_V mode.
    *
    *   FT_RENDER_MODE_SDF ::
-   *     This mode corresponds to 8-bit, single-channel signed distance field
-   *     (SDF) bitmaps.  Each pixel in the SDF grid is the value from the
-   *     pixel's position to the nearest glyph's outline.  The distances are
-   *     calculated from the center of the pixel and are positive if they are
-   *     filled by the outline (i.e., inside the outline) and negative
-   *     otherwise.  Check the note below on how to convert the output values
-   *     to usable data.
+   *     The positive (unsigned) 8-bit bitmap values can be converted to the
+   *     single-channel signed distance field (SDF) by subtracting 128, with
+   *     the positive and negative results corresponding to the inside and
+   *     the outside of a glyph contour, respectively.  The distance units are
+   *     arbitrarily determined by an adjustable @spread property.
    *
    * @note:
-   *   The selected render mode only affects vector glyphs of a font.
+   *   The selected render mode only affects scalable vector glyphs of a font.
    *   Embedded bitmaps often have a different pixel mode like
    *   @FT_PIXEL_MODE_MONO.  You can use @FT_Bitmap_Convert to transform them
    *   into 8-bit pixmaps.
-   *
-   *   For @FT_RENDER_MODE_SDF the output bitmap buffer contains normalized
-   *   distances that are packed into unsigned 8-bit values.  To get pixel
-   *   values in floating point representation use the following pseudo-C
-   *   code for the conversion.
-   *
-   *   ```
-   *   // Load glyph and render using FT_RENDER_MODE_SDF,
-   *   // then use the output buffer as follows.
-   *
-   *   ...
-   *   FT_Byte  buffer = glyph->bitmap->buffer;
-   *
-   *
-   *   for pixel in buffer
-   *   {
-   *     // `sd` is the signed distance and `spread` is the current spread;
-   *     // the default spread is 2 and can be changed.
-   *
-   *     float  sd = (float)pixel - 128.0f;
-   *
-   *
-   *     // Convert to pixel values.
-   *     sd = ( sd / 128.0f ) * spread;
-   *
-   *     // Store `sd` in a buffer or use as required.
-   *   }
-   *
-   *   ```
-   *
-   *   FreeType has two rasterizers for generating SDF, namely:
-   *
-   *   1. `sdf` for generating SDF directly from glyph's outline, and
-   *
-   *   2. `bsdf` for generating SDF from rasterized bitmaps.
-   *
-   *   Depending on the glyph type (i.e., outline or bitmap), one of the two
-   *   rasterizers is chosen at runtime and used for generating SDFs.  To
-   *   force the use of `bsdf` you should render the glyph with any of the
-   *   FreeType's other rendering modes (e.g., `FT_RENDER_MODE_NORMAL`) and
-   *   then re-render with `FT_RENDER_MODE_SDF`.
-   *
-   *   There are some issues with stability and possible failures of the SDF
-   *   renderers (specifically `sdf`).
-   *
-   *   1. The `sdf` rasterizer is sensitive to really small features (e.g.,
-   *      sharp turns that are less than 1~pixel) and imperfections in the
-   *      glyph's outline, causing artifacts in the final output.
-   *
-   *   2. The `sdf` rasterizer has limited support for handling intersecting
-   *      contours and *cannot* handle self-intersecting contours whatsoever.
-   *      Self-intersection happens when a single connected contour intersect
-   *      itself at some point; having these in your font definitely pose a
-   *      problem to the rasterizer and cause artifacts, too.
-   *
-   *   3. Generating SDF for really small glyphs may result in undesirable
-   *      output; the pixel grid (which stores distance information) becomes
-   *      too coarse.
-   *
-   *   4. Since the output buffer is normalized, precision at smaller spreads
-   *      is greater than precision at larger spread values because the
-   *      output range of [0..255] gets mapped to a smaller SDF range.  A
-   *      spread of~2 should be sufficient in most cases.
-   *
-   *   Points (1) and (2) can be avoided by using the `bsdf` rasterizer,
-   *   which is more stable than the `sdf` rasterizer in general.
    *
    */
   typedef enum  FT_Render_Mode_
@@ -3687,8 +3897,10 @@ FT_BEGIN_HEADER
    *
    *   This process can cost performance.  There is an approximation that
    *   does not need to know about the background color; see
-   *   https://bel.fi/alankila/lcd/ and
-   *   https://bel.fi/alankila/lcd/alpcor.html for details.
+   *   https://web.archive.org/web/20211019204945/https://bel.fi/alankila/lcd/
+   *   and
+   *   https://web.archive.org/web/20210211002939/https://bel.fi/alankila/lcd/alpcor.html
+   *   for details.
    *
    *   **ATTENTION**: Linear blending is even more important when dealing
    *   with subpixel-rendered glyphs to prevent color-fringing!  A
@@ -3785,9 +3997,26 @@ FT_BEGIN_HEADER
    *   out of the scope of this API function -- they can be implemented
    *   through format-specific interfaces.
    *
-   *   Kerning for OpenType fonts implemented in a 'GPOS' table is not
-   *   supported; use @FT_HAS_KERNING to find out whether a font has data
-   *   that can be extracted with `FT_Get_Kerning`.
+   *   Note that, for TrueType and OpenType fonts only, this can extract data
+   *   from both the 'kern' table and the basic, pair-wise kerning feature
+   *   from the GPOS table (with `TT_CONFIG_OPTION_GPOS_KERNING` enabled),
+   *   though FreeType does not support the more advanced GPOS layout
+   *   features; use a library like HarfBuzz for those instead.  If a font
+   *   has both a 'kern' table and kern features of a GPOS table, the 'kern'
+   *   table will be used.
+   *
+   *   Also note for right-to-left scripts, the functionality may differ for
+   *   fonts with GPOS tables vs. 'kern' tables.  For GPOS, right-to-left
+   *   fonts typically use both a placement offset and an advance for pair
+   *   positioning, which this API does not support, so it would output
+   *   kerning values of zero; though if the right-to-left font used only
+   *   advances in GPOS pair positioning, then this API could output kerning
+   *   values for it, but it would use `left_glyph` to mean the first glyph
+   *   for that case.  Whereas 'kern' tables are always advance-only and
+   *   always store the left glyph first.
+   *
+   *   Use @FT_HAS_KERNING to find out whether a font has data that can be
+   *   extracted with `FT_Get_Kerning`.
    */
   FT_EXPORT( FT_Error )
   FT_Get_Kerning( FT_Face     face,
@@ -3842,86 +4071,10 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
-   * @function:
-   *   FT_Get_Glyph_Name
+   * @section:
+   *   character_mapping
    *
-   * @description:
-   *   Retrieve the ASCII name of a given glyph in a face.  This only works
-   *   for those faces where @FT_HAS_GLYPH_NAMES(face) returns~1.
-   *
-   * @input:
-   *   face ::
-   *     A handle to a source face object.
-   *
-   *   glyph_index ::
-   *     The glyph index.
-   *
-   *   buffer_max ::
-   *     The maximum number of bytes available in the buffer.
-   *
-   * @output:
-   *   buffer ::
-   *     A pointer to a target buffer where the name is copied to.
-   *
-   * @return:
-   *   FreeType error code.  0~means success.
-   *
-   * @note:
-   *   An error is returned if the face doesn't provide glyph names or if the
-   *   glyph index is invalid.  In all cases of failure, the first byte of
-   *   `buffer` is set to~0 to indicate an empty name.
-   *
-   *   The glyph name is truncated to fit within the buffer if it is too
-   *   long.  The returned string is always zero-terminated.
-   *
-   *   Be aware that FreeType reorders glyph indices internally so that glyph
-   *   index~0 always corresponds to the 'missing glyph' (called '.notdef').
-   *
-   *   This function always returns an error if the config macro
-   *   `FT_CONFIG_OPTION_NO_GLYPH_NAMES` is not defined in `ftoption.h`.
    */
-  FT_EXPORT( FT_Error )
-  FT_Get_Glyph_Name( FT_Face     face,
-                     FT_UInt     glyph_index,
-                     FT_Pointer  buffer,
-                     FT_UInt     buffer_max );
-
-
-  /**************************************************************************
-   *
-   * @function:
-   *   FT_Get_Postscript_Name
-   *
-   * @description:
-   *   Retrieve the ASCII PostScript name of a given face, if available.
-   *   This only works with PostScript, TrueType, and OpenType fonts.
-   *
-   * @input:
-   *   face ::
-   *     A handle to the source face object.
-   *
-   * @return:
-   *   A pointer to the face's PostScript name.  `NULL` if unavailable.
-   *
-   * @note:
-   *   The returned pointer is owned by the face and is destroyed with it.
-   *
-   *   For variation fonts, this string changes if you select a different
-   *   instance, and you have to call `FT_Get_PostScript_Name` again to
-   *   retrieve it.  FreeType follows Adobe TechNote #5902, 'Generating
-   *   PostScript Names for Fonts Using OpenType Font Variations'.
-   *
-   *     https://download.macromedia.com/pub/developer/opentype/tech-notes/5902.AdobePSNameGeneration.html
-   *
-   *   [Since 2.9] Special PostScript names for named instances are only
-   *   returned if the named instance is set with @FT_Set_Named_Instance (and
-   *   the font has corresponding entries in its 'fvar' table).  If
-   *   @FT_IS_VARIATION returns true, the algorithmically derived PostScript
-   *   name is provided, not looking up special entries for named instances.
-   */
-  FT_EXPORT( const char* )
-  FT_Get_Postscript_Name( FT_Face  face );
-
 
   /**************************************************************************
    *
@@ -4141,6 +4294,13 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   face_creation
+   *
+   */
+
+  /**************************************************************************
+   *
    * @function:
    *   FT_Face_Properties
    *
@@ -4239,11 +4399,19 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @section:
+   *   information_retrieval
+   *
+   */
+
+  /**************************************************************************
+   *
    * @function:
    *   FT_Get_Name_Index
    *
    * @description:
-   *   Return the glyph index of a given glyph name.
+   *   Return the glyph index of a given glyph name.  This only works
+   *   for those faces where @FT_HAS_GLYPH_NAMES returns true.
    *
    * @input:
    *   face ::
@@ -4254,10 +4422,106 @@ FT_BEGIN_HEADER
    *
    * @return:
    *   The glyph index.  0~means 'undefined character code'.
+   *
+   * @note:
+   *   Acceptable glyph names might come from the [Adobe Glyph
+   *   List](https://github.com/adobe-type-tools/agl-aglfn).  See
+   *   @FT_Get_Glyph_Name for the inverse functionality.
+   *
+   *   This function has limited capabilities if the config macro
+   *   `FT_CONFIG_OPTION_POSTSCRIPT_NAMES` is not defined in `ftoption.h`:
+   *   It then works only for fonts that actually embed glyph names (which
+   *   many recent OpenType fonts do not).
    */
   FT_EXPORT( FT_UInt )
   FT_Get_Name_Index( FT_Face           face,
                      const FT_String*  glyph_name );
+
+
+  /**************************************************************************
+   *
+   * @function:
+   *   FT_Get_Glyph_Name
+   *
+   * @description:
+   *   Retrieve the ASCII name of a given glyph in a face.  This only works
+   *   for those faces where @FT_HAS_GLYPH_NAMES returns true.
+   *
+   * @input:
+   *   face ::
+   *     A handle to a source face object.
+   *
+   *   glyph_index ::
+   *     The glyph index.
+   *
+   *   buffer_max ::
+   *     The maximum number of bytes available in the buffer.
+   *
+   * @output:
+   *   buffer ::
+   *     A pointer to a target buffer where the name is copied to.
+   *
+   * @return:
+   *   FreeType error code.  0~means success.
+   *
+   * @note:
+   *   An error is returned if the face doesn't provide glyph names or if the
+   *   glyph index is invalid.  In all cases of failure, the first byte of
+   *   `buffer` is set to~0 to indicate an empty name.
+   *
+   *   The glyph name is truncated to fit within the buffer if it is too
+   *   long.  The returned string is always zero-terminated.
+   *
+   *   Be aware that FreeType reorders glyph indices internally so that glyph
+   *   index~0 always corresponds to the 'missing glyph' (called '.notdef').
+   *
+   *   This function has limited capabilities if the config macro
+   *   `FT_CONFIG_OPTION_POSTSCRIPT_NAMES` is not defined in `ftoption.h`:
+   *   It then works only for fonts that actually embed glyph names (which
+   *   many recent OpenType fonts do not).
+   */
+  FT_EXPORT( FT_Error )
+  FT_Get_Glyph_Name( FT_Face     face,
+                     FT_UInt     glyph_index,
+                     FT_Pointer  buffer,
+                     FT_UInt     buffer_max );
+
+
+  /**************************************************************************
+   *
+   * @function:
+   *   FT_Get_Postscript_Name
+   *
+   * @description:
+   *   Retrieve the ASCII PostScript name of a given face, if available.
+   *   This only works with PostScript, TrueType, and OpenType fonts.
+   *
+   * @input:
+   *   face ::
+   *     A handle to the source face object.
+   *
+   * @return:
+   *   A pointer to the face's PostScript name.  `NULL` if unavailable.
+   *
+   * @note:
+   *   The returned pointer is owned by the face and is destroyed with it.
+   *
+   *   For variation fonts, this string changes if you select a different
+   *   instance, and you have to call `FT_Get_PostScript_Name` again to
+   *   retrieve it.  FreeType follows Adobe TechNote #5902, 'Generating
+   *   PostScript Names for Fonts Using OpenType Font Variations'.
+   *
+   *     https://download.macromedia.com/pub/developer/opentype/tech-notes/5902.AdobePSNameGeneration.html
+   *
+   *   [Since 2.9] Special PostScript names for named instances are only
+   *   returned if the named instance is set with @FT_Set_Named_Instance (and
+   *   the font has corresponding entries in its 'fvar' table or is the
+   *   default named instance).  If @FT_IS_VARIATION returns true, the
+   *   algorithmically derived PostScript name is provided, not looking up
+   *   special entries for named instances.
+   */
+  FT_EXPORT( const char* )
+  FT_Get_Postscript_Name( FT_Face  face );
 
 
   /**************************************************************************
@@ -4270,7 +4534,7 @@ FT_BEGIN_HEADER
    *   table description in the OpenType specification for the meaning of the
    *   various flags (which get synthesized for non-OpenType subglyphs).
    *
-   *     https://docs.microsoft.com/en-us/typography/opentype/spec/glyf#composite-glyph-description
+   *     https://learn.microsoft.com/typography/opentype/spec/glyf#composite-glyph-description
    *
    * @values:
    *   FT_SUBGLYPH_FLAG_ARGS_ARE_WORDS ::
@@ -4333,7 +4597,7 @@ FT_BEGIN_HEADER
    *   interpreted depending on the flags returned in `*p_flags`.  See the
    *   OpenType specification for details.
    *
-   *     https://docs.microsoft.com/en-us/typography/opentype/spec/glyf#composite-glyph-description
+   *     https://learn.microsoft.com/typography/opentype/spec/glyf#composite-glyph-description
    *
    */
   FT_EXPORT( FT_Error )
@@ -4348,13 +4612,6 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
-   * @section:
-   *   base_interface
-   *
-   */
-
-  /**************************************************************************
-   *
    * @enum:
    *   FT_FSTYPE_XXX
    *
@@ -4366,7 +4623,7 @@ FT_BEGIN_HEADER
    *   associated with a font.
    *
    *   See
-   *   https://www.adobe.com/content/dam/Adobe/en/devnet/acrobat/pdfs/FontPolicies.pdf
+   *   https://adobe-type-tools.github.io/font-tech-notes/pdfs/AcrobatDC_FontPolicies.pdf
    *   for more details.
    *
    * @values:
@@ -4688,7 +4945,8 @@ FT_BEGIN_HEADER
    *
    * @description:
    *   This section contains various functions used to perform computations
-   *   on 16.16 fixed-float numbers or 2d vectors.
+   *   on 16.16 fixed-point numbers or 2D vectors.  FreeType does not use
+   *   floating-point data types.
    *
    *   **Attention**: Most arithmetic functions take `FT_Long` as arguments.
    *   For historical reasons, FreeType was designed under the assumption
@@ -4892,31 +5150,9 @@ FT_BEGIN_HEADER
   /**************************************************************************
    *
    * @section:
-   *   version
-   *
-   * @title:
-   *   FreeType Version
-   *
-   * @abstract:
-   *   Functions and macros related to FreeType versions.
-   *
-   * @description:
-   *   Note that those functions and macros are of limited use because even a
-   *   new release of FreeType with only documentation changes increases the
-   *   version number.
-   *
-   * @order:
-   *   FT_Library_Version
-   *
-   *   FREETYPE_MAJOR
-   *   FREETYPE_MINOR
-   *   FREETYPE_PATCH
-   *
-   *   FT_Face_CheckTrueTypePatents
-   *   FT_Face_SetUnpatentedHinting
+   *   library_setup
    *
    */
-
 
   /**************************************************************************
    *
@@ -4941,7 +5177,7 @@ FT_BEGIN_HEADER
    *
    */
 #define FREETYPE_MAJOR  2
-#define FREETYPE_MINOR  12
+#define FREETYPE_MINOR  14
 #define FREETYPE_PATCH  1
 
 
@@ -4983,6 +5219,13 @@ FT_BEGIN_HEADER
                       FT_Int      *aminor,
                       FT_Int      *apatch );
 
+
+  /**************************************************************************
+   *
+   * @section:
+   *   other_api_data
+   *
+   */
 
   /**************************************************************************
    *
