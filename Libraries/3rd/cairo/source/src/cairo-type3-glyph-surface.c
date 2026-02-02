@@ -82,7 +82,7 @@ _cairo_type3_glyph_surface_create (cairo_scaled_font_t			 *scaled_font,
     if (unlikely (stream != NULL && stream->status))
 	return _cairo_surface_create_in_error (stream->status);
 
-    surface = _cairo_malloc (sizeof (cairo_type3_glyph_surface_t));
+    surface = _cairo_calloc (sizeof (cairo_type3_glyph_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 

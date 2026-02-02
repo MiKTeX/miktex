@@ -51,7 +51,7 @@ _cairo_damage_create (void)
 {
     cairo_damage_t *damage;
 
-    damage = _cairo_malloc (sizeof (*damage));
+    damage = _cairo_calloc (sizeof (*damage));
     if (unlikely (damage == NULL)) {
 	_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 	return (cairo_damage_t *) &__cairo_damage__nil;

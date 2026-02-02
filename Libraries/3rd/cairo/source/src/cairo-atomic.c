@@ -61,10 +61,10 @@ _cairo_atomic_int_dec_and_test (cairo_atomic_int_t *x)
     return ret;
 }
 
-cairo_atomic_int_t
-_cairo_atomic_int_cmpxchg_return_old_impl (cairo_atomic_int_t *x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv)
+int
+_cairo_atomic_int_cmpxchg_return_old_impl (cairo_atomic_int_t *x, int oldv, int newv)
 {
-    cairo_atomic_int_t ret;
+    int ret;
 
     CAIRO_MUTEX_LOCK (_cairo_atomic_mutex);
     ret = *x;
@@ -76,24 +76,24 @@ _cairo_atomic_int_cmpxchg_return_old_impl (cairo_atomic_int_t *x, cairo_atomic_i
 }
 
 void *
-_cairo_atomic_ptr_cmpxchg_return_old_impl (void **x, void *oldv, void *newv)
+_cairo_atomic_ptr_cmpxchg_return_old_impl (cairo_atomic_intptr_t *x, void *oldv, void *newv)
 {
     void *ret;
 
     CAIRO_MUTEX_LOCK (_cairo_atomic_mutex);
-    ret = *x;
+    ret = (void *) *x;
     if (ret == oldv)
-	*x = newv;
+	*x = (cairo_atomic_intptr_t) newv;
     CAIRO_MUTEX_UNLOCK (_cairo_atomic_mutex);
 
     return ret;
 }
 
 #ifdef ATOMIC_OP_NEEDS_MEMORY_BARRIER
-cairo_atomic_int_t
+int
 _cairo_atomic_int_get (cairo_atomic_int_t *x)
 {
-    cairo_atomic_int_t ret;
+    int ret;
 
     CAIRO_MUTEX_LOCK (_cairo_atomic_mutex);
     ret = *x;
@@ -102,14 +102,14 @@ _cairo_atomic_int_get (cairo_atomic_int_t *x)
     return ret;
 }
 
-cairo_atomic_int_t
+int
 _cairo_atomic_int_get_relaxed (cairo_atomic_int_t *x)
 {
     return _cairo_atomic_int_get (x);
 }
 
 void
-_cairo_atomic_int_set_relaxed (cairo_atomic_int_t *x, cairo_atomic_int_t val)
+_cairo_atomic_int_set_relaxed (cairo_atomic_int_t *x, int val)
 {
     CAIRO_MUTEX_LOCK (_cairo_atomic_mutex);
     *x = val;

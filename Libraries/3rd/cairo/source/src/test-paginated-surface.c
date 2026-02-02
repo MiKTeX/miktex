@@ -74,7 +74,7 @@ _cairo_test_paginated_surface_create (cairo_surface_t *target)
     if (unlikely (status))
 	return _cairo_surface_create_in_error (status);
 
-    surface = _cairo_malloc (sizeof (test_paginated_surface_t));
+    surface = _cairo_calloc (sizeof (test_paginated_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 

@@ -202,7 +202,7 @@ cairo_region_create (void)
 {
     cairo_region_t *region;
 
-    region = _cairo_malloc (sizeof (cairo_region_t));
+    region = _cairo_calloc (sizeof (cairo_region_t));
     if (region == NULL)
 	return (cairo_region_t *) &_cairo_region_nil;
 
@@ -238,7 +238,7 @@ cairo_region_create_rectangles (const cairo_rectangle_int_t *rects,
     cairo_region_t *region;
     int i;
 
-    region = _cairo_malloc (sizeof (cairo_region_t));
+    region = _cairo_calloc (sizeof (cairo_region_t));
     if (unlikely (region == NULL))
 	return _cairo_region_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -286,7 +286,7 @@ _cairo_region_create_from_boxes (const cairo_box_t *boxes, int count)
 {
     cairo_region_t *region;
 
-    region = _cairo_malloc (sizeof (cairo_region_t));
+    region = _cairo_calloc (sizeof (cairo_region_t));
     if (unlikely (region == NULL))
 	return _cairo_region_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -332,7 +332,7 @@ cairo_region_create_rectangle (const cairo_rectangle_int_t *rectangle)
 {
     cairo_region_t *region;
 
-    region = _cairo_malloc (sizeof (cairo_region_t));
+    region = _cairo_calloc (sizeof (cairo_region_t));
     if (unlikely (region == NULL))
 	return (cairo_region_t *) &_cairo_region_nil;
 

@@ -626,7 +626,7 @@ _cairo_pattern_create_solid (const cairo_color_t *color)
 	_freed_pool_get (&freed_pattern_pool[CAIRO_PATTERN_TYPE_SOLID]);
     if (unlikely (pattern == NULL)) {
 	/* None cached, need to create a new pattern. */
-	pattern = _cairo_malloc (sizeof (cairo_solid_pattern_t));
+	pattern = _cairo_calloc (sizeof (cairo_solid_pattern_t));
 	if (unlikely (pattern == NULL)) {
 	    _cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	    return (cairo_pattern_t *) &_cairo_pattern_nil;
@@ -768,7 +768,7 @@ cairo_pattern_create_for_surface (cairo_surface_t *surface)
     pattern =
 	_freed_pool_get (&freed_pattern_pool[CAIRO_PATTERN_TYPE_SURFACE]);
     if (unlikely (pattern == NULL)) {
-	pattern = _cairo_malloc (sizeof (cairo_surface_pattern_t));
+	pattern = _cairo_calloc (sizeof (cairo_surface_pattern_t));
 	if (unlikely (pattern == NULL)) {
 	    _cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	    return (cairo_pattern_t *)&_cairo_pattern_nil.base;
@@ -819,7 +819,7 @@ cairo_pattern_create_linear (double x0, double y0, double x1, double y1)
     pattern =
 	_freed_pool_get (&freed_pattern_pool[CAIRO_PATTERN_TYPE_LINEAR]);
     if (unlikely (pattern == NULL)) {
-	pattern = _cairo_malloc (sizeof (cairo_linear_pattern_t));
+	pattern = _cairo_calloc (sizeof (cairo_linear_pattern_t));
 	if (unlikely (pattern == NULL)) {
 	    _cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	    return (cairo_pattern_t *) &_cairo_pattern_nil.base;
@@ -873,7 +873,7 @@ cairo_pattern_create_radial (double cx0, double cy0, double radius0,
     pattern =
 	_freed_pool_get (&freed_pattern_pool[CAIRO_PATTERN_TYPE_RADIAL]);
     if (unlikely (pattern == NULL)) {
-	pattern = _cairo_malloc (sizeof (cairo_radial_pattern_t));
+	pattern = _cairo_calloc (sizeof (cairo_radial_pattern_t));
 	if (unlikely (pattern == NULL)) {
 	    _cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	    return (cairo_pattern_t *) &_cairo_pattern_nil.base;
@@ -1051,7 +1051,7 @@ cairo_pattern_create_mesh (void)
     pattern =
 	_freed_pool_get (&freed_pattern_pool[CAIRO_PATTERN_TYPE_MESH]);
     if (unlikely (pattern == NULL)) {
-	pattern = _cairo_malloc (sizeof (cairo_mesh_pattern_t));
+	pattern = _cairo_calloc (sizeof (cairo_mesh_pattern_t));
 	if (unlikely (pattern == NULL)) {
 	    _cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	    return (cairo_pattern_t *) &_cairo_pattern_nil.base;
@@ -2801,6 +2801,12 @@ _cairo_gradient_pattern_fit_to_range (const cairo_gradient_pattern_t *gradient,
 	dim = MAX (dim, fabs (radial->cd1.center.y - radial->cd2.center.y));
 	dim = MAX (dim, fabs (radial->cd1.radius   - radial->cd2.radius));
     }
+    dim = MAX (dim, fabs (gradient->base.matrix.xx));
+    dim = MAX (dim, fabs (gradient->base.matrix.xy));
+    dim = MAX (dim, fabs (gradient->base.matrix.x0));
+    dim = MAX (dim, fabs (gradient->base.matrix.yx));
+    dim = MAX (dim, fabs (gradient->base.matrix.yy));
+    dim = MAX (dim, fabs (gradient->base.matrix.y0));
 
     if (unlikely (dim > max_value)) {
 	cairo_matrix_t scale;
@@ -4541,12 +4547,12 @@ cairo_mesh_pattern_get_path (cairo_pattern_t *pattern,
 
     patch = _cairo_array_index_const (&mesh->patches, patch_num);
 
-    path = _cairo_malloc (sizeof (cairo_path_t));
+    path = _cairo_calloc (sizeof (cairo_path_t));
     if (path == NULL)
 	return _cairo_path_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
     path->num_data = 18;
-    path->data = _cairo_malloc_ab (path->num_data,
+    path->data = _cairo_calloc_ab (path->num_data,
 				   sizeof (cairo_path_data_t));
     if (path->data == NULL) {
 	free (path);

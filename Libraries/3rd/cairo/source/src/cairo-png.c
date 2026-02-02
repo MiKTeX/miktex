@@ -730,13 +730,8 @@ read_png (struct png_read_closure_t *png_closure)
         png_set_palette_to_rgb (png);
 
     /* expand gray bit depth if needed */
-    if (color_type == PNG_COLOR_TYPE_GRAY) {
-#if PNG_LIBPNG_VER >= 10209
+    if (color_type == PNG_COLOR_TYPE_GRAY)
         png_set_expand_gray_1_2_4_to_8 (png);
-#else
-        png_set_gray_1_2_4_to_8 (png);
-#endif
-    }
 
     /* transform transparency to alpha */
     if (png_get_valid (png, info, PNG_INFO_tRNS))

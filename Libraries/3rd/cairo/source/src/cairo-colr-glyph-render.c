@@ -43,6 +43,14 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef _MSC_VER
+#include <malloc.h>
+#endif
+
+#ifdef HAVE_ALLOCA_H
+#include <alloca.h>
+#endif
+
 #if HAVE_FT_COLR_V1
 
 #include <ft2build.h>
@@ -319,12 +327,12 @@ read_colorline (cairo_colr_glyph_render_t *render,
     double colr_alpha;
     cairo_bool_t is_foreground_color;
 
-    cl = calloc (1, sizeof (cairo_colr_color_line_t));
+    cl = _cairo_calloc (sizeof (cairo_colr_color_line_t));
     if (unlikely (cl == NULL))
 	return NULL;
 
     cl->n_stops = colorline->color_stop_iterator.num_color_stops;
-    cl->stops = calloc (cl->n_stops, sizeof (cairo_colr_color_stop_t));
+    cl->stops = _cairo_calloc_ab (cl->n_stops, sizeof (cairo_colr_color_stop_t));
     if (unlikely (cl->stops == NULL)) {
 	free (cl);
 	return NULL;

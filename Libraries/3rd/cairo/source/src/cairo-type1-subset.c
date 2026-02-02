@@ -167,7 +167,8 @@ _cairo_type1_font_subset_init (cairo_type1_font_subset_t  *font,
 
     _cairo_array_init (&font->glyphs_array, sizeof (glyph_data_t));
     _cairo_array_init (&font->glyph_names_array, sizeof (char *));
-    font->scaled_subset_index_to_glyphs = calloc (scaled_font_subset->num_glyphs, sizeof font->scaled_subset_index_to_glyphs[0]);
+    font->scaled_subset_index_to_glyphs = _cairo_calloc_ab (scaled_font_subset->num_glyphs,
+							    sizeof font->scaled_subset_index_to_glyphs[0]);
     if (unlikely (font->scaled_subset_index_to_glyphs == NULL))
         return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -1355,7 +1356,7 @@ cairo_type1_font_subset_write_private_dict (cairo_type1_font_subset_t *font,
     if (font->num_subrs <= 0)
 	return CAIRO_INT_STATUS_UNSUPPORTED;
 
-    font->subrs = calloc (font->num_subrs, sizeof (font->subrs[0]));
+    font->subrs = _cairo_calloc_ab (font->num_subrs, sizeof (font->subrs[0]));
     if (unlikely (font->subrs == NULL))
         return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -1410,7 +1411,8 @@ skip_subrs:
     font->glyphs = _cairo_array_index (&font->glyphs_array, 0);
     font->glyph_names = _cairo_array_index (&font->glyph_names_array, 0);
     font->base.num_glyphs = _cairo_array_num_elements (&font->glyphs_array);
-    font->type1_subset_index_to_glyphs = calloc (font->base.num_glyphs, sizeof font->type1_subset_index_to_glyphs[0]);
+    font->type1_subset_index_to_glyphs = _cairo_calloc_ab (font->base.num_glyphs,
+							sizeof font->type1_subset_index_to_glyphs[0]);
     if (unlikely (font->type1_subset_index_to_glyphs == NULL))
         return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -1782,7 +1784,7 @@ _cairo_type1_subset_init (cairo_type1_subset_t		*type1_subset,
     if (unlikely (type1_subset->base_font == NULL))
 	goto fail1;
 
-    type1_subset->widths = calloc (sizeof (double), scaled_font_subset->num_glyphs);
+    type1_subset->widths = _cairo_calloc_ab (scaled_font_subset->num_glyphs, sizeof (double));
     if (unlikely (type1_subset->widths == NULL))
 	goto fail2;
 

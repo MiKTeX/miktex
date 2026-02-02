@@ -940,7 +940,7 @@ _cairo_svg_surface_add_source_surface (cairo_svg_surface_t *surface,
 	unique_id_length = 0;
     }
 
-    cairo_svg_source_surface_t *source_surface_entry = malloc (sizeof (cairo_svg_source_surface_t));
+    cairo_svg_source_surface_t *source_surface_entry = _cairo_calloc (sizeof (cairo_svg_source_surface_t));
     if (source_surface_entry == NULL) {
 	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto fail;
@@ -1060,7 +1060,7 @@ _cairo_svg_surface_create_for_document (cairo_svg_document_t *document,
     cairo_surface_t *paginated;
     cairo_status_t status;
 
-    surface = _cairo_malloc (sizeof (cairo_svg_surface_t));
+    surface = _cairo_calloc (sizeof (cairo_svg_surface_t));
     if (unlikely (surface == NULL)) {
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
     }
@@ -1459,7 +1459,7 @@ _cairo_svg_document_emit_bitmap_glyph_data (cairo_svg_document_t *document,
     }
     _cairo_svg_stream_printf (&document->xml_node_glyphs, "/>\n");
 
-    cairo_svg_paint_t *paint_entry = malloc (sizeof (cairo_svg_paint_t));
+    cairo_svg_paint_t *paint_entry = _cairo_calloc (sizeof (cairo_svg_paint_t));
     if (paint_entry == NULL) {
 	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto cleanup;
@@ -2392,7 +2392,7 @@ _cairo_svg_surface_emit_composite_recording_pattern (cairo_svg_stream_t *output,
 	}
 
 	if (source_surface->transitive_paint_used) {
-	    cairo_svg_paint_t *paint_entry = malloc (sizeof (cairo_svg_paint_t));
+	    cairo_svg_paint_t *paint_entry = _cairo_calloc (sizeof (cairo_svg_paint_t));
 	    if (paint_entry == NULL) {
 		return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	    }
@@ -4175,7 +4175,7 @@ _cairo_svg_document_create (cairo_output_stream_t *output_stream,
 	return output_stream->status;
     }
 
-    document = _cairo_malloc (sizeof (cairo_svg_document_t));
+    document = _cairo_calloc (sizeof (cairo_svg_document_t));
     if (unlikely (document == NULL)) {
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
     }
@@ -4316,7 +4316,7 @@ _cairo_svg_document_finish (cairo_svg_document_t *document)
 	}
 
 	if (surface->transitive_paint_used) {
-	    cairo_svg_paint_t *paint_entry = malloc (sizeof (cairo_svg_paint_t));
+	    cairo_svg_paint_t *paint_entry = _cairo_calloc (sizeof (cairo_svg_paint_t));
 	    if (paint_entry == NULL) {
 		return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	    }

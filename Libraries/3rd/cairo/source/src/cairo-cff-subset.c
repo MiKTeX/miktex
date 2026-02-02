@@ -616,7 +616,7 @@ cff_dict_create_operator (int            operator,
 {
     cff_dict_operator_t *op;
 
-    op = _cairo_malloc (sizeof (cff_dict_operator_t));
+    op = _cairo_calloc (sizeof (cff_dict_operator_t));
     if (unlikely (op == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -952,9 +952,13 @@ cairo_cff_font_read_private_dict (cairo_cff_font_t   *font,
 	 decode_number (operand, nominal_width);
 
     num_subs = _cairo_array_num_elements (local_sub_index);
-    *local_subs_used = calloc (num_subs, sizeof (cairo_bool_t));
-    if (unlikely (*local_subs_used == NULL))
-	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+    if (num_subs > 0) {
+	*local_subs_used = _cairo_calloc_ab (num_subs, sizeof (cairo_bool_t));
+	if (unlikely (*local_subs_used == NULL))
+	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+    } else {
+	*local_subs_used = NULL;
+    }
 
     if (num_subs < 1240)
 	*local_sub_bias = 107;
@@ -971,7 +975,7 @@ cairo_cff_font_read_fdselect (cairo_cff_font_t *font, unsigned char *p)
 {
     int type, num_ranges, first, last, fd, i, j;
 
-    font->fdselect = calloc (font->num_glyphs, sizeof (int));
+    font->fdselect = _cairo_calloc_ab (font->num_glyphs, sizeof (int));
     if (unlikely (font->fdselect == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -1021,43 +1025,43 @@ cairo_cff_font_read_cid_fontdict (cairo_cff_font_t *font, unsigned char *ptr)
 
     font->num_fontdicts = _cairo_array_num_elements (&index);
 
-    font->fd_dict = calloc (sizeof (cairo_hash_table_t *), font->num_fontdicts);
+    font->fd_dict = _cairo_calloc_ab (font->num_fontdicts, sizeof (cairo_hash_table_t *));
     if (unlikely (font->fd_dict == NULL)) {
         status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
         goto fail;
     }
 
-    font->fd_private_dict = calloc (sizeof (cairo_hash_table_t *), font->num_fontdicts);
+    font->fd_private_dict = _cairo_calloc_ab (font->num_fontdicts, sizeof (cairo_hash_table_t *));
     if (unlikely (font->fd_private_dict == NULL)) {
         status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
         goto fail;
     }
 
-    font->fd_local_sub_index = calloc (sizeof (cairo_array_t), font->num_fontdicts);
+    font->fd_local_sub_index = _cairo_calloc_ab (font->num_fontdicts, sizeof (cairo_array_t));
     if (unlikely (font->fd_local_sub_index == NULL)) {
         status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
         goto fail;
     }
 
-    font->fd_local_sub_bias = calloc (sizeof (int), font->num_fontdicts);
+    font->fd_local_sub_bias = _cairo_calloc_ab (font->num_fontdicts, sizeof (int));
     if (unlikely (font->fd_local_sub_bias == NULL)) {
         status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
         goto fail;
     }
 
-    font->fd_local_subs_used = calloc (sizeof (cairo_bool_t *), font->num_fontdicts);
+    font->fd_local_subs_used = _cairo_calloc_ab (font->num_fontdicts, sizeof (cairo_bool_t *));
     if (unlikely (font->fd_local_subs_used == NULL)) {
         status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
         goto fail;
     }
 
-    font->fd_default_width = calloc (font->num_fontdicts, sizeof (double));
+    font->fd_default_width = _cairo_calloc_ab (font->num_fontdicts, sizeof (double));
     if (unlikely (font->fd_default_width == NULL)) {
         status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
         goto fail;
     }
 
-    font->fd_nominal_width = calloc (font->num_fontdicts, sizeof (double));
+    font->fd_nominal_width = _cairo_calloc_ab (font->num_fontdicts, sizeof (double));
     if (unlikely (font->fd_nominal_width == NULL)) {
         status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
         goto fail;
@@ -1314,9 +1318,13 @@ cairo_cff_font_read_global_subroutines (cairo_cff_font_t *font)
 	return status;
 
     num_subs = _cairo_array_num_elements (&font->global_sub_index);
-    font->global_subs_used = calloc (num_subs, sizeof(cairo_bool_t));
-    if (unlikely (font->global_subs_used == NULL))
-	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+    if (num_subs > 0) {
+	font->global_subs_used = _cairo_calloc_ab (num_subs, sizeof(cairo_bool_t));
+	if (unlikely (font->global_subs_used == NULL))
+	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+    } else {
+	font->global_subs_used = NULL;
+    }
 
     if (num_subs < 1240)
         font->global_sub_bias = 107;
@@ -1832,20 +1840,20 @@ cairo_cff_font_subset_fontdict (cairo_cff_font_t  *font)
     unsigned long cid, gid;
     cairo_int_status_t status;
 
-    font->fdselect_subset = calloc (font->scaled_font_subset->num_glyphs,
+    font->fdselect_subset = _cairo_calloc_ab (font->scaled_font_subset->num_glyphs,
                                      sizeof (int));
     if (unlikely (font->fdselect_subset == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
-    font->fd_subset_map = calloc (font->num_fontdicts, sizeof (int));
+    font->fd_subset_map = _cairo_calloc_ab (font->num_fontdicts, sizeof (int));
     if (unlikely (font->fd_subset_map == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
-    font->private_dict_offset = calloc (font->num_fontdicts, sizeof (int));
+    font->private_dict_offset = _cairo_calloc_ab (font->num_fontdicts, sizeof (int));
     if (unlikely (font->private_dict_offset == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
-    reverse_map = calloc (font->num_fontdicts, sizeof (int));
+    reverse_map = _cairo_calloc_ab (font->num_fontdicts, sizeof (int));
     if (unlikely (reverse_map == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -2810,7 +2818,7 @@ _cairo_cff_font_create (cairo_scaled_font_subset_t  *scaled_font_subset,
 	    return CAIRO_INT_STATUS_UNSUPPORTED;
     }
 
-    font = calloc (1, sizeof (cairo_cff_font_t));
+    font = _cairo_calloc (sizeof (cairo_cff_font_t));
     if (unlikely (font == NULL))
         return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -2835,7 +2843,7 @@ _cairo_cff_font_create (cairo_scaled_font_subset_t  *scaled_font_subset,
 	goto fail2;
     }
 
-    font->widths = calloc (font->scaled_font_subset->num_glyphs, sizeof (int));
+    font->widths = _cairo_calloc_ab (font->scaled_font_subset->num_glyphs, sizeof (int));
     if (unlikely (font->widths == NULL)) {
         status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
         goto fail3;
@@ -2994,7 +3002,8 @@ _cairo_cff_subset_init (cairo_cff_subset_t          *cff_subset,
 	cff_subset->family_name_utf8 = NULL;
     }
 
-    cff_subset->widths = calloc (sizeof (double), font->scaled_font_subset->num_glyphs);
+    cff_subset->widths = _cairo_calloc_ab (font->scaled_font_subset->num_glyphs,
+					   sizeof (double));
     if (unlikely (cff_subset->widths == NULL)) {
 	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto fail3;
@@ -3160,7 +3169,7 @@ _cairo_cff_font_fallback_create (cairo_scaled_font_subset_t  *scaled_font_subset
     cairo_status_t status;
     cairo_cff_font_t *font;
 
-    font = _cairo_malloc (sizeof (cairo_cff_font_t));
+    font = _cairo_calloc (sizeof (cairo_cff_font_t));
     if (unlikely (font == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -3192,7 +3201,7 @@ _cairo_cff_font_fallback_create (cairo_scaled_font_subset_t  *scaled_font_subset
     font->ascent = 0;
     font->descent = 0;
 
-    font->widths = calloc (font->scaled_font_subset->num_glyphs, sizeof (int));
+    font->widths = _cairo_calloc_ab (font->scaled_font_subset->num_glyphs, sizeof (int));
     if (unlikely (font->widths == NULL)) {
         status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
         goto fail3;
@@ -3407,7 +3416,7 @@ _cairo_cff_fallback_init (cairo_cff_subset_t          *cff_subset,
 	goto fail2;
     }
 
-    cff_subset->widths = calloc (sizeof (double), font->scaled_font_subset->num_glyphs);
+    cff_subset->widths = _cairo_calloc_ab (font->scaled_font_subset->num_glyphs, sizeof (double));
     if (unlikely (cff_subset->widths == NULL)) {
 	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto fail3;

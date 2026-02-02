@@ -109,11 +109,10 @@ _cairo_format_from_pixman_format (pixman_format_code_t pixman_format)
 	return CAIRO_FORMAT_A1;
     case PIXMAN_r5g6b5:
 	return CAIRO_FORMAT_RGB16_565;
-#if PIXMAN_VERSION >= PIXMAN_VERSION_ENCODE(0,22,0)
     case PIXMAN_r8g8b8a8: case PIXMAN_r8g8b8x8:
-#endif
-#if PIXMAN_VERSION >= PIXMAN_VERSION_ENCODE(0,27,2)
     case PIXMAN_a8r8g8b8_sRGB:
+#if HAS_PIXMAN_r8g8b8_sRGB
+    case PIXMAN_r8g8b8_sRGB:
 #endif
     case PIXMAN_a8b8g8r8: case PIXMAN_x8b8g8r8: case PIXMAN_r8g8b8:
     case PIXMAN_b8g8r8:   case PIXMAN_b5g6r5:
@@ -131,9 +130,7 @@ _cairo_format_from_pixman_format (pixman_format_code_t pixman_format)
     case PIXMAN_a2b10g10r10:
     case PIXMAN_x2b10g10r10:
     case PIXMAN_a2r10g10b10:
-#if PIXMAN_VERSION >= PIXMAN_VERSION_ENCODE(0,22,0)
     case PIXMAN_x14r6g6b6:
-#endif
     default:
 	return CAIRO_FORMAT_INVALID;
     }
@@ -186,7 +183,7 @@ _cairo_image_surface_create_for_pixman_image (pixman_image_t		*pixman_image,
 {
     cairo_image_surface_t *surface;
 
-    surface = _cairo_malloc (sizeof (cairo_image_surface_t));
+    surface = _cairo_calloc (sizeof (cairo_image_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -248,7 +245,6 @@ _pixman_format_from_masks (cairo_format_masks_t *masks,
     return TRUE;
 }
 
-#if PIXMAN_VERSION >= PIXMAN_VERSION_ENCODE(0,39,0)
 /* Convenience function to convert #cairo_dither_t into #pixman_dither_t */
 static pixman_dither_t
 _cairo_dither_to_pixman_dither (cairo_dither_t dither)
@@ -266,8 +262,6 @@ _cairo_dither_to_pixman_dither (cairo_dither_t dither)
         return PIXMAN_DITHER_NONE;
     }
 }
-#endif
-
 
 /* A mask consisting of N bits set to 1. */
 #define MASK(N) ((1UL << (N))-1)

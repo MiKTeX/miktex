@@ -576,7 +576,7 @@ _cairo_xlib_shm_pool_create(cairo_xlib_display_t *display,
     size_t bytes, maxbits = 16, minbits = MIN_BITS;
     Status success;
 
-    pool = _cairo_malloc (sizeof (cairo_xlib_shm_t));
+    pool = _cairo_calloc (sizeof (cairo_xlib_shm_t));
     if (pool == NULL)
 	return NULL;
 
@@ -653,7 +653,7 @@ _cairo_xlib_shm_info_create (cairo_xlib_display_t *display,
 
     assert (mem != NULL);
 
-    info = _cairo_malloc (sizeof (*info));
+    info = _cairo_calloc (sizeof (*info));
     if (info == NULL) {
 	_cairo_mempool_free (&pool->mem, mem);
 	return NULL;
@@ -820,7 +820,7 @@ _cairo_xlib_shm_surface_create (cairo_xlib_surface_t *other,
     if (size < MIN_SIZE)
 	return NULL;
 
-    shm = _cairo_malloc (sizeof (*shm));
+    shm = _cairo_calloc (sizeof (*shm));
     if (unlikely (shm == NULL))
 	return (cairo_xlib_shm_surface_t *)_cairo_surface_create_in_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -1393,7 +1393,7 @@ _cairo_xlib_display_init_shm (cairo_xlib_display_t *display)
     if (!can_use_shm (display->display, &has_pixmap))
 	return;
 
-    shm = _cairo_malloc (sizeof (*shm));
+    shm = _cairo_calloc (sizeof (*shm));
     if (unlikely (shm == NULL))
 	return;
 

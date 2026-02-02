@@ -76,67 +76,21 @@ static const cairo_device_backend_t _cairo_win32_device_backend = {
     _cairo_win32_device_destroy,
 };
 
-#if 0
-D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(D2D1_RENDER_TARGET_TYPE_DEFAULT,
-								   D2D1::PixelFormat(
-										     DXGI_FORMAT_B8G8R8A8_UNORM,
-										     D2D1_ALPHA_MODE_IGNORE),
-								   0,
-								   0,
-								   D2D1_RENDER_TARGET_USAGE_NONE,
-								   D2D1_FEATURE_LEVEL_DEFAULT
-								  );
-
-hr = m_pD2DFactory->CreateDCRenderTarget(&props, &device->d2d);
-#endif
-
-static cairo_bool_t is_win98 (void)
-{
-    OSVERSIONINFO os;
-
-    os.dwOSVersionInfoSize = sizeof (os);
-    GetVersionEx (&os);
-
-    return (VER_PLATFORM_WIN32_WINDOWS == os.dwPlatformId &&
-	    os.dwMajorVersion == 4 &&
-	    os.dwMinorVersion == 10);
-}
-
-static void *
-_cairo_win32_device_get_alpha_blend (cairo_win32_device_t *device)
-{
-    void *func = NULL;
-
-    if (is_win98 ())
-	return NULL;
-
-    device->msimg32_dll = LoadLibraryW (L"msimg32");
-    if (device->msimg32_dll)
-	func = GetProcAddress (device->msimg32_dll, "AlphaBlend");
-
-    return func;
-}
-
 cairo_device_t *
 _cairo_win32_device_get (void)
 {
     cairo_win32_device_t *device;
 
-    CAIRO_MUTEX_INITIALIZE ();
-
     if (__cairo_win32_device)
 	return cairo_device_reference (__cairo_win32_device);
 
-    device = _cairo_malloc (sizeof (*device));
+    device = _cairo_calloc (sizeof (*device));
 
     _cairo_device_init (&device->base, &_cairo_win32_device_backend);
 
     device->compositor = _cairo_win32_gdi_compositor_get ();
 
-    device->msimg32_dll = NULL;
-    device->alpha_blend = _cairo_win32_device_get_alpha_blend (device);
-
-    if (_cairo_atomic_ptr_cmpxchg ((void **)&__cairo_win32_device, NULL, device))
+    if (_cairo_atomic_ptr_cmpxchg ((cairo_atomic_intptr_t *)&__cairo_win32_device, NULL, device))
 	return cairo_device_reference(&device->base);
 
     _cairo_win32_device_destroy (device);

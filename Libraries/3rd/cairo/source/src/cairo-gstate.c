@@ -66,7 +66,8 @@ _cairo_gstate_transform_glyphs_to_backend (cairo_gstate_t      *gstate,
 					   cairo_text_cluster_flags_t cluster_flags,
                                            cairo_glyph_t       *transformed_glyphs,
 					   int			*num_transformed_glyphs,
-					   cairo_text_cluster_t *transformed_clusters);
+					   cairo_text_cluster_t *transformed_clusters,
+					   cairo_bool_t          perform_early_clip);
 
 static void
 _cairo_gstate_update_device_transform (cairo_observer_t *observer,
@@ -242,7 +243,7 @@ _cairo_gstate_save (cairo_gstate_t **gstate, cairo_gstate_t **freelist)
 
     top = *freelist;
     if (top == NULL) {
-	top = _cairo_malloc (sizeof (cairo_gstate_t));
+	top = _cairo_calloc (sizeof (cairo_gstate_t));
 	if (unlikely (top == NULL))
 	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
     } else
@@ -2035,14 +2036,16 @@ _cairo_gstate_show_text_glyphs (cairo_gstate_t		   *gstate,
 						   info->cluster_flags,
 						   transformed_glyphs,
 						   &num_glyphs,
-						   transformed_clusters);
+						   transformed_clusters,
+						   TRUE);
     } else {
 	_cairo_gstate_transform_glyphs_to_backend (gstate,
 						   glyphs, num_glyphs,
 						   NULL, 0, 0,
 						   transformed_glyphs,
 						   &num_glyphs,
-						   NULL);
+						   NULL,
+						   TRUE);
     }
 
     if (num_glyphs == 0)
@@ -2144,7 +2147,7 @@ _cairo_gstate_glyph_path (cairo_gstate_t      *gstate,
 					       glyphs, num_glyphs,
 					       NULL, 0, 0,
 					       transformed_glyphs,
-					       &num_glyphs, NULL);
+					       &num_glyphs, NULL, FALSE);
 
     status = _cairo_scaled_font_glyph_path (gstate->scaled_font,
 					    transformed_glyphs, num_glyphs,
@@ -2198,7 +2201,8 @@ _cairo_gstate_transform_glyphs_to_backend (cairo_gstate_t	*gstate,
 					   cairo_text_cluster_flags_t cluster_flags,
                                            cairo_glyph_t	*transformed_glyphs,
 					   int			*num_transformed_glyphs,
-					   cairo_text_cluster_t *transformed_clusters)
+					   cairo_text_cluster_t *transformed_clusters,
+					   cairo_bool_t         perform_early_clip)
 {
     cairo_rectangle_int_t surface_extents;
     cairo_matrix_t *ctm = &gstate->ctm;
@@ -2209,7 +2213,7 @@ _cairo_gstate_transform_glyphs_to_backend (cairo_gstate_t	*gstate,
     int i, j, k;
 
     drop = TRUE;
-    if (! _cairo_gstate_int_clip_extents (gstate, &surface_extents)) {
+    if (!perform_early_clip || !_cairo_gstate_int_clip_extents (gstate, &surface_extents)) {
 	drop = FALSE; /* unbounded surface */
     } else {
 	double scale10 = 10 * _cairo_scaled_font_get_max_scale (gstate->scaled_font);

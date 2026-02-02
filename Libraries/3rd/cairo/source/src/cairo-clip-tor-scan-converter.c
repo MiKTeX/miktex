@@ -1794,7 +1794,7 @@ _cairo_clip_tor_scan_converter_create (cairo_clip_t *clip,
     cairo_status_t status;
     int i;
 
-    self = calloc (1, sizeof(struct _cairo_clip_tor_scan_converter));
+    self = _cairo_calloc (sizeof(struct _cairo_clip_tor_scan_converter));
     if (unlikely (self == NULL)) {
 	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto bail_nomem;

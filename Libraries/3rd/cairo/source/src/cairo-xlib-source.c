@@ -109,7 +109,7 @@ source (cairo_xlib_surface_t *dst, Picture picture, Pixmap pixmap)
     if (picture == None)
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
-    source = _cairo_malloc (sizeof (*source));
+    source = _cairo_calloc (sizeof (*source));
     if (unlikely (source == NULL)) {
 	XRenderFreePicture (dst->display->display, picture);
 	if (pixmap)
@@ -966,7 +966,7 @@ surface_source (cairo_xlib_surface_t *dst,
 	_cairo_xlib_shm_surface_get_pixmap (src)) {
 	cairo_xlib_proxy_t *proxy;
 
-	proxy = _cairo_malloc (sizeof(*proxy));
+	proxy = _cairo_calloc (sizeof(*proxy));
 	if (unlikely (proxy == NULL))
 	    return _cairo_surface_create_in_error (CAIRO_STATUS_NO_MEMORY);
 

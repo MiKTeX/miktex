@@ -77,10 +77,10 @@ static const CGFloat font_scale = 1.0;
 
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 1080
 #define FONT_ORIENTATION_HORIZONTAL kCTFontHorizontalOrientation
-#define FONT_COLOR_GLYPHS kCTFontTraitColorGlyphs
+#define FONT_COLOR_GLYPHS kCTFontColorGlyphsTrait
 #else
 #define FONT_ORIENTATION_HORIZONTAL kCTFontOrientationHorizontal
-#define FONT_COLOR_GLYPHS kCTFontColorGlyphsTrait
+#define FONT_COLOR_GLYPHS kCTFontTraitColorGlyphs
 #endif
 
 static void
@@ -164,6 +164,17 @@ _cairo_quartz_font_face_create_for_toy (cairo_toy_font_face_t   *toy_face,
 	FontName = CFStringCreateWithCString (NULL, full_name, kCFStringEncodingASCII);
 	cgFont = CGFontCreateWithFontName (FontName);
 	CFRelease (FontName);
+
+	if (!cgFont) {
+            /* Attempt to create font by replacing hyphens for spaces in font name. */
+            for (size_t i = 0; i < strlen (full_name); i++) {
+                if (full_name[i] == '-')
+                    full_name[i] = ' ';
+            }
+            FontName = CFStringCreateWithCString (NULL, full_name, kCFStringEncodingASCII);
+            cgFont = CGFontCreateWithFontName (FontName);
+            CFRelease (FontName);
+	}
 
 	if (cgFont)
 	    break;
@@ -250,7 +261,7 @@ _cairo_quartz_font_face_scaled_font_create (void *abstract_face,
     CTFontRef ctFont;
     CGRect bbox;
 
-    font = _cairo_malloc (sizeof(cairo_quartz_scaled_font_t));
+    font = _cairo_calloc (sizeof(cairo_quartz_scaled_font_t));
     if (font == NULL)
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -307,7 +318,7 @@ static inline cairo_quartz_font_face_t*
 _cairo_quartz_font_face_create ()
 {
     cairo_quartz_font_face_t *font_face =
-	_cairo_malloc (sizeof (cairo_quartz_font_face_t));
+	_cairo_calloc (sizeof (cairo_quartz_font_face_t));
 
     if (!font_face) {
 	cairo_status_t ignore_status;

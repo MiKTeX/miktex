@@ -162,6 +162,10 @@ _cairo_stroker_init (cairo_stroker_t		*stroker,
     stroker->has_first_face = FALSE;
     stroker->has_initial_sub_path = FALSE;
 
+    /* Coverity complains these may be unitialized. */
+    memset (&stroker->current_face, 0, sizeof (cairo_stroke_face_t));
+    memset (&stroker->first_face, 0, sizeof (cairo_stroke_face_t));
+
     _cairo_stroker_dash_init (&stroker->dash, stroke_style);
 
     stroker->add_external_edge = NULL;

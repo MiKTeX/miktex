@@ -249,7 +249,7 @@ _cairo_xcb_screen_get (xcb_connection_t *xcb_connection,
 	}
     }
 
-    screen = _cairo_malloc (sizeof (cairo_xcb_screen_t));
+    screen = _cairo_calloc (sizeof (cairo_xcb_screen_t));
     if (unlikely (screen == NULL))
 	goto unlock;
 

@@ -63,6 +63,22 @@
    ((size) != 0 ? malloc(size) : NULL)
 
 /**
+ * _cairo_calloc:
+ * @size: size of each element
+ *
+ * Allocates @size memory using calloc(). Behaves much like
+ * calloc(), except that only one parameter is required.
+ * The memory should be freed using free().
+ * calloc is skipped, if 0 bytes are requested, and %NULL will be returned.
+ *
+ * Return value: A pointer to the newly allocated memory, or %NULL in
+ * case of calloc() failure or overflow.
+ **/
+
+#define _cairo_calloc(size) \
+    ((size) != 0 ? calloc(1,size) : NULL)
+
+/**
  * _cairo_malloc_ab:
  * @a: number of elements to allocate
  * @size: size of each element
@@ -87,6 +103,31 @@ _cairo_malloc_ab(size_t a, size_t size)
 	return NULL;
 
     return _cairo_malloc(c);
+}
+
+/**
+ * _cairo_calloc_ab:
+ * @a: number of elements to allocate
+ * @size: size of each element
+ *
+ * Allocates @a*@size memory using _cairo_calloc(), taking care to not
+ * overflow when doing the multiplication.
+ *
+ * @size should be a constant so that the compiler can optimize
+ * out a constant division.
+ *
+ * Return value: A pointer to the newly allocated memory, or %NULL in
+ * case of calloc() failure or overflow.
+ **/
+
+static cairo_always_inline void *
+_cairo_calloc_ab(size_t a, size_t size)
+{
+    size_t c;
+    if (_cairo_mul_size_t_overflow (a, size, &c))
+	return NULL;
+
+    return _cairo_calloc(c);
 }
 
 /**

@@ -1065,7 +1065,7 @@ _cairo_ps_surface_get_page_media (cairo_ps_surface_t     *surface)
 	}
     }
 
-    page = _cairo_malloc (sizeof (cairo_page_media_t));
+    page = _cairo_calloc (sizeof (cairo_page_media_t));
     if (unlikely (page == NULL)) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return NULL;
@@ -1101,7 +1101,7 @@ _cairo_ps_surface_create_for_stream_internal (cairo_output_stream_t *stream,
     cairo_status_t status, status_ignored;
     cairo_ps_surface_t *surface;
 
-    surface = _cairo_malloc (sizeof (cairo_ps_surface_t));
+    surface = _cairo_calloc (sizeof (cairo_ps_surface_t));
     if (unlikely (surface == NULL)) {
 	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto CLEANUP;
@@ -1115,7 +1115,7 @@ _cairo_ps_surface_create_for_stream_internal (cairo_output_stream_t *stream,
 
     surface->final_stream = stream;
 
-    surface->tmpfile = tmpfile ();
+    surface->tmpfile = _cairo_tmpfile ();
     if (surface->tmpfile == NULL) {
 	switch (errno) {
 	case ENOMEM:
@@ -2351,7 +2351,7 @@ _base85_strings_stream_create (cairo_output_stream_t *output)
 {
     string_array_stream_t *stream;
 
-    stream = _cairo_malloc (sizeof (string_array_stream_t));
+    stream = _cairo_calloc (sizeof (string_array_stream_t));
     if (unlikely (stream == NULL)) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return (cairo_output_stream_t *) &_cairo_output_stream_nil;
@@ -2381,7 +2381,7 @@ _base85_wrap_stream_create (cairo_output_stream_t *output)
 {
     string_array_stream_t *stream;
 
-    stream = _cairo_malloc (sizeof (string_array_stream_t));
+    stream = _cairo_calloc (sizeof (string_array_stream_t));
     if (unlikely (stream == NULL)) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return (cairo_output_stream_t *) &_cairo_output_stream_nil;
@@ -3507,13 +3507,13 @@ _cairo_ps_surface_use_form (cairo_ps_surface_t           *surface,
     if (surface->ps_level == CAIRO_PS_LEVEL_3)
 	max_size = MAX_L3_FORM_DATA;
     else
-	max_size = MAX_L3_FORM_DATA;
+	max_size = MAX_L2_FORM_DATA;
 
     /* Don't add any more Forms if we exceed the form memory limit */
     if (surface->total_form_size + params->approx_size > max_size)
 	return CAIRO_INT_STATUS_UNSUPPORTED;
 
-    surface->total_form_size += params->approx_size > max_size;
+    surface->total_form_size += params->approx_size;
     unique_id = _cairo_malloc (source_key.unique_id_length);
     if (unique_id == NULL)
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
@@ -3521,7 +3521,7 @@ _cairo_ps_surface_use_form (cairo_ps_surface_t           *surface,
     unique_id_length = source_key.unique_id_length;
     memcpy (unique_id, source_key.unique_id, unique_id_length);
 
-    source_entry = calloc (sizeof (cairo_ps_form_t), 1);
+    source_entry = _cairo_calloc (sizeof (cairo_ps_form_t));
     if (source_entry == NULL) {
 	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto fail;

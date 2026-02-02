@@ -52,6 +52,7 @@
 #include "cairo-composite-rectangles-private.h"
 #include "cairo-default-context-private.h"
 #include "cairo-error-private.h"
+#include "cairo-user-font-private.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-image-info-private.h"
 #include "cairo-recording-surface-inline.h"
@@ -446,7 +447,7 @@ _cairo_pdf_surface_create_for_stream_internal (cairo_output_stream_t	*output,
     cairo_pdf_surface_t *surface;
     cairo_status_t status, status_ignored;
 
-    surface = _cairo_malloc (sizeof (cairo_pdf_surface_t));
+    surface = _cairo_calloc (sizeof (cairo_pdf_surface_t));
     if (unlikely (surface == NULL)) {
 	/* destroy stream on behalf of caller */
 	status = _cairo_output_stream_destroy (output);
@@ -554,7 +555,6 @@ _cairo_pdf_surface_create_for_stream_internal (cairo_output_stream_t	*output,
 
     surface->page_parent_tree = -1;
     _cairo_array_init (&surface->page_annots, sizeof (cairo_pdf_resource_t));
-    _cairo_array_init (&surface->forward_links, sizeof (cairo_pdf_forward_link_t));
     surface->tagged = FALSE;
     surface->current_page_label = NULL;
     _cairo_array_init (&surface->page_labels, sizeof (char *));
@@ -1402,7 +1402,7 @@ _cairo_pdf_surface_create_smask_group (cairo_pdf_surface_t	    *surface,
 {
     cairo_pdf_smask_group_t	*group;
 
-    group = calloc (1, sizeof (cairo_pdf_smask_group_t));
+    group = _cairo_calloc (sizeof (cairo_pdf_smask_group_t));
     if (unlikely (group == NULL)) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return NULL;
@@ -1766,7 +1766,7 @@ _cairo_pdf_surface_add_source_surface (cairo_pdf_surface_t	         *surface,
 	unique_id_length = 0;
     }
 
-    surface_entry = _cairo_malloc (sizeof (cairo_pdf_source_surface_entry_t));
+    surface_entry = _cairo_calloc (sizeof (cairo_pdf_source_surface_entry_t));
     if (surface_entry == NULL) {
 	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto fail1;
@@ -2699,16 +2699,18 @@ _cairo_pdf_surface_finish (void *abstract_surface)
 
     status = _cairo_pdf_surface_open_object_stream (surface);
     if (unlikely (status))
-	return status;
+	goto CLEANUP;
 
     /* Emit unbounded surfaces */
-    _cairo_pdf_surface_write_patterns_and_smask_groups (surface, TRUE);
+    status = _cairo_pdf_surface_write_patterns_and_smask_groups (surface, TRUE);
+    if (unlikely (status))
+	goto CLEANUP;
 
     _cairo_pdf_surface_clear (surface, TRUE);
 
-    status = surface->base.status;
-    if (status == CAIRO_STATUS_SUCCESS)
-	status = _cairo_pdf_surface_emit_font_subsets (surface);
+    status = _cairo_pdf_surface_emit_font_subsets (surface);
+    if (unlikely (status))
+	goto CLEANUP;
 
     /* Emit any new patterns or surfaces created by the Type 3 font subset. */
     _cairo_pdf_surface_write_patterns_and_smask_groups (surface, TRUE);
@@ -2717,27 +2719,29 @@ _cairo_pdf_surface_finish (void *abstract_surface)
 
     status = _cairo_pdf_surface_write_pages (surface);
     if (unlikely (status))
-	return status;
+	goto CLEANUP;
 
     status = _cairo_pdf_interchange_write_document_objects (surface);
     if (unlikely (status))
-	return status;
+	goto CLEANUP;
 
     status = _cairo_pdf_surface_write_page_dicts (surface);
     if (unlikely (status))
-	return status;
+	goto CLEANUP;
 
     catalog = _cairo_pdf_surface_new_object (surface);
-    if (catalog.id == 0)
-	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+    if (catalog.id == 0) {
+	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	goto CLEANUP;
+    }
 
     status = _cairo_pdf_surface_write_catalog (surface, catalog);
     if (unlikely (status))
-	return status;
+	goto CLEANUP;
 
     status = _cairo_pdf_surface_close_object_stream (surface);
     if (unlikely (status))
-	return status;
+	goto CLEANUP;
 
     if (!surface->debug && surface->pdf_version >= CAIRO_PDF_VERSION_1_5)
     {
@@ -2823,7 +2827,6 @@ _cairo_pdf_surface_finish (void *abstract_surface)
     _cairo_array_fini (&surface->fonts);
     _cairo_array_fini (&surface->knockout_group);
     _cairo_array_fini (&surface->page_annots);
-    _cairo_array_fini (&surface->forward_links);
 
      _cairo_hash_table_foreach (surface->color_glyphs,
 				_cairo_pdf_color_glyph_pluck,
@@ -9297,6 +9300,13 @@ _cairo_pdf_surface_show_text_glyphs (void			*abstract_surface,
 	if (unlikely (status))
 	    goto cleanup;
 
+	/* User-fonts can use strokes; reset the stroke pattern as well. */
+	if (_cairo_font_face_is_user(scaled_font->font_face)) {
+	    status = _cairo_pdf_surface_select_pattern (surface, source, pattern_res, TRUE);
+	    if (unlikely (status))
+		goto cleanup;
+	}
+
 	/* Each call to show_glyphs() with a transclucent pattern must
 	 * be in a separate text object otherwise overlapping text
 	 * from separate calls to show_glyphs will not composite with
@@ -9387,7 +9397,7 @@ _cairo_pdf_surface_supports_color_glyph (void                  *abstract_surface
     if (glyph_entry)
 	return glyph_entry->supported;
 
-    glyph_entry = _cairo_malloc (sizeof (cairo_pdf_color_glyph_t));
+    glyph_entry = _cairo_calloc (sizeof (cairo_pdf_color_glyph_t));
     if (glyph_entry == NULL) {
 	status = _cairo_surface_set_error (&surface->base,
 					   _cairo_error (CAIRO_STATUS_NO_MEMORY));

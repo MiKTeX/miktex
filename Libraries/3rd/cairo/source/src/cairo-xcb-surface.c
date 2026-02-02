@@ -1069,7 +1069,7 @@ _cairo_xcb_surface_create_internal (cairo_xcb_screen_t		*screen,
 {
     cairo_xcb_surface_t *surface;
 
-    surface = _cairo_malloc (sizeof (cairo_xcb_surface_t));
+    surface = _cairo_calloc (sizeof (cairo_xcb_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 

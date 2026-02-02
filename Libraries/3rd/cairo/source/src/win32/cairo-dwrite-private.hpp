@@ -68,7 +68,8 @@ struct _cairo_dwrite_scaled_font {
     cairo_matrix_t mat;
     cairo_matrix_t mat_inverse;
     cairo_antialias_t antialias_mode;
-    IDWriteRenderingParams *rendering_params;
+    IDWriteFontFace *dwriteface; /* Can't use RefPtr because this struct is malloc'd.  */
+    IDWriteRenderingParams *rendering_params; /* Can't use RefPtr because this struct is malloc'd.  */
     DWRITE_MEASURING_MODE measuring_mode;
 };
 typedef struct _cairo_dwrite_scaled_font cairo_dwrite_scaled_font_t;
@@ -83,8 +84,9 @@ public:
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-function-type"
 #endif
+            HMODULE dwrite = _cairo_win32_load_library_from_system32 (L"dwrite.dll");
 	    DWriteCreateFactoryFunc createDWriteFactory = (DWriteCreateFactoryFunc)
-		GetProcAddress(LoadLibraryW(L"dwrite.dll"), "DWriteCreateFactory");
+                GetProcAddress(dwrite, "DWriteCreateFactory");
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif

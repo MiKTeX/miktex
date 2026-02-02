@@ -696,7 +696,6 @@ composite_traps (void			*_dst,
     return  CAIRO_STATUS_SUCCESS;
 }
 
-#if PIXMAN_VERSION >= PIXMAN_VERSION_ENCODE(0,22,0)
 static void
 set_point (pixman_point_fixed_t *p, cairo_point_t *c)
 {
@@ -797,7 +796,6 @@ composite_tristrip (void			*_dst,
 
     return  CAIRO_STATUS_SUCCESS;
 }
-#endif
 
 static cairo_int_status_t
 check_composite_glyphs (const cairo_composite_rectangles_t *extents,
@@ -1296,9 +1294,7 @@ _cairo_image_traps_compositor_get (void)
 	//compositor.check_composite_traps = check_composite_traps;
 	compositor.composite_traps = composite_traps;
 	//compositor.check_composite_tristrip = check_composite_traps;
-#if PIXMAN_VERSION >= PIXMAN_VERSION_ENCODE(0,22,0)
 	compositor.composite_tristrip = composite_tristrip;
-#endif
 	compositor.check_composite_glyphs = check_composite_glyphs;
 	compositor.composite_glyphs = composite_glyphs;
 

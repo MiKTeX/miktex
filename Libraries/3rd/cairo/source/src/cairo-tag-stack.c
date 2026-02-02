@@ -198,7 +198,7 @@ _cairo_tag_stack_push (cairo_tag_stack_t *stack,
 	}
     }
 
-    elem = _cairo_malloc (sizeof(cairo_tag_stack_elem_t));
+    elem = _cairo_calloc (sizeof(cairo_tag_stack_elem_t));
     if (unlikely (elem == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -330,4 +330,18 @@ _cairo_tag_error (const char *fmt, ...)
 	printf ("\n");
     }
     return _cairo_error (CAIRO_STATUS_TAG_ERROR);
+}
+
+void
+_cairo_tag_warning (const char *fmt, ...)
+{
+    va_list ap;
+
+    if (getenv ("CAIRO_DEBUG_TAG") != NULL) {
+	printf ("TAG WARNING: ");
+	va_start (ap, fmt);
+	vprintf (fmt, ap);
+	va_end (ap);
+	printf ("\n");
+    }
 }

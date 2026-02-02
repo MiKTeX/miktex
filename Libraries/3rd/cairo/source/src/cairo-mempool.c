@@ -305,7 +305,7 @@ _cairo_mempool_init (cairo_mempool_t *pool,
     pool->max_free_bits = -1;
 
     num_blocks = bytes >> min_bits;
-    pool->blocks = calloc (num_blocks, sizeof (struct _cairo_memblock));
+    pool->blocks = _cairo_calloc_ab (num_blocks, sizeof (struct _cairo_memblock));
     if (pool->blocks == NULL)
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 

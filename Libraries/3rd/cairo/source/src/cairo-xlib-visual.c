@@ -82,7 +82,7 @@ _cairo_xlib_visual_info_create (Display *dpy,
     for (i = 0; i < RAMP_SIZE; i++)
 	ramp_index_to_short[i] = (0xffff * i + ((RAMP_SIZE-1)>>1)) / (RAMP_SIZE-1);
 
-    info = _cairo_malloc (sizeof (cairo_xlib_visual_info_t));
+    info = _cairo_calloc (sizeof (cairo_xlib_visual_info_t));
     if (unlikely (info == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 

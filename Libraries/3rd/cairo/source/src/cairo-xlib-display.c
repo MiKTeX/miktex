@@ -207,7 +207,7 @@ _cairo_xlib_device_create (Display *dpy)
 	}
     }
 
-    display = _cairo_malloc (sizeof (cairo_xlib_display_t));
+    display = _cairo_calloc (sizeof (cairo_xlib_display_t));
     if (unlikely (display == NULL)) {
 	device = _cairo_device_create_in_error (CAIRO_STATUS_NO_MEMORY);
 	goto UNLOCK;

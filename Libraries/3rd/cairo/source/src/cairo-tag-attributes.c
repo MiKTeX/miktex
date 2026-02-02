@@ -432,7 +432,7 @@ parse_attributes (const char *attributes, const attribute_spec_t *attrib_def, ca
 	    goto fail1;
 	}
 
-	attrib = calloc (1, sizeof (attribute_t));
+	attrib = _cairo_calloc (sizeof (attribute_t));
 	if (unlikely (attrib == NULL)) {
 	    status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	    goto fail1;
@@ -655,16 +655,21 @@ _cairo_tag_parse_link_attributes (const char *attributes, cairo_link_attrs_t *li
 	}
     }
 
-    if (link_attrs->uri) {
-	link_attrs->link_type = TAG_LINK_URI;
-	if (link_attrs->dest || link_attrs->page || link_attrs->has_pos || link_attrs->file)
-	    invalid_combination = TRUE;
-
-    } else if (link_attrs->file) {
+    if (link_attrs->file) {
 	link_attrs->link_type = TAG_LINK_FILE;
 	if (link_attrs->uri)
 	    invalid_combination = TRUE;
 	else if (link_attrs->dest && (link_attrs->page || link_attrs->has_pos))
+	    invalid_combination = TRUE;
+
+    } else if (link_attrs->uri && link_attrs->dest) {
+	link_attrs->link_type = TAG_LINK_DEST_AND_URI;
+	if (link_attrs->page || link_attrs->has_pos || link_attrs->file)
+	    invalid_combination = TRUE;
+
+    } else if (link_attrs->uri) {
+	link_attrs->link_type = TAG_LINK_URI;
+	if (link_attrs->dest || link_attrs->page || link_attrs->has_pos || link_attrs->file)
 	    invalid_combination = TRUE;
 
     } else if (link_attrs->dest) {
@@ -673,7 +678,7 @@ _cairo_tag_parse_link_attributes (const char *attributes, cairo_link_attrs_t *li
 	    invalid_combination = TRUE;
 
     } else if (link_attrs->page) {
-	link_attrs->link_type = TAG_LINK_DEST;
+	link_attrs->link_type = TAG_LINK_PAGE;
 	if (link_attrs->uri || link_attrs->dest)
 	    invalid_combination = TRUE;
 

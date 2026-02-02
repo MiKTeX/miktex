@@ -111,7 +111,7 @@ _cairo_xcb_connection_find_visual_formats (cairo_xcb_connection_t *connection,
 		cairo_xcb_xrender_format_t *f;
 		cairo_status_t status;
 
-		f = _cairo_malloc (sizeof (cairo_xcb_xrender_format_t));
+		f = _cairo_calloc (sizeof (cairo_xcb_xrender_format_t));
 		if (unlikely (f == NULL))
 		    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -177,7 +177,7 @@ _cairo_xcb_connection_parse_xrender_formats (cairo_xcb_connection_t *connection,
 	    if (! _cairo_hash_table_lookup (connection->xrender_formats, &key)) {
 		cairo_xcb_xrender_format_t *f;
 
-		f = _cairo_malloc (sizeof (cairo_xcb_xrender_format_t));
+		f = _cairo_calloc (sizeof (cairo_xcb_xrender_format_t));
 		if (unlikely (f == NULL))
 		    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -239,7 +239,7 @@ _cairo_xcb_connection_parse_xrender_formats (cairo_xcb_connection_t *connection,
 /*
  * We require support for depth 1, 8, 24 and 32 pixmaps
  */
-#define DEPTH_MASK(d)	(1 << ((d) - 1))
+#define DEPTH_MASK(d)	((uint32_t)(1) << ((d) - 1))
 #define REQUIRED_DEPTHS	(DEPTH_MASK(1) | \
 			 DEPTH_MASK(8) | \
 			 DEPTH_MASK(24) | \
@@ -629,7 +629,7 @@ _cairo_xcb_connection_get (xcb_connection_t *xcb_connection)
 	}
     }
 
-    connection = _cairo_malloc (sizeof (cairo_xcb_connection_t));
+    connection = _cairo_calloc (sizeof (cairo_xcb_connection_t));
     if (unlikely (connection == NULL))
 	goto unlock;
 
@@ -686,7 +686,8 @@ _cairo_xcb_connection_get (xcb_connection_t *xcb_connection)
 
     connection->root = xcb_get_setup (xcb_connection);
     connection->render = NULL;
-    connection->subpixel_orders = calloc (connection->root->roots_len, sizeof(*connection->subpixel_orders));
+    connection->subpixel_orders = _cairo_calloc_ab (connection->root->roots_len,
+                                                 sizeof(*connection->subpixel_orders));
     if (unlikely (connection->subpixel_orders == NULL)) {
 	CAIRO_MUTEX_UNLOCK (connection->device.mutex);
 	_cairo_xcb_connection_destroy (connection);

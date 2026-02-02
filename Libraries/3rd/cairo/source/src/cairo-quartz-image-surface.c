@@ -292,7 +292,7 @@ cairo_quartz_image_surface_create (cairo_surface_t *surface)
     if (format != CAIRO_FORMAT_ARGB32 && format != CAIRO_FORMAT_RGB24)
 	return SURFACE_ERROR_INVALID_FORMAT;
 
-    qisurf = _cairo_malloc (sizeof(cairo_quartz_image_surface_t));
+    qisurf = _cairo_calloc (sizeof(cairo_quartz_image_surface_t));
     if (qisurf == NULL)
 	return SURFACE_ERROR_NO_MEMORY;
 

@@ -114,7 +114,7 @@ _cairo_xcb_picture_create (cairo_xcb_screen_t *screen,
 {
     cairo_xcb_picture_t *surface;
 
-    surface = _cairo_malloc (sizeof (cairo_xcb_picture_t));
+    surface = _cairo_calloc (sizeof (cairo_xcb_picture_t));
     if (unlikely (surface == NULL))
 	return (cairo_xcb_picture_t *)
 	    _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
@@ -4136,7 +4136,7 @@ _cairo_xcb_font_create (cairo_xcb_connection_t *connection,
     cairo_xcb_font_t	*priv;
     int i;
 
-    priv = _cairo_malloc (sizeof (cairo_xcb_font_t));
+    priv = _cairo_calloc (sizeof (cairo_xcb_font_t));
     if (unlikely (priv == NULL))
 	return NULL;
 
@@ -4329,7 +4329,7 @@ _cairo_xcb_glyph_fini (cairo_scaled_glyph_private_t *glyph_private,
 	}
 
 	if (to_free == NULL) {
-	    to_free = _cairo_malloc (sizeof (cairo_xcb_font_glyphset_free_glyphs_t));
+	    to_free = _cairo_calloc (sizeof (cairo_xcb_font_glyphset_free_glyphs_t));
 	    if (unlikely (to_free == NULL)) {
 		_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 		return; /* XXX cannot propagate failure */
@@ -4356,7 +4356,7 @@ _cairo_xcb_glyph_attach (cairo_xcb_connection_t  *c,
 {
     cairo_xcb_glyph_private_t *priv;
 
-    priv = _cairo_malloc (sizeof (*priv));
+    priv = _cairo_calloc (sizeof (*priv));
     if (unlikely (priv == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 

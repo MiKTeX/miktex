@@ -218,7 +218,7 @@ _cairo_xcb_connection_allocate_shm_info (cairo_xcb_connection_t *connection,
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
     }
 
-    pool = _cairo_malloc (sizeof (cairo_xcb_shm_mem_pool_t));
+    pool = _cairo_calloc (sizeof (cairo_xcb_shm_mem_pool_t));
     if (unlikely (pool == NULL)) {
 	CAIRO_MUTEX_UNLOCK (connection->shm_mutex);
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);

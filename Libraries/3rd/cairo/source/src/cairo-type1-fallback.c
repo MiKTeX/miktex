@@ -88,11 +88,11 @@ cairo_type1_font_create (cairo_scaled_font_subset_t  *scaled_font_subset,
     cairo_font_options_t font_options;
     cairo_status_t status;
 
-    font = calloc (1, sizeof (cairo_type1_font_t));
+    font = _cairo_calloc (sizeof (cairo_type1_font_t));
     if (unlikely (font == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
-    font->widths = calloc (scaled_font_subset->num_glyphs, sizeof (int));
+    font->widths = _cairo_calloc_ab (scaled_font_subset->num_glyphs, sizeof (int));
     if (unlikely (font->widths == NULL)) {
 	free (font);
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
@@ -107,6 +107,7 @@ cairo_type1_font_create (cairo_scaled_font_subset_t  *scaled_font_subset,
     cairo_matrix_init_identity (&ctm);
 
     _cairo_font_options_init_default (&font_options);
+    cairo_scaled_font_get_font_options (scaled_font_subset->scaled_font, &font_options);
     cairo_font_options_set_hint_style (&font_options, CAIRO_HINT_STYLE_NONE);
     cairo_font_options_set_hint_metrics (&font_options, CAIRO_HINT_METRICS_OFF);
 
@@ -746,7 +747,8 @@ _cairo_type1_fallback_init_internal (cairo_type1_subset_t	*type1_subset,
         goto fail1;
     }
 
-    type1_subset->widths = calloc (sizeof (double), font->scaled_font_subset->num_glyphs);
+    type1_subset->widths = _cairo_calloc_ab (font->scaled_font_subset->num_glyphs,
+					     sizeof (double));
     if (unlikely (type1_subset->widths == NULL)) {
         status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
         goto fail2;
@@ -840,7 +842,7 @@ _cairo_type2_charstrings_init (cairo_type2_charstrings_t *type2_subset,
 
     _cairo_array_init (&type2_subset->charstrings, sizeof (cairo_array_t));
 
-    type2_subset->widths = calloc (sizeof (int), font->scaled_font_subset->num_glyphs);
+    type2_subset->widths = _cairo_calloc_ab (font->scaled_font_subset->num_glyphs, sizeof (int));
     if (unlikely (type2_subset->widths == NULL)) {
         status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
         goto fail1;

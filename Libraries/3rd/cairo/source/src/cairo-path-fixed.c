@@ -325,7 +325,7 @@ _cairo_path_fixed_create (void)
 {
     cairo_path_fixed_t	*path;
 
-    path = _cairo_malloc (sizeof (cairo_path_fixed_t));
+    path = _cairo_calloc (sizeof (cairo_path_fixed_t));
     if (!path) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return NULL;

@@ -50,12 +50,12 @@ CAIRO_BEGIN_DECLS
  */
 #define MAX_FREED_POOL_SIZE 16
 typedef struct {
-    void *pool[MAX_FREED_POOL_SIZE];
+    cairo_atomic_intptr_t pool[MAX_FREED_POOL_SIZE];
     cairo_atomic_int_t top;
 } freed_pool_t;
 
 static cairo_always_inline void *
-_atomic_fetch (void **slot)
+_atomic_fetch (cairo_atomic_intptr_t *slot)
 {
     void *ptr;
 
@@ -67,7 +67,7 @@ _atomic_fetch (void **slot)
 }
 
 static cairo_always_inline cairo_bool_t
-_atomic_store (void **slot, void *ptr)
+_atomic_store (cairo_atomic_intptr_t *slot, void *ptr)
 {
     return _cairo_atomic_ptr_cmpxchg (slot, NULL, ptr);
 }

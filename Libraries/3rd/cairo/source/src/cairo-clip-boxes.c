@@ -318,7 +318,10 @@ _cairo_clip_intersect_boxes (cairo_clip_t *clip,
 	goto out;
     }
 
-    _cairo_boxes_copy_to_clip (boxes, clip);
+    if (!_cairo_boxes_copy_to_clip (boxes, clip)) {
+	clip = _cairo_clip_set_all_clipped (clip);
+	goto out;
+    }
 
     _cairo_boxes_extents (boxes, &limits);
 

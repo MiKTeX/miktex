@@ -3013,11 +3013,11 @@ cairo_tag_end (cairo_t *cr, const char *tag_name)
  * "sans-serif", "cursive", "fantasy", "monospace"), are likely to
  * work as expected.
  *
- * If @family starts with the string "@cairo:", or if no native font
+ * If @family starts with the string "\@cairo:", or if no native font
  * backends are compiled in, cairo will use an internal font family.
  * The internal font family recognizes many modifiers in the @family
  * string, most notably, it recognizes the string "monospace".  That is,
- * the family name "@cairo:monospace" will use the monospace version of
+ * the family name "\@cairo:monospace" will use the monospace version of
  * the internal font family.
  *
  * For "real" font selection, see the font-backend-specific

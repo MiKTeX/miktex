@@ -52,6 +52,7 @@
 #include "cairo-array-private.h"
 #include "cairo-error-private.h"
 #include "cairo-output-stream-private.h"
+#include "cairo-recording-surface-inline.h"
 #include "cairo-recording-surface-private.h"
 #include "cairo-surface-snapshot-inline.h"
 
@@ -159,7 +160,7 @@ command_list_push_group (cairo_pdf_surface_t    *surface,
     cairo_pdf_recording_surface_commands_t recording_commands;
     cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
 
-    group = _cairo_malloc (sizeof(cairo_pdf_command_list_t));
+    group = _cairo_calloc (sizeof(cairo_pdf_command_list_t));
     _cairo_array_init (&group->commands, sizeof(cairo_pdf_command_t));
     group->parent = ic->current_commands;
 
@@ -373,7 +374,7 @@ add_tree_node (cairo_pdf_surface_t           *surface,
     cairo_pdf_struct_tree_node_t *node;
     cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
 
-    node = _cairo_malloc (sizeof(cairo_pdf_struct_tree_node_t));
+    node = _cairo_calloc (sizeof(cairo_pdf_struct_tree_node_t));
     if (unlikely (node == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -483,7 +484,7 @@ add_annotation (cairo_pdf_surface_t           *surface,
     cairo_pdf_interchange_t *ic = &surface->interchange;
     cairo_pdf_annotation_t *annot;
 
-    annot = _cairo_malloc (sizeof (cairo_pdf_annotation_t));
+    annot = _cairo_calloc (sizeof (cairo_pdf_annotation_t));
     if (unlikely (annot == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -767,13 +768,11 @@ static cairo_int_status_t
 cairo_pdf_interchange_write_dest (cairo_pdf_surface_t *surface,
 				  cairo_link_attrs_t  *link_attrs)
 {
-    cairo_int_status_t status;
+    cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
     cairo_pdf_interchange_t *ic = &surface->interchange;
-    cairo_pdf_forward_link_t *link;
-    cairo_pdf_resource_t link_res;
 
     /* If the dest is known, emit an explicit dest */
-    if (link_attrs->dest) {
+    if (link_attrs->link_type == TAG_LINK_DEST_AND_URI || link_attrs->link_type == TAG_LINK_DEST) {
 	cairo_pdf_named_dest_t key;
 	cairo_pdf_named_dest_t *named_dest;
 
@@ -796,53 +795,56 @@ cairo_pdf_interchange_write_dest (cairo_pdf_surface_t *surface,
 	    if (named_dest->attrs.y_valid)
 		y = named_dest->attrs.y;
 
-	    _cairo_output_stream_printf (surface->object_stream.stream, "   /Dest ");
-	    status = cairo_pdf_interchange_write_explicit_dest (surface,
-                                                                named_dest->page,
-                                                                TRUE,
-                                                                x, y);
+	    if (named_dest->attrs.internal) {
+		_cairo_output_stream_printf (surface->object_stream.stream, "   /Dest ");
+		status = cairo_pdf_interchange_write_explicit_dest (surface,
+								    named_dest->page,
+								    TRUE,
+								    x, y);
+	    } else {
+		char *name = NULL;
+
+		status = _cairo_utf8_to_pdf_string (named_dest->attrs.name, &name);
+		if (unlikely (status))
+		    return status;
+
+		_cairo_output_stream_printf (surface->object_stream.stream, "   /Dest %s\n",
+					     name);
+		free (name);
+	    }
 	    return status;
 	}
-    }
-
-    /* If the page is known, emit an explicit dest */
-    if (!link_attrs->dest) {
-	if (link_attrs->page < 1)
-	    return _cairo_tag_error ("Link attribute: \"page=%d\" page must be >= 1", link_attrs->page);
-
-	if (link_attrs->page <= (int)_cairo_array_num_elements (&surface->pages)) {
-	    _cairo_output_stream_printf (surface->object_stream.stream, "   /Dest ");
-	    return cairo_pdf_interchange_write_explicit_dest (surface,
-							      link_attrs->page,
-							      link_attrs->has_pos,
-							      link_attrs->pos.x,
-							      link_attrs->pos.y);
+	/* name does not exist */
+	if (link_attrs->link_type == TAG_LINK_DEST_AND_URI) {
+	    /* Don't emit anything. The caller will fallback to emitting a URI destination. */
+	    return CAIRO_INT_STATUS_NOTHING_TO_DO;
 	}
+
+	/* Mising destination. Emit a "do nothing" dest that points to the same page and position. */
+	_cairo_tag_warning ("Link to dest=\"%s\" not found", link_attrs->dest);
+	_cairo_output_stream_printf (surface->object_stream.stream, "   /Dest ");
+	status = cairo_pdf_interchange_write_explicit_dest (surface,
+							    link_attrs->link_page,
+							    FALSE,
+							    0, 0);
+	return status;
     }
 
-    /* Link refers to a future or unknown page. Use an indirect object
-     * and write the link at the end of the document */
+    /* link_attrs->link_type == TAG_LINK_PAGE */
 
-    link = _cairo_malloc (sizeof (cairo_pdf_forward_link_t));
-    if (unlikely (link == NULL))
-	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+    if (link_attrs->page < 1)
+	return _cairo_tag_error ("Link attribute: \"page=%d\" page must be >= 1", link_attrs->page);
 
-    link_res = _cairo_pdf_surface_new_object (surface);
-    if (link_res.id == 0)
-	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+    if (link_attrs->page > (int)_cairo_array_num_elements (&surface->pages))
+	return _cairo_tag_error ("Link attribute: \"page=%d\" page exceeds page count (%d)",
+				 link_attrs->page, _cairo_array_num_elements (&surface->pages));
 
-    _cairo_output_stream_printf (surface->object_stream.stream,
-				 "   /Dest %d 0 R\n",
-				 link_res.id);
-
-    link->res = link_res;
-    link->dest = link_attrs->dest ? strdup (link_attrs->dest) : NULL;
-    link->page = link_attrs->page;
-    link->has_pos = link_attrs->has_pos;
-    link->pos = link_attrs->pos;
-    status = _cairo_array_append (&surface->forward_links, link);
-
-    return status;
+    _cairo_output_stream_printf (surface->object_stream.stream, "   /Dest ");
+    return cairo_pdf_interchange_write_explicit_dest (surface,
+						      link_attrs->page,
+						      link_attrs->has_pos,
+						      link_attrs->pos.x,
+						      link_attrs->pos.y);
 }
 
 static cairo_int_status_t
@@ -917,12 +919,20 @@ cairo_pdf_interchange_write_link_action (cairo_pdf_surface_t   *surface,
     cairo_int_status_t status;
     char *dest = NULL;
 
-    if (link_attrs->link_type == TAG_LINK_DEST) {
+    if (link_attrs->link_type == TAG_LINK_DEST_AND_URI ||
+	link_attrs->link_type == TAG_LINK_DEST         ||
+	link_attrs->link_type == TAG_LINK_PAGE)
+    {
 	status = cairo_pdf_interchange_write_dest (surface, link_attrs);
-	if (unlikely (status))
+	if (status != CAIRO_INT_STATUS_NOTHING_TO_DO)
 	    return status;
 
-    } else if (link_attrs->link_type == TAG_LINK_URI) {
+	/* CAIRO_INT_STATUS_NOTHING_TO_DO means that the link type is TAG_LINK_DEST_AND_URI
+	 * and the DEST is missing. Fall through to writing a URI link below.
+	 */
+    }
+
+    if (link_attrs->link_type == TAG_LINK_URI || link_attrs->link_type == TAG_LINK_DEST_AND_URI) {
 	status = _cairo_utf8_to_pdf_string (link_attrs->uri, &dest);
 	if (unlikely (status))
 	    return status;
@@ -1460,67 +1470,6 @@ strcmp_null (const char *s1, const char *s2)
 }
 
 static cairo_int_status_t
-cairo_pdf_interchange_write_forward_links (cairo_pdf_surface_t *surface)
-{
-    int num_elems, i;
-    cairo_pdf_forward_link_t *link;
-    cairo_int_status_t status;
-    cairo_pdf_named_dest_t key;
-    cairo_pdf_named_dest_t *named_dest;
-    cairo_pdf_interchange_t *ic = &surface->interchange;
-
-    num_elems = _cairo_array_num_elements (&surface->forward_links);
-    for (i = 0; i < num_elems; i++) {
-	link = _cairo_array_index (&surface->forward_links, i);
-	if (link->page > (int)_cairo_array_num_elements (&surface->pages))
-	    return _cairo_tag_error ("Link attribute: \"page=%d\" page exceeds page count (%d)",
-				     link->page, _cairo_array_num_elements (&surface->pages));
-
-
-	status = _cairo_pdf_surface_object_begin (surface, link->res);
-	if (unlikely (status))
-	    return status;
-
-	if (link->dest) {
-	    key.attrs.name = link->dest;
-	    init_named_dest_key (&key);
-	    named_dest = _cairo_hash_table_lookup (ic->named_dests, &key.base);
-	    if (named_dest) {
-		double x = 0;
-		double y = 0;
-
-		if (named_dest->extents.valid) {
-		    x = named_dest->extents.extents.x;
-		    y = named_dest->extents.extents.y;
-		}
-
-		if (named_dest->attrs.x_valid)
-		    x = named_dest->attrs.x;
-
-		if (named_dest->attrs.y_valid)
-		    y = named_dest->attrs.y;
-
-		status = cairo_pdf_interchange_write_explicit_dest (surface,
-								    named_dest->page,
-								    TRUE,
-								    x, y);
-	    } else {
-		return _cairo_tag_error ("Link to dest=\"%s\" not found", link->dest);
-	    }
-	} else {
-	    cairo_pdf_interchange_write_explicit_dest (surface,
-						       link->page,
-						       link->has_pos,
-						       link->pos.x,
-						       link->pos.y);
-	}
-	_cairo_pdf_surface_object_end (surface);
-    }
-
-    return CAIRO_STATUS_SUCCESS;
-}
-
-static cairo_int_status_t
 cairo_pdf_interchange_write_page_labels (cairo_pdf_surface_t *surface)
 {
     int num_elems, i;
@@ -1634,7 +1583,7 @@ _cairo_pdf_interchange_write_document_dests (cairo_pdf_surface_t *surface)
         return CAIRO_STATUS_SUCCESS;
     }
 
-    ic->sorted_dests = calloc (ic->num_dests, sizeof (cairo_pdf_named_dest_t *));
+    ic->sorted_dests = _cairo_calloc_ab (ic->num_dests, sizeof (cairo_pdf_named_dest_t *));
     if (unlikely (ic->sorted_dests == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -1657,6 +1606,7 @@ _cairo_pdf_interchange_write_document_dests (cairo_pdf_surface_t *surface)
 	cairo_pdf_named_dest_t *dest = ic->sorted_dests[i];
 	double x = 0;
 	double y = 0;
+	char *name = NULL;
 
 	if (dest->attrs.internal)
 	    continue;
@@ -1672,13 +1622,19 @@ _cairo_pdf_interchange_write_document_dests (cairo_pdf_surface_t *surface)
 	if (dest->attrs.y_valid)
 	    y = dest->attrs.y;
 
+	status = _cairo_utf8_to_pdf_string (dest->attrs.name, &name);
+	if (unlikely (status))
+	    return status;
+
 	page_info = _cairo_array_index (&surface->pages, dest->page - 1);
 	_cairo_output_stream_printf (surface->object_stream.stream,
-				     "   (%s) [%d 0 R /XYZ %f %f 0]\n",
-				     dest->attrs.name,
+				     "   %s [%d 0 R /XYZ %f %f 0]\n",
+				     name,
 				     page_info->page_res.id,
 				     x,
 				     page_info->height - y);
+	free (name);
+
     }
     _cairo_output_stream_printf (surface->object_stream.stream,
 				 "  ]\n"
@@ -1810,7 +1766,7 @@ _cairo_pdf_interchange_begin_structure_tag (cairo_pdf_surface_t    *surface,
 	    return status;
 
 	/* Add to command_id to node map. */
-	command_entry = _cairo_malloc (sizeof(cairo_pdf_command_entry_t));
+	command_entry = _cairo_calloc (sizeof(cairo_pdf_command_entry_t));
 	command_entry->recording_id = ic->recording_id;
 	command_entry->command_id = ic->command_id;
 	command_entry->node = ic->current_analyze_node;
@@ -1826,7 +1782,7 @@ _cairo_pdf_interchange_begin_structure_tag (cairo_pdf_surface_t    *surface,
 	}
 
 	if (ic->current_analyze_node->type == PDF_NODE_CONTENT) {
-	    cairo_pdf_content_tag_t *content = _cairo_malloc (sizeof(cairo_pdf_content_tag_t));
+	    cairo_pdf_content_tag_t *content = _cairo_calloc (sizeof(cairo_pdf_content_tag_t));
 	    content->node = ic->current_analyze_node;
 	    _cairo_pdf_content_tag_init_key (content);
 	    status = _cairo_hash_table_insert (ic->content_tag_map, &content->base);
@@ -1882,7 +1838,7 @@ _cairo_pdf_interchange_begin_dest_tag (cairo_pdf_surface_t    *surface,
     cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
 
     if (surface->paginated_mode == CAIRO_PAGINATED_MODE_ANALYZE) {
-	dest = calloc (1, sizeof (cairo_pdf_named_dest_t));
+	dest = _cairo_calloc (sizeof (cairo_pdf_named_dest_t));
 	if (unlikely (dest == NULL))
 	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -2003,6 +1959,8 @@ _cairo_pdf_interchange_tag_end (cairo_pdf_surface_t *surface,
 
     } else if (surface->paginated_mode == CAIRO_PAGINATED_MODE_RENDER) {
 	status = _cairo_tag_stack_pop (&ic->render_tag_stack, name, &elem);
+    } else {
+	ASSERT_NOT_REACHED;
     }
     if (unlikely (status))
 	return status;
@@ -2035,14 +1993,22 @@ _cairo_pdf_interchange_command_id (cairo_pdf_surface_t  *surface,
     if (surface->paginated_mode == CAIRO_PAGINATED_MODE_RENDER && ic->current_render_node) {
 	/* TODO If the group does not have tags we don't need to close the current tag. */
 	if (command_list_is_group (surface, command_id)) {
+	    /* A "Do /xnnn" can not be inside a tag (since the
+	     * XObject may also contain tags). Close the tag.
+	     */
 	    if (ic->marked_content_open) {
 		status = _cairo_pdf_operators_tag_end (&surface->pdf_operators);
 		ic->marked_content_open = FALSE;
 	    }
-	    if (command_list_has_content (surface, command_id, NULL)) {
+	    /* If there is any more content after this and we are
+	     * inside a tag (current node is not the root node),
+	     * ensure that the next command will open the tag.
+	     */
+	    if (command_list_has_content (surface, command_id, NULL) && ic->current_render_node->parent) {
 		ic->render_next_command_has_content = TRUE;
 	    }
 	} else if (ic->render_next_command_has_content) {
+	    /* After a "Do /xnnn" operation, if there is more content, open the tag. */
 	    add_mcid_to_node (surface, ic->current_render_node, ic->command_id, &mcid);
 	    status = _cairo_pdf_operators_tag_begin (&surface->pdf_operators,
 						     ic->current_render_node->name, mcid);
@@ -2071,7 +2037,9 @@ _cairo_pdf_interchange_struct_tree_requires_recording_surface (
     if (_cairo_surface_is_snapshot (recording_surface))
 	free_me = recording_surface = _cairo_surface_snapshot_get_target (recording_surface);
 
-    if (_cairo_recording_surface_has_tags (recording_surface)) {
+    if (_cairo_surface_is_recording (recording_surface) &&
+	_cairo_recording_surface_has_tags (recording_surface))
+    {
 	/* Check if tags are to be ignored in this source */
 	switch (source_type) {
 	    case CAIRO_ANALYSIS_SOURCE_PAINT:
@@ -2416,10 +2384,6 @@ _cairo_pdf_interchange_write_document_objects (cairo_pdf_surface_t *surface)
     if (unlikely (status))
 	return status;
 
-    status = cairo_pdf_interchange_write_forward_links (surface);
-    if (unlikely (status))
-	return status;
-
     status = cairo_pdf_interchange_write_names_dict (surface);
     if (unlikely (status))
 	return status;
@@ -2477,7 +2441,7 @@ _cairo_pdf_interchange_init (cairo_pdf_surface_t *surface)
 
     _cairo_tag_stack_init (&ic->analysis_tag_stack);
     _cairo_tag_stack_init (&ic->render_tag_stack);
-    ic->struct_root = calloc (1, sizeof(cairo_pdf_struct_tree_node_t));
+    ic->struct_root = _cairo_calloc (sizeof(cairo_pdf_struct_tree_node_t));
     if (unlikely (ic->struct_root == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -2521,7 +2485,7 @@ _cairo_pdf_interchange_init (cairo_pdf_surface_t *surface)
     ic->mcid_order = 0;
 
     _cairo_array_init (&ic->outline, sizeof(cairo_pdf_outline_entry_t *));
-    outline_root = calloc (1, sizeof(cairo_pdf_outline_entry_t));
+    outline_root = _cairo_calloc (sizeof(cairo_pdf_outline_entry_t));
     if (unlikely (outline_root == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -2635,7 +2599,7 @@ _cairo_pdf_interchange_add_outline (cairo_pdf_surface_t        *surface,
     if (parent_id < 0 || parent_id >= (int)_cairo_array_num_elements (&ic->outline))
 	return CAIRO_STATUS_SUCCESS;
 
-    outline = _cairo_malloc (sizeof(cairo_pdf_outline_entry_t));
+    outline = _cairo_calloc (sizeof(cairo_pdf_outline_entry_t));
     if (unlikely (outline == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -2869,8 +2833,10 @@ _cairo_pdf_interchange_set_custom_metadata (cairo_pdf_surface_t  *surface,
     if (value && strlen(value)) {
 	new_data.name = strdup (name);
 	status = _cairo_utf8_to_pdf_string (value, &s);
-	if (unlikely (status))
+	if (unlikely (status)) {
+            free (new_data.name);
 	    return status;
+        }
 	new_data.value = s;
 	status = _cairo_array_append (&ic->custom_metadata, &new_data);
     }
