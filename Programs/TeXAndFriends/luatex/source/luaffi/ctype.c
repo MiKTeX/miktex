@@ -6,8 +6,10 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include <ctype.h>
 #include "ffi.h"
+
+#define LOCAL_ALIGN_MASK 15
+#define LOCAL_ALIGNED_PTR(p) (void*) ( ((uintptr_t)p&LOCAL_ALIGN_MASK)?(((uintptr_t)p & ~LOCAL_ALIGN_MASK) + 0x10 ):(uintptr_t)p )
 
 static int to_define_key;
 
@@ -83,7 +85,23 @@ void set_defined(lua_State* L, int ct_usr, struct ctype* ct)
         lua_pop(L, 1);
     }
 }
-void setup_ctype(lua_State* L,int ct_usr,const struct ctype* ct){
+
+struct ctype* push_ctype(lua_State* L, int ct_usr, const struct ctype* ct)
+{
+    struct ctype* ret;
+    ct_usr = lua_absindex(L, ct_usr);
+
+    ret = (struct ctype*) lua_newuserdata(L, sizeof(struct ctype));
+	/*
+	{
+		void * p = NULL;
+		p = lua_newuserdata(L, 16 + sizeof(struct ctype));
+		ret = (struct ctype*)LOCAL_ALIGNED_PTR(p);
+	}
+	*/
+	//*ret = *ct; 03-May-2022 trial fix
+	memcpy(ret, ct, sizeof(struct ctype));
+
     push_upval(L, &ctype_mt_key);
     lua_setmetatable(L, -2);
 
@@ -102,29 +120,6 @@ void setup_ctype(lua_State* L,int ct_usr,const struct ctype* ct){
     if (!ct->is_defined && ct_usr && !lua_isnil(L, ct_usr)) {
         update_on_definition(L, ct_usr, -1);
     }
-}
-struct member_type* push_member_type(lua_State* L, int ct_usr, const struct member_type* mt)
-{
-    struct member_type* ret;
-    ct_usr = lua_absindex(L, ct_usr);
-
-    ret = (struct member_type*) lua_newuserdata(L, sizeof(struct member_type));
-    *ret = *mt;
-
-    setup_ctype(L,ct_usr,&mt->ct);
-
-    return ret;
-}
-
-struct ctype* push_ctype(lua_State* L, int ct_usr, const struct ctype* ct)
-{
-    struct ctype* ret;
-    ct_usr = lua_absindex(L, ct_usr);
-
-    ret = (struct ctype*) lua_newuserdata(L, sizeof(struct ctype));
-    *ret = *ct;
-
-    setup_ctype(L,ct_usr,ct);
 
     return ret;
 }
@@ -162,19 +157,23 @@ void* push_cdata(lua_State* L, int ct_usr, const struct ctype* ct)
      * then writing the bits back) and the read is aligned its a non-issue,
      * but valgrind complains nonetheless.
      */
-    /* Changed:To allow fast write to memory for struct in 64-bit machine in jit
-     */
     if (ct->has_bitfield) {
-      sz = ALIGN_UP(sz, 7);
+        sz = ALIGN_UP(sz, 7);
     }
 
-    cd = (struct cdata*) lua_newuserdata(L, sizeof(struct cdata) + sz);
-    *(struct ctype*) &cd->type = *ct;
-    memset(cd+1, 0, sz);
+	{
+		void * p = NULL;
+		//p = lua_newuserdata(L, 16 + sizeof(struct cdata) + sz);
+		p = lua_newuserdata(L, sizeof(struct cdata) + sz);
+		//cd = (struct cdata*)LOCAL_ALIGNED_PTR(p);
+		cd = (struct cdata*)p;
+	}
+    memcpy((struct ctype*) &(cd->type), ct, sizeof(struct ctype));
+    memset((struct ctype*)cd+1, 0, sz);
 
+#if 0
     /* TODO: handle cases where lua_newuserdata returns a pointer that is not
      * aligned */
-#if 0
     assert((uintptr_t) (cd + 1) % 8 == 0);
 #endif
 
@@ -214,16 +213,12 @@ void push_callback(lua_State* L, cfunction luafunc, cfunction cfunc)
 void check_ctype(lua_State* L, int idx, struct ctype* ct)
 {
     if (lua_isstring(L, idx)) {
-        struct parser P;char ch;
+        struct parser P;
         P.line = 1;
         P.prev = P.next = lua_tostring(L, idx);
         P.align_mask = DEFAULT_ALIGN_MASK;
         parse_type(L, &P, ct);
-        parse_argument(L, &P, -1, ct, NULL, NULL, 0);
-        ch=P.next[0];
-        if(ch&&!isspace(ch)){
-            luaL_error(L,"unexpected end of type name :%s",P.next);
-        }
+        parse_argument(L, &P, -1, ct, NULL, NULL);
         lua_remove(L, -2); /* remove the user value from parse_type */
 
     } else if (lua_getmetatable(L, idx)) {
@@ -233,7 +228,8 @@ void check_ctype(lua_State* L, int idx, struct ctype* ct)
         }
 
         lua_pop(L, 1); /* pop the metatable */
-        *ct = *(struct ctype*) lua_touserdata(L, idx);
+        //*ct = *(struct ctype*) lua_touserdata(L, idx);
+		memcpy(ct, lua_touserdata(L, idx), sizeof(struct ctype));
         lua_getuservalue(L, idx);
 
     } else {
@@ -246,36 +242,6 @@ err:
     luaL_error(L, "expected cdata, ctype or string for arg #%d", idx);
 }
 
-/* static ALWAYS_INLINE int is_cdata(lua_State* L, int idx){*/
-static int is_cdata(lua_State* L, int idx){
-    if (!lua_isuserdata(L, idx) || !lua_getmetatable(L, idx)) {
-        lua_pushnil(L);
-        return 0;
-    }
-
-    if (!equals_upval(L, -1, &cdata_mt_key)) {
-        lua_pop(L, 1); /* mt */
-        lua_pushnil(L);
-        return 0;
-    }
-    lua_pop(L, 1); /* mt */
-    return 1;
-}
-
-/**
- * get_ctype return the type for the c_data on idx
- * @param L
- * @param idx
- * @return
- */
-const struct ctype* get_ctype(lua_State* L, int idx){
-
-    if(!is_cdata(L,idx))
-        return NULL;
-
-    return  &((struct cdata*) lua_touserdata(L, idx))->type;
-
-}
 /* to_cdata returns the struct cdata* and pushes the user value onto the
  * stack. If the index is not a ctype then ct is set to the zero value such
  * that ct->type is INVALID_TYPE, a nil is pushed, and NULL is returned. */
@@ -284,14 +250,34 @@ void* to_cdata(lua_State* L, int idx, struct ctype* ct)
     struct cdata* cd;
 
     memset(ct, 0, sizeof(struct ctype));
-
-    if(!is_cdata(L,idx))
+    if (!lua_isuserdata(L, idx) || !lua_getmetatable(L, idx)) {
+        lua_pushnil(L);
         return NULL;
+    }
 
+    if (!equals_upval(L, -1, &cdata_mt_key)) {
+        lua_pop(L, 1); /* mt */
+        lua_pushnil(L);
+        return NULL;
+    }
+
+    lua_pop(L, 1); /* mt */
+
+	/*
+	*/
     cd = (struct cdata*) lua_touserdata(L, idx);
-    if (!cd) {lua_pushnil(L);return NULL;}
-    
-    *ct = cd->type;
+    memcpy(ct, &(cd->type), sizeof(struct ctype));
+	/*
+	{
+		void * p = NULL;
+		p = lua_touserdata(L, idx);
+		// *(struct ctype*) &cd->type = *ct;
+		cd = (struct cdata*)LOCAL_ALIGNED_PTR(p);
+		printf("%s:%d p=[%p] cd = [%p]\n", __FILE__, __LINE__, p, cd);
+	}
+    memcpy(ct, &(cd->type), sizeof(struct ctype));
+	*/
+
     lua_getuservalue(L, idx);
 
     if (ct->is_reference) {

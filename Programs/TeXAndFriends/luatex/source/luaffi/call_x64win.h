@@ -1,8 +1,8 @@
 /*
 ** This file has been pre-processed with DynASM.
-** http://luajit.org/dynasm.html
-** DynASM version 1.4.0, DynASM x64 version 1.4.0
-** DO NOT EDIT! The original file is in "/home/luigisvn/lua/ravi-ffi-master-for-luaffi/call_x86.dasc".
+** https://luajit.org/dynasm.html
+** DynASM version 1.5.0, DynASM x64 version 1.4.0
+** DO NOT EDIT! The original file is in "call_x86.dasc".
 */
 
 /* vim: ts=4 sw=4 sts=4 et tw=78
@@ -13,122 +13,126 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#if DASM_VERSION != 10400
+#if DASM_VERSION != 10500
 #error "Version mismatch between DynASM and included encoding engine"
 #endif
 
-static const unsigned char build_actionlist[1922] = {
-  72,199,194,237,76,137,225,232,251,1,0,72,199,194,252,254,252,255,252,255,
-  252,255,76,137,225,232,251,1,1,255,72,139,141,233,255,72,137,132,253,36,233,
-  255,221,133,233,255,217,133,233,255,252,243,15,126,133,233,255,252,243,15,
-  90,133,233,255,221,156,253,36,233,255,217,156,253,36,233,255,102,15,214,132,
-  253,36,233,255,252,242,15,90,192,102,15,214,132,253,36,233,255,252,242,15,
-  90,192,102,15,126,132,253,36,233,255,85,72,137,229,65,84,72,129,252,236,239,
-  72,137,77,16,72,137,85,24,76,137,69,32,76,137,77,40,102,15,214,69,252,240,
-  102,15,214,77,232,102,15,214,85,224,102,15,214,93,216,255,73,188,237,237,
-  255,73,199,192,237,72,199,194,237,76,137,225,232,251,1,2,255,73,199,192,237,
-  72,199,194,252,255,252,255,252,255,252,255,76,137,225,232,251,1,2,255,73,
-  199,192,237,72,199,194,237,76,137,225,232,251,1,2,73,184,237,237,72,199,194,
-  252,255,252,255,252,255,252,255,76,137,225,232,251,1,3,255,72,137,8,72,199,
-  194,252,254,252,255,252,255,252,255,76,137,225,232,251,1,4,255,73,137,193,
-  255,73,199,192,237,72,137,202,76,137,201,232,251,1,5,255,72,137,8,255,72,
-  137,202,76,137,225,232,251,1,6,255,73,184,237,237,72,199,194,0,0,0,0,76,137,
-  225,232,251,1,3,255,72,139,17,72,137,16,72,139,81,8,72,137,80,8,255,252,243,
-  15,126,200,76,137,225,232,251,1,7,255,15,182,201,72,137,202,76,137,225,232,
-  251,1,8,255,15,182,201,255,15,190,201,255,72,137,202,76,137,225,232,251,1,
-  9,255,15,183,201,255,15,191,201,255,72,137,202,76,137,225,232,251,1,10,255,
-  73,199,192,237,72,199,194,237,76,137,225,232,251,1,11,255,73,199,192,237,
-  72,199,194,252,254,252,255,252,255,252,255,76,137,225,232,251,1,2,73,185,
-  237,237,73,199,192,252,255,252,255,252,255,252,255,72,199,194,252,254,252,
-  255,252,255,252,255,76,137,225,232,251,1,12,72,137,68,36,32,72,199,194,252,
-  252,252,255,252,255,252,255,76,137,225,232,251,1,13,72,139,68,36,32,255,73,
-  199,192,237,72,199,194,252,254,252,255,252,255,252,255,76,137,225,232,251,
-  1,2,73,185,237,237,73,199,192,252,255,252,255,252,255,252,255,72,199,194,
-  252,254,252,255,252,255,252,255,76,137,225,232,251,1,14,137,68,36,32,72,199,
-  194,252,252,252,255,252,255,252,255,76,137,225,232,251,1,13,139,68,36,32,
-  255,72,199,194,252,254,252,255,252,255,252,255,76,137,225,232,251,1,13,255,
-  72,199,194,252,255,252,255,252,255,252,255,76,137,225,232,251,1,15,255,72,
-  199,194,252,255,252,255,252,255,252,255,76,137,225,232,251,1,16,255,137,68,
-  36,32,72,199,194,252,253,252,255,252,255,252,255,76,137,225,232,251,1,13,
-  139,68,36,32,255,72,199,194,252,255,252,255,252,255,252,255,76,137,225,232,
-  251,1,17,255,72,199,194,252,255,252,255,252,255,252,255,76,137,225,232,251,
-  1,18,255,72,137,68,36,32,72,199,194,252,253,252,255,252,255,252,255,76,137,
-  225,232,251,1,13,72,139,68,36,32,255,72,199,194,252,255,252,255,252,255,252,
-  255,76,137,225,232,251,1,19,72,137,68,36,32,72,199,194,252,253,252,255,252,
-  255,252,255,76,137,225,232,251,1,13,72,139,68,36,32,255,72,199,194,252,255,
-  252,255,252,255,252,255,76,137,225,232,251,1,20,102,15,214,68,36,32,72,199,
-  194,252,253,252,255,252,255,252,255,76,137,225,232,251,1,13,255,252,242,15,
-  90,68,36,32,255,252,243,15,126,68,36,32,255,73,199,192,237,72,199,194,252,
-  254,252,255,252,255,252,255,76,137,225,232,251,1,2,73,185,237,237,73,199,
-  192,252,255,252,255,252,255,252,255,72,199,194,252,254,252,255,252,255,252,
-  255,76,137,225,232,251,1,21,72,137,68,36,32,72,199,194,252,253,252,255,252,
-  255,252,255,76,137,225,232,251,1,13,72,139,68,36,32,255,72,139,0,255,252,
-  243,15,126,0,255,252,243,15,126,0,252,243,15,126,72,8,255,72,137,194,72,139,
-  0,72,139,82,8,255,137,194,139,0,139,82,4,255,72,141,141,233,73,199,192,237,
-  72,137,194,72,137,201,232,251,1,5,72,141,133,233,255,72,199,194,252,255,252,
-  255,252,255,252,255,76,137,225,232,251,1,22,72,137,68,36,32,72,199,194,252,
-  253,252,255,252,255,252,255,76,137,225,232,251,1,13,72,139,68,36,32,255,72,
-  139,141,233,76,137,226,73,199,192,252,255,252,255,252,255,252,255,232,251,
-  1,23,72,139,133,233,255,76,139,101,252,248,72,137,252,236,93,194,236,255,
-  85,72,137,229,65,84,65,85,73,137,204,255,72,131,252,236,32,76,137,225,232,
-  251,1,24,73,137,197,72,129,252,248,239,15,141,244,247,102,184,0,0,72,186,
-  237,237,76,137,225,232,251,1,25,248,1,72,193,224,4,72,41,196,255,72,129,252,
-  236,239,255,73,184,237,237,72,199,194,0,0,0,0,76,137,225,232,251,1,3,72,131,
-  252,236,16,255,73,185,237,237,73,199,192,237,72,199,194,237,76,137,225,232,
-  251,1,12,255,73,185,237,237,73,199,192,237,72,199,194,237,76,137,225,232,
-  251,1,26,255,73,185,237,237,73,199,192,237,72,199,194,237,76,137,225,232,
-  251,1,14,255,72,199,194,237,76,137,225,232,251,1,16,255,15,182,192,255,15,
-  190,192,255,15,183,192,255,15,191,192,255,72,199,194,237,76,137,225,232,251,
-  1,16,131,252,248,0,15,149,208,15,182,192,255,72,199,194,237,76,137,225,232,
-  251,1,15,255,72,199,194,237,76,137,225,232,251,1,19,255,72,199,194,237,76,
-  137,225,232,251,1,17,255,72,199,194,237,76,137,225,232,251,1,18,255,72,199,
-  194,237,76,137,225,232,251,1,20,255,73,185,237,237,73,199,192,237,72,199,
-  194,237,76,137,225,232,251,1,21,255,72,137,194,72,141,133,233,255,72,137,
-  193,73,199,192,237,232,251,1,5,255,72,141,133,233,73,199,192,237,76,137,226,
-  72,137,193,232,251,1,23,255,72,199,194,237,76,137,225,232,251,1,22,255,73,
-  129,252,253,239,15,142,244,247,72,137,224,72,129,192,239,73,137,193,77,137,
-  232,72,199,194,237,76,137,225,232,251,1,27,72,137,224,72,129,192,239,73,137,
-  193,73,199,192,237,72,199,194,237,76,137,225,232,251,1,28,252,233,244,248,
-  248,1,72,137,224,72,129,192,239,73,137,193,77,137,232,72,199,194,237,76,137,
-  225,232,251,1,28,248,2,255,72,137,224,72,129,192,239,73,137,193,77,137,232,
-  72,199,194,237,76,137,225,232,251,1,27,255,72,131,196,32,255,252,243,15,126,
-  156,253,36,233,255,76,139,140,253,36,233,255,252,243,15,126,148,253,36,233,
-  255,76,139,132,253,36,233,255,252,243,15,126,140,253,36,233,255,72,139,148,
-  253,36,233,255,252,243,15,126,4,36,255,72,139,12,36,255,232,251,1,29,72,131,
-  252,236,48,255,72,137,68,36,32,73,184,237,237,72,199,194,237,76,137,225,232,
-  251,1,3,72,139,76,36,32,72,137,8,184,1,0,0,0,76,139,109,252,240,76,139,101,
-  252,248,72,137,252,236,93,195,255,72,137,68,36,32,73,184,237,237,72,199,194,
-  237,76,137,225,232,251,1,3,72,139,76,36,32,72,137,8,72,139,76,36,40,255,72,
-  137,194,76,137,225,232,251,1,6,184,1,0,0,0,76,139,109,252,240,76,139,101,
-  252,248,72,137,252,236,93,195,255,72,137,68,36,32,73,184,237,237,72,199,194,
-  0,0,0,0,76,137,225,232,251,1,3,72,139,76,36,32,72,137,8,184,1,0,0,0,76,139,
-  109,252,240,76,139,101,252,248,72,137,252,236,93,195,255,184,0,0,0,0,76,139,
-  109,252,240,76,139,101,252,248,72,137,252,236,93,195,255,15,182,192,72,137,
-  194,76,137,225,232,251,1,8,184,1,0,0,0,76,139,109,252,240,76,139,101,252,
-  248,72,137,252,236,93,195,255,72,137,194,76,137,225,232,251,1,9,184,1,0,0,
-  0,76,139,109,252,240,76,139,101,252,248,72,137,252,236,93,195,255,72,137,
-  194,76,137,225,232,251,1,10,184,1,0,0,0,76,139,109,252,240,76,139,101,252,
-  248,72,137,252,236,93,195,255,252,243,15,90,192,252,243,15,126,200,76,137,
-  225,232,251,1,7,184,1,0,0,0,76,139,109,252,240,76,139,101,252,248,72,137,
-  252,236,93,195,255
+static const unsigned char build_actionlist[2100] = {
+  72,139,141,233,255,72,137,132,253,36,233,255,221,133,233,255,217,133,233,
+  255,252,243,15,126,133,233,255,252,243,15,90,133,233,255,221,156,253,36,233,
+  255,217,156,253,36,233,255,102,15,214,132,253,36,233,255,252,242,15,90,192,
+  102,15,214,132,253,36,233,255,252,242,15,90,192,102,15,126,132,253,36,233,
+  255,85,72,137,229,65,84,72,129,252,236,239,72,137,77,16,72,137,85,24,76,137,
+  69,32,76,137,77,40,102,15,214,69,252,240,102,15,214,77,232,102,15,214,85,
+  224,102,15,214,93,216,255,73,188,237,237,255,73,199,192,237,72,199,194,237,
+  76,137,225,232,251,1,0,255,73,199,192,237,72,199,194,252,255,252,255,252,
+  255,252,255,76,137,225,232,251,1,0,255,73,199,192,237,72,199,194,237,76,137,
+  225,232,251,1,0,73,184,237,237,72,199,194,252,255,252,255,252,255,252,255,
+  76,137,225,232,251,1,1,255,72,137,8,72,199,194,252,254,252,255,252,255,252,
+  255,76,137,225,232,251,1,2,255,73,184,237,237,72,199,194,0,0,0,0,76,137,225,
+  232,251,1,1,255,72,137,8,255,102,15,214,0,255,217,24,255,217,88,4,255,102,
+  15,214,64,8,255,252,243,15,126,200,76,137,225,232,251,1,3,255,15,182,201,
+  72,137,202,76,137,225,232,251,1,4,255,15,182,201,255,15,190,201,255,72,137,
+  202,76,137,225,232,251,1,5,255,15,183,201,255,15,191,201,255,72,137,202,76,
+  137,225,232,251,1,6,255,73,185,237,237,73,199,192,237,72,199,194,237,76,137,
+  225,232,251,1,7,255,73,199,192,237,72,199,194,252,254,252,255,252,255,252,
+  255,76,137,225,232,251,1,0,73,185,237,237,73,199,192,252,255,252,255,252,
+  255,252,255,72,199,194,252,254,252,255,252,255,252,255,76,137,225,232,251,
+  1,8,72,137,68,36,32,72,199,194,252,252,252,255,252,255,252,255,76,137,225,
+  232,251,1,9,72,139,68,36,32,255,73,199,192,237,72,199,194,252,254,252,255,
+  252,255,252,255,76,137,225,232,251,1,0,73,185,237,237,73,199,192,252,255,
+  252,255,252,255,252,255,72,199,194,252,254,252,255,252,255,252,255,76,137,
+  225,232,251,1,10,137,68,36,32,72,199,194,252,252,252,255,252,255,252,255,
+  76,137,225,232,251,1,9,139,68,36,32,255,72,199,194,252,254,252,255,252,255,
+  252,255,76,137,225,232,251,1,9,255,72,199,194,252,255,252,255,252,255,252,
+  255,76,137,225,232,251,1,11,255,72,199,194,252,255,252,255,252,255,252,255,
+  76,137,225,232,251,1,12,255,137,68,36,32,72,199,194,252,253,252,255,252,255,
+  252,255,76,137,225,232,251,1,9,139,68,36,32,255,72,199,194,252,255,252,255,
+  252,255,252,255,76,137,225,232,251,1,13,255,72,199,194,252,255,252,255,252,
+  255,252,255,76,137,225,232,251,1,14,255,72,137,68,36,32,72,199,194,252,253,
+  252,255,252,255,252,255,76,137,225,232,251,1,9,72,139,68,36,32,255,72,199,
+  194,252,255,252,255,252,255,252,255,76,137,225,232,251,1,15,72,137,68,36,
+  32,72,199,194,252,253,252,255,252,255,252,255,76,137,225,232,251,1,9,72,139,
+  68,36,32,255,72,199,194,252,255,252,255,252,255,252,255,76,137,225,232,251,
+  1,16,102,15,214,68,36,32,72,199,194,252,253,252,255,252,255,252,255,76,137,
+  225,232,251,1,9,255,252,242,15,90,68,36,32,255,252,243,15,126,68,36,32,255,
+  72,199,194,252,255,252,255,252,255,252,255,76,137,225,232,251,1,17,102,15,
+  214,68,36,32,72,199,194,252,253,252,255,252,255,252,255,76,137,225,232,251,
+  1,9,252,243,15,126,68,36,32,255,72,199,194,252,255,252,255,252,255,252,255,
+  76,137,225,232,251,1,18,102,15,214,68,36,32,102,15,214,76,36,40,72,199,194,
+  252,253,252,255,252,255,252,255,76,137,225,232,251,1,9,252,243,15,126,68,
+  36,32,252,243,15,126,76,36,40,255,72,139,141,233,73,199,192,252,255,252,255,
+  252,255,252,255,76,137,226,72,137,201,232,251,1,18,72,131,252,236,4,72,199,
+  194,252,253,252,255,252,255,252,255,76,137,225,232,251,1,9,255,76,139,101,
+  252,248,72,137,252,236,93,194,236,255,85,72,137,229,65,84,65,85,73,137,204,
+  72,131,252,236,32,76,137,225,232,251,1,19,73,137,197,72,129,252,248,239,255,
+  15,141,244,248,102,184,0,0,72,186,237,237,76,137,225,232,251,1,20,248,2,15,
+  142,244,247,102,184,0,0,72,186,237,237,76,137,225,232,251,1,20,255,15,141,
+  244,247,102,184,0,0,72,186,237,237,76,137,225,232,251,1,20,255,248,1,255,
+  72,193,224,4,72,41,196,72,129,252,236,239,255,73,184,237,237,72,199,194,0,
+  0,0,0,76,137,225,232,251,1,1,72,131,252,236,16,255,73,185,237,237,73,199,
+  192,237,72,199,194,237,76,137,225,232,251,1,8,255,73,185,237,237,73,199,192,
+  237,72,199,194,237,76,137,225,232,251,1,21,255,73,185,237,237,73,199,192,
+  237,72,199,194,237,76,137,225,232,251,1,10,255,72,199,194,237,76,137,225,
+  232,251,1,12,255,15,182,192,255,15,190,192,255,15,183,192,255,15,191,192,
+  255,72,199,194,237,76,137,225,232,251,1,12,131,252,248,0,15,149,208,15,182,
+  192,255,72,199,194,237,76,137,225,232,251,1,11,255,72,199,194,237,76,137,
+  225,232,251,1,15,255,72,199,194,237,76,137,225,232,251,1,13,255,72,199,194,
+  237,76,137,225,232,251,1,14,255,72,199,194,237,76,137,225,232,251,1,16,255,
+  72,199,194,237,76,137,225,232,251,1,18,255,252,243,15,126,193,255,72,141,
+  132,253,36,233,72,131,252,236,4,73,199,192,237,76,137,226,72,137,193,232,
+  251,1,18,255,72,199,194,237,76,137,225,232,251,1,17,255,72,199,194,237,76,
+  137,225,232,251,1,17,137,4,36,217,4,36,255,137,20,36,217,4,36,255,73,129,
+  252,253,239,15,142,244,247,72,137,224,72,129,192,239,73,137,193,77,137,232,
+  72,199,194,237,76,137,225,232,251,1,22,72,137,224,72,129,192,239,73,137,193,
+  73,199,192,237,72,199,194,237,76,137,225,232,251,1,23,252,233,244,248,248,
+  1,72,137,224,72,129,192,239,73,137,193,77,137,232,72,199,194,237,76,137,225,
+  232,251,1,23,248,2,255,72,137,224,72,129,192,239,73,137,193,77,137,232,72,
+  199,194,237,76,137,225,232,251,1,22,255,72,185,237,237,139,1,72,137,193,232,
+  251,1,24,255,72,131,196,32,255,252,243,15,126,156,253,36,233,255,76,139,140,
+  253,36,233,255,252,243,15,126,148,253,36,233,255,76,139,132,253,36,233,255,
+  252,243,15,126,140,253,36,233,255,72,139,148,253,36,233,255,252,243,15,126,
+  4,36,255,72,139,12,36,255,232,251,1,25,72,131,252,236,48,255,72,137,68,36,
+  32,232,251,1,26,72,185,237,237,137,1,73,184,237,237,72,199,194,237,76,137,
+  225,232,251,1,1,72,139,76,36,32,72,137,8,184,1,0,0,0,76,139,109,252,240,76,
+  139,101,252,248,72,137,252,236,93,195,255,72,137,68,36,32,232,251,1,26,72,
+  185,237,237,137,1,72,139,68,36,32,72,137,194,76,137,225,232,251,1,27,184,
+  1,0,0,0,76,139,109,252,240,76,139,101,252,248,72,137,252,236,93,195,255,72,
+  137,68,36,32,232,251,1,26,72,185,237,237,137,1,73,184,237,237,72,199,194,
+  0,0,0,0,76,137,225,232,251,1,1,72,139,76,36,32,72,137,8,184,1,0,0,0,76,139,
+  109,252,240,76,139,101,252,248,72,137,252,236,93,195,255,102,15,214,68,36,
+  32,232,251,1,26,72,185,237,237,137,1,73,184,237,237,72,199,194,237,76,137,
+  225,232,251,1,1,72,139,76,36,32,72,137,8,184,1,0,0,0,76,139,109,252,240,76,
+  139,101,252,248,72,137,252,236,93,195,255,102,15,214,76,36,40,102,15,214,
+  68,36,32,232,251,1,26,72,185,237,237,137,1,73,184,237,237,72,199,194,237,
+  76,137,225,232,251,1,1,72,139,76,36,40,72,137,72,8,72,139,76,36,32,72,137,
+  8,184,1,0,0,0,76,139,109,252,240,76,139,101,252,248,72,137,252,236,93,195,
+  255,232,251,1,26,72,185,237,237,137,1,184,0,0,0,0,76,139,109,252,240,76,139,
+  101,252,248,72,137,252,236,93,195,255,15,182,192,137,68,36,32,232,251,1,26,
+  72,185,237,237,137,1,139,68,36,32,72,137,194,76,137,225,232,251,1,4,184,1,
+  0,0,0,76,139,109,252,240,76,139,101,252,248,72,137,252,236,93,195,255,137,
+  68,36,32,232,251,1,26,72,185,237,237,137,1,139,68,36,32,72,137,194,76,137,
+  225,232,251,1,5,184,1,0,0,0,76,139,109,252,240,76,139,101,252,248,72,137,
+  252,236,93,195,255,137,68,36,32,232,251,1,26,72,185,237,237,137,1,139,68,
+  36,32,72,137,194,76,137,225,232,251,1,6,184,1,0,0,0,76,139,109,252,240,76,
+  139,101,252,248,72,137,252,236,93,195,255,252,243,15,90,192,102,15,214,68,
+  36,32,232,251,1,26,72,185,237,237,137,1,252,243,15,126,76,36,32,76,137,225,
+  232,251,1,3,184,1,0,0,0,76,139,109,252,240,76,139,101,252,248,72,137,252,
+  236,93,195,255
 };
 
 static const char *const globnames[] = {
   (const char *)0
 };
 static const char *const extnames[] = {
-  "lua_pushvalue",
-  "lua_setuservalue",
-  "rawgeti",
+  "lua_rawgeti",
   "push_cdata",
   "lua_remove",
-  "memcpy",
-  "lua_pushinteger",
   "lua_pushnumber",
   "lua_pushboolean",
   "push_int",
   "push_uint",
-  "lua_call",
+  "lua_callk",
   "check_typed_pointer",
   "lua_settop",
   "check_enum",
@@ -138,7 +142,6 @@ static const char *const extnames[] = {
   "check_int64",
   "check_uintptr",
   "check_double",
-  "check_struct",
   "check_complex_float",
   "check_complex_double",
   "lua_gettop",
@@ -146,9 +149,13 @@ static const char *const extnames[] = {
   "check_typed_cfunction",
   "unpack_varargs_stack",
   "unpack_varargs_reg",
+  "SetLastError",
   "FUNCTION",
+  "GetLastError",
+  "lua_pushinteger",
   (const char *)0
 };
+
 
 
 
@@ -204,7 +211,7 @@ static void compile_extern_jump(struct jit* jit, lua_State* L, cfunction func, u
 void compile_globals(struct jit* jit, lua_State* L)
 {
     struct jit* Dst = jit;
-    //int* perr = &jit->last_errno;
+    int* perr = &jit->last_errno;
     dasm_setup(Dst, build_actionlist);
 
     /* Note: since the return code uses EBP to reset the stack pointer, we
@@ -219,94 +226,6 @@ void compile_globals(struct jit* jit, lua_State* L)
 
 
     compile(Dst, L, NULL, LUA_NOREF);
-}
-
-
-#ifdef _WIN64
-#define MAX_REGISTERS(ct) 4 /* rcx, rdx, r8, r9 */
-
-#elif defined __amd64__
-#define MAX_INT_REGISTERS(ct) 6 /* rdi, rsi, rdx, rcx, r8, r9 */
-#define MAX_FLOAT_REGISTERS(ct) 8 /* xmm0-7 */
-
-#else
-#define MAX_INT_REGISTERS(ct) ((ct)->calling_convention == FAST_CALL ? 2 /* ecx, edx */ : 0)
-#define MAX_FLOAT_REGISTERS(ct) 0
-#endif
-
-#if defined(_WIN64)||defined(__amd64__)
-#define X64 1
-#else
-#define X64 0
-#endif
-
-struct reg_alloc {
-#ifdef _WIN64
-    int regs;
-    int is_float[4];
-    int is_int[4];
-#else
-    int floats;
-    int ints;
-#endif
-    int off;
-};
-
-#ifdef _WIN64
-#define REGISTER_STACK_SPACE(ct) (4*8)
-#elif defined __amd64__
-#define REGISTER_STACK_SPACE(ct) (14*8)
-#else
-#define REGISTER_STACK_SPACE(ct) ALIGN_UP(((ct)->calling_convention == FAST_CALL ? 2*4 : 0), 15)
-#endif
-#if defined __amd64__
-// float struct is passed by xmm0-xmm7
-static int float_reg_size(lua_State* L,int idx, const struct ctype* ct){
-	struct ctype* mt;
-	int i,ct_usr;
-	if(ct->base_size>16){
-        return 0;
-    }
-    lua_getuservalue(L,idx);
-	ct_usr=lua_absindex(L,-1);
-    for (i = 1;; ++i) {
-        lua_rawgeti(L,ct_usr,i);
-		if(lua_isnil(L,-1)){
-            lua_pop(L,1);
-            break;
-        }
-        mt=(struct ctype*)lua_touserdata(L,-1);
-        if((mt->pointers&&!mt->is_array)||mt->is_reference||
-			!(mt->type==FLOAT_TYPE||mt->type==DOUBLE_TYPE||((mt->type==STRUCT_TYPE||mt->type==UNION_TYPE)&&float_reg_size(L,-1,mt)))){
-            lua_pop(L,2);
-            return 0;
-        }
-        lua_pop(L,1);
-    }
-	
-	lua_pop(L,1);
-    return (ct->base_size+7)>>3;
-}
-#endif
-
-static int return_by_address(const struct ctype* mbr_ct){
-	
-	if(mbr_ct->is_reference|| mbr_ct->pointers) return 0;
-#ifdef _WIN64
-	return mbr_ct->base_size!=8&&mbr_ct->base_size!=2&&mbr_ct->base_size!=1&&mbr_ct->base_size!=4&& mbr_ct->base_size != 0;;
-#elif defined __amd64__
-	return mbr_ct->base_size>16;
-#else
-	if(mbr_ct->base_size>8) return 1;
-	if(mbr_ct->type==STRUCT_TYPE||mbr_ct->type==UNION_TYPE){
-		#if defined _WIN32
-		return 0;
-		#else
-		return 1;	
-		#endif	
-	}
-	return 0;
-#endif	
 }
 
 int x86_return_size(lua_State* L, int usr, const struct ctype* ct)
@@ -347,10 +266,6 @@ int x86_return_size(lua_State* L, int usr, const struct ctype* ct)
                 case ENUM_TYPE:
                     ret += 4;
                     break;
-				case STRUCT_TYPE:
-				case UNION_TYPE:
-					ret +=ALIGN_UP(mt->base_size,3);
-					break; 
                 default:
                     return luaL_error(L, "NYI - argument type");
                 }
@@ -363,7 +278,7 @@ int x86_return_size(lua_State* L, int usr, const struct ctype* ct)
 #if !defined _WIN64 && !defined __amd64__
     lua_rawgeti(L, usr, 0);
     mt = (const struct ctype*) lua_touserdata(L, -1);
-    if (return_by_address(mt)) {
+    if (!mt->pointers && !mt->is_reference && mt->type == COMPLEX_DOUBLE_TYPE) {
         ret += sizeof(void*);
     }
     lua_pop(L, 1);
@@ -372,11 +287,37 @@ int x86_return_size(lua_State* L, int usr, const struct ctype* ct)
     return ret;
 }
 
-static void fix_usr_value(Dst_DECL,lua_State* L, int num_upvals){
-	if(!lua_isnil(L,-1)){
-		dasm_put(Dst, 0, lua_upvalueindex(num_upvals));
-	}
-}
+#ifdef _WIN64
+#define MAX_REGISTERS(ct) 4 /* rcx, rdx, r8, r9 */
+
+#elif defined __amd64__
+#define MAX_INT_REGISTERS(ct) 6 /* rdi, rsi, rdx, rcx, r8, r9 */
+#define MAX_FLOAT_REGISTERS(ct) 8 /* xmm0-7 */
+
+#else
+#define MAX_INT_REGISTERS(ct) ((ct)->calling_convention == FAST_CALL ? 2 /* ecx, edx */ : 0)
+#define MAX_FLOAT_REGISTERS(ct) 0
+#endif
+
+struct reg_alloc {
+#ifdef _WIN64
+    int regs;
+    int is_float[4];
+    int is_int[4];
+#else
+    int floats;
+    int ints;
+#endif
+    int off;
+};
+
+#ifdef _WIN64
+#define REGISTER_STACK_SPACE(ct) (4*8)
+#elif defined __amd64__
+#define REGISTER_STACK_SPACE(ct) (14*8)
+#else
+#define REGISTER_STACK_SPACE(ct) ALIGN_UP(((ct)->calling_convention == FAST_CALL ? 2*4 : 0), 15)
+#endif
 
 /* Fastcall:
  * Uses ecx, edx as first two int registers
@@ -392,33 +333,31 @@ static void get_int(Dst_DECL, const struct ctype* ct, struct reg_alloc* reg, int
     /* grab the register from the shadow space */
 #ifdef _WIN64
     if (reg->regs < MAX_REGISTERS(ct)) {
-        dasm_put(Dst, 30, 16 + 8*reg->regs);
+        dasm_put(Dst, 0, 16 + 8*reg->regs);
         reg->regs++;
     }
 #elif __amd64__
     if (reg->ints < MAX_INT_REGISTERS(ct)) {
-        dasm_put(Dst, 30, - 80 - 8*reg->ints);
+        dasm_put(Dst, 0, - 80 - 8*reg->ints);
         reg->ints++;
     }
 #else
     if (!is_int64 && reg->ints < MAX_INT_REGISTERS(ct)) {
-        dasm_put(Dst, 31, - 8 - 4*reg->ints);
+        dasm_put(Dst, 1, - 8 - 4*reg->ints);
         reg->ints++;
     }
 #endif
-    else {
-#if X64
-        if (reg->off &7) {
-            reg->off = ALIGN_UP(reg->off,7);
-        }
+    else if (is_int64) {
+        dasm_put(Dst, 0, reg->off);
+        reg->off += 8;
+    } else {
+        dasm_put(Dst, 1, reg->off);
+#if defined __amd64__ || defined _WIN64
+		/* The parameters to a function on stack are always 8 byte aligned. */
+        reg->off += 8;
+#else
+        reg->off += 4;
 #endif
-        if (is_int64) {
-            dasm_put(Dst, 30, reg->off);
-            reg->off += 8;
-        } else {
-            dasm_put(Dst, 31, reg->off);
-            reg->off += 4;
-        }
     }
 }
 
@@ -426,31 +365,31 @@ static void add_int(Dst_DECL, const struct ctype* ct, struct reg_alloc* reg, int
 {
 #ifdef _WIN64
     if (reg->regs < MAX_REGISTERS(ct)) {
-        dasm_put(Dst, 35, 32 + 8*(reg->regs));
+        dasm_put(Dst, 5, 32 + 8*(reg->regs));
         reg->is_int[reg->regs++] = 1;
     }
 #elif __amd64__
     if (reg->ints < MAX_INT_REGISTERS(ct)) {
-        dasm_put(Dst, 35, 32 + 8*reg->ints);
+        dasm_put(Dst, 5, 32 + 8*reg->ints);
         reg->ints++;
     }
 #else
     if (!is_int64 && reg->ints < MAX_INT_REGISTERS(ct)) {
-        dasm_put(Dst, 35, 32 + 4*reg->ints);
+        dasm_put(Dst, 5, 32 + 4*reg->ints);
         reg->ints++;
     }
 #endif
     else {
-#if X64
-        if (reg->off &7) {
-            reg->off = ALIGN_UP(reg->off,7);
+#if defined _WIN64 || defined __amd64__
+        if (reg->off % 8 != 0) {
+            reg->off += 8 - (reg->off % 8);
         }
 #endif
         if (is_int64) {
-            dasm_put(Dst, 35, reg->off);
+            dasm_put(Dst, 5, reg->off);
             reg->off += 8;
         } else {
-            dasm_put(Dst, 36, reg->off);
+            dasm_put(Dst, 6, reg->off);
             reg->off += 4;
         }
     }
@@ -458,13 +397,13 @@ static void add_int(Dst_DECL, const struct ctype* ct, struct reg_alloc* reg, int
 
 static void get_float(Dst_DECL, const struct ctype* ct, struct reg_alloc* reg, int is_double)
 {
-#if !X64
+#if !defined _WIN64 && !defined __amd64__
     assert(MAX_FLOAT_REGISTERS(ct) == 0);
     if (is_double) {
-        dasm_put(Dst, 42, reg->off);
+        dasm_put(Dst, 12, reg->off);
         reg->off += 8;
     } else {
-        dasm_put(Dst, 46, reg->off);
+        dasm_put(Dst, 16, reg->off);
         reg->off += 4;
     }
 #else
@@ -476,25 +415,20 @@ static void get_float(Dst_DECL, const struct ctype* ct, struct reg_alloc* reg, i
         reg->regs++;
     }
 #else
-    if (reg->floats< MAX_FLOAT_REGISTERS(ct)) {
+    if (reg->floats < MAX_FLOAT_REGISTERS(ct)) {
         off = -16 - 8*reg->floats;
         reg->floats++;
     }
 #endif
     else {
-#if X64
-        if (reg->off % 8 != 0) {
-            reg->off += 8 - (reg->off % 8);
-        }
-#endif
-        off = reg->off;        
+        off = reg->off;
         reg->off += is_double ? 8 : 4;
     }
 
     if (is_double) {
-        dasm_put(Dst, 50, off);
+        dasm_put(Dst, 20, off);
     } else {
-        dasm_put(Dst, 57, off);
+        dasm_put(Dst, 27, off);
     }
 #endif
 }
@@ -504,10 +438,10 @@ static void add_float(Dst_DECL, const struct ctype* ct, struct reg_alloc* reg, i
 #if !defined _WIN64 && !defined __amd64__
     assert(MAX_FLOAT_REGISTERS(ct) == 0);
     if (is_double) {
-        dasm_put(Dst, 64, reg->off);
+        dasm_put(Dst, 34, reg->off);
         reg->off += 8;
     } else {
-        dasm_put(Dst, 70, reg->off);
+        dasm_put(Dst, 40, reg->off);
         reg->off += 4;
     }
 #else
@@ -515,35 +449,29 @@ static void add_float(Dst_DECL, const struct ctype* ct, struct reg_alloc* reg, i
 #ifdef _WIN64
     if (reg->regs < MAX_REGISTERS(ct)) {
         if (is_double) {
-            dasm_put(Dst, 76, 32 + 8*(reg->regs));
+            dasm_put(Dst, 46, 32 + 8*(reg->regs));
         } else {
-            dasm_put(Dst, 84, 32 + 8*(reg->regs));
+            dasm_put(Dst, 54, 32 + 8*(reg->regs));
         }
         reg->is_float[reg->regs++] = 1;
     }
 #else
     if (reg->floats < MAX_FLOAT_REGISTERS(ct)) {
         if (is_double) {
-            dasm_put(Dst, 76, 32 + 8*(MAX_INT_REGISTERS(ct) + reg->floats));
+            dasm_put(Dst, 46, 32 + 8*(MAX_INT_REGISTERS(ct) + reg->floats));
         } else {
-            dasm_put(Dst, 84, 32 + 8*(MAX_INT_REGISTERS(ct) + reg->floats));
+            dasm_put(Dst, 54, 32 + 8*(MAX_INT_REGISTERS(ct) + reg->floats));
         }
         reg->floats++;
     }
 #endif
-    else {
-#if defined _WIN64 || defined __amd64__
-        if (reg->off % 8 != 0) {
-            reg->off += 8 - (reg->off % 8);
-        }
-#endif    
-        if (is_double) {
-            dasm_put(Dst, 76, reg->off);
-            reg->off += 8;
-        } else {
-            dasm_put(Dst, 97, reg->off);
-            reg->off += 4;
-        }
+
+    else if (is_double) {
+        dasm_put(Dst, 46, reg->off);
+        reg->off += 8;
+    } else {
+        dasm_put(Dst, 67, reg->off);
+        reg->off += 4;
     }
 #endif
 }
@@ -598,39 +526,33 @@ cfunction compile_callback(lua_State* L, int fidx, int ct_usr, const struct ctyp
 
     // setup a stack frame to hold args for the call into lua_call
 
-    dasm_put(Dst, 110, 8 + 16 + 32 + REGISTER_STACK_SPACE(ct));
+    dasm_put(Dst, 80, 8 + 16 + 32 + REGISTER_STACK_SPACE(ct));
     if (ct->calling_convention == FAST_CALL) {
     }
 
     // hardcode the lua_State* value into the assembly
-    dasm_put(Dst, 159, (unsigned int)((uintptr_t)(L)), (unsigned int)(((uintptr_t)(L))>>32));
+    dasm_put(Dst, 129, (unsigned int)((uintptr_t)(L)), (unsigned int)(((uintptr_t)(L))>>32));
 
     /* get the upval table */
-    dasm_put(Dst, 164, ref, LUA_REGISTRYINDEX);
+    dasm_put(Dst, 134, ref, LUA_REGISTRYINDEX);
 
     /* get the lua function */
     lua_pushvalue(L, fidx);
     lua_rawseti(L, -2, ++num_upvals);
     assert(num_upvals == CALLBACK_FUNC_USR_IDX);
-    dasm_put(Dst, 180, num_upvals);
+    dasm_put(Dst, 150, num_upvals);
 
-
+#if !defined _WIN64 && !defined __amd64__
     lua_rawgeti(L, ct_usr, 0);
     mt = (const struct ctype*) lua_touserdata(L, -1);
-    if (return_by_address(mt)) {
-#if defined _WIN64
-		reg.regs++;
-		hidden_arg_off= 16;
-#elif defined __amd64__
-		reg.ints++;
-		hidden_arg_off= -80;
-#else
+    if (!mt->pointers && !mt->is_reference && mt->type == COMPLEX_DOUBLE_TYPE) {
         hidden_arg_off = reg.off;
         reg.off += sizeof(void*);
-#endif		
     }
     lua_pop(L, 1);
-
+#else
+    (void) hidden_arg_off;
+#endif
 
     for (i = 1; i <= nargs; i++) {
         lua_rawgeti(L, ct_usr, i);
@@ -643,151 +565,90 @@ cfunction compile_callback(lua_State* L, int fidx, int ct_usr, const struct ctyp
             /* on the lua stack in the callback:
              * upval tbl, lua func, i-1 args
              */
-            dasm_put(Dst, 203, num_upvals-1, -i-1, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
+            dasm_put(Dst, 173, num_upvals-1, -i-1, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
             get_pointer(Dst, ct, &reg);
-            dasm_put(Dst, 241);
+            dasm_put(Dst, 211);
         } else {
             switch (mt->type) {
-			case STRUCT_TYPE:
-			case UNION_TYPE:{
-#if defined __amd64__
-				int floats=float_reg_size(L,-1,mt);
-				
-#endif
-				int size=mt->base_size;
-				lua_getuservalue(L, -1);
-				lua_rawseti(L, -3, ++num_upvals); /* usr value */
-				lua_rawseti(L, -2, ++num_upvals); /* mt */
-				 /* on the lua stack in the callback:
-				 * upval tbl, lua func, i-1 args
-				 */
-				dasm_put(Dst, 203, num_upvals-1, -i-1, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
-#if defined _WIN64
-				{
-					if(size!=8&&size!=2&&size!=1&&size!=4){
-						dasm_put(Dst, 263);
-						get_pointer(Dst, ct, &reg);
-						dasm_put(Dst, 267, size);
-					}else{
-						get_int(Dst, ct, &reg, 1);
-						dasm_put(Dst, 282);
-					}
-				}
-				
-#elif defined __amd64__
-				if(floats>0){
-					if(floats>1&&reg.floats==MAX_FLOAT_REGISTERS(ct)-1){
-						reg.floats++;// ensure argument not splited
-					}
-					get_float(Dst, ct, &reg, 1);
-					if(floats>1){
-						get_float(Dst, ct, &reg, 1);
-					}
-				}else if(size>16){
-					reg.off+=ALIGN_UP(size,3);
-				}else {
-					if(size>8&&reg.ints==MAX_INT_REGISTERS(ct)-1){
-						reg.ints++;// ensure argument not splited
-					}
-					get_int(Dst, ct, &reg, 1);
-					if(size>8){
-						get_int(Dst, ct, &reg, 1);
-					}
-				}
-#else
-				reg.off+=ALIGN_UP(size,3);	
-#endif	
-				dasm_put(Dst, 244);
-				break;
-			}	
             case INT64_TYPE:
-			#if LUA_VERSION_NUM >=503
-				lua_pop(L, 1);
-                get_int(Dst, ct, &reg, 1);
-				dasm_put(Dst, 286);
-			#else
                 lua_getuservalue(L, -1);
                 lua_rawseti(L, -3, ++num_upvals); /* mt */
                 lua_pop(L, 1);
-                dasm_put(Dst, 297, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
+                dasm_put(Dst, 233, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
                 get_int(Dst, ct, &reg, 1);
-                dasm_put(Dst, 282);
-			#endif	
+                dasm_put(Dst, 252);
                 break;
 
             case INTPTR_TYPE:
                 lua_getuservalue(L, -1);
                 lua_rawseti(L, -3, ++num_upvals); /* mt */
                 lua_pop(L, 1);
-                dasm_put(Dst, 297, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
+                dasm_put(Dst, 233, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
                 get_pointer(Dst, ct, &reg);
-                dasm_put(Dst, 282);
+                dasm_put(Dst, 252);
                 break;
 
             case COMPLEX_FLOAT_TYPE:
                 lua_pop(L, 1);
-                dasm_put(Dst, 297, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
-#if defined _WIN64 
-				/* complex floats are two floats packed into a int64_t */
-				get_int(Dst, ct, &reg, 1);
-				dasm_put(Dst, 282);
-#elif defined __amd64__
+#if defined _WIN64 || defined __amd64__
                 /* complex floats are two floats packed into a double */
+                dasm_put(Dst, 233, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
                 get_float(Dst, ct, &reg, 1);
+                dasm_put(Dst, 256);
 #else
                 /* complex floats are real followed by imag on the stack */
+                dasm_put(Dst, 233, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
                 get_float(Dst, ct, &reg, 0);
+                dasm_put(Dst, 261);
                 get_float(Dst, ct, &reg, 0);
+                dasm_put(Dst, 264);
 #endif
                 break;
 
             case COMPLEX_DOUBLE_TYPE:
                 lua_pop(L, 1);
-                dasm_put(Dst, 297, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
-#if defined _WIN64
-				get_int(Dst, ct, &reg, 1);
-				dasm_put(Dst, 316);
-#else
+                dasm_put(Dst, 233, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
                 /* real */
                 get_float(Dst, ct, &reg, 1);
+                dasm_put(Dst, 256);
                 /* imag */
                 get_float(Dst, ct, &reg, 1);
-#endif				
+                dasm_put(Dst, 268);
                 break;
 
             case FLOAT_TYPE:
             case DOUBLE_TYPE:
                 lua_pop(L, 1);
                 get_float(Dst, ct, &reg, mt->type == DOUBLE_TYPE);
-                dasm_put(Dst, 331);
+                dasm_put(Dst, 274);
                 break;
 
             case BOOL_TYPE:
                 lua_pop(L, 1);
                 get_int(Dst, ct, &reg, 0);
-                dasm_put(Dst, 344);
+                dasm_put(Dst, 287);
                 break;
 
             case INT8_TYPE:
                 lua_pop(L, 1);
                 get_int(Dst, ct, &reg, 0);
                 if (mt->is_unsigned) {
-                    dasm_put(Dst, 358);
+                    dasm_put(Dst, 301);
                 } else {
-                    dasm_put(Dst, 362);
+                    dasm_put(Dst, 305);
                 }
-                dasm_put(Dst, 366);
+                dasm_put(Dst, 309);
                 break;
 
             case INT16_TYPE:
                 lua_pop(L, 1);
                 get_int(Dst, ct, &reg, 0);
                 if (mt->is_unsigned) {
-                    dasm_put(Dst, 377);
+                    dasm_put(Dst, 320);
                 } else {
-                    dasm_put(Dst, 381);
+                    dasm_put(Dst, 324);
                 }
-                dasm_put(Dst, 366);
+                dasm_put(Dst, 309);
                 break;
 
             case ENUM_TYPE:
@@ -795,9 +656,9 @@ cfunction compile_callback(lua_State* L, int fidx, int ct_usr, const struct ctyp
                 lua_pop(L, 1);
                 get_int(Dst, ct, &reg, 0);
                 if (mt->is_unsigned) {
-                    dasm_put(Dst, 385);
+                    dasm_put(Dst, 328);
                 } else {
-                    dasm_put(Dst, 366);
+                    dasm_put(Dst, 309);
                 }
                 break;
 
@@ -810,7 +671,7 @@ cfunction compile_callback(lua_State* L, int fidx, int ct_usr, const struct ctyp
     lua_rawgeti(L, ct_usr, 0);
     mt = (const struct ctype*) lua_touserdata(L, -1);
 
-    dasm_put(Dst, 396, (mt->pointers || mt->is_reference || mt->type != VOID_TYPE) ? 1 : 0, nargs);
+    dasm_put(Dst, 339, (unsigned int)((uintptr_t)(0)), (unsigned int)(((uintptr_t)(0))>>32), (mt->pointers || mt->is_reference || mt->type != VOID_TYPE) ? 1 : 0, nargs);
 
     // Unpack the return argument if not "void", also clean-up the lua stack
     // to remove the return argument and bind table. Use lua_settop rather
@@ -819,7 +680,7 @@ cfunction compile_callback(lua_State* L, int fidx, int ct_usr, const struct ctyp
         lua_getuservalue(L, -1);
         lua_rawseti(L, -3, ++num_upvals); /* usr value */
         lua_rawseti(L, -2, ++num_upvals); /* mt */
-        dasm_put(Dst, 412, num_upvals-1, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
+        dasm_put(Dst, 359, num_upvals-1, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
 
     } else {
         switch (mt->type) {
@@ -827,12 +688,12 @@ cfunction compile_callback(lua_State* L, int fidx, int ct_usr, const struct ctyp
             lua_getuservalue(L, -1);
             lua_rawseti(L, -3, ++num_upvals); /* usr value */
             lua_rawseti(L, -2, ++num_upvals); /* mt */
-            dasm_put(Dst, 496, num_upvals-1, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
+            dasm_put(Dst, 443, num_upvals-1, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
             break;
 
         case VOID_TYPE:
             lua_pop(L, 1);
-            dasm_put(Dst, 578);
+            dasm_put(Dst, 525);
             break;
 
         case BOOL_TYPE:
@@ -841,104 +702,64 @@ cfunction compile_callback(lua_State* L, int fidx, int ct_usr, const struct ctyp
         case INT32_TYPE:
             lua_pop(L, 1);
             if (mt->is_unsigned) {
-                dasm_put(Dst, 597);
+                dasm_put(Dst, 544);
             } else {
-                dasm_put(Dst, 616);
+                dasm_put(Dst, 563);
             }
-            dasm_put(Dst, 635);
+            dasm_put(Dst, 582);
             break;
 
         case INT64_TYPE:
             lua_pop(L, 1);
 
             if (mt->is_unsigned) {
-                dasm_put(Dst, 662);
+                dasm_put(Dst, 609);
             } else {
-                dasm_put(Dst, 681);
+                dasm_put(Dst, 628);
             }
 
-            dasm_put(Dst, 700);
+            dasm_put(Dst, 647);
             break;
 
         case INTPTR_TYPE:
             lua_pop(L, 1);
-            dasm_put(Dst, 729);
+            dasm_put(Dst, 676);
             break;
 
         case FLOAT_TYPE:
         case DOUBLE_TYPE:
             lua_pop(L, 1);
-            dasm_put(Dst, 776);
+            dasm_put(Dst, 723);
             if (mt->type == FLOAT_TYPE) {
-                dasm_put(Dst, 819);
+                dasm_put(Dst, 766);
             } else {
-                dasm_put(Dst, 827);
+                dasm_put(Dst, 774);
             }
             break;
-		case STRUCT_TYPE:
-		case UNION_TYPE:{
-#if defined __amd64__
-			int floats=float_reg_size(L,-1,mt);
-#endif
-			int size=mt->base_size;
-			lua_getuservalue(L, -1);
-            lua_rawseti(L, -3, ++num_upvals); /* usr value */
-            lua_rawseti(L, -2, ++num_upvals); /* mt */
-			dasm_put(Dst, 835, num_upvals-1, (unsigned int)((uintptr_t)(mt)), (unsigned int)(((uintptr_t)(mt))>>32));
-#if defined _WIN64
-			if(!return_by_address(mt)){
-				dasm_put(Dst, 919);
-			}else
-#elif defined __amd64__
-			if(floats){
-				if(size<=8){
-					dasm_put(Dst, 923);
-				}else{
-					dasm_put(Dst, 929);
-				}
-			}else if(size<=16){
-				if(size<=8){
-					dasm_put(Dst, 919);
-				}else{
-					dasm_put(Dst, 941);
-				}
-			}else
-#else
-			#ifdef _WIN32
-			if(size<=8){
-				if(size<=4){
-					dasm_put(Dst, 920);
-				}else{
-					dasm_put(Dst, 952);
-				}
-			}else
-			#endif
-			
-#endif
-			{
-				dasm_put(Dst, 960, hidden_arg_off, size, hidden_arg_off);
-			}
-			break;
-		}
+
         case COMPLEX_FLOAT_TYPE:
             lua_pop(L, 1);
-
+#if !defined HAVE_COMPLEX
+            luaL_error(L, "ffi lib compiled without complex number support");
+#endif
             /* on 64 bit complex floats are two floats packed into a double,
              * on 32 bit returned complex floats use eax and edx */
-            dasm_put(Dst, 983);
+            dasm_put(Dst, 782);
             break;
 
         case COMPLEX_DOUBLE_TYPE:
             lua_pop(L, 1);
-
+#if !defined HAVE_COMPLEX
+            luaL_error(L, "ffi lib compiled without complex number support");
+#endif
             /* on 64 bit, returned complex doubles use xmm0, xmm1, on 32 bit
              * there is a hidden first parameter that points to 16 bytes where
              * the returned arg is stored which is popped by the called
              * function */
-#if defined _WIN64
-			dasm_put(Dst, 1030, hidden_arg_off, hidden_arg_off);
-#elif defined __amd64__
+#if defined _WIN64 || defined __amd64__
+            dasm_put(Dst, 832);
 #else
+            dasm_put(Dst, 895, hidden_arg_off);
 #endif
             break;
 
@@ -947,7 +768,7 @@ cfunction compile_callback(lua_State* L, int fidx, int ct_usr, const struct ctyp
         }
     }
 
-    dasm_put(Dst, 1057, x86_return_size(L, ct_usr, ct));
+    dasm_put(Dst, 944, x86_return_size(L, ct_usr, ct));
 
     lua_pop(L, 1); /* upval table - already in registry */
     assert(lua_gettop(L) == top);
@@ -960,47 +781,17 @@ cfunction compile_callback(lua_State* L, int fidx, int ct_usr, const struct ctyp
 
     return *pf;
 }
-// leave enough stack for structs
-static int caculate_extra_stack(lua_State* L,int ct_usr,size_t nargs){
-	const struct ctype* mbr_ct;
-	int extra=0;int i;
-	for (i = 1; i <= nargs; i++) {
-        lua_rawgeti(L, ct_usr, (int) i);
-        mbr_ct = (const struct ctype*) lua_touserdata(L, -1);
-		if (!mbr_ct->pointers && !mbr_ct->is_reference) {
-			switch(mbr_ct->type){
-				case STRUCT_TYPE:
-				case UNION_TYPE:
-				if(mbr_ct->base_size>16){
-					extra+=ALIGN_UP(mbr_ct->base_size,15);
-				}
-				#if defined _WIN64
-				else if(mbr_ct->base_size>8){
-					extra+=16;
-				}
-				#endif
-				break;
-				#if defined _WIN64
-				case COMPLEX_DOUBLE_TYPE:
-				extra+=16;
-				break;
-				#endif				
-			}
-		}
-		lua_pop(L,1);
-	}
-	return extra;	
-} 
 
 void compile_function(lua_State* L, cfunction func, int ct_usr, const struct ctype* ct)
 {
     size_t i, nargs;
-    int num_upvals,struct_offset;
+    int num_upvals;
     const struct ctype* mbr_ct;
     struct jit* Dst = get_jit(L);
     struct reg_alloc reg;
     void* p;
     int top = lua_gettop(L);
+    int* perr = &Dst->last_errno;
 
     ct_usr = lua_absindex(L, ct_usr);
 
@@ -1019,37 +810,33 @@ void compile_function(lua_State* L, cfunction func, int ct_usr, const struct cty
         luaL_error(L, "vararg is only allowed with the c calling convention");
     }
 
-    dasm_put(Dst, 1070);
-    struct_offset=16;
+    dasm_put(Dst, 957, nargs);
+    if (!ct->has_var_arg) {
+        dasm_put(Dst, 989, (unsigned int)((uintptr_t)(&"too few arguments")), (unsigned int)(((uintptr_t)(&"too few arguments"))>>32), (unsigned int)((uintptr_t)(&"too many arguments")), (unsigned int)(((uintptr_t)(&"too many arguments"))>>32));
+    } else {
+        dasm_put(Dst, 1030, (unsigned int)((uintptr_t)(&"too few arguments")), (unsigned int)(((uintptr_t)(&"too few arguments"))>>32));
+    }
+
+    dasm_put(Dst, 1050);
+
     /* no need to zero extend eax returned by lua_gettop to rax as x86-64
      * preguarentees that the upper 32 bits will be zero */
-    if (ct->has_var_arg) {
-		dasm_put(Dst, 1082, nargs, (unsigned int)((uintptr_t)(&"too few arguments")), (unsigned int)(((uintptr_t)(&"too few arguments"))>>32));
-    }else{
-		dasm_put(Dst, 1131, nargs*16);
-	}
-	
-    dasm_put(Dst, 1131, 32 + REGISTER_STACK_SPACE(ct));
-	
-	i=caculate_extra_stack(L,ct_usr,nargs);
-	if(i>0){
-		dasm_put(Dst, 1131, i);
-	}
+    dasm_put(Dst, 1053, 32 + REGISTER_STACK_SPACE(ct));
 
+#if !defined _WIN64 && !defined __amd64__
     /* Returned complex doubles require a hidden first parameter where the
      * data is stored, which is popped by the calling code. */
-	lua_rawgeti(L, ct_usr, 0);
+    lua_rawgeti(L, ct_usr, 0);
     mbr_ct = (const struct ctype*) lua_touserdata(L, -1);
-    if (return_by_address(mbr_ct)) {
+    if (!mbr_ct->pointers && !mbr_ct->is_reference && mbr_ct->type == COMPLEX_DOUBLE_TYPE) {
         /* we can allocate more space for arguments as long as no add_*
          * function has been called yet, mbr_ct will be added as an upvalue in
          * the return processing later */
-        dasm_put(Dst, 1137, (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32));
+        dasm_put(Dst, 1066, (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32));
         add_pointer(Dst, ct, &reg);
     }
-	lua_pop(L,1);
-   
-
+    lua_pop(L, 1);
+#endif
 
     for (i = 1; i <= nargs; i++) {
         lua_rawgeti(L, ct_usr, (int) i);
@@ -1058,182 +845,117 @@ void compile_function(lua_State* L, cfunction func, int ct_usr, const struct cty
         if (mbr_ct->pointers || mbr_ct->is_reference) {
             lua_getuservalue(L, -1);
             num_upvals += 2;
-            dasm_put(Dst, 1161, (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals), i);
+            dasm_put(Dst, 1090, (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals), i);
             add_pointer(Dst, ct, &reg);
         } else {
             switch (mbr_ct->type) {
             case FUNCTION_PTR_TYPE:
                 lua_getuservalue(L, -1);
                 num_upvals += 2;
-                dasm_put(Dst, 1181, (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals), i);
+                dasm_put(Dst, 1110, (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals), i);
                 add_pointer(Dst, ct, &reg);
                 break;
 
             case ENUM_TYPE:
                 lua_getuservalue(L, -1);
                 num_upvals += 2;
-                dasm_put(Dst, 1201, (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals), i);
+                dasm_put(Dst, 1130, (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals), i);
                 add_int(Dst, ct, &reg, 0);
                 break;
 
             case INT8_TYPE:
-                dasm_put(Dst, 1221, i);
+                dasm_put(Dst, 1150, i);
                 if (mbr_ct->is_unsigned) {
-                    dasm_put(Dst, 1233);
+                    dasm_put(Dst, 1162);
                 } else {
-                    dasm_put(Dst, 1237);
+                    dasm_put(Dst, 1166);
                 }
                 add_int(Dst, ct, &reg, 0);
                 lua_pop(L, 1);
                 break;
 
             case INT16_TYPE:
-                dasm_put(Dst, 1221, i);
+                dasm_put(Dst, 1150, i);
                 if (mbr_ct->is_unsigned) {
-                    dasm_put(Dst, 1241);
+                    dasm_put(Dst, 1170);
                 } else {
-                    dasm_put(Dst, 1245);
+                    dasm_put(Dst, 1174);
                 }
                 add_int(Dst, ct, &reg, 0);
                 lua_pop(L, 1);
                 break;
 
             case BOOL_TYPE:
-                dasm_put(Dst, 1249, i);
+                dasm_put(Dst, 1178, i);
                 add_int(Dst, ct, &reg, 0);
                 lua_pop(L, 1);
                 break;
 
             case INT32_TYPE:
                 if (mbr_ct->is_unsigned) {
-                    dasm_put(Dst, 1271, i);
+                    dasm_put(Dst, 1200, i);
                 } else {
-                    dasm_put(Dst, 1221, i);
+                    dasm_put(Dst, 1150, i);
                 }
                 add_int(Dst, ct, &reg, 0);
                 lua_pop(L, 1);
                 break;
 
             case INTPTR_TYPE:
-                dasm_put(Dst, 1283, i);
+                dasm_put(Dst, 1212, i);
                 add_pointer(Dst, ct, &reg);
                 lua_pop(L, 1);
                 break;
 
             case INT64_TYPE:
                 if (mbr_ct->is_unsigned) {
-                    dasm_put(Dst, 1295, i);
+                    dasm_put(Dst, 1224, i);
                 } else {
-                    dasm_put(Dst, 1307, i);
+                    dasm_put(Dst, 1236, i);
                 }
                 add_int(Dst, ct, &reg, 1);
                 lua_pop(L, 1);
                 break;
 
             case DOUBLE_TYPE:
-                dasm_put(Dst, 1319, i);
+                dasm_put(Dst, 1248, i);
                 add_float(Dst, ct, &reg, 1);
                 lua_pop(L, 1);
                 break;
-			case STRUCT_TYPE:
-			case UNION_TYPE:
-				/*Struct/Union in win 64 is pass by integer register if less than 64bit and aligned 8
-				 *or it's passed by momory pointer. On amd64, it's passed by registers less than 16 bytes(32 bytes for floating aggregates)
-				 *else it's copy to stack. On x86, it's copied to the stack. Argument can't be splited between stack and registers.
-				 */
-				lua_getuservalue(L, -1);
-                num_upvals += 2;
-                dasm_put(Dst, 1331, (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals), i);
-#if defined _WIN64 
-				{
-					int size=mbr_ct->base_size;
-					if(size!=8&&size!=2&&size!=1&&size!=4){
-						struct_offset+=ALIGN_UP(size,15);//16 byte alignment required
-						dasm_put(Dst, 1351, -struct_offset);
-						add_int(Dst, ct, &reg, 1);
-						dasm_put(Dst, 1359, size);
-					}else{
-						dasm_put(Dst, 919);
-						add_int(Dst, ct, &reg, 1);
-					}
-				}
-#elif defined __amd64__
-				{
-					int size=mbr_ct->base_size;
-					int floats=float_reg_size(L,-2,mbr_ct);
-					if(floats){
-						if(size>8&&reg.floats==MAX_FLOAT_REGISTERS(ct)-1){
-							reg.floats++;// the whole arguments should be in stack or registers
-						}
-						// 1st float
-						add_float(Dst, ct, &reg, 1);	
-						if(size>8){// 2nd float
-							add_float(Dst, ct, &reg, 1);
-						}
-					}else if(size<=16){
-						if(size>8&&reg.ints==MAX_INT_REGISTERS(ct)-1){
-							reg.ints++;// the whole arguments should be in stack or registers
-						}
-						if(size>8){
-							add_int(Dst, ct, &reg, 1);
-							add_int(Dst, ct, &reg, 1);
-						}else{
-							add_int(Dst, ct, &reg, 1);
-						}
-					}else{ //passed in stack
-						if(reg.off&7){
-							reg.off=ALIGN_UP(reg.off,7);
-						}
-						size=ALIGN_UP(size,7);
-						reg.off+=size;
-					}
-				}
-#else
-				{
-					int size=ALIGN_UP(mbr_ct->base_size,3);
-					reg.off+=size;
-				}
-#endif
-                break;
-            case COMPLEX_DOUBLE_TYPE:// passed by memory copy pointer in win64
-                /* on amd64, returned complex doubles use xmm0, xmm1, on 32 bit or win64
+
+            case COMPLEX_DOUBLE_TYPE:
+                /* on 64 bit, returned complex doubles use xmm0, xmm1, on 32 bit
                  * there is a hidden first parameter that points to 16 bytes where
                  * the returned arg is stored (this is popped by the called
-                 * function on 32 bit) */
-#if defined _WIN64 
-				struct_offset+=16;
-                dasm_put(Dst, 1371, -struct_offset, i);
-				add_int(Dst, ct, &reg, 1);//save the address
-#elif defined __amd64__
-				if(reg.floats==MAX_FLOAT_REGISTERS(ct)-1){
-					reg.floats++;// the whole arguments should be in stack or registers
-				}
+                 * function) */
+#if defined _WIN64 || defined __amd64__
+                dasm_put(Dst, 1260, i);
                 add_float(Dst, ct, &reg, 1);
+                dasm_put(Dst, 1272);
                 add_float(Dst, ct, &reg, 1);
 #else
+                dasm_put(Dst, 1278, reg.off, i);
                 reg.off += 16;
 #endif
                 lua_pop(L, 1);
                 break;
 
             case FLOAT_TYPE:
-                dasm_put(Dst, 1319, i);
+                dasm_put(Dst, 1248, i);
                 add_float(Dst, ct, &reg, 0);
                 lua_pop(L, 1);
                 break;
 
             case COMPLEX_FLOAT_TYPE:
-#if defined _WIN64
-				dasm_put(Dst, 1390, i);
-                /* complex floats are return in rax */
-               add_int(Dst, ct, &reg, 1);
-#elif  defined __amd64__
+#if defined _WIN64 || defined __amd64__
+                dasm_put(Dst, 1304, i);
                 /* complex floats are two floats packed into a double */
                 add_float(Dst, ct, &reg, 1);
-				
 #else
                 /* returned complex floats use eax and edx */
+                dasm_put(Dst, 1316, i);
                 add_float(Dst, ct, &reg, 0);
+                dasm_put(Dst, 1334);
                 add_float(Dst, ct, &reg, 0);
 #endif
                 lua_pop(L, 1);
@@ -1249,9 +971,9 @@ void compile_function(lua_State* L, cfunction func, int ct_usr, const struct cty
 #ifdef _WIN64
         if (reg.regs < MAX_REGISTERS(ct)) {
             assert(reg.regs == nargs);
-            dasm_put(Dst, 1402, MAX_REGISTERS(ct), 32 + 8*MAX_REGISTERS(ct), MAX_REGISTERS(ct)+1, 32 + 8*(reg.regs), MAX_REGISTERS(ct), nargs+1, 32 + 8*(reg.regs), nargs+1);
+            dasm_put(Dst, 1341, MAX_REGISTERS(ct), 32 + 8*MAX_REGISTERS(ct), MAX_REGISTERS(ct)+1, 32 + 8*(reg.regs), MAX_REGISTERS(ct), nargs+1, 32 + 8*(reg.regs), nargs+1);
         } else {
-            dasm_put(Dst, 1493, reg.off, nargs+1);
+            dasm_put(Dst, 1432, reg.off, nargs+1);
         }
 
         for (i = nargs; i < MAX_REGISTERS(ct); i++) {
@@ -1272,37 +994,40 @@ void compile_function(lua_State* L, cfunction func, int ct_usr, const struct cty
 #endif
     }
 
-    dasm_put(Dst, 1518);
+    dasm_put(Dst, 1457, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32));
+
+    /* remove the stack space to call local functions */
+    dasm_put(Dst, 1471);
 
 #ifdef _WIN64
     switch (reg.regs) {
     case 4:
         if (reg.is_float[3]) {
-            dasm_put(Dst, 1523, 8*3);
+            dasm_put(Dst, 1476, 8*3);
         }
         if (reg.is_int[3]) {
-            dasm_put(Dst, 1532, 8*3);
+            dasm_put(Dst, 1485, 8*3);
         }
     case 3:
         if (reg.is_float[2]) {
-            dasm_put(Dst, 1539, 8*2);
+            dasm_put(Dst, 1492, 8*2);
         }
         if (reg.is_int[2]) {
-            dasm_put(Dst, 1548, 8*2);
+            dasm_put(Dst, 1501, 8*2);
         }
     case 2:
         if (reg.is_float[1]) {
-            dasm_put(Dst, 1555, 8*1);
+            dasm_put(Dst, 1508, 8*1);
         }
         if (reg.is_int[1]) {
-            dasm_put(Dst, 1564, 8*1);
+            dasm_put(Dst, 1517, 8*1);
         }
     case 1:
         if (reg.is_float[0]) {
-            dasm_put(Dst, 1571);
+            dasm_put(Dst, 1524);
         }
         if (reg.is_int[0]) {
-            dasm_put(Dst, 1578);
+            dasm_put(Dst, 1531);
         }
     case 0:
         break;
@@ -1356,7 +1081,7 @@ void compile_function(lua_State* L, cfunction func, int ct_usr, const struct cty
     }
 #endif
 
-    dasm_put(Dst, 1583);
+    dasm_put(Dst, 1536);
 
     /* note on windows X86 the stack may be only aligned to 4 (stdcall will
      * have popped a multiple of 4 bytes), but we don't need 16 byte alignment on
@@ -1369,143 +1094,90 @@ void compile_function(lua_State* L, cfunction func, int ct_usr, const struct cty
     if (mbr_ct->pointers || mbr_ct->is_reference || mbr_ct->type == INTPTR_TYPE) {
         lua_getuservalue(L, -1);
         num_upvals += 2;
-        dasm_put(Dst, 1593, (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals));
+        dasm_put(Dst, 1546, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32), (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals));
 
     } else {
         switch (mbr_ct->type) {
-		case STRUCT_TYPE:
-		case UNION_TYPE:{
-			lua_getuservalue(L, -1);
-            num_upvals += 2;
-            
-#if defined _WIN64            
-			if(return_by_address(mbr_ct)){
-				fix_usr_value(Dst,L,num_upvals);
-			}else{
-				dasm_put(Dst, 1643, (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals));
-			}
-			
-#elif defined __amd64__
-			if(mbr_ct->base_size>16){
-				fix_usr_value(Dst,L, num_upvals);
-			}else{
-				int floats=float_reg_size(L,-2,mbr_ct),size=mbr_ct->base_size;
-				if(floats){
-					if(floats>1){
-					}			
-				}else{
-					if(size>8){
-					} 
-				}
-				if(size>8){
-				}
-				
-			}
-#else
-			{
-				#if defined _WIN32
-				int size=ALIGN_UP(mbr_ct->base_size,3);
-				if(size==8){
-				}
-				
-				if(size<=8){// small struct is return by value in win32
-					if(size==8){
-					}
-				}else
-				#endif
-				{
-					fix_usr_value(Dst,L, num_upvals);
-				}
-				
-			}
-#endif	
-            dasm_put(Dst, 1621);
-			break;
-		}	
         case FUNCTION_PTR_TYPE:
             lua_getuservalue(L, -1);
             num_upvals += 2;
-            dasm_put(Dst, 1593, (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals));
+            dasm_put(Dst, 1546, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32), (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals));
             break;
 
         case INT64_TYPE:
 #if LUA_VERSION_NUM >= 503
             lua_pop(L, 1);
-           
-            dasm_put(Dst, 1677);
-            
+            if (mbr_ct->is_unsigned) {
+                dasm_put(Dst, 1606, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32));
+            } else {
+                dasm_put(Dst, 1606, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32));
+            }
 #else
             num_upvals++;
-            dasm_put(Dst, 1709, (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32));
+            dasm_put(Dst, 1658, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32), (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32));
 #endif
             break;
 
         case COMPLEX_FLOAT_TYPE:
             lua_getuservalue(L, -1);
             num_upvals += 2;
-            dasm_put(Dst, 1593, (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals));
+            dasm_put(Dst, 1721, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32), (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals));
             break;
 
         case COMPLEX_DOUBLE_TYPE:
             lua_getuservalue(L, -1);
             num_upvals += 2;
-#if defined _WIN64
-			fix_usr_value(Dst,L,num_upvals);
-#elif defined __amd64__
-#else
-			fix_usr_value(Dst,L,num_upvals);
-#endif
-            dasm_put(Dst, 1621);
+            dasm_put(Dst, 1782, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32), (unsigned int)((uintptr_t)(mbr_ct)), (unsigned int)(((uintptr_t)(mbr_ct))>>32), lua_upvalueindex(num_upvals));
             break;
 
         case VOID_TYPE:
             lua_pop(L, 1);
-            dasm_put(Dst, 1762);
+            dasm_put(Dst, 1858, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32));
             break;
 
         case BOOL_TYPE:
             lua_pop(L, 1);
-            dasm_put(Dst, 1784);
+            dasm_put(Dst, 1890, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32));
             break;
 
         case INT8_TYPE:
             lua_pop(L, 1);
             if (mbr_ct->is_unsigned) {
-                dasm_put(Dst, 1233);
+                dasm_put(Dst, 1162);
             } else {
-                dasm_put(Dst, 1237);
+                dasm_put(Dst, 1166);
             }
-            dasm_put(Dst, 1819);
+            dasm_put(Dst, 1943, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32));
             break;
 
         case INT16_TYPE:
             lua_pop(L, 1);
             if (mbr_ct->is_unsigned) {
-                dasm_put(Dst, 1241);
+                dasm_put(Dst, 1170);
             } else {
-                dasm_put(Dst, 1245);
+                dasm_put(Dst, 1174);
             }
-            dasm_put(Dst, 1819);
+            dasm_put(Dst, 1943, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32));
             break;
 
         case INT32_TYPE:
         case ENUM_TYPE:
             lua_pop(L, 1);
             if (mbr_ct->is_unsigned) {
-                dasm_put(Dst, 1851);
+                dasm_put(Dst, 1993, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32));
             } else {
-                dasm_put(Dst, 1819);
+                dasm_put(Dst, 1943, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32));
             }
             break;
 
         case FLOAT_TYPE:
             lua_pop(L, 1);
-            dasm_put(Dst, 1883);
+            dasm_put(Dst, 2043, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32));
             break;
 
         case DOUBLE_TYPE:
             lua_pop(L, 1);
-            dasm_put(Dst, 1888);
+            dasm_put(Dst, 2048, (unsigned int)((uintptr_t)(perr)), (unsigned int)(((uintptr_t)(perr))>>32));
             break;
 
         default:

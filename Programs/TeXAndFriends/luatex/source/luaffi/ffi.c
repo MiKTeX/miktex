@@ -8,8 +8,12 @@
  */
 #include "ffi.h"
 #include <math.h>
-#include <stdint.h>
 #include <inttypes.h>
+
+#ifdef ARCH_ARM64
+#include <arm_acle.h>
+#endif
+
 
 /* Set to 1 to get extra debugging on print */
 #define DEBUG_TOSTRING 0
@@ -28,56 +32,54 @@ int abi_key;
 int next_unnamed_key;
 int niluv_key;
 int asmname_key;
-typedef enum {
-    TM_INDEX=1,
-    TM_NEWINDEX,
-    TM_CALL,
-    TM_NEW,
-    TM_GC,
-    TM_TO_STRING,
-    TM_ADD,
-    TM_SUB,
-    TM_MUL,
-    TM_MOD,
-    TM_POW,
-    TM_DIV,
-    TM_IDIV,
-    /*TM_BAND,
-    TM_BOR,
-    TM_BXOR,
-    TM_SHL,
-    TM_SHR,
-    TM_BNOT,*/
-    TM_UNM,
-    TM_EQ,
-    TM_LT,
-    TM_LE,
-    TM_CONCAT,
-    TM_LEN,
-    TM_PAIRS,
-    TM_IPAIRS,
-    TM_END        /* number of elements in the enum */
-} TMK;
-static const char* tm_fields[]={NULL,
-        "__index","__newindex","__call","__new",
-        "__gc","__tostring","__add","__sub", "__mul",
-        "__mod","__pow","__div","__idiv", "__unm","__eq","__lt","__le","__concat",
-        "__len", "__pairs","__ipairs"};
+
+static const char* etype_tostring(int type);
+static void debug_print_type(const struct ctype* ct)
+{
+    printf(" sz %zu %zu %zu align %d ptr %d %d %d type %s%s %d %d %d name %d call %d %d var %d %d %d bit %d %d %d %d jit %d\n",
+            /* sz */
+            ct->base_size,
+            ct->array_size,
+            ct->offset,
+            /* align */
+            ct->align_mask,
+            /* ptr */
+            ct->is_array,
+            ct->pointers,
+            ct->const_mask,
+            /* type */
+            ct->is_unsigned ? "u" : "",
+            etype_tostring(ct->type),
+            ct->is_reference,
+            ct->is_defined,
+            ct->is_null,
+            /* name */
+            ct->has_member_name,
+            /* call */
+            ct->calling_convention,
+            ct->has_var_arg,
+            /* var */
+            ct->is_variable_array,
+            ct->is_variable_struct,
+            ct->variable_size_known,
+            /* bit */
+            ct->is_bitfield,
+            ct->has_bitfield,
+            ct->bit_offset,
+            ct->bit_size,
+            /* jit */
+            ct->is_jitted);
+}
 
 void push_upval(lua_State* L, int* key)
 {
-    lua_rawgetp(L, LUA_REGISTRYINDEX,key);
+    lua_pushinteger(L, *key);
+    lua_rawget(L, LUA_REGISTRYINDEX);
 }
 
 void set_upval(lua_State* L, int* key)
 {
-#if LUA_VERSION_NUM<502
-    lua_pushlightuserdata(L, key);
-    lua_insert(L, -2);
-    lua_rawset(L, LUA_REGISTRYINDEX);
-#else
-    lua_rawsetp(L,LUA_REGISTRYINDEX,key);
-#endif
+	*key = luaL_ref(L, LUA_REGISTRYINDEX);
 }
 
 int equals_upval(lua_State* L, int idx, int* key)
@@ -108,10 +110,6 @@ static int type_error(lua_State* L, int idx, const char* to_type, int to_usr, co
     assert(to_type || (to_usr && to_ct));
     if (to_usr) {
         to_usr = lua_absindex(L, to_usr);
-    }
-
-    if(lua_isnone(L,idx)){
-        luaL_error(L,"incorrect number of arguments");
     }
 
     idx = lua_absindex(L, idx);
@@ -235,6 +233,9 @@ static int get_cfunction_address(lua_State* L, int idx, cfunction* addr);
 
 #define TO_NUMBER(TYPE, ALLOW_POINTERS, LUA_TONUMBER)                       \
     TYPE ret = 0;                                                           \
+    void* p;                                                                \
+    struct ctype ct;                                                        \
+    cfunction f;                                                            \
                                                                             \
     switch (lua_type(L, idx)) {                                             \
     case LUA_TBOOLEAN:                                                      \
@@ -259,20 +260,17 @@ static int get_cfunction_address(lua_State* L, int idx, cfunction* addr);
         ret = (TYPE) (intptr_t) lua_topointer(L, idx);                      \
         break;                                                              \
                                                                             \
-    case LUA_TFUNCTION:{                                                     \
+    case LUA_TFUNCTION:                                                     \
         if (!ALLOW_POINTERS) {                                              \
             type_error(L, idx, #TYPE, 0, NULL);                             \
         }                                                                   \
-        cfunction f;                                                         \
         if (!get_cfunction_address(L, idx, &f)) {                           \
             type_error(L, idx, #TYPE, 0, NULL);                             \
         }                                                                   \
         ret = (TYPE) (intptr_t) f;                                          \
         break;                                                              \
-    }                                                                        \
-    case LUA_TUSERDATA: {                                                   \
-        void* p;                                                            \
-        struct ctype ct;                                                    \
+                                                                            \
+    case LUA_TUSERDATA:                                                     \
         p = to_cdata(L, idx, &ct);                                          \
                                                                             \
         if (ct.type == INVALID_TYPE) {                                      \
@@ -298,7 +296,7 @@ static int get_cfunction_address(lua_State* L, int idx, cfunction* addr);
         }                                                                   \
         lua_pop(L, 1);                                                      \
         break;                                                              \
-    }                                                                        \
+                                                                            \
     case LUA_TNIL:                                                          \
         ret = (TYPE) 0;                                                     \
         break;                                                              \
@@ -308,19 +306,22 @@ static int get_cfunction_address(lua_State* L, int idx, cfunction* addr);
     }                                                                       \
 
 static int64_t cast_int64(lua_State* L, int idx, int is_cast)
-{
-#if LUA_VERSION_NUM>=503
-        TO_NUMBER(int64_t, is_cast, lua_tointeger);
-#else
-        TO_NUMBER(int64_t, is_cast, lua_tonumber);
-#endif
-        return ret;
-}
+{ TO_NUMBER(int64_t, is_cast, lua_tointeger); return ret; }
 
-static ALWAYS_INLINE uint64_t cast_uint64(lua_State* L, int idx, int is_cast)
-{
-    return (uint64_t)cast_int64(L,idx,is_cast);
-}
+static uint64_t cast_uint64(lua_State* L, int idx, int is_cast)
+{ TO_NUMBER(uint64_t, is_cast, lua_tointeger); return ret; }
+
+int8_t check_int8(lua_State* L, int idx)
+{ return (int8_t) cast_int64(L, idx, 0); }
+
+uint8_t check_uint8(lua_State* L, int idx)
+{ return (uint8_t) cast_uint64(L, idx, 0); }
+
+int16_t check_int16(lua_State* L, int idx)
+{ return (int16_t) cast_int64(L, idx, 0); }
+
+uint16_t check_uint16(lua_State* L, int idx)
+{ return (uint16_t) cast_uint64(L, idx, 0); }
 int32_t check_int32(lua_State* L, int idx)
 { return (int32_t) cast_int64(L, idx, 0); }
 
@@ -337,7 +338,7 @@ double check_double(lua_State* L, int idx)
 { TO_NUMBER(double, 0, lua_tonumber); return ret; }
 
 float check_float(lua_State* L, int idx)
-{ TO_NUMBER(float, 0, lua_tonumber); return ret; }
+{ TO_NUMBER(double, 0, lua_tonumber); return ret; }
 
 uintptr_t check_uintptr(lua_State* L, int idx)
 { TO_NUMBER(uintptr_t, 1, lua_tointeger); return ret; }
@@ -393,14 +394,8 @@ complex_double check_complex_double(lua_State* L, int idx)
 complex_float check_complex_float(lua_State* L, int idx)
 {
     complex_double d = check_complex_double(L, idx);
-#ifdef HAVE_COMPLEX
-	return (complex_float)d;
-#else
-	return (complex_float) { d.real, d.imag };
-#endif 
-
-    
-
+    complex_float fc =  mk_complex_float(creal(d), cimag(d));
+    return fc;
 }
 
 static size_t unpack_vararg(lua_State* L, int i, char* to)
@@ -414,20 +409,8 @@ static size_t unpack_vararg(lua_State* L, int i, char* to)
         return sizeof(int);
 
     case LUA_TNUMBER:
-//IOS doesn't need alignment
-#if defined(ARCH_ARM)&&!defined(TARGET_OS_IPHONE)
-#define CHECK_ALIGN(CODE,RET_SIZE)\
-            {int align=(uintptr_t)(to)&0b111?4:0;\
-            to+=align;\
-            {CODE;}\
-            return (RET_SIZE)+align; }
-#else
-#define CHECK_ALIGN(CODE,RET_SIZE){\
-            {CODE;}\
-            return (RET_SIZE);}
-#endif
-		
-		CHECK_ALIGN({ *(double*)to = lua_tonumber(L, i); }, sizeof(double));
+        *(double*) to = lua_tonumber(L, i); // TODO in Lua 5.3: lua_tointeger sometimes should be here
+        return sizeof(double);
 
     case LUA_TSTRING:
         *(const char**) to = lua_tostring(L, i);
@@ -449,18 +432,22 @@ static size_t unpack_vararg(lua_State* L, int i, char* to)
             *(void**) to = p;
             return sizeof(void*);
 
+        } else if (ct.type == INT8_TYPE) {
+            *(int8_t*) to = *(int8_t*) p;
+            return sizeof(int8_t);
+
+        } else if (ct.type == INT16_TYPE) {
+            *(int16_t*) to = *(int16_t*) p;
+            return sizeof(int16_t);
+
         } else if (ct.type == INT32_TYPE) {
             *(int32_t*) to = *(int32_t*) p;
             return sizeof(int32_t);
 
         } else if (ct.type == INT64_TYPE) {
-            CHECK_ALIGN(*(int64_t*) to=*(int64_t*) p ,sizeof(int64_t));
-        } else if (ct.type == DOUBLE_TYPE) {
-            CHECK_ALIGN(*(double*) to = *(double*) p ,sizeof(double));
-		} else if (ct.type == FLOAT_TYPE) {
-            //float should be lifted to double in var arg
-            CHECK_ALIGN(*(double*) to = *(float*) p ,sizeof(double));
-		}
+            *(int64_t*) to = *(int64_t*) p;
+            return sizeof(int64_t);
+        }
         goto err;
 
     case LUA_TNIL:
@@ -470,7 +457,7 @@ static size_t unpack_vararg(lua_State* L, int i, char* to)
     default:
         goto err;
     }
-#undef CHECK_ALIGN
+
 err:
     return type_error(L, i, "vararg", 0, NULL);
 }
@@ -480,41 +467,24 @@ void unpack_varargs_stack(lua_State* L, int first, int last, char* to)
     int i;
 
     for (i = first; i <= last; i++) {
-        size_t size = unpack_vararg(L, i, to);
-        to += size;
-    }
-}
-
-int unpack_varargs_bound(lua_State*L ,int first,char* to,char* end){
-    int i;
-    int64_t restore=*(int64_t*)end;
-    for (i = first;to<end ; i++) {
-        size_t size = unpack_vararg(L, i, to);
-        to += size;
-        if(to>end){
-            *(int64_t*)end=restore;// restore if overlapped;
-            i--;
-        }
-    }
-    return i;
-}
-
-// complex arg is not supported
-static ALWAYS_INLINE int isFloatArg(lua_State* L,int idx){
-	int type = lua_type(L,idx);
-	if(type==LUA_TNUMBER){
-        return 1;
-	}else if(type == LUA_TUSERDATA){
-		const struct ctype* ct=get_ctype(L,idx);
-		if(ct&&(ct->type==FLOAT_TYPE||ct->type==DOUBLE_TYPE)){
-			return 1;
+#ifdef ARCH_ARM64
+		/* In 64 bit arm on all OS variadic stack arguments are 8 or 16 byte aligned */
+		{
+			size_t sz = unpack_vararg(L, i, to);
+			if (sz > 8) {
+				/* Aligned to 16 bytes */
+				sz += 16 - (sz % 16);
+				to += sz;
+			}
+			else {
+				/* Aligned to 8 bytes */
+				to += 8;
+			}
 		}
-	}
-	return 0;
-}
-
-static ALWAYS_INLINE int (max)(int a,int b){
-	return a>b?a:b;
+#else
+        to += unpack_vararg(L, i, to);
+#endif
+    }
 }
 
 void unpack_varargs_stack_skip(lua_State* L, int first, int last, int ints_to_skip, int floats_to_skip, char* to)
@@ -522,17 +492,30 @@ void unpack_varargs_stack_skip(lua_State* L, int first, int last, int ints_to_sk
     int i;
 
     for (i = first; i <= last; i++) {
-		int isFloat=isFloatArg(L,i);
-        if (isFloat && --floats_to_skip >= 0) {
+        int type = lua_type(L, i);
+
+        if (type == LUA_TNUMBER && --floats_to_skip >= 0) {
             continue;
-        } else if (!isFloat&& --ints_to_skip >= 0) {
+        } else if (type != LUA_TNUMBER && --ints_to_skip >= 0) {
             continue;
         }
-		//as aapcs_aarch64 says and x64 implementation, arg in stack has a minimum alignment 8;
-#if defined __LP64__ || defined(__amd64__) ||defined (_WIN64)
-		to += max(8,unpack_vararg(L,i,to));
+
+#ifdef ARCH_ARM64
+		/* In 64 bit arm on all OS variadic stack arguments are 8 or 16 byte aligned */
+		{
+			size_t sz = unpack_vararg(L, i, to);
+			if (sz > 8) {
+				/* Aligned to 16 bytes */
+				sz += 16 - (sz % 16);
+				to += sz;
+			}
+			else {
+				/* Aligned to 8 bytes */
+				to += 8;
+			}
+		}
 #else
-        to += unpack_vararg(L, i, to);//never occurs
+        to += unpack_vararg(L, i, to);
 #endif
     }
 }
@@ -542,7 +525,7 @@ void unpack_varargs_float(lua_State* L, int first, int last, int max, char* to)
     int i;
 
     for (i = first; i <= last && max > 0; i++) {
-        if (isFloatArg(L,i)) {
+        if (lua_type(L, i) == LUA_TNUMBER) {
             unpack_vararg(L, i, to);
             to += sizeof(double);
             max--;
@@ -555,7 +538,7 @@ void unpack_varargs_int(lua_State* L, int first, int last, int max, char* to)
     int i;
 
     for (i = first; i <= last && max > 0; i++) {
-        if (!isFloatArg(L,i)) {
+        if (lua_type(L, i) != LUA_TNUMBER) {
             unpack_vararg(L, i, to);
             to += sizeof(void*);
             max--;
@@ -573,7 +556,7 @@ void unpack_varargs_reg(lua_State* L, int first, int last, char* to)
     }
 }
 
-/* check_enum tries to convert a value at idx to the enum type indicated by to_ct
+/* to_enum tries to convert a value at idx to the enum type indicated by to_ct
  * and uv to_usr. For strings this means it will do a string lookup for the
  * enum type. It leaves the stack unchanged. Will throw an error if the type
  * at idx can't be conerted.
@@ -614,7 +597,7 @@ err:
     return type_error(L, idx, NULL, to_usr, to_ct);
 }
 
-/* check_pointer tries converts a value at idx to a pointer. It fills out ct and
+/* to_pointer tries converts a value at idx to a pointer. It fills out ct and
  * pushes the uv of the found type. It will throw a lua error if it can not
  * convert the value to a pointer. */
 static void* check_pointer(lua_State* L, int idx, struct ctype* ct)
@@ -631,18 +614,12 @@ static void* check_pointer(lua_State* L, int idx, struct ctype* ct)
         lua_pushnil(L);
         return NULL;
 
-    case LUA_TNUMBER:{
-        double v=lua_tonumber(L,idx);
-        intptr_t intV=(intptr_t )v;
-        if(v==intV){
-            ct->type = INTPTR_TYPE;
-            ct->is_unsigned = 1;
-            ct->pointers = 0;
-            lua_pushnil(L);
-            return (void*) intV;
-        } else break;
-    }
-
+    case LUA_TNUMBER:
+        ct->type = INTPTR_TYPE;
+        ct->is_unsigned = 1;
+        ct->pointers = 0;
+        lua_pushnil(L);
+        return (void*) (uintptr_t) lua_tonumber(L, idx); // TODO in Lua 5.3: maybe change to lua_tointeger
 
     case LUA_TLIGHTUSERDATA:
         ct->type = VOID_TYPE;
@@ -653,7 +630,7 @@ static void* check_pointer(lua_State* L, int idx, struct ctype* ct)
     case LUA_TSTRING:
         ct->type = INT8_TYPE;
         ct->pointers = 1;
-        ct->is_unsigned = IS_CHAR_UNSIGNED?1:0;
+        ct->is_unsigned = IS_CHAR_UNSIGNED;
         ct->is_array = 1;
         ct->base_size = 1;
         ct->const_mask = 2;
@@ -680,16 +657,15 @@ static void* check_pointer(lua_State* L, int idx, struct ctype* ct)
     return NULL;
 }
 
-static ALWAYS_INLINE int is_void_ptr(const struct ctype* ct)
+static int is_void_ptr(const struct ctype* ct)
 {
     return ct->type == VOID_TYPE
         && ct->pointers == 1;
 }
 
-static ALWAYS_INLINE int is_same_type(lua_State* L, int usr1, int usr2, const struct ctype* t1, const struct ctype* t2)
+static int is_same_type(lua_State* L, int usr1, int usr2, const struct ctype* t1, const struct ctype* t2)
 {
-    if (t1->type != t2->type
-    ||(t1->pointers+t1->is_reference)!=(t2->pointers+t2->is_reference)) {
+    if (t1->type != t2->type) {
         return 0;
     }
 
@@ -711,21 +687,11 @@ static ALWAYS_INLINE int is_same_type(lua_State* L, int usr1, int usr2, const st
     }
 #endif
 
-    int ret= lua_rawequal(L, usr1, usr2);
-    return ret;
+    return lua_rawequal(L, usr1, usr2);
 }
 
 static void set_struct(lua_State* L, int idx, void* to, int to_usr, const struct ctype* tt, int check_pointers);
 
-void* check_struct(lua_State*L,int idx, int to_usr,const struct ctype* ct)
-{
-    if(lua_type(L,idx)==LUA_TUSERDATA){
-        return check_typed_pointer(L,idx,to_usr,ct);
-    }
-    void* p=push_cdata(L,to_usr,ct);
-    set_struct(L,idx,p,to_usr,ct,1);
-    return p;
-}
 /* to_typed_pointer converts a value at idx to a type tt with target uv to_usr
  * checking all types. May push a temporary value so that it can create
  * structs on the fly. */
@@ -770,6 +736,9 @@ void* check_typed_pointer(lua_State* L, int idx, int to_usr, const struct ctype*
         /* the base type is different */
         goto err;
 
+    } else if (tt->pointers != ft.pointers) {
+        goto err;
+
     } else if (ft.const_mask & ~tt->const_mask) {
         /* for every const in from it must be in to, there are further rules
          * for const casting (see the c++ spec), but they are hard to test
@@ -791,6 +760,8 @@ err:
 static int get_cfunction_address(lua_State* L, int idx, cfunction* addr)
 {
     if (!lua_isfunction(L, idx)) return 0;
+
+    int top = lua_gettop(L);
 
     // Get the last upvalue
     int n = 2;
@@ -1021,8 +992,8 @@ static ptrdiff_t get_member(lua_State* L, int usr, const struct ctype* ct, struc
         return -1;
     }
 
-    const struct member_type *pmt = (const struct member_type*) lua_touserdata(L, -1);
-    *mt = pmt->ct;
+    //*mt = *(const struct ctype*) lua_touserdata(L, -1); TRIAL FIX 06-May-2022
+    memcpy(mt, (const struct ctype*) lua_touserdata(L, -1), sizeof(struct ctype));
     lua_getuservalue(L, -1);
     lua_replace(L, -2);
 
@@ -1040,7 +1011,8 @@ static ptrdiff_t get_member(lua_State* L, int usr, const struct ctype* ct, struc
         mt->variable_increment = ct->variable_increment;
     }
 
-    off = pmt->offset;
+    off = mt->offset;
+    mt->offset = 0;
     return off;
 }
 
@@ -1189,7 +1161,7 @@ static void set_value(lua_State* L, int idx, void* to, int to_usr, const struct 
 
         switch (tt->type) {
         case BOOL_TYPE:
-            *(_Bool*) to = (cast_int64(L, idx, !check_pointers) != 0);
+            *(_Bool*) to = (uint8_t)(cast_int64(L, idx, !check_pointers) != 0);
             break;
         case INT8_TYPE:
             if (tt->is_unsigned) {
@@ -1330,7 +1302,7 @@ static int should_pack(lua_State *L, int ct_usr, struct ctype* ct, int idx)
 
 static int do_new(lua_State* L, int is_cast)
 {
-    int cargs, i;
+    int cargs=0, i;
     void* p;
     struct ctype ct;
     int check_ptrs = !is_cast;
@@ -1372,7 +1344,8 @@ static int do_new(lua_State* L, int is_cast)
         lua_pushvalue(L, -3);
 
         /* user_mt.__gc */
-        lua_rawgeti(L, -3,TM_GC);
+        lua_pushliteral(L, "__gc");
+        lua_rawget(L, -4);
 
         lua_rawset(L, -3); /* gc_upval[cdata] = user_mt.__gc */
         lua_pop(L, 2); /* user_mt and gc_upval */
@@ -1429,7 +1402,8 @@ static int ctype_call(lua_State* L)
     check_ctype(L, 1, &ct);
 
     if (push_user_mt(L, -1, &ct)) {
-        lua_rawgeti(L, -2,TM_NEW);
+        lua_pushstring(L, "__new");
+        lua_rawget(L, -2);
         if (!lua_isnil(L, -1)) {
             lua_insert(L, 1); // function at bottom of stack under args
             lua_pop(L, 2);
@@ -1442,6 +1416,42 @@ static int ctype_call(lua_State* L)
 
     assert(lua_gettop(L) == top);
     return do_new(L, 0);
+}
+
+static int ctype_index(lua_State* L)
+{
+    struct ctype ct;
+
+    lua_settop(L, 2);
+    check_ctype(L, 1, &ct);
+    assert(lua_gettop(L) == 3);
+
+    if (!push_user_mt(L, -1, &ct)) {
+        goto err;
+    }
+    lua_pushliteral(L, "__index");
+    lua_rawget(L, -2);
+
+    if (lua_isnil(L, -1)) {
+        goto err;
+    }
+
+    if (lua_istable(L, -1)) {
+        lua_pushvalue(L, 2);
+        lua_rawget(L, -2);
+        if (lua_isnil(L, -1))
+            goto err;
+        return 1;
+    }
+
+    lua_insert(L, 1);
+    lua_settop(L, 3);
+    lua_call(L, 2, LUA_MULTRET);
+    return lua_gettop(L);
+
+err:
+    push_type_name(L, 3, &ct);
+    return luaL_error(L, "type %s has no member %s", lua_tostring(L, -1), lua_tostring(L, 2));
 }
 
 static int ffi_sizeof(lua_State* L)
@@ -1458,6 +1468,7 @@ static int ffi_alignof(lua_State* L)
     struct ctype ct, mt;
     lua_settop(L, 2);
     check_ctype(L, 1, &ct);
+    //debug_print_type(&ct);
 
     /* if no member is specified then we return the alignment of the type */
     if (lua_isnil(L, 2)) {
@@ -1479,8 +1490,7 @@ static int ffi_alignof(lua_State* L)
 static int ffi_offsetof(lua_State* L)
 {
     ptrdiff_t off;
-    struct ctype ct;
-    struct ctype mt;
+    struct ctype ct, mt;
     lua_settop(L, 2);
     check_ctype(L, 1, &ct);
 
@@ -1502,6 +1512,34 @@ static int ffi_offsetof(lua_State* L)
     return 3;
 }
 
+static int type_is_same_incl_unsigned(lua_State* L, int usr1, int usr2, const struct ctype* t1, const struct ctype* t2)
+{
+    if ((t1->type != t2->type) ||
+		(t1->is_unsigned != t2->is_unsigned)) {
+        return 0;
+    }
+
+#if LUA_VERSION_NUM == 501
+    if (lua_isnil(L, usr1) != lua_isnil(L, usr2)) {
+        int ret;
+        usr1 = lua_absindex(L, usr1);
+        usr2 = lua_absindex(L, usr2);
+        push_upval(L, &niluv_key);
+
+        ret = lua_rawequal(L, usr1, -1)
+            || lua_rawequal(L, usr2, -1);
+
+        lua_pop(L, 1);
+
+        if (ret) {
+            return 1;
+        }
+    }
+#endif
+
+    return lua_rawequal(L, usr1, usr2);
+}
+
 static int ffi_istype(lua_State* L)
 {
     struct ctype tt, ft;
@@ -1512,14 +1550,23 @@ static int ffi_istype(lua_State* L)
         goto fail;
     }
 
-    if (!is_same_type(L, 3, 4, &tt, &ft)) {
+    //if (!is_same_type(L, 3, 4, &tt, &ft))
+    if (!type_is_same_incl_unsigned(L, 3, 4, &tt, &ft)) {
         goto fail;
     }
 
-    if(tt.is_array!=ft.is_array
-      ||(tt.is_array && tt.array_size != ft.array_size)){
+    if (tt.pointers != ft.pointers) {
         goto fail;
     }
+
+    if (tt.is_array != ft.is_array) {
+        goto fail;
+    }
+
+    if (tt.is_array && tt.array_size != ft.array_size) {
+        goto fail;
+    }
+
     if (tt.calling_convention != ft.calling_convention) {
         goto fail;
     }
@@ -1556,9 +1603,9 @@ static int cdata_gc(lua_State* L)
 
 static int callback_free(lua_State* L)
 {
+    cfunction* p = (cfunction*) lua_touserdata(L, 1);
     // FIXME: temporarily disabled to prevent SIGTRAP on exit
-    //cfunction* p = (cfunction*) lua_touserdata(L, 1);
-     //free_code(get_jit(L), L, *p);
+    // free_code(get_jit(L), L, *p);
     return 0;
 }
 
@@ -1615,7 +1662,8 @@ static int cdata_call(lua_State* L)
     cfunction* p = (cfunction*) check_cdata(L, 1, &ct);
 
     if (push_user_mt(L, -1, &ct)) {
-        lua_rawgeti(L, -1,TM_CALL);
+        lua_pushliteral(L, "__call");
+        lua_rawget(L, -2);
 
         if (!lua_isnil(L, -1)) {
             lua_insert(L, 1);
@@ -1634,6 +1682,26 @@ static int cdata_call(lua_State* L)
     if (!lua_isfunction(L, -1)) {
         lua_pop(L, 1);
         compile_function(L, *p, -1, &ct);
+#ifdef ARCH_ARM64
+		/* Ref: https://developer.arm.com/documentation/ihi0053/latest
+		 * Generates an ISB (instruction synchronization barrier) instruction or
+		 * equivalent CP15 instruction. This instruction flushes the processor
+		 * pipeline fetch buffers, so that following instructions are fetched
+		 * from cache or memory. An ISB is needed after some system maintenance
+		 * operations.  An ISB is also needed before transferring control to code
+		 * that has been loaded or modified in memory, for example by an overlay
+		 * mechanism or just-in-time code generator. (Note that if instruction
+		 * and data caches are separate, privileged cache maintenance operations
+		 * would be needed in order to unify the caches.) The only supported
+		 * argument for the __isb() intrinsic is 15, corresponding to the SY
+		 * (full system) scope of the ISB instruction.
+		*/
+#ifdef __clang__
+		__isb(15);
+#elif __GNUC__
+        asm("isb 15");
+#endif
+#endif
 
         assert(lua_gettop(L) == top + 2); /* uv, closure */
 
@@ -1643,7 +1711,6 @@ static int cdata_call(lua_State* L)
         lua_rawset(L, lua_upvalueindex(1));
 
         lua_replace(L, 1);
-
     } else {
         lua_replace(L, 1);
     }
@@ -1657,46 +1724,24 @@ static int cdata_call(lua_State* L)
 
 static int user_mt_key;
 
-static void compile_user_mt(lua_State* L,int user_mt){
-    if(lua_isnil(L,user_mt))
-        return;
-    int created=0;
-    for (int i = TM_END; --i ;) {
-        lua_getfield(L,user_mt,tm_fields[i]);
-        if(lua_isnil(L,-1)){
-            lua_pop(L,1);
-            continue;
-        }
-        if(!created){
-            created=1;
-            lua_createtable(L,i,0);
-            lua_insert(L,-2);
-        }
-        lua_rawseti(L,-2,i);
-    }
-    if(!created){
-        lua_pushnil(L);
-    }
-    lua_replace(L,user_mt);
-}
-static ALWAYS_INLINE int is_invalid_for_meta(const struct ctype* ct){
-    return ct->type != STRUCT_TYPE && ct->type != UNION_TYPE && !IS_COMPLEX(ct->type);
-}
 static int ffi_metatype(lua_State* L)
 {
     struct ctype ct;
     lua_settop(L, 2);
 
     check_ctype(L, 1, &ct);
-
-    if ( ct.pointers||ct.is_reference||is_invalid_for_meta(&ct)) {
-        return luaL_argerror(L, 1, "invalid C type");
-    }
-
     if (lua_type(L, 2) != LUA_TTABLE && lua_type(L, 2) != LUA_TNIL) {
         return luaL_argerror(L, 2, "metatable must be a table or nil");
     }
-    compile_user_mt(L,2);
+
+    lua_pushlightuserdata(L, &user_mt_key);
+    lua_rawget(L, 3);
+    if (!lua_isnil(L, -1)) {
+        push_type_name(L, 3, &ct);
+        return luaL_error(L, "type %s already has a user metatable", lua_tostring(L, -1));
+    }
+    lua_pop(L, 1);
+
     lua_pushlightuserdata(L, &user_mt_key);
     lua_pushvalue(L, 2);
     lua_rawset(L, 3); /* user[user_mt_key] = mt */
@@ -1710,7 +1755,7 @@ static int ffi_metatype(lua_State* L)
  * the stack, otherwise it returns 0 and pushes nothing */
 int push_user_mt(lua_State* L, int ct_usr, const struct ctype* ct)
 {
-    if (is_invalid_for_meta(ct)) {
+    if (ct->type != STRUCT_TYPE && ct->type != UNION_TYPE && !IS_COMPLEX(ct->type)) {
         return 0;
     }
     if (!lua_istable(L, ct_usr)) {
@@ -1749,6 +1794,7 @@ static int ffi_gc(lua_State* L)
  */
 static ptrdiff_t lookup_cdata_index(lua_State* L, int idx, int ct_usr, struct ctype* ct)
 {
+    struct ctype mt;
     ptrdiff_t off;
 
     ct_usr = lua_absindex(L, ct_usr);
@@ -1781,14 +1827,13 @@ static ptrdiff_t lookup_cdata_index(lua_State* L, int idx, int ct_usr, struct ct
 
         return (ct->pointers ? sizeof(void*) : ct->base_size) * off;
 
-    case LUA_TSTRING:{
+    case LUA_TSTRING:
         /* possibilities are struct/union, pointer to struct/union */
 
         if ((ct->type != STRUCT_TYPE && ct->type != UNION_TYPE) || ct->is_array || ct->pointers > 1) {
             return -1;
         }
 
-        struct ctype mt;
         lua_pushvalue(L, idx);
         off = get_member(L, ct_usr, ct, &mt);
         if (off < 0) {
@@ -1797,7 +1842,7 @@ static ptrdiff_t lookup_cdata_index(lua_State* L, int idx, int ct_usr, struct ct
 
         *ct = mt;
         return off;
-    }
+
     default:
         return -1;
     }
@@ -1819,10 +1864,22 @@ static int cdata_newindex(lua_State* L)
             goto err;
         }
 
-        lua_rawgeti(L, -1,TM_NEWINDEX);
+        lua_pushliteral(L, "__newindex");
+        lua_rawget(L, -2);
 
         if (lua_isnil(L, -1)) {
             goto err;
+        }
+
+        if (tt.const_mask & 0xFF) {
+            return luaL_error(L, "can't set const data");
+        }
+
+        if (lua_istable(L, -1)) {
+            lua_pushvalue(L, 2);
+            lua_pushvalue(L, 3);
+            lua_settable(L, -3);
+            return 1;
         }
 
         lua_insert(L, 1);
@@ -1891,7 +1948,8 @@ static int cdata_index(lua_State* L)
             goto err;
         }
 
-        lua_rawgeti(L, -1,TM_INDEX);
+        lua_pushliteral(L, "__index");
+        lua_rawget(L, -2);
 
         if (lua_isnil(L, -1)) {
             goto err;
@@ -1900,6 +1958,8 @@ static int cdata_index(lua_State* L)
         if (lua_istable(L, -1)) {
             lua_pushvalue(L, 2);
             lua_gettable(L, -2);
+            if (lua_isnil(L, -1))
+                goto err;
             return 1;
         }
 
@@ -1924,7 +1984,7 @@ err:
         return 1;
 
     } else if (ct.is_bitfield) {
-#if LUA_VERSION_NUM <503
+
         if (ct.type == INT64_TYPE) {
             struct ctype rt;
             uint64_t val = *(uint64_t*) data;
@@ -1942,15 +2002,40 @@ err:
 
             return 1;
 
-        } else
-#endif
-			if (ct.type == BOOL_TYPE) {
-            uint64_t val = *(uint64_t*) data;
+        } else if (ct.type == BOOL_TYPE) {
+            uint64_t val = *(uint8_t*) data;
             lua_pushboolean(L, (int) (val & (UINT64_C(1) << ct.bit_offset)));
             return 1;
 
         } else {
-            uint64_t val = *(uint64_t*) data;
+            //uint64_t val = *(uint64_t*) data; //Trial fix
+            uint64_t val = 0;
+			switch (ct.type) {
+				case INT8_TYPE: {
+					uint8_t ui;
+					memcpy(&ui, data, sizeof(uint8_t));
+					val = ui;
+					//val = *(uint8_t*)data;
+					break;
+				}
+				case INT16_TYPE: {
+					uint16_t ui;
+					memcpy(&ui, data, sizeof(uint16_t));
+					val = ui;
+					//val = *(uint16_t*)data;
+					break;
+				}
+				case INT32_TYPE: {
+					uint32_t ui;
+					memcpy(&ui, data, sizeof(uint32_t));
+					val = ui;
+					//val = *(uint32_t*)data;
+					break;
+				}
+				case INT64_TYPE:
+				default:
+					return luaL_error(L, "Inavaid data type");
+			}
             val >>= ct.bit_offset;
             val &= (UINT64_C(1) << ct.bit_size) - 1;
             lua_pushinteger(L, val);
@@ -1960,7 +2045,7 @@ err:
     } else if (ct.pointers) {
 #ifndef ALLOW_MISALIGNED_ACCESS
         union {
-            char c[8];
+            uint8_t c[8];
             void* p;
         } misalignbuf;
 
@@ -1988,7 +2073,7 @@ err:
     } else {
 #ifndef ALLOW_MISALIGNED_ACCESS
         union {
-            char c[8];
+            uint8_t c[8];
             double d;
             float f;
             uint64_t u64;
@@ -2017,12 +2102,8 @@ err:
             lua_pushinteger(L, ct.is_unsigned ? (lua_Integer) *(uint32_t*) data : (lua_Integer) *(int32_t*) data);
             break;
         case INT64_TYPE:
-		#if LUA_VERSION_NUM<503
             to = push_cdata(L, -1, &ct);
             *(int64_t*) to = *(int64_t*) data;
-		#else
-			lua_pushinteger(L, *(int64_t*) data);
-		#endif
             break;
         case INTPTR_TYPE:
             to = push_cdata(L, -1, &ct);
@@ -2094,11 +2175,7 @@ static int rank(const struct ctype* ct)
     case COMPLEX_FLOAT_TYPE:
         return 6;
     case INTPTR_TYPE:
-#if defined(__LP64__) || defined(__amd64__) ||defined (_WIN64)
-        return 4;
-#else
-        return 1;
-#endif
+        return sizeof(intptr_t) >= sizeof(int64_t) ? 4 : 1;
     case INT64_TYPE:
         return ct->is_unsigned ? 3 : 2;
     case INT32_TYPE:
@@ -2132,17 +2209,45 @@ static void push_number(lua_State* L, int64_t val, int ct_usr, const struct ctyp
         intptr_t* p = (intptr_t*) push_cdata(L, ct_usr, ct);
         *p = val;
     } else {
-        int64_t* p = (int64_t*) push_cdata(L, ct_usr, ct);
-        *p = val;
+        void* p = (int64_t*) push_cdata(L, ct_usr, ct);
+        //*p = val;
+		/* TODO : Will this work for big endian architectures? 
+		 * ctype_size returns 64 for all integer types
+		 */
+		memset(p, 0, ctype_size(L, ct));
+		switch (ct->type) {
+			case BOOL_TYPE:
+			case INT8_TYPE: {
+				memcpy(p, &val, ctype_size(L, ct));
+				}
+				break;
+			case INT16_TYPE: {
+				memcpy(p, &val, ctype_size(L, ct));
+				}
+				break;
+			case ENUM_TYPE:
+			case INT32_TYPE: {
+				memcpy(p, &val, ctype_size(L, ct));
+				}
+				break;
+			case INT64_TYPE: {
+				memcpy(p, &val, ctype_size(L, ct));
+				}
+				break;
+			default:
+				luaL_error(L, "Unsupported type for this operation");
+				break;
+		}
     }
 }
 
-static int call_user_op(lua_State* L, TMK key, int idx, int ct_usr, const struct ctype* ct)
+static int call_user_op(lua_State* L, const char* opfield, int idx, int ct_usr, const struct ctype* ct)
 {
     idx = lua_absindex(L, idx);
 
     if (push_user_mt(L, ct_usr, ct)) {
-        lua_rawgeti(L, -1,key);
+        lua_pushstring(L, opfield);
+        lua_rawget(L, -2);
         if (!lua_isnil(L, -1)) {
             int top = lua_gettop(L);
             lua_pushvalue(L, idx);
@@ -2164,7 +2269,7 @@ static int cdata_unm(lua_State* L)
     lua_settop(L, 1);
     p = to_cdata(L, 1, &ct);
 
-    ret = call_user_op(L, TM_UNM, 1, 2, &ct);
+    ret = call_user_op(L, "__unm", 1, 2, &ct);
     if (ret >= 0) {
         return ret;
     }
@@ -2186,13 +2291,14 @@ static int cdata_unm(lua_State* L)
 
 /* returns -ve if no binop was called otherwise returns the number of return
  * arguments */
-static int call_user_binop(lua_State* L, TMK key, int lidx, int lusr, const struct ctype* lt, int ridx, int rusr, const struct ctype* rt)
+static int call_user_binop(lua_State* L, const char* opfield, int lidx, int lusr, const struct ctype* lt, int ridx, int rusr, const struct ctype* rt)
 {
     lidx = lua_absindex(L, lidx);
     ridx = lua_absindex(L, ridx);
 
     if (push_user_mt(L, lusr, lt)) {
-        lua_rawgeti(L, -1,key);
+        lua_pushstring(L, opfield);
+        lua_rawget(L, -2);
 
         if (!lua_isnil(L, -1)) {
             int top = lua_gettop(L);
@@ -2206,7 +2312,8 @@ static int call_user_binop(lua_State* L, TMK key, int lidx, int lusr, const stru
     }
 
     if (push_user_mt(L, rusr, rt)) {
-        lua_rawgeti(L, -1,key);
+        lua_pushstring(L, opfield);
+        lua_rawget(L, -2);
 
         if (!lua_isnil(L, -1)) {
             int top = lua_gettop(L);
@@ -2222,7 +2329,7 @@ static int call_user_binop(lua_State* L, TMK key, int lidx, int lusr, const stru
     return -1;
 }
 
-static int cdata_concat(lua_State* L)
+static int user_cdata_concat(lua_State* L)
 {
     struct ctype lt, rt;
     int ret;
@@ -2231,12 +2338,55 @@ static int cdata_concat(lua_State* L)
     to_cdata(L, 1, &lt);
     to_cdata(L, 2, &rt);
 
-    ret = call_user_binop(L, TM_CONCAT, 1, 3, &lt, 2, 4, &rt);
+    ret = call_user_binop(L, "__concat", 1, 3, &lt, 2, 4, &rt);
     if (ret >= 0) {
         return ret;
     }
 
-    return luaL_error(L, "NYI");
+    lua_settop(L, 2);
+    return -1;
+}
+
+#if LUA_VERSION_NUM > 501
+static int stringified_cdata_concat(lua_State* L)
+{
+    size_t l_size = 0, r_size = 0;
+    const char * l_str = NULL;
+    const char * r_str = NULL;
+    char * o_str = NULL;
+
+    lua_settop(L, 2);
+
+    r_str = luaL_tolstring(L, 2, &r_size);
+    if (!r_str) return luaL_error(L, "NYI");
+    l_str = luaL_tolstring(L, 1, &l_size);
+    if (!l_str) return luaL_error(L, "NYI");
+
+    o_str = malloc(l_size + r_size);
+
+    memcpy(o_str, l_str, l_size);
+    memcpy((o_str+l_size), r_str, r_size);
+
+    lua_pushlstring(L, o_str, l_size + r_size);
+
+    free(o_str);
+
+    return 1;
+}
+#endif
+
+static int cdata_concat(lua_State* L)
+{
+    int ret = user_cdata_concat(L);
+    if (ret != -1) {
+        return ret;
+    }
+
+#if LUA_VERSION_NUM > 501
+    return stringified_cdata_concat(L);
+#else
+    return ret;
+#endif
 }
 
 static int cdata_len(lua_State* L)
@@ -2247,34 +2397,15 @@ static int cdata_len(lua_State* L)
     lua_settop(L, 1);
     to_cdata(L, 1, &ct);
 
-    ret = call_user_op(L, TM_LEN, 1, 2, &ct);
+    ret = call_user_op(L, "__len", 1, 2, &ct);
     if (ret >= 0) {
         return ret;
     }
-    if(ct.is_array){
-        lua_pushinteger(L,ct.array_size) ;
-        return 1;
-    }
+
     push_type_name(L, 2, &ct);
     return luaL_error(L, "type %s does not implement the __len metamethod", lua_tostring(L, -1));
 }
-static int cdata_next(lua_State* L){
-    struct ctype ct;
-    long key;
-    to_cdata(L, 1, &ct);
-    key =lua_tointeger(L,2)+1;
-    if(!ct.is_array){
-        luaL_error(L,"Only array type can be iterated");
-    }
-    if(key>=ct.array_size){
-        lua_pushnil(L);
-        return 1;
-    }
-    lua_pushinteger(L,key);
-    lua_pushvalue(L,-1);
-    lua_gettable(L,1);
-    return 2;
-}
+
 static int cdata_pairs(lua_State* L)
 {
     struct ctype ct;
@@ -2283,16 +2414,11 @@ static int cdata_pairs(lua_State* L)
     lua_settop(L, 1);
     to_cdata(L, 1, &ct);
 
-    ret = call_user_op(L, TM_PAIRS, 1, 2, &ct);
+    ret = call_user_op(L, "__pairs", 1, 2, &ct);
     if (ret >= 0) {
         return ret;
     }
-    if(ct.is_array){
-        lua_pushcfunction(L,cdata_next);
-        lua_pushvalue(L,1);
-        lua_pushinteger(L,-1);
-        return 3;
-    }
+
     push_type_name(L, 2, &ct);
     return luaL_error(L, "type %s does not implement the __pairs metamethod", lua_tostring(L, -1));
 }
@@ -2305,23 +2431,18 @@ static int cdata_ipairs(lua_State* L)
     lua_settop(L, 1);
     to_cdata(L, 1, &ct);
 
-    ret = call_user_op(L, TM_IPAIRS, 1, 2, &ct);
+    ret = call_user_op(L, "__ipairs", 1, 2, &ct);
     if (ret >= 0) {
         return ret;
     }
-    if(ct.is_array){
-        lua_pushcfunction(L,cdata_next);
-        lua_pushvalue(L,1);
-        lua_pushinteger(L,-1);
-        return 3;
-    }
+
     push_type_name(L, 2, &ct);
     return luaL_error(L, "type %s does not implement the __ipairs metamethod", lua_tostring(L, -1));
 }
 
 static int cdata_add(lua_State* L)
 {
-    struct ctype lt, rt, ct;
+    struct ctype lt, llt, rt, rrt, ct;
     void *lp, *rp;
     int ct_usr;
     int ret;
@@ -2330,9 +2451,11 @@ static int cdata_add(lua_State* L)
 
     lp = to_cdata(L, 1, &lt);
     rp = to_cdata(L, 2, &rt);
+    llt = lt;
+    rrt = rt;
     assert(lua_gettop(L) == 4);
 
-    ret = call_user_binop(L, TM_ADD, 1, 3, &lt, 2, 4, &rt);
+    ret = call_user_binop(L, "__add", 1, 3, &lt, 2, 4, &rt);
     if (ret >= 0) {
         return ret;
     }
@@ -2359,25 +2482,32 @@ static int cdata_add(lua_State* L)
         return 1;
 
     } else {
-        int64_t left = check_intptr(L, 1, lp, &lt);
-        int64_t right = check_intptr(L, 2, rp, &rt);
+        int64_t left = check_intptr(L, 1, lp, &llt);
+        int64_t right = check_intptr(L, 2, rp, &rrt);
+		/*
+		 * There is a side effect of check_intptr that it freshly assigns
+		 * values for lt and rrt if one of them is an INVALID type (e.g. LUA NUMBER)
+		 * thus the rank and therefore ct and ct_usr should get re-evaluated once again.
+		 */
+		ct_usr = rank(&lt) > rank(&rt) ? 3 : 4;
+		ct = rank(&lt) > rank(&rt) ? lt : rt;
         assert(lua_gettop(L) == 4);
 
         /* note due to 2s complement it doesn't matter if we do the addition as int or uint,
          * but the result needs to be uint64_t if either of the sources are */
 
-        if (lt.pointers && rt.pointers) {
+        if (llt.pointers && rrt.pointers) {
             luaL_error(L, "can't add two pointers");
 
-        } else if (lt.pointers) {
-            int64_t res = left + (lt.pointers > 1 ? sizeof(void*) : lt.base_size) * right;
-            lt.is_array = 0;
-            push_number(L, res, 3, &lt);
+        } else if (llt.pointers) {
+            int64_t res = left + (llt.pointers > 1 ? sizeof(void*) : llt.base_size) * right;
+            llt.is_array = 0;
+            push_number(L, res, 3, &llt);
 
-        } else if (rt.pointers) {
-            int64_t res = right + (rt.pointers > 1 ? sizeof(void*) : rt.base_size) * left;
-            rt.is_array = 0;
-            push_number(L, res, 4, &rt);
+        } else if (rrt.pointers) {
+            int64_t res = right + (rrt.pointers > 1 ? sizeof(void*) : rrt.base_size) * left;
+            rrt.is_array = 0;
+            push_number(L, res, 4, &rrt);
 
         } else {
             push_number(L, left + right, ct_usr, &ct);
@@ -2389,7 +2519,7 @@ static int cdata_add(lua_State* L)
 
 static int cdata_sub(lua_State* L)
 {
-    struct ctype lt, rt, ct;
+    struct ctype lt, llt, rt, rrt, ct;
     void *lp, *rp;
     int ct_usr;
     int ret;
@@ -2398,8 +2528,10 @@ static int cdata_sub(lua_State* L)
 
     lp = to_cdata(L, 1, &lt);
     rp = to_cdata(L, 2, &rt);
+	llt = lt;
+	rrt = rt;
 
-    ret = call_user_binop(L, TM_SUB, 1, 3, &lt, 2, 4, &rt);
+    ret = call_user_binop(L, "__sub", 1, 3, &lt, 2, 4, &rt);
     if (ret >= 0) {
         return ret;
     }
@@ -2424,16 +2556,24 @@ static int cdata_sub(lua_State* L)
         return 1;
 
     } else {
-        int64_t left = check_intptr(L, 1, lp, &lt);
-        int64_t right = check_intptr(L, 2, rp, &rt);
+        int64_t left = check_intptr(L, 1, lp, &llt);
+        int64_t right = check_intptr(L, 2, rp, &rrt);
+		/*
+		 * There is a side effect of check_intptr that it freshly assigns
+		 * values for llt and rt if one of them is an INVALID type (e.g. LUA NUMBER)
+		 * thus the rank and therefore ct and ct_usr should get re-evaluated once again.
+		 */
+		ct_usr = rank(&lt) > rank(&rt) ? 3 : 4;
+		ct = rank(&lt) > rank(&rt) ? lt : rt;
+		assert(lua_gettop(L) == 4);
 
-        if (rt.pointers) {
+        if (rrt.pointers) {
             luaL_error(L, "NYI: can't subtract a pointer value");
 
-        } else if (lt.pointers) {
-            int64_t res = left - (lt.pointers > 1 ? sizeof(void*) : lt.base_size) * right;
-            lt.is_array = 0;
-            push_number(L, res, 3, &lt);
+        } else if (llt.pointers) {
+            int64_t res = left - (llt.pointers > 1 ? sizeof(void*) : llt.base_size) * right;
+            llt.is_array = 0;
+            push_number(L, res, 3, &llt);
 
         } else {
             int64_t res = left - right;
@@ -2444,9 +2584,8 @@ static int cdata_sub(lua_State* L)
     }
 }
 
-/* TODO fix for unsigned */
-#define NUMBER_ONLY_BINOP(OP, DO_NORMAL, DO_COMPLEX)                     \
-    struct ctype lt, rt, ct;                                                \
+#define NUMBER_ONLY_BINOP(OPSTR, DO_NORMAL, DO_COMPLEX)                     \
+    struct ctype lt, llt, rt, rrt, ct;                                                \
     void *lp, *rp;                                                          \
     int ct_usr;                                                             \
     int ret;                                                                \
@@ -2455,8 +2594,10 @@ static int cdata_sub(lua_State* L)
                                                                             \
     lp = to_cdata(L, 1, &lt);                                               \
     rp = to_cdata(L, 2, &rt);                                               \
+	llt = lt;																\
+	rrt = rt;																\
                                                                             \
-    ret = call_user_binop(L, OP, 1, 3, &lt, 2, 4, &rt);                  \
+    ret = call_user_binop(L, OPSTR, 1, 3, &lt, 2, 4, &rt);                  \
     if (ret >= 0) {                                                         \
         return ret;                                                         \
     }                                                                       \
@@ -2475,10 +2616,17 @@ static int cdata_sub(lua_State* L)
     } else if (lt.pointers || rt.pointers) {                                \
         luaL_error(L, "can't operate on a pointer value");                  \
                                                                             \
-    } else {                                                                \
+    } else if (ct.is_unsigned) {                                            \
+        uint64_t res;                                                       \
+        uint64_t left = check_intptr(L, 1, lp, &llt);                       \
+        uint64_t right = check_intptr(L, 2, rp, &rrt);                      \
+                                                                            \
+        DO_NORMAL(left, right, res);                                        \
+        push_number(L, res, ct_usr, &ct);                                   \
+	} else {                                                                \
         int64_t res;                                                        \
-        int64_t left = check_intptr(L, 1, lp, &lt);                         \
-        int64_t right = check_intptr(L, 2, rp, &rt);                        \
+        int64_t left = check_intptr(L, 1, lp, &llt);                        \
+        int64_t right = check_intptr(L, 2, rp, &rrt);                       \
                                                                             \
         DO_NORMAL(left, right, res);                                        \
         push_number(L, res, ct_usr, &ct);                                   \
@@ -2488,49 +2636,35 @@ static int cdata_sub(lua_State* L)
 
 #define MUL(l,r,s) s = l * r
 #define DIV(l,r,s) s = l / r
-#define IDIV(l,r,s) s = (int64_t)(l / r)
 #define MOD(l,r,s) s = l % r
 #define POW(l,r,s) s = pow(l, r)
 
-#if defined(HAVE_COMPLEX)
+#ifdef HAVE_COMPLEX
 #define MULC(l,r,s) s = l * r
 #define DIVC(l,r,s) s = l / r
-#define IDIVC(l,r,s) (void) l, (void) r, memset(&s, 0, sizeof(s)), luaL_error(L, "NYI: complex idiv")
 #define MODC(l,r,s) (void) l, (void) r, memset(&s, 0, sizeof(s)), luaL_error(L, "NYI: complex mod")
 #define POWC(l,r,s) s = cpow(l, r)
 #else
 #define MULC(l,r,s) s.real = l.real * r.real - l.imag * r.imag, s.imag = l.real * r.imag + l.imag * r.real
 #define DIVC(l,r,s) s.real = (l.real * r.real + l.imag * r.imag) / (r.real * r.real + r.imag * r.imag), \
                     s.imag = (l.imag * r.real - l.real * r.imag) / (r.real * r.real + r.imag * r.imag)
-#define IDIVC(l,r,s) (void) l, (void) r, memset(&s, 0, sizeof(s)), luaL_error(L, "NYI: complex idiv")
 #define MODC(l,r,s) (void) l, (void) r, memset(&s, 0, sizeof(s)), luaL_error(L, "NYI: complex mod")
-#define POWC(l,r,s) cpow(l, r)
+#define POWC(l,r,s) (void) l, (void) r, memset(&s, 0, sizeof(s)), luaL_error(L, "NYI: complex pow")
 #endif
 
 static int cdata_mul(lua_State* L)
-{ NUMBER_ONLY_BINOP(TM_MUL, MUL, MULC); }
+{ NUMBER_ONLY_BINOP("__mul", MUL, MULC); }
 
 static int cdata_div(lua_State* L)
-{ NUMBER_ONLY_BINOP(TM_DIV, DIV, DIVC); }
-static int cdata_idiv(lua_State* L)
-{ NUMBER_ONLY_BINOP(TM_IDIV, IDIV, IDIVC); }
+{ NUMBER_ONLY_BINOP("__div", DIV, DIVC); }
+
 static int cdata_mod(lua_State* L)
-{ NUMBER_ONLY_BINOP(TM_MOD, MOD, MODC); }
+{ NUMBER_ONLY_BINOP("__mod", MOD, MODC); }
 
 static int cdata_pow(lua_State* L)
-{ NUMBER_ONLY_BINOP(TM_POW, POW, POWC); }
+{ NUMBER_ONLY_BINOP("__pow", POW, POWC); }
 
-#define POINTER_FIX_CHECK()\
-     if(lt.type==FUNCTION_PTR_TYPE)\
-         lp=*(uintptr_t**)lp;\
-     if(rt.type==FUNCTION_PTR_TYPE)\
-         rp=*(uintptr_t**)rp;\
-     if((is_void_ptr(&rt)||rt.is_null)&&(lt.pointers||lt.type==FUNCTION_PTR_TYPE)||\
-     (is_void_ptr(&lt)||lt.is_null)&&(rt.pointers||rt.type==FUNCTION_PTR_TYPE)||\
-     is_same_type(L, 3, 4, &lt, &rt))
-
-
-#define COMPARE_BINOP(OPKEY, OP, OPC)                                       \
+#define COMPARE_BINOP(OPSTR, OP, OPC)                                       \
     struct ctype lt, rt;                                                    \
     void *lp, *rp;                                                          \
     int ret, res;                                                           \
@@ -2540,33 +2674,46 @@ static int cdata_pow(lua_State* L)
     lp = to_cdata(L, 1, &lt);                                               \
     rp = to_cdata(L, 2, &rt);                                               \
                                                                             \
-    ret = call_user_binop(L, OPKEY, 1, 3, &lt, 2, 4, &rt);                  \
+    ret = call_user_binop(L, OPSTR, 1, 3, &lt, 2, 4, &rt);                  \
     if (ret >= 0) {                                                         \
         return ret;                                                         \
     }                                                                       \
                                                                             \
-    if (lt.pointers || lt.type==FUNCTION_PTR_TYPE||                         \
-        rt.pointers || rt.type==FUNCTION_PTR_TYPE) {                        \
-        POINTER_FIX_CHECK() {                                               \
-            res = OP((char*)lp, (char*)rp);                                 \
-        } else {                                                            \
-            goto err;                                                       \
-        }                                                                   \
+    if (IS_COMPLEX(lt.type) || IS_COMPLEX(rt.type)) {                       \
+        complex_double left = check_complex(L, 1, lp, &lt);                 \
+        complex_double right = check_complex(L, 2, rp, &rt);                \
                                                                             \
-    }else {                                                                 \
-        if (IS_COMPLEX(lt.type) || IS_COMPLEX(rt.type)) {                   \
-            complex_double left = check_complex(L, 1, lp, &lt);             \
-            complex_double right = check_complex(L, 2, rp, &rt);            \
+        res = OPC(left, right);                                             \
                                                                             \
-            res = OPC(left, right);                                         \
+        lua_pushboolean(L, res);                                            \
                                                                             \
-            lua_pushboolean(L, res);                                        \
-            return 1;                                                       \
-        };                                                                  \
-                                                                            \
+    } else {                                                                \
         int64_t left = check_intptr(L, 1, lp, &lt);                         \
         int64_t right = check_intptr(L, 2, rp, &rt);                        \
-        if (lt.is_unsigned && rt.is_unsigned) {                      \
+                                                                            \
+        if (lt.pointers && rt.pointers) {                                   \
+            if (is_void_ptr(&lt) || is_void_ptr(&rt) || is_same_type(L, 3, 4, &lt, &rt)) { \
+                res = OP((uint64_t) left, (uint64_t) right);                \
+            } else {                                                        \
+                goto err;                                                   \
+            }                                                               \
+                                                                            \
+        } else if (lt.is_null && rt.type == FUNCTION_PTR_TYPE) {            \
+            res = OP((uint64_t) left, (uint64_t) right);                    \
+                                                                            \
+        } else if (rt.is_null && lt.type == FUNCTION_PTR_TYPE) {            \
+            res = OP((uint64_t) left, (uint64_t) right);                    \
+                                                                            \
+        } else if (lt.pointers && rt.type == INTPTR_TYPE && rt.is_unsigned) {\
+            res = OP((uint64_t) left, (uint64_t) right);                    \
+                                                                            \
+        } else if (rt.pointers && lt.type == INTPTR_TYPE && lt.is_unsigned) {\
+            res = OP((uint64_t) left, (uint64_t) right);                    \
+                                                                            \
+        } else if (rt.pointers || lt.pointers) {                            \
+            goto err;                                                       \
+                                                                            \
+        } else if (lt.is_unsigned && rt.is_unsigned) {                      \
             res = OP((uint64_t) left, (uint64_t) right);                    \
                                                                             \
         } else if (lt.is_unsigned) {                                        \
@@ -2579,8 +2726,8 @@ static int cdata_pow(lua_State* L)
             res = OP(left, right);                                          \
         }                                                                   \
                                                                             \
+        lua_pushboolean(L, res);                                            \
     }                                                                       \
-    lua_pushboolean(L, res);                                                \
     return 1
 
 #define EQ(l, r) (l) == (r)
@@ -2598,10 +2745,7 @@ static int cdata_pow(lua_State* L)
 
 static int cdata_eq(lua_State* L)
 {
-       /* struct ctype l,r;
-    void*p = to_cdata(L, 1, &l);                                               \
-    void*p2 = to_cdata(L, 2, &r);*/
-    COMPARE_BINOP(TM_EQ, EQ, EQC);
+    COMPARE_BINOP("__eq", EQ, EQC);
 err:
     lua_pushboolean(L, 0);
     return 1;
@@ -2609,7 +2753,7 @@ err:
 
 static int cdata_lt(lua_State* L)
 {
-    COMPARE_BINOP(TM_LT, LT, LTC);
+    COMPARE_BINOP("__lt", LT, LTC);
 err:
     lua_getuservalue(L, 1);
     lua_getuservalue(L, 2);
@@ -2620,7 +2764,7 @@ err:
 
 static int cdata_le(lua_State* L)
 {
-    COMPARE_BINOP(TM_LE, LE, LEC);
+    COMPARE_BINOP("__le", LE, LEC);
 err:
     lua_getuservalue(L, 1);
     lua_getuservalue(L, 2);
@@ -2654,20 +2798,17 @@ static const char* etype_tostring(int type)
 
 static void print_type(lua_State* L, const struct ctype* ct)
 {
-    lua_pushfstring(L, " sz %d %d "
-                       //"%d "
-                       "align %d ptr %d %d %d type %s%s %d %d %d "
-                      // "name %d "
-                       "call %d %d var %d %d %d bit %d %d %d %d jit %d",
+    lua_pushfstring(L, " sz %d %d %d align %d ptr %d %d const %d type %s%s %d %d %d name %d call %d %d var %d %d %d bit %d %d %d %d jit %d",
             /* sz */
             ct->base_size,
             ct->array_size,
-            //ct->offset,
+            ct->offset,
             /* align */
             ct->align_mask,
             /* ptr */
             ct->is_array,
             ct->pointers,
+            /* const */
             ct->const_mask,
             /* type */
             ct->is_unsigned ? "u" : "",
@@ -2676,7 +2817,7 @@ static void print_type(lua_State* L, const struct ctype* ct)
             ct->is_defined,
             ct->is_null,
             /* name */
-            //ct->has_member_name,
+            ct->has_member_name,
             /* call */
             ct->calling_convention,
             ct->has_var_arg,
@@ -2714,13 +2855,14 @@ static int ctype_tostring(lua_State* L)
 static int cdata_tostring(lua_State* L)
 {
     struct ctype ct;
+    char buf[64];
     void* p;
     int ret;
 
     lua_settop(L, 1);
     p = to_cdata(L, 1, &ct);
 
-    ret = call_user_op(L, TM_TO_STRING, 1, 2, &ct);
+    ret = call_user_op(L, "__tostring", 1, 2, &ct);
     if (ret >= 0) {
         return ret;
     }
@@ -2738,80 +2880,95 @@ static int cdata_tostring(lua_State* L)
     }
 
     switch (ct.type) {
-        case COMPLEX_DOUBLE_TYPE: {
-            char buf[128];
-            complex_double c = *(complex_double *) p;
-            snprintf(buf,128, "%g+%gi", creal(c), cimag(c));
-            lua_pushstring(L, buf);
-            return 1;
+    case COMPLEX_DOUBLE_TYPE:
+        {
+            complex_double c = *(complex_double*) p;
+            lua_pushfstring(L, "%f+%fi", creal(c), cimag(c));
         }
+        return 1;
 
-        case COMPLEX_FLOAT_TYPE: {
-            char buf[128];
-            complex_float c = *(complex_float *) p;
-            snprintf(buf,128, "%g+%gi", crealf(c), cimagf(c));
-            lua_pushstring(L, buf);
-            return 1;
+    case COMPLEX_FLOAT_TYPE:
+        {
+            complex_float c = *(complex_float*) p;
+            lua_pushfstring(L, "%f+%fi", crealf(c), cimagf(c));
         }
+        return 1;
 
-        case FUNCTION_PTR_TYPE:
-            push_type_name(L, -1, &ct);
-            lua_pushfstring(L, "cdata<%s>: %p", lua_tostring(L, -1), *(void **) p);
-            return 1;
+    case FUNCTION_PTR_TYPE:
+        p = *(void**) p;
+        push_type_name(L, -1, &ct);
+        lua_pushfstring(L, "cdata<%s>: %p", lua_tostring(L, -1), *(void**) p);
+        return 1;
 
-        case INTPTR_TYPE:
-            lua_pushfstring(L, "%p", *(uintptr_t *) p);
-            return 1;
+    case INTPTR_TYPE:
+        lua_pushfstring(L, "%p", *(uintptr_t*) p);
+        return 1;
 
-        case INT64_TYPE: {
-            char buf[64];
-            sprintf(buf, ct.is_unsigned ? "%"PRIu64 : "%" PRId64, *(uint64_t *) p);
-            lua_pushstring(L, buf);
-            return 1;
-        }
+    case BOOL_TYPE:
+        sprintf(buf,"%s", (*(_Bool*) p) ? "true" : "false");
+        lua_pushstring(L, buf);
+        return 1;
 
-        case FLOAT_TYPE: {
-            char buf[64];
-            snprintf(buf, 64, "%g", *(float *) p);
-            lua_pushstring(L, buf);
-            return 1;
-        }
-        case DOUBLE_TYPE: {
-            char buf[64];
-            snprintf(buf, 64, "%g", *(double *) p);
-            lua_pushstring(L, buf);
-            return 1;
-        }
+    case INT8_TYPE:
+        sprintf(buf, ct.is_unsigned ? "%hhu" : "%hhd", *(uint8_t*) p);
+        lua_pushstring(L, buf);
+        return 1;
 
-        default: {
-            char buf[64];
-            snprintf(buf, 64, ct.is_unsigned ? "%"PRIu64 : "%"PRId64,
-                     (int64_t) check_intptr(L, 1, p, &ct));
-            lua_pushstring(L, buf);
-            return 1;
-        }
+    case INT16_TYPE:
+        sprintf(buf, ct.is_unsigned ? "%hu" : "%hd", *(uint16_t*) p);
+        lua_pushstring(L, buf);
+        return 1;
 
+    case INT32_TYPE:
+        sprintf(buf, ct.is_unsigned ? "%u" : "%d", *(uint32_t*) p);
+        lua_pushstring(L, buf);
+        return 1;
+
+    case INT64_TYPE:
+        sprintf(buf, ct.is_unsigned ? "%"PRIu64 : "%"PRId64, *(uint64_t*) p);
+        lua_pushstring(L, buf);
+        return 1;
+
+    case FLOAT_TYPE:
+        sprintf(buf,"%f", *(float*) p);
+        lua_pushstring(L, buf);
+        return 1;
+
+    case DOUBLE_TYPE:
+        sprintf(buf,"%lf", *(double*) p);
+        lua_pushstring(L, buf);
+        return 1;
+
+    default:
+        sprintf(buf, ct.is_unsigned ? "%"PRId64 : "%"PRId64, (int64_t) check_intptr(L, 1, p, &ct));
+        lua_pushstring(L, buf);
+        return 1;
     }
+}
+
+static int ffi_getptr(lua_State* L)
+{
+    struct ctype ct;
+    void* p = NULL;
+
+    lua_settop(L, 1);
+    p = to_cdata(L, 1, &ct);
+	lua_pushlightuserdata(L, p);
+	return 1;
+
 }
 
 static int ffi_errno(lua_State* L)
 {
-#ifdef _WIN32
-	if (!lua_isnoneornil(L, 1)) {
-		lua_pushinteger(L, GetLastError());
-		SetLastError((int)luaL_checknumber(L, 1));
-	}
-	else {
-		lua_pushinteger(L, GetLastError());
-	}
-#else
+    struct jit* jit = get_jit(L);
+
     if (!lua_isnoneornil(L, 1)) {
-        lua_pushinteger(L, errno);
-        errno =(int) luaL_checknumber(L, 1);
+        lua_pushinteger(L, jit->last_errno);
+        jit->last_errno = luaL_checknumber(L, 1);
     } else {
-        lua_pushinteger(L,errno);
+        lua_pushinteger(L, jit->last_errno);
     }
-#endif
+
     return 1;
 }
 
@@ -2838,8 +2995,17 @@ static int ffi_number(lua_State* L)
     struct ctype ct;
     void* data = to_cdata(L, 1, &ct);
 
+	//pfintf("%s:%d\n", __FILE__, __LINE__);
+
     if (ct.type != INVALID_TYPE) {
-        lua_pushinteger(L, check_intptr(L, 1, data, &ct));
+		switch (ct.type) {
+			case FLOAT_TYPE:
+				lua_pushnumber(L, *(float*)data);
+				break;
+			default:
+				lua_pushinteger(L, check_intptr(L, 1, data, &ct));
+				break;
+		}
         return 1;
     } else {
         /* call the old _G.tonumber, we use an upvalue as _G.tonumber is set
@@ -2858,33 +3024,36 @@ static int ffi_string(lua_State* L)
     lua_settop(L, 2);
 
     data = (char*) check_cdata(L, 1, &ct);
-    if(!data){
-        luaL_error(L,"null pointer for string call");
-    }
-    size_t sz;
 
-    if (lua_isuserdata(L, 2)) {
-        ptrdiff_t val;
-        if (!cdata_tointeger(L, 2, &val)) {
-            type_error(L, 2, "int", 0, NULL);
-        }
-        sz = (size_t) val;
-    } else if (!lua_isnil(L, 2)) {
-        sz = (size_t) luaL_checknumber(L, 2);
+    if (is_void_ptr(&ct)) {
+        lua_pushlstring(L, data, (size_t) luaL_checknumber(L, 2));
+        return 1;
 
-    } else if (ct.type == INT8_TYPE && ct.pointers == 1){
-        if (ct.is_array && !ct.is_variable_array) {
+    } else if (ct.type == INT8_TYPE && ct.pointers == 1) {
+        size_t sz;
+
+        if (lua_isuserdata(L, 2)) {
+            ptrdiff_t val;
+            if (!cdata_tointeger(L, 2, &val)) {
+                type_error(L, 2, "int", 0, NULL);
+            }
+            sz = (size_t) val;
+        } else if (!lua_isnil(L, 2)) {
+            sz = (size_t) luaL_checknumber(L, 2);
+
+        } else if (ct.is_array && !ct.is_variable_array) {
             char* nul = memchr(data, '\0', ct.array_size);
             sz = nul ? nul - data : ct.array_size;
 
-        }else
+        } else {
             sz = strlen(data);
-    }else{
-        sz =ctype_size(L,&ct);
+        }
+
+        lua_pushlstring(L, data, sz);
+        return 1;
     }
 
-    lua_pushlstring(L, data, sz);
-    return 1;
+    return luaL_error(L, "unable to convert cdata to string");
 }
 
 static int ffi_copy(lua_State* L)
@@ -2936,129 +3105,31 @@ static int ffi_abi(lua_State* L)
     lua_pushboolean(L, lua_toboolean(L, -1));
     return 1;
 }
-/* #ifdef FAKE_ANDROID_DL */
-
-/* #include "fake_dlfcn.h" */
-/* #include "sys/system_properties.h" */
-/* static int getSDK() { */
-/*     static int sdk=0; */
-/*     if(sdk!=0) */
-/*         return sdk; */
-/*     char s[6]; */
-/*     __system_property_get("ro.build.version.sdk",s); */
-/*     sdk=atoi(s); */
-/*     return sdk; */
-/* } */
-/* static void* android_fake_load_library(lua_State* L,const char* libname) */
-/* { */
-/*     if(getSDK()<24) return NULL; */
-/*     if(libname[0]=='/'){ */
-/*         return fake_dlopen(libname,RTLD_LAZY); */
-/*     } */
-/*     static int ld_path_key; */
-/*     push_upval(L,&ld_path_key); */
-/*     if(lua_isnil(L,-1)){ */
-/*         lua_pop(L,1); */
-/*         lua_createtable(L,2,0); */
-/*         const char* library_path = getenv("LD_LIBRARY_PATH"); */
-/*         if (library_path == NULL) { */
-/*             static const char *const kDefaultLdPaths[] = { */
-/* #if defined(__LP64__) */
-/*             "/system/lib64", */
-/*             "/vendor/lib64" */
-/* #else */
-/*             "/system/lib", */
-/*             "/vendor/lib" */
-/* #endif */
-/*             }; */
-/*             lua_pushstring(L,kDefaultLdPaths[0]); */
-/*             lua_rawseti(L,-2,1); */
-/*             lua_pushstring(L,kDefaultLdPaths[1]); */
-/*             lua_rawseti(L,-2,2); */
-/*         } else{ */
-/*             size_t len=strlen(library_path); */
-/*             char* buf=malloc(len+1); */
-/*             memcpy(buf,library_path,len); */
-/*             int libIndex=0; */
-/*             size_t lastStart=0; */
-/*             for(size_t i=0;i<=len;++i){ */
-/*                 if(buf[i]==':'){ */
-/*                     buf[i]=0; */
-/*                 } else if(buf[i]!=0){ */
-/*                     continue; */
-/*                 } */
-/*                 if(i>lastStart+1&&buf[i-1]=='/'){ */
-/*                     buf[i-1]=0; */
-/*                 } */
-/*                 lua_pushstring(L,buf+lastStart); */
-/*                 lua_rawseti(L,-2,libIndex); */
-/*                 lastStart=i+1; */
-/*                 libIndex++; */
-/*             } */
-/*         } */
-/*         lua_pushvalue(L,-1); */
-/*         set_upval(L,&ld_path_key); */
-/*     } */
-
-/*     size_t pathLen=lua_rawlen(L,-1); */
-/*     void* lib=NULL; */
-/*     const char* path,*trueLib; */
-/*     for (int i = 1; i <= pathLen; ++i) { */
-/*         lua_rawgeti(L,-1,i); */
-/*         path = lua_tostring(L, -1); */
-/*         if(path==0){ */
-/*             lua_pop(L,1);continue; */
-/*         } */
-/*         trueLib = lua_pushfstring(L, "%s/"LIB_FORMAT_1,path, libname); */
-/*         if(access(trueLib,F_OK==0)) */
-/*             lib = fake_dlopen(trueLib,RTLD_LAZY); */
-/*         lua_pop(L, 1); */
-
-/*         if (!lib) { */
-/*             trueLib = lua_pushfstring(L, "%s/"LIB_FORMAT_2,path, libname); */
-/*             if(access(trueLib,F_OK==0)) */
-/*                 lib = fake_dlopen(trueLib,RTLD_LAZY); */
-/*             lua_pop(L, 1); */
-/*         } */
-/*         lua_pop(L,1); */
-/*         if(lib) break; */
-/*     } */
-/*     lua_pop(L,1);//pop the table; */
-/*     return lib; */
-/* } */
-/* #endif */
 
 static int ffi_load(lua_State* L)
 {
-    const char* libname = luaL_checkstring(L, 1),*trueLib;
+    const char* libname = luaL_checkstring(L, 1);
     void** lib = (void**) lua_newuserdata(L, sizeof(void*));
 
     *lib = LoadLibraryA(libname);
 
 #ifdef LIB_FORMAT_1
     if (!*lib) {
-        trueLib = lua_pushfstring(L, LIB_FORMAT_1, libname);
-        *lib = LoadLibraryA(trueLib);
+        libname = lua_pushfstring(L, LIB_FORMAT_1, lua_tostring(L, 1));
+        *lib = LoadLibraryA(libname);
         lua_pop(L, 1);
     }
 #endif
 
 #ifdef LIB_FORMAT_2
     if (!*lib) {
-        trueLib = lua_pushfstring(L, LIB_FORMAT_2, libname);
-        *lib = LoadLibraryA(trueLib);
+        libname = lua_pushfstring(L, LIB_FORMAT_2, lua_tostring(L, 1));
+        *lib = LoadLibraryA(libname);
         lua_pop(L, 1);
     }
 #endif
 
     if (!*lib) {
-/* #ifdef FAKE_ANDROID_DL */
-/*         *lib=android_fake_load_library(L,libname); */
-/*         if(*lib){ */
-/*             lua_pushboolean(L,1); */
-/*             set_upval(L,*lib); */
-/*         } else */
-/* #endif */
         return luaL_error(L, "could not load library %s", lua_tostring(L, 1));
     }
 
@@ -3079,19 +3150,9 @@ static void* find_symbol(lua_State* L, int modidx, const char* asmname)
 
     libs = (void**) lua_touserdata(L, modidx);
     num = lua_rawlen(L, modidx) / sizeof(void*);
-/* #ifdef FAKE_ANDROID_DL */
-/*     push_upval(L,*libs); */
-/*     int isFakeLib=!lua_isnil(L,-1); */
-/*     lua_pop(L,1); */
-/*     extern void *fake_dlsym(void *handle, const char *name); */
-/* #endif */
+
     for (i = 0; i < num && sym == NULL; i++) {
         if (libs[i]) {
-/* #ifdef FAKE_ANDROID_DL */
-/*             if(isFakeLib){ */
-/*                 sym=fake_dlsym(libs[i],asmname); */
-/*             } else */
-/* #endif */
             sym = GetProcAddressA(libs[i], asmname);
         }
     }
@@ -3120,7 +3181,8 @@ static void* lookup_global(lua_State* L, int modidx, int nameidx, const char** p
     }
 
     /* leave just the ct_usr on the stack */
-    *ct = *(const struct ctype*) lua_touserdata(L, -1);
+    //*ct = *(const struct ctype*) lua_touserdata(L, -1);
+    memcpy(ct, lua_touserdata(L, -1), sizeof(struct ctype));
     lua_getuservalue(L, -1);
     lua_replace(L, top + 1);
     lua_pop(L, 1);
@@ -3146,7 +3208,7 @@ static int cmodule_index(lua_State* L)
 {
     const char* asmname;
     struct ctype ct;
-    void *sym;
+    void *sym = 0;
 
     lua_settop(L, 2);
 
@@ -3195,6 +3257,26 @@ static int cmodule_index(lua_State* L)
 
     if (ct.type == FUNCTION_TYPE) {
         compile_function(L, (cfunction) sym, -1, &ct);
+#ifdef ARCH_ARM64
+		/* Ref: https://developer.arm.com/documentation/ihi0053/latest
+		 * Generates an ISB (instruction synchronization barrier) instruction or
+		 * equivalent CP15 instruction. This instruction flushes the processor
+		 * pipeline fetch buffers, so that following instructions are fetched
+		 * from cache or memory. An ISB is needed after some system maintenance
+		 * operations.  An ISB is also needed before transferring control to code
+		 * that has been loaded or modified in memory, for example by an overlay
+		 * mechanism or just-in-time code generator. (Note that if instruction
+		 * and data caches are separate, privileged cache maintenance operations
+		 * would be needed in order to unify the caches.) The only supported
+		 * argument for the __isb() intrinsic is 15, corresponding to the SY
+		 * (full system) scope of the ISB instruction.
+		*/
+#ifdef __clang__
+		__isb(15);
+#elif __GNUC__
+        asm("isb 15");
+#endif
+#endif
         assert(lua_gettop(L) == 4); /* module, name, ct_usr, function */
 
         /* set module usr value[luaname] = function to cache for next time */
@@ -3236,9 +3318,7 @@ static int cmodule_index(lua_State* L)
     case COMPLEX_DOUBLE_TYPE:
     case COMPLEX_FLOAT_TYPE:
     case INTPTR_TYPE:
-#if LUA_VERSION_NUM<503
     case INT64_TYPE:
-#endif
         {
             /* TODO: complex float/double need to be references if .re and
              * .imag are setable */
@@ -3246,12 +3326,7 @@ static int cmodule_index(lua_State* L)
             memcpy(p, sym, ct.base_size);
             return 1;
         }
-#if LUA_VERSION_NUM>=503
-    case INT64_TYPE:{
-        lua_pushinteger(L, *(lua_Integer *) sym);
-        return 1;
-    }
-#endif
+
     case DOUBLE_TYPE:
         lua_pushnumber(L, *(double*) sym);
         return 1;
@@ -3302,30 +3377,6 @@ static int cmodule_newindex(lua_State* L)
     }
 
     set_value(L, 3, sym, -1, &ct, 1);
-    return 0;
-}
-
-static int cmodule_gc(lua_State* L){
-    void* handle;int i;
-    void** libs=lua_touserdata(L,1);
-    size_t len=lua_rawlen(L,1)/ sizeof(void*);
-/* #ifdef FAKE_ANDROID_DL */
-/*     push_upval(L,*libs); */
-/*     int isFakeLib=!lua_isnil(L,-1); */
-/*     lua_pop(L,1); */
-/*     extern void fake_dlclose(void* handle); */
-/* #endif */
-    for (i = 0; i < len; ++i) {
-        handle = libs[i];
-        if(handle){
-/* #ifdef FAKE_ANDROID_DL */
-/*             if(isFakeLib){ */
-/*                 fake_dlclose(handle); */
-/*             } else */
-/* #endif */
-            FreeLibrary(handle);
-        }
-    }
     return 0;
 }
 
@@ -3419,7 +3470,6 @@ static const luaL_Reg cdata_mt[] = {
     {"__sub", &cdata_sub},
     {"__mul", &cdata_mul},
     {"__div", &cdata_div},
-    {"__idiv", &cdata_idiv},
     {"__mod", &cdata_mod},
     {"__pow", &cdata_pow},
     {"__unm", &cdata_unm},
@@ -3442,6 +3492,7 @@ static const luaL_Reg callback_mt[] = {
 static const luaL_Reg ctype_mt[] = {
     {"__call", &ctype_call},
     {"__new", &ctype_new},
+    {"__index", &ctype_index},
     {"__tostring", &ctype_tostring},
     {NULL, NULL}
 };
@@ -3449,7 +3500,6 @@ static const luaL_Reg ctype_mt[] = {
 static const luaL_Reg cmodule_mt[] = {
     {"__index", &cmodule_index},
     {"__newindex", &cmodule_newindex},
-    {"__gc",&cmodule_gc},
     {NULL, NULL}
 };
 
@@ -3476,10 +3526,9 @@ static const luaL_Reg ffi_reg[] = {
     {"fill", &ffi_fill},
     {"abi", &ffi_abi},
     {"debug", &ffi_debug},
-#if LUA_VERSION_NUM<503
     {"i64", &ffi_i64},
     {"u64", &ffi_u64},
-#endif
+    {"getptr", &ffi_getptr},
     {NULL, NULL}
 };
 
@@ -3526,7 +3575,7 @@ static void add_typedef(lua_State* L, const char* from, const char* to)
 
     push_upval(L, &types_key);
     parse_type(L, &P, &ct);
-    parse_argument(L, &P, -1, &ct, NULL, NULL, 0);
+    parse_argument(L, &P, -1, &ct, NULL, NULL);
     push_ctype(L, -1, &ct);
 
     /* stack is at +4: types, type usr, arg usr, ctype */
@@ -3558,52 +3607,48 @@ static int setup_upvals(lua_State* L)
 
     /* ffi.C */
     {
-#ifdef _WIN32
+#ifdef _WIN32 //{
         size_t sz = sizeof(HMODULE) * 6;
         HMODULE* libs = lua_newuserdata(L, sz);
         memset(libs, 0, sz);
 
         /* exe */
-        GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, NULL, &libs[0]);
+        GetModuleHandle(NULL);
         /* lua dll */
-#if defined(LUA_DLL_NAME)
+#ifdef LUA_DLL_NAME //{
 #define STR2(tok) #tok
 #define STR(tok) STR2(tok)
         libs[1] = LoadLibraryA(STR(LUA_DLL_NAME));
 #undef STR
 #undef STR2
-#else
-        GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS ,
-            (const char *)&lua_newstate, &libs[1]);
-#endif
+#endif //}
 
         /* crt */
-#ifdef UNDER_CE
+#ifdef UNDER_CE //{
         libs[2] = LoadLibraryA("coredll.dll");
-#else
-        GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
-            (const char *)&_fmode, &libs[2]);
-		libs[3] = LoadLibraryA("kernel32.dll");
+#else //}{
+        GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (char*) &_fmode, &libs[2]);
+        libs[3] = LoadLibraryA("kernel32.dll");
         libs[4] = LoadLibraryA("user32.dll");
         libs[5] = LoadLibraryA("gdi32.dll");
-#endif
+#endif //}
 
         jit->lua_dll = libs[1];
-        //jit->kernel32_dll = libs[3];
+        jit->kernel32_dll = libs[3];
 
-#else /* !_WIN32 */
+#else /* !_WIN32 */ //}{
         size_t sz = sizeof(void*) * 5;
         void** libs = lua_newuserdata(L, sz);
         memset(libs, 0, sz);
 
         libs[0] = LoadLibraryA(NULL); /* exe */
         libs[1] = LoadLibraryA("libc.so");
-#if  defined(__GNUC__) && !defined(OS_ANDROID)
+#ifdef __GNUC__ //{
         libs[2] = LoadLibraryA("libgcc.so");
-#endif
+#endif //}
         libs[3] = LoadLibraryA("libm.so");
         libs[4] = LoadLibraryA("libdl.so");
-#endif
+#endif //}
 
         lua_newtable(L);
         lua_setuservalue(L, -2);
@@ -3683,10 +3728,7 @@ static int setup_upvals(lua_State* L)
         ct.base_size = sizeof(complex_double);
         pc = (complex_double*) push_cdata(L, 0, &ct);
 #ifdef HAVE_COMPLEX
-        /* *pc = (complex_double){0,1};*/
         *pc = 1i;
-
-#include <complex.h>
 #else
         pc->real = 0;
         pc->imag = 1;
@@ -3747,33 +3789,31 @@ static int setup_upvals(lua_State* L)
 #if defined ARCH_X86 || defined ARCH_ARM
     lua_pushboolean(L, 1);
     lua_setfield(L, -2, "32bit");
-#elif defined ARCH_X64 || defined ARCH_PPC64 ||defined(ARCH_ARM64)
+#elif defined ARCH_X64 || defined ARCH_PPC64 || defined ARCH_ARM64
     lua_pushboolean(L, 1);
     lua_setfield(L, -2, "64bit");
 #else
 # define UNSUPPORTED_ARCH  /*error*/
+# pragma message("luaffi: UNSUPPORTED_ARCH")
 #endif
 
-#if defined ARCH_X86 || defined ARCH_X64 || defined ARCH_ARM ||defined(ARCH_ARM64)|| defined ARCH_PPC64
+#if defined ARCH_X86 || defined ARCH_X64 || defined ARCH_ARM || defined ARCH_PPC64 || defined ARCH_ARM64
     lua_pushboolean(L, 1);
     lua_setfield(L, -2, "le");
 #else
 # define UNSUPPORTED_ARCH  /*error*/
+# pragma message("luaffi: UNSUPPORTED_ARCH")    
 #endif
 
-#if defined ARCH_X86 || defined ARCH_X64 || defined ARCH_PPC64 ||defined(ARCH_ARM64)
+#if defined ARCH_X86 || defined ARCH_X64 || defined ARCH_PPC64 || defined ARCH_ARM64
     lua_pushboolean(L, 1);
     lua_setfield(L, -2, "fpu");
 #elif defined ARCH_ARM
     lua_pushboolean(L, 1);
-#if defined(__ARM_PCS_VFP) || (GCC_VERSION==40500||defined(__clang__))&&!defined(__ARM_PCS) && !defined(__SOFTFP__) && !defined(__SOFTFP) && \
-    defined(__VFP_FP__)
-    lua_setfield(L, -2, "hardfp");
-#else
     lua_setfield(L, -2, "softfp");
-#endif
 #else
 # define UNSUPPORTED_ARCH  /*error*/
+# pragma message("luaffi: UNSUPPORTED_ARCH")    
 #endif
     lua_pop(L, 1); /* abi tbl */
 
@@ -3785,7 +3825,6 @@ static int setup_upvals(lua_State* L)
     lua_setfield(L, -2, "__mode");
     lua_setmetatable(L, -2);
     lua_pop(L, 1); /* gc table */
-
 
     /* ffi.os */
 #if defined OS_CE
@@ -3800,8 +3839,6 @@ static int setup_upvals(lua_State* L)
     lua_pushliteral(L, "BSD");
 #elif defined OS_POSIX
     lua_pushliteral(L, "POSIX");
-#elif defined OS_ANDROID
-    lua_pushliteral(L,"Android");
 #else
     lua_pushliteral(L, "Other");
 #endif
@@ -3821,6 +3858,7 @@ static int setup_upvals(lua_State* L)
     lua_pushliteral(L, "ppc64");
 #else
 # define UNSUPPORTED_ARCH /* error */
+# pragma message("luaffi: UNSUPPORTED_ARCH")    
 #endif
     lua_setfield(L, 1, "arch");
 
@@ -3874,8 +3912,6 @@ int luaopen_ffi(lua_State* L)
     lua_setmetatable(L, -2);
     set_upval(L, &jit_key);
 
-
-
     lua_newtable(L);
     set_upval(L, &constants_key);
 
@@ -3911,13 +3947,13 @@ int luaopen_ffi(lua_State* L)
     lua_pushcclosure(L, &ffi_number, 1);
     lua_pushvalue(L, -1);
     lua_setglobal(L, "tonumber");
-    lua_setfield(L, -2, "number"); // ffi.number 
+    lua_setfield(L, -2, "number"); /* ffi.number */
 
     lua_getglobal(L, "type");
     lua_pushcclosure(L, &ffi_type, 1);
     lua_pushvalue(L, -1);
     lua_setglobal(L, "type");
-    lua_setfield(L, -2, "type"); // ffi.type 
+    lua_setfield(L, -2, "type"); /* ffi.type */
     return 1;
 }
 #else

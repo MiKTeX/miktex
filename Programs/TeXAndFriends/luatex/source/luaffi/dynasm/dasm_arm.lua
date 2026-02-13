@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 -- DynASM ARM module.
 --
--- Copyright (C) 2005-2017 Mike Pall. All rights reserved.
+-- Copyright (C) 2005-2022 Mike Pall. All rights reserved.
 -- See dynasm.lua for full copyright notice.
 ------------------------------------------------------------------------------
 
@@ -9,9 +9,9 @@
 local _info = {
   arch =	"arm",
   description =	"DynASM ARM module",
-  version =	"1.4.0",
-  vernum =	 10400,
-  release =	"2015-10-18",
+  version =	"1.5.0",
+  vernum =	 10500,
+  release =	"2021-05-02",
   author =	"Mike Pall",
   license =	"MIT",
 }
@@ -39,7 +39,7 @@ local wline, werror, wfatal, wwarn
 local action_names = {
   "STOP", "SECTION", "ESC", "REL_EXT",
   "ALIGN", "REL_LG", "LABEL_LG",
-  "REL_PC", "LABEL_PC","LONG", "IMM", "IMM12", "IMM16", "IMML8", "IMML12", "IMMV8",
+  "REL_PC", "LABEL_PC", "LONG", "IMM", "IMM12", "IMM16", "IMML8", "IMML12", "IMMV8",
 }
 
 -- Maximum number of section buffer positions for dasm_put().
@@ -719,10 +719,10 @@ local function parse_load(params, nparams, n, op)
   local oplo = band(op, 255)
   local ext, ldrd = (oplo ~= 0), (oplo == 208)
   local d
-  --[[if (ldrd or oplo == 240) then
+  if (ldrd or oplo == 240) then
     d = band(shr(op, 12), 15)
     if band(d, 1) ~= 0 then werror("odd destination register") end
-  end]]
+  end
   local pn = params[n]
   local p1, wb = match(pn, "^%[%s*(.-)%s*%](!?)$")
   local p2 = params[n+1]
@@ -993,17 +993,17 @@ end
 map_op[".long_*"] = function(params)
   if not params then return "imm..." end
   for _,p in ipairs(params) do
+   if n then
     local n = tonumber(p)
-    if n then
-      if n < 0 then n = n + 2^32 end
-      wputw(n)
-      if secpos+2 > maxsecpos then wflush() end
-    else
-      waction("LONG", 0, format("(int)(%s)", p))
-    end
+    if not n then werror("bad immediate `"..p.."'") end
+    if n < 0 then n = n + 2^32 end
+    wputw(n)
+    if secpos+2 > maxsecpos then wflush() end
+   else
+    waction("LONG", 0, format("(uintptr_t)(%s)", p))
+   end
   end
 end
-
 
 -- Alignment pseudo-opcode.
 map_op[".align_1"] = function(params)

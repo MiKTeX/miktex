@@ -1,6 +1,6 @@
 /*
 ** DynASM ARM encoding engine.
-** Copyright (C) 2005-2017 Mike Pall. All rights reserved.
+** Copyright (C) 2005-2022 Mike Pall. All rights reserved.
 ** Released under the MIT license. See dynasm.lua for full copyright notice.
 */
 
@@ -22,7 +22,7 @@ enum {
   DASM_ALIGN, DASM_REL_LG, DASM_LABEL_LG,
   /* The following actions also have an argument. */
   DASM_REL_PC, DASM_LABEL_PC,
-  DASM_LONG,DASM_IMM, DASM_IMM12, DASM_IMM16, DASM_IMML8, DASM_IMML12, DASM_IMMV8,
+  DASM_IMM, DASM_IMM12, DASM_IMM16, DASM_IMML8, DASM_IMML12, DASM_IMMV8,
   DASM__MAX
 };
 
@@ -240,10 +240,6 @@ void dasm_put(Dst_DECL, int start, ...)
 	*pl = -pos;  /* Label exists now. */
 	b[pos++] = ofs;  /* Store pass1 offset estimate. */
 	break;
-	case DASM_LONG:
-        ofs += 4;
-        b[pos++] = n;
-        break;
       case DASM_IMM:
       case DASM_IMM16:
 #ifdef DASM_CHECKS
@@ -298,7 +294,7 @@ int dasm_link(Dst_DECL, size_t *szp)
 
   { /* Handle globals not defined in this translation unit. */
     int idx;
-    for (idx = 20; idx*sizeof(int) < D->lgsize; idx++) {
+    for (idx = 10; idx*sizeof(int) < D->lgsize; idx++) {
       int n = D->lglabels[idx];
       /* Undefined label: Collapse rel chain and replace with marker (< 0). */
       while (n > 0) { int *pb = DASM_POS2PTR(D, n); n = *pb; *pb = -idx; }
@@ -324,7 +320,7 @@ int dasm_link(Dst_DECL, size_t *szp)
 	case DASM_ALIGN: ofs -= (b[pos++] + ofs) & (ins & 255); break;
 	case DASM_REL_LG: case DASM_REL_PC: pos++; break;
 	case DASM_LABEL_LG: case DASM_LABEL_PC: b[pos++] += ofs; break;
-	case DASM_IMM:  case DASM_LONG:case DASM_IMM12: case DASM_IMM16:
+	case DASM_IMM: case DASM_IMM12: case DASM_IMM16:
 	case DASM_IMML8: case DASM_IMML12: case DASM_IMMV8: pos++; break;
 	}
       }
@@ -375,7 +371,10 @@ int dasm_encode(Dst_DECL, void *buffer)
 	  ins &= 255; while ((((char *)cp - base) & ins)) *cp++ = 0xe1a00000;
 	  break;
 	case DASM_REL_LG:
-	  CK(n >= 0, UNDEF_LG);
+	  if (n < 0) {
+	    n = (int)((ptrdiff_t)D->globals[-n] - (ptrdiff_t)cp - 4);
+	    goto patchrel;
+	  }
 	  /* fallthrough */
 	case DASM_REL_PC:
 	  CK(n >= 0, UNDEF_PC);
@@ -400,9 +399,6 @@ int dasm_encode(Dst_DECL, void *buffer)
 	  ins &= 2047; if (ins >= 20) D->globals[ins-10] = (void *)(base + n);
 	  break;
 	case DASM_LABEL_PC: break;
-	case DASM_LONG:
-          *cp++ = (unsigned int) n;
-          break;
 	case DASM_IMM:
 	  cp[-1] |= ((n>>((ins>>10)&31)) & ((1<<((ins>>5)&31))-1)) << (ins&31);
 	  break;
