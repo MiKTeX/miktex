@@ -1,34 +1,20 @@
-/* miktex/W2C/Emulation.h:                              -*- C++ -*-
+/**
+ * @file miktex/W2C/Emulation.h
+ * @author Christian Schenk
+ * @brief Utilities for emulating Web2c.
+ *
+ * In order to support programs relying on Web2c, we implement an
+ * emulation library.
+ *
+ * @copyright Copyright © 2010-2026 Christian Schenk
+ *
+ * This file is part of the MiKTeX W2CEMU Library.
+ *
+ * MiKTeX W2CEMU Library is licensed under GNU General Public License version 2
+ * or any later version.
+ */
 
-   Copyright (C) 2010-2022 Christian Schenk
-
-   This file is part of the MiKTeX W2CEMU Library.
-
-   The MiKTeX W2CEMU Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-   
-   The MiKTeX W2CEMU Library is distributed in the hope that it will
-   be useful, but WITHOUT ANY WARRANTY; without even the implied
-   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-   See the GNU General Public License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX W2CEMU Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
-
-/// @file miktex/W2c/Emulation.h
-
-/// @defgroup W2C Web2C emulation
-/// 
-/// @brief Utilities for emulating Web2c.
-///
-/// In order to support programs relying on Web2c, we implement an
-/// emulation library.
-
-/// @{
+ /// @{
 
 #pragma once
 
@@ -68,50 +54,50 @@ MIKTEX_WEB2C_END_NAMESPACE;
 
 #include "../../c-auto.h"
 
-/* _________________________________________________________________________
- *
- * w2c/config.h
- *
- */
+ /* _________________________________________________________________________
+  *
+  * w2c/config.h
+  *
+  */
 
 #include "../../w2c/config.h"
 
-/* _________________________________________________________________________
- *
- * lib/lib.h
- *
- */
+  /* _________________________________________________________________________
+   *
+   * lib/lib.h
+   *
+   */
 
 #include "../../lib/lib.h"
 
-/* _________________________________________________________________________
- *
- * texmfmp.h
- *
- */
+   /* _________________________________________________________________________
+    *
+    * texmfmp.h
+    *
+    */
 
-/// @name texmfmp.h
-/// Stuff from `texmfmp.h`.
-/// @{
+    /// @name texmfmp.h
+    /// Stuff from `texmfmp.h`.
+    /// @{
 
 #if defined(__cplusplus) 
 inline char* generic_synctex_get_current_name()
 {
-  return MiKTeX::Web2C::GetCurrentFileName();
+    return MiKTeX::Web2C::GetCurrentFileName();
 }
 #endif
 
 #if defined(__cplusplus)
 inline int runsystem(const char* cmd)
 {
-  return MiKTeX::Web2C::RunSystemCommand(cmd);
+    return MiKTeX::Web2C::RunSystemCommand(cmd);
 }
 #endif
 
 #if defined(__cplusplus)
 inline void secondsandmicros(integer& s, integer& m)
 {
-  MiKTeX::Web2C::GetSecondsAndMicros(&s, &m);
+    MiKTeX::Web2C::GetSecondsAndMicros(&s, &m);
 }
 #endif
 
@@ -123,14 +109,14 @@ inline void secondsandmicros(integer& s, integer& m)
  *
  */
 
-/// @name cpascal.h
-/// Stuff from `cpascal.h`.
-/// @{
+ /// @name cpascal.h
+ /// Stuff from `cpascal.h`.
+ /// @{
 
 #if defined(__cplusplus)
 template<class T> T* addressof(T& x)
 {
-  return &x;
+    return &x;
 }
 #else
 #define addressof(x) (&(x))
@@ -139,8 +125,8 @@ template<class T> T* addressof(T& x)
 #if defined(__cplusplus)
 template<class T> const char* conststringcast(T* s)
 {
-  MIKTEX_ASSERT(sizeof(s[0]) == sizeof(char));
-  return (const char*)s;
+    MIKTEX_ASSERT(sizeof(s[0]) == sizeof(char));
+    return (const char*)s;
 }
 #endif
 

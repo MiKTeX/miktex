@@ -17,7 +17,8 @@
 
 @ Introduction.
 
-@c 
+@c
+#include "mpconfig.h"
 #include <w2c/config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,8 +53,8 @@ First, here are some very important constants.
 @ Here are the functions that are static as they are not used elsewhere
 
 @<Declarations@>=
-static void mp_double_scan_fractional_token (MP mp, int n);
-static void mp_double_scan_numeric_token (MP mp, int n);
+static void mp_double_scan_fractional_token (MP mp, integer64 n);
+static void mp_double_scan_numeric_token (MP mp, integer64 n);
 static void mp_ab_vs_cd (MP mp, mp_number *ret, mp_number a, mp_number b, mp_number c, mp_number d);
 static void mp_double_ab_vs_cd (MP mp, mp_number *ret, mp_number a, mp_number b, mp_number c, mp_number d);
 static void mp_double_crossing_point (MP mp, mp_number *ret, mp_number a, mp_number b, mp_number c);
@@ -76,15 +77,15 @@ static void mp_double_pyth_sub (MP mp, mp_number *r, mp_number a, mp_number b);
 static void mp_double_pyth_add (MP mp, mp_number *r, mp_number a, mp_number b);
 static void mp_double_n_arg (MP mp, mp_number *ret, mp_number x, mp_number y);
 static void mp_double_velocity (MP mp, mp_number *ret, mp_number st, mp_number ct, mp_number sf,  mp_number cf, mp_number t);
-static void mp_set_double_from_int(mp_number *A, int B);
-static void mp_set_double_from_boolean(mp_number *A, int B);
-static void mp_set_double_from_scaled(mp_number *A, int B);
+static void mp_set_double_from_int(mp_number *A, integer64 B);
+static void mp_set_double_from_boolean(mp_number *A, integer64 B);
+static void mp_set_double_from_scaled(mp_number *A, integer64 B);
 static void mp_set_double_from_addition(mp_number *A, mp_number B, mp_number C);
 static void mp_set_double_from_substraction (mp_number *A, mp_number B, mp_number C);
 static void mp_set_double_from_div(mp_number *A, mp_number B, mp_number C);
 static void mp_set_double_from_mul(mp_number *A, mp_number B, mp_number C);
-static void mp_set_double_from_int_div(mp_number *A, mp_number B, int C);
-static void mp_set_double_from_int_mul(mp_number *A, mp_number B, int C);
+static void mp_set_double_from_int_div(mp_number *A, mp_number B, integer64 C);
+static void mp_set_double_from_int_mul(mp_number *A, mp_number B, integer64 C);
 static void mp_set_double_from_of_the_way(MP mp, mp_number *A, mp_number t, mp_number B, mp_number C);
 static void mp_number_negate(mp_number *A);
 static void mp_number_add(mp_number *A, mp_number B);
@@ -92,16 +93,16 @@ static void mp_number_substract(mp_number *A, mp_number B);
 static void mp_number_half(mp_number *A);
 static void mp_number_halfp(mp_number *A);
 static void mp_number_double(mp_number *A);
-static void mp_number_add_scaled(mp_number *A, int B); /* also for negative B */
-static void mp_number_multiply_int(mp_number *A, int B);
-static void mp_number_divide_int(mp_number *A, int B);
+static void mp_number_add_scaled(mp_number *A, integer64 B); /* also for negative B */
+static void mp_number_multiply_int(mp_number *A, integer64 B);
+static void mp_number_divide_int(mp_number *A, integer64 B);
 static void mp_double_abs(mp_number *A);   
 static void mp_number_clone(mp_number *A, mp_number B);
 static void mp_number_swap(mp_number *A, mp_number *B);
-static int mp_round_unscaled(mp_number x_orig);
-static int mp_number_to_int(mp_number A);
-static int mp_number_to_scaled(mp_number A);
-static int mp_number_to_boolean(mp_number A);
+static integer64 mp_round_unscaled(mp_number x_orig);
+static integer64 mp_number_to_int(mp_number A);
+static integer64 mp_number_to_scaled(mp_number A);
+static integer64 mp_number_to_boolean(mp_number A);
 static double mp_number_to_double(mp_number A);
 static int mp_number_odd(mp_number A);
 static int mp_number_equal(mp_number A, mp_number B);
@@ -292,6 +293,7 @@ void * mp_initialize_double_math (MP mp) {
 }
 
 void mp_double_set_precision (MP mp) {
+ (void)mp;
 }
 
 void mp_free_double_math (MP mp) {
@@ -343,14 +345,14 @@ void mp_free_number (MP mp, mp_number *n) {
 @ Here are the low-level functions on |mp_number| items, setters first.
 
 @c 
-void mp_set_double_from_int(mp_number *A, int B) {
-  A->data.dval = B;
+void mp_set_double_from_int(mp_number *A, integer64 B) {
+  A->data.dval = (double)B;
 }
-void mp_set_double_from_boolean(mp_number *A, int B) {
-  A->data.dval = B;
+void mp_set_double_from_boolean(mp_number *A, integer64 B) {
+  A->data.dval = (double)B;
 }
-void mp_set_double_from_scaled(mp_number *A, int B) {
-  A->data.dval = B / 65536.0;
+void mp_set_double_from_scaled(mp_number *A, integer64 B) {
+  A->data.dval = (double)B / 65536.0;
 }
 void mp_set_double_from_double(mp_number *A, double B) {
   A->data.dval = B;
@@ -367,11 +369,11 @@ void mp_set_double_from_div(mp_number *A, mp_number B, mp_number C) {
 void mp_set_double_from_mul(mp_number *A, mp_number B, mp_number C) {
   A->data.dval = B.data.dval * C.data.dval;
 }
-void mp_set_double_from_int_div(mp_number *A, mp_number B, int C) {
-  A->data.dval = B.data.dval / C;
+void mp_set_double_from_int_div(mp_number *A, mp_number B, integer64 C) {
+  A->data.dval = B.data.dval / (double)C;
 }
-void mp_set_double_from_int_mul(mp_number *A, mp_number B, int C) {
-  A->data.dval = B.data.dval * C;
+void mp_set_double_from_int_mul(mp_number *A, mp_number B, integer64 C) {
+  A->data.dval = B.data.dval * (double)C;
 }
 void mp_set_double_from_of_the_way(MP mp, mp_number *A, mp_number t, mp_number B, mp_number C) {
   A->data.dval = B.data.dval - mp_double_take_fraction(mp, (B.data.dval - C.data.dval), t.data.dval);
@@ -396,13 +398,13 @@ void mp_number_halfp(mp_number *A) {
 void mp_number_double(mp_number *A) {
   A->data.dval = A->data.dval * 2.0;
 }
-void mp_number_add_scaled(mp_number *A, int B) { /* also for negative B */
-  A->data.dval = A->data.dval + (B/65536.0);
+void mp_number_add_scaled(mp_number *A, integer64 B) { /* also for negative B */
+  A->data.dval = A->data.dval + ((double)B/65536.0);
 }
-void mp_number_multiply_int(mp_number *A, int B) {
-  A->data.dval = (double)(A->data.dval * B);
+void mp_number_multiply_int(mp_number *A, integer64 B) {
+  A->data.dval = (double)(A->data.dval * (double)B);
 }
-void mp_number_divide_int(mp_number *A, int B) {
+void mp_number_divide_int(mp_number *A, integer64 B) {
   A->data.dval = A->data.dval / (double)B;
 }
 void mp_double_abs(mp_number *A) {   
@@ -437,14 +439,14 @@ void mp_number_scaled_to_angle (mp_number *A) {
 @ Query functions
 
 @c
-int mp_number_to_scaled(mp_number A) {
-  return (int)ROUND(A.data.dval * 65536.0);
+integer64 mp_number_to_scaled(mp_number A) {
+  return (integer64)ROUND(A.data.dval * 65536.0);
 }
-int mp_number_to_int(mp_number A) {
-  return (int)(A.data.dval);
+integer64 mp_number_to_int(mp_number A) {
+  return (integer64)(A.data.dval);
 }
-int mp_number_to_boolean(mp_number A) {
-  return (int)(A.data.dval);
+integer64 mp_number_to_boolean(mp_number A) {
+  return (integer64)(A.data.dval);
 }
 double mp_number_to_double(mp_number A) {
   return A.data.dval;
@@ -586,6 +588,7 @@ preferable to trickery, unless the cost is too high.
 
 @c
 double mp_double_make_fraction (MP mp, double p, double q) {
+  (void)mp;
   return ((p / q) * fraction_multiplier);
 }
 void mp_double_number_make_fraction (MP mp, mp_number *ret, mp_number p, mp_number q) {
@@ -607,6 +610,7 @@ time during typical jobs, so a machine-language substitute is advisable.
 
 @c
 double mp_double_take_fraction (MP mp, double p, double q) {
+  (void)mp;
   return ((p * q) / fraction_multiplier);
 }
 void mp_double_number_take_fraction (MP mp, mp_number *ret, mp_number p, mp_number q) {
@@ -628,6 +632,7 @@ when the Computer Modern fonts are being generated.
 
 @c
 void mp_double_number_take_scaled (MP mp, mp_number *ret, mp_number p_orig, mp_number q_orig) {
+  (void)mp;
   ret->data.dval = p_orig.data.dval * q_orig.data.dval;
 }
 
@@ -640,9 +645,11 @@ so it is not part of \MP's inner loop.)
 
 @c
 double mp_double_make_scaled (MP mp, double p, double q) {
+    (void)mp;
     return p / q;
 }
 void mp_double_number_make_scaled (MP mp, mp_number *ret, mp_number p_orig, mp_number q_orig) {
+  (void)mp;
   ret->data.dval = p_orig.data.dval / q_orig.data.dval;
 }
 
@@ -717,7 +724,8 @@ static void find_exponent (MP mp)  {
      }
   }
 }
-void mp_double_scan_fractional_token (MP mp, int n) { /* n: scaled */
+void mp_double_scan_fractional_token (MP mp, integer64 n) { /* n: scaled */
+  (void)n;
   unsigned char *start = &mp->buffer[mp->cur_input.loc_field -1];
   unsigned char *stop;
   while (mp->char_class[mp->buffer[mp->cur_input.loc_field]] == digit_class) {
@@ -733,7 +741,8 @@ void mp_double_scan_fractional_token (MP mp, int n) { /* n: scaled */
 bytes in the buffer, then call |strtod()|
 
 @c
-void mp_double_scan_numeric_token (MP mp, int n) { /* n: scaled */
+void mp_double_scan_numeric_token (MP mp, integer64 n) { /* n: scaled */
+  (void)n;
   unsigned char *start = &mp->buffer[mp->cur_input.loc_field -1];
   unsigned char *stop;
   while (mp->char_class[mp->buffer[mp->cur_input.loc_field]] == digit_class) {
@@ -819,86 +828,86 @@ The result is $+1$, 0, or~$-1$ in the three respective cases.
 
 @c
 void mp_ab_vs_cd (MP mp, mp_number *ret, mp_number a_orig, mp_number b_orig, mp_number c_orig, mp_number d_orig) {
-  integer q, r; /* temporary registers */
-  integer a, b, c, d;
+    /*integer q, r; */ /* temporary registers */
+  /*integer a, b, c, d;*/
   (void)mp;
   
   mp_double_ab_vs_cd(mp,ret, a_orig, b_orig, c_orig, d_orig);
   if (1>0) 
     return ;
-  /* TODO: remove this code until the end */
-  a = a_orig.data.dval;
-  b = b_orig.data.dval;
-  c = c_orig.data.dval;
-  d = d_orig.data.dval;
-  @<Reduce to the case that |a,c>=0|, |b,d>0|@>;
-  while (1) {
-    q = a / d;
-    r = c / b;
-    if (q != r) {
-      ret->data.dval = (q > r ? 1 : -1);
-      goto RETURN;
-    }
-    q = a % d;
-    r = c % b;
-    if (r == 0) {
-      ret->data.dval = (q ? 1 : 0);
-      goto RETURN;
-    }
-    if (q == 0) {
-      ret->data.dval = -1;
-      goto RETURN;
-    }
-    a = b;
-    b = q;
-    c = d;
-    d = r;
-  }                             /* now |a>d>0| and |c>b>0| */
-RETURN:
-#if MPOST_DEBUG
-  fprintf(stdout, "\n%f = ab_vs_cd(%f,%f,%f,%f)", mp_number_to_double(*ret), 
-mp_number_to_double(a_orig),mp_number_to_double(b_orig),
-mp_number_to_double(c_orig),mp_number_to_double(d_orig));
-#endif
+ /* TODO: remove this code until the end */
+/*   a = a_orig.data.dval; */
+/*   b = b_orig.data.dval; */
+/*   c = c_orig.data.dval; */
+/*   d = d_orig.data.dval; */
+/*   <Reduce to the case that |a,c>=0|, |b,d>0| >; */
+/*   while (1) \{ */
+/*     q = a / d; */
+/*     r = c / b; */
+/*     if (q != r) \{ */
+/*       ret->data.dval = (q > r ? 1 : -1); */
+/*       goto RETURN; */
+/*     \} */
+/*     q = a % d; */
+/*     r = c % b; */
+/*     if (r == 0) \{ */
+/*       ret->data.dval = (q ? 1 : 0); */
+/*       goto RETURN; */
+/*     \} */
+/*     if (q == 0) \{ */
+/*       ret->data.dval = -1; */
+/*       goto RETURN; */
+/*     \} */
+/*     a = b; */
+/*     b = q; */
+/*     c = d; */
+/*     d = r; */
+/*   \}                             /\* now |a>d>0| and |c>b>0| *\/ */
+/* RETURN: */
+/* \#if MPOST_DEBUG */
+/*   fprintf(stdout, "\n%f = ab_vs_cd(%f,%f,%f,%f)", mp_number_to_double(*ret),  */
+/* mp_number_to_double(a_orig),mp_number_to_double(b_orig), */
+/* mp_number_to_double(c_orig),mp_number_to_double(d_orig)); */
+/* \#endif */
   return;
 }
 
 
-@ @<Reduce to the case that |a...@>=
-if (a < 0) {
-  a = -a;
-  b = -b;
-}
-if (c < 0) {
-  c = -c;
-  d = -d;
-}
-if (d <= 0) {
-  if (b >= 0) {
-    if ((a == 0 || b == 0) && (c == 0 || d == 0)) 
-      ret->data.dval = 0;
-    else
-      ret->data.dval = 1;
-    goto RETURN;
-  }
-  if (d == 0) {
-    ret->data.dval = (a == 0 ? 0 : -1);
-    goto RETURN;
-  }
-  q = a;
-  a = c;
-  c = q;
-  q = -b;
-  b = -d;
-  d = q;
-} else if (b <= 0) {
-  if (b < 0 && a > 0) {
-    ret->data.dval  = -1;
-    return;
-  }
-  ret->data.dval = (c == 0 ? 0 : -1);
-  goto RETURN;
-}
+/* <Reduce to the case that \|a...>= */
+/* if (a < 0) \{ */
+/*   a = -a; */
+/*   b = -b; */
+/* \} */
+/* if (c < 0) \{ */
+/*   c = -c; */
+/*   d = -d; */
+/* \} */
+/* if (d <= 0) \{ */
+/*   if (b >= 0) \{ */
+/*     if ((a == 0 || b == 0) && (c == 0 || d == 0))  */
+/*       ret->data.dval = 0; */
+/*     else */
+/*       ret->data.dval = 1; */
+/*     goto RETURN; */
+/*   \} */
+/*   if (d == 0) \{ */
+/*     ret->data.dval = (a == 0 ? 0 : -1); */
+/*     goto RETURN; */
+/*   \} */
+/*   q = a; */
+/*   a = c; */
+/*   c = q; */
+/*   q = -b; */
+/*   b = -d; */
+/*   d = q; */
+/* \} else if (b <= 0) \{ */
+/*   if (b < 0 && a > 0) \{ */
+/*     ret->data.dval  = -1; */
+/*     return; */
+/*   \} */
+/*   ret->data.dval = (c == 0 ? 0 : -1); */
+/*   goto RETURN; */
+/* \} */
 
 @ Now here's a subroutine that's handy for all sorts of path computations:
 Given a quadratic polynomial $B(a,b,c;t)$, the |crossing_point| function
@@ -935,6 +944,7 @@ $a<2^{30}$, $\vert a-b\vert<2^{30}$, and $\vert b-c\vert<2^{30}$.
 
 @c
 static void mp_double_crossing_point (MP mp, mp_number *ret, mp_number aa, mp_number bb, mp_number cc) {
+  (void)mp;
   double a,b,c;
   double d;    /* recursive counter */
   double x, xx, x0, x1, x2;    /* temporary registers for bisection */
@@ -1005,8 +1015,8 @@ and truncation operations.
 
 @ |round_unscaled| rounds a |scaled| and converts it to |int|
 @c
-int mp_round_unscaled(mp_number x_orig) {
-  int x = (int)ROUND(x_orig.data.dval);
+integer64 mp_round_unscaled(mp_number x_orig) {
+  integer64 x = (integer64)ROUND(x_orig.data.dval);
   return x;
 }
 
@@ -1225,6 +1235,7 @@ any loss of accuracy. Then |x| and~|y| are divided by~|r|.
 
 @c
 void mp_double_sin_cos (MP mp, mp_number z_orig, mp_number *n_cos, mp_number *n_sin) {
+  (void)mp;
   double rad;
   rad = (z_orig.data.dval / angle_multiplier); /* still degrees */
   if ((rad == 90.0)||(rad == -270)){
@@ -1338,14 +1349,14 @@ void mp_init_randoms (MP mp, int seed) {
     k = j - k;
     j = jj;
     if (k<0)
-      k += fraction_one;
+      k += (int)fraction_one;
     mp->randoms[(i * 21) % 55].data.dval = j;
   }
   mp_new_randoms (mp);
   mp_new_randoms (mp);
   mp_new_randoms (mp);          /* ``warm up'' the array */
 
-  ran_start((unsigned long) seed);  
+  ran_start((long) seed);  
 
 
 }
@@ -1374,7 +1385,7 @@ static void mp_next_unif_random (MP mp, mp_number *ret) {
   unsigned long int op;
   (void)mp;
   op = (unsigned)ran_arr_next(); 
-  a = op/(MM*1.0);
+  a = (double)op/(MM*1.0);
   ret->data.dval = a;
 }
 

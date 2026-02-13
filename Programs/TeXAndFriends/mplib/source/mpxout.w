@@ -120,8 +120,7 @@ From the Pascal code of DVItoMP two implicit types are inherited: |web_boolean| 
 
 The more complex datatypes are defined in the following sections. 
 
-@d true 1
-@d false 0
+
 
 @c
 typedef signed int web_integer;

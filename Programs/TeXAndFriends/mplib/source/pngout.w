@@ -45,8 +45,8 @@
 @d number_positive(A)		       number_greater(A, zero_t)		       
 @d number_to_scaled(A)		       (((math_data *)(mp->math))->to_scaled)(A)		       
 @d round_unscaled(A)		       (((math_data *)(mp->math))->round_unscaled)(A)		       
-@d true 1
-@d false 0
+@d True 1
+@d False 0
 @d null_font 0
 @d null 0
 @d unity   1.0
@@ -55,6 +55,7 @@
 @d negate(A)   (A)=-(A) /* change the sign of a variable */
 
 @c
+#include "mpconfig.h"
 #include <w2c/config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -330,16 +331,16 @@ boolean mp_is_curved(mp_gr_knot p, mp_gr_knot q) {
     if ( gr_right_y(p)==gr_y_coord(p) )
       if ( gr_left_x(q)==gr_x_coord(q) )
         if ( gr_left_y(q)==gr_y_coord(q) ) 
-          return false;
+          return False;
   d=gr_left_x(q)-gr_right_x(p);
   if ( fabs(gr_right_x(p)-gr_x_coord(p)-d)<=bend_tolerance )
     if ( fabs(gr_x_coord(q)-gr_left_x(q)-d)<=bend_tolerance ) {
       d=gr_left_y(q)-gr_right_y(p);
       if ( fabs(gr_right_y(p)-gr_y_coord(p)-d)<=bend_tolerance )
         if ( fabs(gr_y_coord(q)-gr_left_y(q)-d)<=bend_tolerance )
-           return false;
+           return False;
     }
-  return true;
+  return True;
 }
 
 
@@ -492,7 +493,7 @@ the coordinate system so that a unit circular pen will have the desired shape.
 To keep this transformation local, we enclose it in a $$\&{\<g>}\ldots\&{\</g>}$$
 block. Any translation component must be applied to the path being stroked
 while the rest of the transformation must apply only to the pen.
-If |fill_also=true|, the path is to be filled as well as stroked so we must
+If |fill_also=True|, the path is to be filled as well as stroked so we must
 insert commands to do this after giving the path.
 
 @<Declarations@>=
@@ -503,7 +504,7 @@ static void mp_png_stroke_out (MP mp,  mp_graphic_object *h,
 @ @c
 void mp_png_stroke_out (MP mp,  mp_graphic_object *h, 
                               mp_pen_info *pen, boolean fill_also) {
-  boolean transformed = false;
+  boolean transformed = False;
   if (fill_also) {
     cairo_save(mp->png->cr);
     mp_png_path_out(mp, gr_path_p((mp_stroked_object *)h));
@@ -513,14 +514,14 @@ void mp_png_stroke_out (MP mp,  mp_graphic_object *h,
   }
   cairo_save(mp->png->cr);
   if (pen != NULL) {
-    transformed = true;
+    transformed = True;
     if ((pen->sx==unity) &&
         (pen->rx==0) &&
         (pen->ry==0) &&
         (pen->sy==unity) &&
         (pen->tx==0) && 
         (pen->ty==0)) {
-      transformed = false;
+      transformed = False;
     }
   }
   if (pen != NULL) {
@@ -844,7 +845,7 @@ int mp_png_gr_ship_out (mp_edge_object *hh, const char *options, int standalone)
           mp_png_fill_out(mp, gr_path_p(ph), p);
         } else if ( pen_is_elliptical(gr_pen_p(ph)) )  {
             pen = mp_png_pen_info(mp, gr_path_p(ph), gr_pen_p(ph));
-            mp_png_stroke_out(mp, p, pen, true);
+            mp_png_stroke_out(mp, p, pen, True);
             mp_xfree(pen);
         } else { 
           mp_png_fill_out(mp, gr_path_p(ph), p);
@@ -857,7 +858,7 @@ int mp_png_gr_ship_out (mp_edge_object *hh, const char *options, int standalone)
         mp_stroked_object *ph = (mp_stroked_object *)p;
         if ( pen_is_elliptical(gr_pen_p(ph))) {
             pen = mp_png_pen_info(mp, gr_path_p(ph), gr_pen_p(ph));
-	    mp_png_stroke_out(mp, p, pen, false);
+	    mp_png_stroke_out(mp, p, pen, False);
             mp_xfree(pen);
         } else { 
           mp_png_fill_out(mp, gr_path_p(ph), p);
@@ -908,6 +909,6 @@ int mp_png_ship_out (mp_edge_object *hh, const char *options) ;
 
 @ @c
 int mp_png_ship_out (mp_edge_object *hh, const char *options) {
-  return mp_png_gr_ship_out (hh, options, (int)true);
+  return mp_png_gr_ship_out (hh, options, (int)True);
 }
 

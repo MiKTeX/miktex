@@ -34,9 +34,6 @@ have our customary command-line interface.
 
 @ First, here are the \CEE/ includes.
 
-@d true 1
-@d false 0
- 
 @c
 #if defined(MIKTEX)
 #if defined(MIKTEX_WINDOWS)
@@ -122,6 +119,32 @@ static char *mpost_itoa (int i) {
   }
   return mpost_xstrdup(res+idx+1);
 }
+static char *mpost_i64toa (integer64 i) {
+  char res[32] ;
+  unsigned idx = 30;
+  integer64 v = 0; 
+  
+  if (i==INT64_MIN){
+   return strdup("-9223372036854775808\0");
+  } else {
+    v = i>=0?i:-i;
+  }
+  
+  memset(res,0,32*sizeof(char));
+  while (v>=10) {
+    char d = (char)(v % 10);
+    v = v / 10;
+    res[idx--] = d  + '0';
+  }
+  res[idx--] = (char)v + '0';
+  if (i<0) {
+      res[idx--] = '-';
+  }
+  return strdup(res+idx+1);
+}
+
+
+
 
 
 @ @c
@@ -136,7 +159,7 @@ Isspace (char c)
   return (c == ' ' || c == '\t');
 }
 #endif 
-static void mpost_run_editor (MP mp, char *fname, int fline) {
+static void mpost_run_editor (MP mp, char *fname, integer64 fline) {
   char *temp, *command, *fullcmd, *edit_value;
   char c;
   boolean sdone, ddone;
@@ -180,7 +203,7 @@ static void mpost_run_editor (MP mp, char *fname, int fline) {
               fprintf (stderr,"call_edit: `%%d' appears twice in editor command\n");
               exit(EXIT_FAILURE);  
             } else {
-              char *s = mpost_itoa(fline);
+              char *s = mpost_i64toa(fline);
               char *ss = s;
               if (s != NULL) {
                 while (*s != '\0')
@@ -596,7 +619,7 @@ options->random_seed = get_random_seed();
 
 @c
 static char *mpost_find_in_output_directory(const char *s,const char *fmode)
-{
+{   (void)fmode;
     if (output_directory && !kpse_absolute_p(s, false)) {
         char *ftemp = concat3(output_directory, DIR_SEP_STRING, s);
         return ftemp;

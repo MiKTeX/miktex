@@ -18,6 +18,7 @@
 @ Introduction.
 
 @c 
+#include "mpconfig.h"
 #include <w2c/config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,8 +72,8 @@ First, here are some very important constants.
 
 @<Declarations@>=
 
-static void mp_interval_scan_fractional_token (MP mp, int n);
-static void mp_interval_scan_numeric_token (MP mp, int n);
+static void mp_interval_scan_fractional_token (MP mp, integer64 n);
+static void mp_interval_scan_numeric_token (MP mp, integer64 n);
 static void mp_interval_ab_vs_cd (MP mp, mp_number *ret, mp_number a, mp_number b, mp_number c, mp_number d);
 static void mp_ab_vs_cd (MP mp, mp_number *ret, mp_number a, mp_number b, mp_number c, mp_number d);
 static void mp_interval_crossing_point (MP mp, mp_number *ret, mp_number a, mp_number b, mp_number c);
@@ -95,15 +96,15 @@ static void mp_interval_pyth_sub (MP mp, mp_number *r, mp_number a, mp_number b)
 static void mp_interval_pyth_add (MP mp, mp_number *r, mp_number a, mp_number b);
 static void mp_interval_n_arg (MP mp, mp_number *ret, mp_number x, mp_number y);
 static void mp_interval_velocity (MP mp, mp_number *ret, mp_number st, mp_number ct, mp_number sf,  mp_number cf, mp_number t);
-static void mp_set_interval_from_int(mp_number *A, int B);
-static void mp_set_interval_from_boolean(mp_number *A, int B);
-static void mp_set_interval_from_scaled(mp_number *A, int B);
+static void mp_set_interval_from_int(mp_number *A, integer64 B);
+static void mp_set_interval_from_boolean(mp_number *A, integer64 B);
+static void mp_set_interval_from_scaled(mp_number *A, integer64 B);
 static void mp_set_interval_from_addition(mp_number *A, mp_number B, mp_number C);
 static void mp_set_interval_from_substraction (mp_number *A, mp_number B, mp_number C);
 static void mp_set_interval_from_div(mp_number *A, mp_number B, mp_number C);
 static void mp_set_interval_from_mul(mp_number *A, mp_number B, mp_number C);
-static void mp_set_interval_from_int_div(mp_number *A, mp_number B, int C);
-static void mp_set_interval_from_int_mul(mp_number *A, mp_number B, int C);
+static void mp_set_interval_from_int_div(mp_number *A, mp_number B, integer64 C);
+static void mp_set_interval_from_int_mul(mp_number *A, mp_number B, integer64 C);
 static void mp_set_interval_from_of_the_way(MP mp, mp_number *A, mp_number t, mp_number B, mp_number C);
 static void mp_number_negate(mp_number *A);
 static void mp_number_add(mp_number *A, mp_number B);
@@ -111,16 +112,16 @@ static void mp_number_substract(mp_number *A, mp_number B);
 static void mp_number_half(mp_number *A);
 static void mp_number_halfp(mp_number *A);
 static void mp_number_double(mp_number *A);
-static void mp_number_add_scaled(mp_number *A, int B); /* also for negative B */
-static void mp_number_multiply_int(mp_number *A, int B);
-static void mp_number_divide_int(mp_number *A, int B);
+static void mp_number_add_scaled(mp_number *A, integer64 B); /* also for negative B */
+static void mp_number_multiply_int(mp_number *A, integer64 B);
+static void mp_number_divide_int(mp_number *A, integer64 B);
 static void mp_interval_abs(mp_number *A);   
 static void mp_number_clone(mp_number *A, mp_number B);
 static void mp_number_swap(mp_number *A, mp_number *B);
-static int mp_round_unscaled(mp_number x_orig);
-static int mp_number_to_int(mp_number A);
-static int mp_number_to_scaled(mp_number A);
-static int mp_number_to_boolean(mp_number A);
+static integer64 mp_round_unscaled(mp_number x_orig);
+static integer64 mp_number_to_int(mp_number A);
+static integer64 mp_number_to_scaled(mp_number A);
+static integer64 mp_number_to_boolean(mp_number A);
 static double mp_number_to_double(mp_number A);
 static int mp_number_odd(mp_number A);
 static int mp_number_equal(mp_number A, mp_number B);
@@ -200,77 +201,78 @@ void mp_check_mpfi_t (MP mp, mpfi_t dec)
 static double precision_bits;
 mpfr_prec_t precision_digits_to_bits (double i)
 {
-  return i/log10(2);
+  return (mpfr_prec_t)(i/log10(2));
 }
 double precision_bits_to_digits (mpfr_prec_t d)
 {
-  return d*log10(2);
+  return (double)d*log10(2);
 }
 
 
 @ Implement remainder for interval arithmetic.
 
 @c
-/* https://stackoverflow.com/questions/31057473/calculating-the-modulo-of-two-intervals */
-/*
-def mod1([a,b], m):
-    // (1): empty interval
-    if a > b || m == 0:
-        return []
-    // (2): compute modulo with positive interval and negate
-    else if b < 0:
-        return -mod1([-b,-a], m)
-    // (3): split into negative and non-negative interval, compute and join 
-    else if a < 0:
-        return mod1([a,-1], m) u mod1([0,b], m)
-    // (4): there is no k > 0 such that a < k*m <= b
-    else if b-a < |m| && a % m <= b % m:
-        return [a % m, b % m]
-    // (5): we can't do better than that
-    else
-        return [0,|m|-1]
+/* https://stackoverflow.com/questions/31057473/ */
+/*  calculating-the-modulo-of-two-intervals */
+
+/* def mod1([a,b], m): */
+/*     // (1): empty interval */
+/*     if a > b || m == 0: */
+/*         return [] */
+/*     // (2): compute modulo with positive interval and negate */
+/*     else if b < 0: */
+/*         return -mod1([-b,-a], m) */
+/*     // (3): split into negative and non-negative interval, compute and join  */
+/*     else if a < 0: */
+/*         return mod1([a,-1], m) u mod1([0,b], m) */
+/*     // (4): there is no k > 0 such that a < k*m <= b */
+/*     else if b-a < |m| && a % m <= b % m: */
+/*         return [a % m, b % m] */
+/*     // (5): we can't do better than that */
+/*     else */
+/*         return [0,|m|-1] */
 
 
-def mod2([a,b], [m,n]):
-    // (1): empty interval
-    if a > b || m > n:
-        return []
-    // (2): compute modulo with positive interval and negate
-    else if b < 0:
-         return -mod2([-b,-a], [m,n])
-    // (3): split into negative and non-negative interval, compute, and join 
-    else if a < 0:
-        return mod2([a,-1], [m,n]) u mod2([0,b], [m,n])
-    // (4): use the simpler function from before
-    else if m == n:
-        return mod1([a,b], m)
-    // (5): use only non-negative m and n
-    else if n <= 0:
-        return mod2([a,b], [-n,-m])
-    // (6): similar to (5), make modulus non-negative
-    else if m <= 0:
-        return mod2([a,b], [1, max(-m,n)])
-    // (7): compare to (4) in mod1, check b-a < |modulus|
-    else if b-a >= n:
-        return [0,n-1]
-    // (8): similar to (7), split interval, compute, and join
-    else if b-a >= m:
-        return [0, b-a-1] u mod2([a,b], [b-a+1,n])
-    // (9): modulo has no effect
-    else if m > b:
-        return [a,b]
-    // (10): there is some overlapping of [a,b] and [n,m]
-    else if n > b:
-        return [0,b]
-    // (11): either compute all possibilities and join, or be imprecise
-    else:
-        return [0,n-1] // imprecise
-*/	  
+/* def mod2([a,b], [m,n]): */
+/*     // (1): empty interval */
+/*     if a > b || m > n: */
+/*         return [] */
+/*     // (2): compute modulo with positive interval and negate */
+/*     else if b < 0: */
+/*          return -mod2([-b,-a], [m,n]) */
+/*     // (3): split into negative and non-negative interval, compute, and join  */
+/*     else if a < 0: */
+/*         return mod2([a,-1], [m,n]) u mod2([0,b], [m,n]) */
+/*     // (4): use the simpler function from before */
+/*     else if m == n: */
+/*         return mod1([a,b], m) */
+/*     // (5): use only non-negative m and n */
+/*     else if n <= 0: */
+/*         return mod2([a,b], [-n,-m]) */
+/*     // (6): similar to (5), make modulus non-negative */
+/*     else if m <= 0: */
+/*         return mod2([a,b], [1, max(-m,n)]) */
+/*     // (7): compare to (4) in mod1, check b-a < |modulus| */
+/*     else if b-a >= n: */
+/*         return [0,n-1] */
+/*     // (8): similar to (7), split interval, compute, and join */
+/*     else if b-a >= m: */
+/*         return [0, b-a-1] u mod2([a,b], [b-a+1,n]) */
+/*     // (9): modulo has no effect */
+/*     else if m > b: */
+/*         return [a,b] */
+/*     // (10): there is some overlapping of [a,b] and [n,m] */
+/*     else if n > b: */
+/*         return [0,b] */
+/*     // (11): either compute all possibilities and join, or be imprecise */
+/*     else: */
+/*         return [0,n-1] // imprecise */
+	  
 int mpfi_remainder (mpfi_t r, mpfi_t x, mpfi_t y) {
   // CHECK 
   int test,ret_val;
   mpfr_t m,yd;
-  mpfr_inits2(precision_bits, m, yd,(mpfr_ptr) 0);
+  mpfr_inits2((mpfr_prec_t)precision_bits, m, yd,(mpfr_ptr) 0);
   test=mpfi_diam(yd, y);
   if (test==0 && mpfr_zero_p(yd)>0){
     mpfi_get_fr(m, y);
@@ -293,15 +295,15 @@ static int mpfi_remainder_1 (mpfi_t r, mpfi_t x, mpfr_t m) {
     return ret_val;
   } else {
     mpfr_t a,b;
-    mpfr_inits2(precision_bits,a,b,(mpfr_ptr) 0);
+    mpfr_inits2((mpfr_prec_t)precision_bits,a,b,(mpfr_ptr) 0);
     mpfi_get_left(a,x); mpfi_get_right(b,x);
     if (mpfr_sgn(a)<0) {
      /*return mod1([a,-1], m) u mod1([0,b], m) */
      /* which is the same of mod1([1,-a], m) u mod1([0,b], m) */
      mpfi_t l1,l2,ret1, ret2 ;
      mpfr_t one,zero ;
-     mpfi_inits2(precision_bits, ret1, ret2, l1, l2, (mpfi_ptr) 0);
-     mpfr_inits2(precision_bits, one, zero, (mpfr_ptr) 0);
+     mpfi_inits2((mpfr_prec_t)precision_bits, ret1, ret2, l1, l2, (mpfi_ptr) 0);
+     mpfr_inits2((mpfr_prec_t)precision_bits, one, zero, (mpfr_ptr) 0);
      mpfr_set_si(one, 1, MPFR_RNDN); mpfr_set_si(zero, 0, MPFR_RNDN);
      mpfr_neg(a, a, MPFR_RNDN);
      mpfi_interv_fr(l1, one, a); mpfi_interv_fr(l2, zero, b);
@@ -312,7 +314,7 @@ static int mpfi_remainder_1 (mpfi_t r, mpfi_t x, mpfr_t m) {
    } else {
      /*if b-a < |m| && a % m <= b % m:*/
      mpfr_t d,abs_m, rem_a,rem_b,zero,one,abs_m_1;
-     mpfr_inits2(precision_bits, d, abs_m, rem_a, rem_b, zero, one, abs_m_1,(mpfr_ptr) 0);
+     mpfr_inits2((mpfr_prec_t)precision_bits, d, abs_m, rem_a, rem_b, zero, one, abs_m_1,(mpfr_ptr) 0);
      mpfr_sub(d, b, a, MPFR_RNDN);
      mpfr_abs(abs_m, m, MPFR_RNDN);
      /*mpfr_remainder(rem_a, a, m, MPFR_RNDN);  mpfr_remainder(rem_b, b, m, MPFR_RNDN); */
@@ -345,15 +347,15 @@ static int mpfi_remainder_2 (mpfi_t r, mpfi_t x, mpfi_t m) {
   } else {
     mpfr_t a,b,n1,m1;
     mpfr_t one, zero ;
-    mpfr_inits2(precision_bits, one, zero, (mpfr_ptr) 0);
+    mpfr_inits2((mpfr_prec_t)precision_bits, one, zero, (mpfr_ptr) 0);
     mpfr_set_si(one, 1, MPFR_RNDN); mpfr_set_si(zero, 0, MPFR_RNDN);
-    mpfr_inits2(precision_bits,a,b,(mpfr_ptr) 0);
+    mpfr_inits2((mpfr_prec_t)precision_bits,a,b,(mpfr_ptr) 0);
     mpfi_get_left(a,x); mpfi_get_right(b,x);
     mpfi_get_left(m1,m); mpfi_get_right(n1,m);
     if (mpfr_sgn(a)<0) {
       /* return mod2([a,-1], [m,n]) u mod2([0,b], [m,n]) */
       mpfi_t l1, l2, ret1, ret2 ;
-      mpfi_inits2(precision_bits, ret1, ret2, l1, l2, (mpfi_ptr) 0);
+      mpfi_inits2((mpfr_prec_t)precision_bits, ret1, ret2, l1, l2, (mpfi_ptr) 0);
       mpfr_neg(a,a,MPFR_RNDN);
       mpfi_interv_fr(l1, one, a); mpfi_interv_fr(l2, zero, b);
       mpfi_remainder_2(ret1,l1,m); mpfi_remainder_2(ret2,l2,m);
@@ -362,12 +364,12 @@ static int mpfi_remainder_2 (mpfi_t r, mpfi_t x, mpfi_t m) {
     } else {
       int test;
       mpfr_t yd;
-      mpfr_inits2(precision_bits, yd, (mpfr_ptr) 0);
+      mpfr_inits2((mpfr_prec_t)precision_bits, yd, (mpfr_ptr) 0);
       test=mpfi_diam(yd, m);
       if(test==0 &&  mpfr_zero_p(yd)>0){
 	/*return mod1([a,b], m)*/
 	mpfr_t m2;
-	mpfr_inits2(precision_bits, m2,(mpfr_ptr) 0);
+	mpfr_inits2((mpfr_prec_t)precision_bits, m2,(mpfr_ptr) 0);
 	mpfi_get_fr(m2, m);
 	ret_val = mpfi_remainder_1(r,x,m2);
 	mpfr_clears(m2, (mpfi_ptr)0);
@@ -379,8 +381,8 @@ static int mpfi_remainder_2 (mpfi_t r, mpfi_t x, mpfi_t m) {
 	/* return mod2([a,b], [1, max(-m,n)]) */
 	mpfr_t r1;
 	mpfi_t l1;
-	mpfi_inits2(precision_bits, l1, (mpfi_ptr) 0);
-	mpfr_inits2(precision_bits, r1, (mpfr_ptr) 0);
+	mpfi_inits2((mpfr_prec_t)precision_bits, l1, (mpfi_ptr) 0);
+	mpfr_inits2((mpfr_prec_t)precision_bits, r1, (mpfr_ptr) 0);
 	mpfr_neg(m1,m1,MPFR_RNDN);
         /*mpfr_max (r1, m1, n1, MPFR_RNDN);*/
 	if(mpfr_greater_p(m1,n1)){
@@ -394,7 +396,7 @@ static int mpfi_remainder_2 (mpfi_t r, mpfi_t x, mpfi_t m) {
 	mpfi_clears(l1, (mpfi_ptr)0);
       } else {
 	mpfr_t d;
-	mpfr_inits2(precision_bits, d, (mpfr_ptr) 0);
+	mpfr_inits2((mpfr_prec_t)precision_bits, d, (mpfr_ptr) 0);
 	mpfr_sub(d, b, a, MPFR_RNDN);
 	if(mpfr_greaterequal_p(d, n1)!=0){
 	  /*return [0,n-1]*/
@@ -403,7 +405,7 @@ static int mpfi_remainder_2 (mpfi_t r, mpfi_t x, mpfi_t m) {
 	} else if(mpfr_greaterequal_p(d, m1)!=0){
 	  /*return [0, b-a-1] u mod2([a,b], [b-a+1,n])*/
 	  mpfi_t r1,l1,l2;
-	  mpfi_inits2(precision_bits, l1, l2,(mpfi_ptr) 0);
+	  mpfi_inits2((mpfr_prec_t)precision_bits, l1, l2,(mpfi_ptr) 0);
 	  mpfr_sub(d, d, one, MPFR_RNDN);
 	  mpfi_interv_fr(l1, zero, d);/* [0, b-a-1] */
 	  mpfi_interv_fr(l2, d, n1);/* [b-a+1,n] */
@@ -416,14 +418,14 @@ static int mpfi_remainder_2 (mpfi_t r, mpfi_t x, mpfi_t m) {
 	} else if (mpfr_greater_p(n1,b)!=0) {
 	  /*return [0,b]*/
 	  mpfi_t l1;
-	  mpfi_inits2(precision_bits, l1,(mpfi_ptr) 0);
+	  mpfi_inits2((mpfr_prec_t)precision_bits, l1,(mpfi_ptr) 0);
 	  mpfi_interv_fr(l1, zero, b);
 	  ret_val = mpfi_set(r,l1);
 	  mpfi_clears(l1, (mpfi_ptr)0);
 	} else {
 	  /*return [0,n-1] // imprecise */
 	  mpfi_t l1;
-	  mpfi_inits2(precision_bits, l1,(mpfi_ptr) 0);
+	  mpfi_inits2((mpfr_prec_t)precision_bits, l1,(mpfi_ptr) 0);
 	  mpfr_sub(n1, n1, one, MPFR_RNDN);
 	  mpfi_interv_fr(l1, zero, n1);
 	  ret_val = mpfi_set(r,l1);
@@ -486,7 +488,7 @@ static boolean initialized = false;
 @ @c
 void init_interval_constants (void) {
   if (!initialized) {
-    mpfi_inits2 (precision_bits, one, minusone, zero, two_mpfi_t, three_mpfi_t, four_mpfi_t, fraction_multiplier_mpfi_t,
+    mpfi_inits2 ((mpfr_prec_t)precision_bits, one, minusone, zero, two_mpfi_t, three_mpfi_t, four_mpfi_t, fraction_multiplier_mpfi_t,
               fraction_one_mpfi_t, fraction_one_plus_mpfi_t,  angle_multiplier_mpfi_t, PI_mpfi_t, 
               epsilon_mpfi_t, EL_GORDO_mpfi_t, (mpfi_ptr) 0);
     mpfi_set_si (one, 1);
@@ -523,7 +525,7 @@ between precision and allocation size / processing speed.
 @c
 void * mp_initialize_interval_math (MP mp) {
   math_data *math = (math_data *)mp_xmalloc(mp,1,sizeof(math_data));
-  precision_bits = precision_digits_to_bits(MAX_PRECISION);
+  precision_bits = (double)precision_digits_to_bits(MAX_PRECISION);
   init_interval_constants();
   /* alloc */
   math->allocate = mp_new_number;
@@ -705,7 +707,7 @@ return (void *)math;
 
 void mp_interval_set_precision (MP mp) {
   double d = mpfi_get_d(internal_value (mp_number_precision).data.num);
-  precision_bits = precision_digits_to_bits(d);
+  precision_bits = (double)precision_digits_to_bits(d);
 }
 
 void mp_free_interval_math (MP mp) {
@@ -744,7 +746,7 @@ void mp_free_interval_math (MP mp) {
 void mp_new_number (MP mp, mp_number *n, mp_number_type t) {
   (void)mp;
   n->data.num = mp_xmalloc(mp,1,sizeof(mpfi_t));
-  mpfi_init2 ((mpfi_ptr)(n->data.num), precision_bits);
+  mpfi_init2 ((mpfi_ptr)(n->data.num), (mpfr_prec_t)precision_bits);
   /*mpfi_set_zero((mpfi_ptr)(n->data.num),1); *//* 1 == positive */
   mpfi_set_d((mpfi_ptr)(n->data.num),0.0); 
   n->type = t;
@@ -765,13 +767,13 @@ void mp_free_number (MP mp, mp_number *n) {
 @ Here are the low-level functions on |mp_number| items, setters first.
 
 @c 
-void mp_set_interval_from_int(mp_number *A, int B) {
+void mp_set_interval_from_int(mp_number *A, integer64 B) {
   mpfi_set_si(A->data.num,B);
 }
-void mp_set_interval_from_boolean(mp_number *A, int B) {
+void mp_set_interval_from_boolean(mp_number *A, integer64 B) {
   mpfi_set_si(A->data.num,B);
 }
-void mp_set_interval_from_scaled(mp_number *A, int B) {
+void mp_set_interval_from_scaled(mp_number *A, integer64 B) {
   mpfi_set_si(A->data.num, B);
   mpfi_div_si(A->data.num, A->data.num, 65536);
 }
@@ -790,16 +792,16 @@ void mp_set_interval_from_div(mp_number *A, mp_number B, mp_number C) {
 void mp_set_interval_from_mul(mp_number *A, mp_number B, mp_number C) {
  mpfi_mul(A->data.num,B.data.num,C.data.num);
 }
-void mp_set_interval_from_int_div(mp_number *A, mp_number B, int C) {
+void mp_set_interval_from_int_div(mp_number *A, mp_number B, integer64 C) {
   mpfi_div_si(A->data.num,B.data.num,C);
 }
-void mp_set_interval_from_int_mul(mp_number *A, mp_number B, int C) {
+void mp_set_interval_from_int_mul(mp_number *A, mp_number B, integer64 C) {
   mpfi_mul_si(A->data.num,B.data.num, C);
 }
 void mp_set_interval_from_of_the_way(MP mp, mp_number *A, mp_number t, mp_number B, mp_number C) {
   mpfi_t c, r1;
-  mpfi_init2(c, precision_bits);
-  mpfi_init2(r1, precision_bits);
+  mpfi_init2(c, (mpfr_prec_t)precision_bits);
+  mpfi_init2(r1, (mpfr_prec_t)precision_bits);
   mpfi_sub (c,B.data.num, C.data.num);
   mp_interval_take_fraction(mp, r1, c, t.data.num);
   mpfi_sub (A->data.num, B.data.num, r1);
@@ -809,7 +811,7 @@ void mp_set_interval_from_of_the_way(MP mp, mp_number *A, mp_number t, mp_number
 }
 void mp_number_negate(mp_number *A) {
   mpfi_t c;
-  mpfi_init2(c, precision_bits);
+  mpfi_init2(c, (mpfr_prec_t)precision_bits);
   mpfi_neg (c, A->data.num);
   mpfi_set((mpfi_ptr)A->data.num,c);
   mpfi_clear(c);
@@ -829,13 +831,13 @@ void mp_number_halfp(mp_number *A) {
 void mp_number_double(mp_number *A) {
   mpfi_mul_si(A->data.num,A->data.num, 2);
 }
-void mp_number_add_scaled(mp_number *A, int B) { /* also for negative B */
-  mpfi_add_d (A->data.num,A->data.num, B/65536.0);
+void mp_number_add_scaled(mp_number *A, integer64 B) { /* also for negative B */
+  mpfi_add_d (A->data.num,A->data.num, (double)B/65536.0);
 }
-void mp_number_multiply_int(mp_number *A, int B) {
+void mp_number_multiply_int(mp_number *A, integer64 B) {
   mpfi_mul_si(A->data.num,A->data.num, B);
 }
-void mp_number_divide_int(mp_number *A, int B) {
+void mp_number_divide_int(mp_number *A, integer64 B) {
   mpfi_div_si(A->data.num,A->data.num, B);
 }
 void mp_interval_abs(mp_number *A) {   
@@ -843,7 +845,7 @@ void mp_interval_abs(mp_number *A) {
 }
 void mp_number_clone(mp_number *A, mp_number B) {
   /*mpfi_prec_round (A->data.num, precision_bits);*/
-  mpfi_round_prec (A->data.num, precision_bits);
+  mpfi_round_prec (A->data.num, (mpfr_prec_t)precision_bits);
   mpfi_set(A->data.num, (mpfi_ptr)B.data.num);
 }
 void mp_number_swap(mp_number *A, mp_number *B) {
@@ -874,40 +876,40 @@ able to make this conversion properly, so instead we are using
 |decNumberToDouble| and a typecast. Bad!
 
 @c
-int mp_number_to_scaled(mp_number A) {
+integer64 mp_number_to_scaled(mp_number A) {
   double v = mpfi_get_d (A.data.num);
-  return (int)(v * 65536.0);
+  return (integer64)(v * 65536.0);
 }
 
 @ 
 
-@d odd(A)   (abs(A)%2==1)
+@d odd(A)   (MPOST_ABS(A)%2==1)
 
 @c
-int mp_number_to_int(mp_number A) {
-  int32_t result = 0;
+integer64 mp_number_to_int(mp_number A) {
+  integer64 result = 0;
   double temp;
-// CHECK  if (mpfi_fits_sint_p(A.data.num)) {
+// CHECK  if (mpfi_fits_sint_p(A.data.num)) \{
 // CHECK   result = mpfi_get_si(A.data.num);
-// CHECK  }
+// CHECK  \}
   if (mpfi_bounded_p(A.data.num)) {
     temp = ROUND(mpfi_get_d (A.data.num));
-    if( (INT_MIN <= temp) && (temp <= INT_MAX) ) { 
-     result = (int)(temp);
+    if( (INT64_MIN <= temp) && (temp <= INT64_MAX) ) { 
+     result = (integer64)(temp);
     }
   }  
   return result;
 }
-int mp_number_to_boolean(mp_number A) {
-  int32_t result = 0;
+integer64 mp_number_to_boolean(mp_number A) {
+  integer64 result = 0;
   double temp;
-// CHECK  if (mpfi_fits_sint_p(A.data.num)) {
+// CHECK  if (mpfi_fits_sint_p(A.data.num)) \{
 // CHECK    result = mpfi_get_si(A.data.num);
-// CHECK  }
+// CHECK  \}
   if (mpfi_bounded_p(A.data.num)) {
     temp = ROUND(mpfi_get_d (A.data.num));
-    if( (INT_MIN <= temp) && (temp <= INT_MAX) ) { 
-     result =  (int)(temp);
+    if( (INT64_MIN <= temp) && (temp <= INT64_MAX) ) { 
+     result =  (integer64)(temp);
     }
   }  
   return result;
@@ -926,7 +928,7 @@ int mp_number_equal(mp_number A, mp_number B) {
 //CHECK  return mpfi_equal_p(A.data.num,B.data.num);
  mpfr_t lA,rA,lB,rB;
  int la,ra,lb, rb;
- mpfr_inits2(precision_bits,lA,rA,lB,rB,(mpfr_ptr) 0);
+ mpfr_inits2((mpfr_prec_t)precision_bits,lA,rA,lB,rB,(mpfr_ptr) 0);
  la = mpfi_get_left (lA, A.data.num);
  lb = mpfi_get_left (lB, B.data.num);
  ra = mpfi_get_right (rA, A.data.num);
@@ -984,17 +986,17 @@ char * mp_intervalnumber_tostring (mpfi_t n) {
   mpfr_exp_t exp = 0;
   int neg = 0;
   mpfr_t nn;
-  mpfr_init2(nn,precision_bits);
+  mpfr_init2(nn,(mpfr_prec_t)precision_bits);
   mpfi_mid (nn, n);
   if ((str = mpfr_get_str (NULL, &exp, 10, 0, nn, MPFR_ROUNDING))!=NULL) {
-    int numprecdigits = precision_bits_to_digits(precision_bits);
+    mpfr_prec_t numprecdigits = (mpfr_prec_t)precision_bits_to_digits((mpfr_prec_t)precision_bits);
     if (*str == '-') {
       neg = 1;
     }
     while (strlen(str)>0 && *(str+strlen(str)-1) == '0' ) {
       *(str+strlen(str)-1) = '\0'; /* get rid of trailing zeroes */
     }
-    buffer = malloc(strlen(str)+13+numprecdigits+1); 
+    buffer = malloc(strlen(str)+13+(unsigned)numprecdigits+1); 
     /* the buffer should also fit at least strlen("E+\%d", exp) or (numprecdigits-2) worth of zeroes, 
      * because with numprecdigits == 33, the str for "1E32" will be "1", and needing 32 extra zeroes,
      * and the decimal dot. To avoid miscalculations by myself, it is safer to add these
@@ -1023,7 +1025,7 @@ char * mp_intervalnumber_tostring (mpfi_t n) {
                 }
              }
            } else {
-             int absexp;
+             mpfr_exp_t absexp;
              buffer[i++] = '0';
              buffer[i++] = '.';
              absexp = -exp;
@@ -1060,6 +1062,7 @@ char * mp_intervalnumber_tostring (mpfi_t n) {
   return buffer;
 }
 char * mp_interval_number_tostring (MP mp, mp_number n) {
+  (void)mp; 
   return mp_intervalnumber_tostring(n.data.num);
 }
 
@@ -1080,6 +1083,7 @@ is used.
 
 @c
 void mp_interval_slow_add (MP mp, mp_number *ret, mp_number A, mp_number B) {
+  (void)mp; 
   mpfi_add(ret->data.num,A.data.num,B.data.num);
 }
 
@@ -1146,6 +1150,7 @@ time during typical jobs, so a machine-language substitute is advisable.
 
 @c
 void mp_interval_take_fraction (MP mp, mpfi_t ret, mpfi_t p, mpfi_t q) {
+  (void)mp; 
   mpfi_mul(ret, p, q);
   mpfi_div(ret, ret, fraction_multiplier_mpfi_t);
 }
@@ -1168,6 +1173,7 @@ when the Computer Modern fonts are being generated.
 
 @c
 void mp_interval_number_take_scaled (MP mp, mp_number *ret, mp_number p_orig, mp_number q_orig) {
+  (void)mp; 
   mpfi_mul(ret->data.num, p_orig.data.num, q_orig.data.num);
 }
 
@@ -1209,12 +1215,23 @@ static void mp_wrapup_numeric_token(MP mp, unsigned char *start, unsigned char *
 void mp_wrapup_numeric_token(MP mp, unsigned char *start, unsigned char *stop) {
   int invalid = 0;
   mpfi_t result;
-  size_t l = stop-start+1;
+  size_t l;
   unsigned long lp, lpbit;
-  char *buf = mp_xmalloc(mp, l+1, 1);
-  char *bufp = buf; 
+  char *buf;
+  char *bufp;
+
+  if ((stop-start+1)<0) {
+    const char *hlp[] = {"I could not handle this number specification",
+                           "because an error of the internal buffer.",
+                            NULL };
+    mp_error (mp, "Internal buffer error", hlp, false);
+  }
+  l = (size_t)(stop-start+1);
+  buf = mp_xmalloc(mp, l+1, 1);
   buf[l] = '\0';
-  mpfi_init2(result, precision_bits);
+  bufp = buf;
+  
+  mpfi_init2(result, (mpfr_prec_t)precision_bits);
   (void)strncpy(buf,(const char *)start, l);
   invalid = mpfi_set_str(result,buf, 10);
   /*|fprintf(stdout,"scan of [%s] produced %s, ", buf, mp_intervalnumber_tostring(result));|*/
@@ -1229,7 +1246,7 @@ void mp_wrapup_numeric_token(MP mp, unsigned char *start, unsigned char *stop) {
   /* at least one digit, even if the number is  0 */
   lp = lp>0? lp: 1;
   /* bits needed for buf */
-  lpbit = (unsigned long)ceil(lp/log10(2)+1);
+  lpbit = (unsigned long)ceil((double)lp/log10(2)+1);
   free(buf);
   bufp = NULL;
   if (invalid == 0) {
@@ -1282,7 +1299,8 @@ static void find_exponent (MP mp)  {
      }
   }
 }
-void mp_interval_scan_fractional_token (MP mp, int n) { /* n: scaled */
+void mp_interval_scan_fractional_token (MP mp, integer64 n) { /* n: scaled */
+  (void)n;
   unsigned char *start = &mp->buffer[mp->cur_input.loc_field -1];
   unsigned char *stop;
   while (mp->char_class[mp->buffer[mp->cur_input.loc_field]] == digit_class) {
@@ -1297,7 +1315,8 @@ void mp_interval_scan_fractional_token (MP mp, int n) { /* n: scaled */
 @ We just have to collect bytes.
 
 @c
-void mp_interval_scan_numeric_token (MP mp, int n) { /* n: scaled */
+void mp_interval_scan_numeric_token (MP mp, integer64 n) { /* n: scaled */
+  (void)n; 
   unsigned char *start = &mp->buffer[mp->cur_input.loc_field -1];
   unsigned char *stop;
   while (mp->char_class[mp->buffer[mp->cur_input.loc_field]] == digit_class) {
@@ -1356,7 +1375,7 @@ void mp_interval_velocity (MP mp, mp_number *ret, mp_number st, mp_number ct, mp
   mpfi_t r1, r2;
   mpfi_t arg1, arg2;
   mpfi_t i16, fone, fhalf, ftwo, sqrtfive;
-  mpfi_inits2 (precision_bits, acc, num, denom, r1, r2, arg1, arg2, i16, fone, fhalf, ftwo, sqrtfive, (mpfi_ptr)0);
+  mpfi_inits2 ((mpfr_prec_t)precision_bits, acc, num, denom, r1, r2, arg1, arg2, i16, fone, fhalf, ftwo, sqrtfive, (mpfi_ptr)0);
   mpfi_set_si(i16, 16);
   mpfi_set_si(fone, fraction_one);
   mpfi_set_si(fhalf, fraction_half);
@@ -1392,13 +1411,13 @@ void mp_interval_velocity (MP mp, mp_number *ret, mp_number st, mp_number ct, mp
   mpfi_add(denom, denom, r1);     // denom = denom + r1
   mpfi_add(denom, denom, r2);     // denom = denom + r2
 
-//CHECK   if (!mpfi_equal_p(t.data.num, one)) {                 // t != 1
+//CHECK   if (!mpfi_equal_p(t.data.num, one)) \{                 // t != 1
   if (mpfi_cmp(t.data.num, one)!=0) {                 // t != 1
     mpfi_div(num, num, t.data.num); // num = num / t
   }
   mpfi_set(r2, num);                        // r2 = num / 4
   mpfi_div(r2, r2, four_mpfi_t);
-// CHECK  if (mpfi_less_p(denom,r2)) { // num/4 >= denom => denom < num/4
+// CHECK  if (mpfi_less_p(denom,r2)) \{ // num/4 >= denom => denom < num/4
   if (mpfi_cmp(denom,r2)<0) { // num/4 >= denom => denom < num/4
     mpfi_set_si(ret->data.num,fraction_four);
   } else {
@@ -1420,7 +1439,7 @@ void mp_ab_vs_cd (MP mp, mp_number *ret, mp_number a_orig, mp_number b_orig, mp_
   mpfi_t a, b, c, d;
   int cmp = 0;
   (void)mp;
-  mpfi_inits2(precision_bits, q,r,test,a,b,c,d,(mpfi_ptr)0);
+  mpfi_inits2((mpfr_prec_t)precision_bits, q,r,test,a,b,c,d,(mpfi_ptr)0);
   mpfi_set(a, (mpfi_ptr)a_orig.data.num);
   mpfi_set(b, (mpfi_ptr )b_orig.data.num);
   mpfi_set(c, (mpfi_ptr )c_orig.data.num);
@@ -1568,7 +1587,7 @@ static void mp_interval_crossing_point (MP mp, mp_number *ret, mp_number aa, mp_
   double d;    /* recursive counter */
   mpfi_t x, xx, x0, x1, x2;    /* temporary registers for bisection */
   mpfi_t scratch;
-  mpfi_inits2 (precision_bits, a,b,c, x,xx,x0,x1,x2, scratch,(mpfi_ptr)0);
+  mpfi_inits2 ((mpfr_prec_t)precision_bits, a,b,c, x,xx,x0,x1,x2, scratch,(mpfi_ptr)0);
   mpfi_set(a, (mpfi_ptr )aa.data.num);
   mpfi_set(b, (mpfi_ptr )bb.data.num);
   mpfi_set(c, (mpfi_ptr )cc.data.num);
@@ -1602,21 +1621,21 @@ static void mp_interval_crossing_point (MP mp, mp_number *ret, mp_number aa, mp_
     mpfi_div(x, x, two_mpfi_t);
     mpfi_add_d (x, x, 1E-12);
     mpfi_sub(scratch, x1, x0);
-// CHECK    if (mpfi_greater_p(scratch, x0)) {
+// CHECK    if (mpfi_greater_p(scratch, x0)) \{
    if (mpfi_cmp(scratch, x0)>0) {
       mpfi_set(x2, x);
       mpfi_add(x0, x0, x0);
       d += d;
     } else {
       mpfi_add(xx, scratch, x);
-// CHECK      if (mpfi_greater_p(xx,x0)) {
+// CHECK      if (mpfi_greater_p(xx,x0)) \{
       if (mpfi_cmp(xx,x0)>0) {
         mpfi_set(x2,x);
         mpfi_add(x0, x0, x0);
         d += d;
       } else {
         mpfi_sub(x0, x0, xx);
-// CHECK         if (!mpfi_greater_p(x,x0)) {
+// CHECK         if (!mpfi_greater_p(x,x0)) \{
         if (!(mpfi_cmp(x,x0)>0)) {
           mpfi_add(scratch, x, x2);
 // CHECK          if (!mpfi_greater_p(scratch, x0))
@@ -1647,9 +1666,9 @@ and truncation operations.
 
 @ |round_unscaled| rounds a |scaled| and converts it to |int|
 @c
-int mp_round_unscaled(mp_number x_orig) {
+integer64 mp_round_unscaled(mp_number x_orig) {
   double xx = mp_number_to_double(x_orig);
-  int x = (int)ROUND(xx);
+  integer64 x = (integer64)ROUND(xx);
   return x;
 }
 
@@ -1659,7 +1678,7 @@ int mp_round_unscaled(mp_number x_orig) {
 void mp_number_floor (mp_number *i) {
 //CHECK  mpfi_rint_floor(i->data.num, i->data.num, MPFR_RNDD);
  mpfr_t le,re;
- mpfr_inits2(precision_bits, le, re, (mpfr_ptr)0 );
+ mpfr_inits2((mpfr_prec_t)precision_bits, le, re, (mpfr_ptr)0 );
  mpfi_get_left (le, i->data.num); mpfi_get_right(re, i->data.num); 
  mpfr_rint_floor(le, le, MPFR_RNDD); mpfr_rint_floor(re, re, MPFR_RNDD);
  mpfi_interv_fr(i->data.num, le, re);
@@ -1727,7 +1746,7 @@ void mp_interval_square_rt (MP mp, mp_number *ret, mp_number x_orig) { /* return
 @c
 void mp_interval_pyth_add (MP mp, mp_number *ret, mp_number a_orig, mp_number b_orig) {
   mpfi_t a, b, asq, bsq;
-  mpfi_inits2(precision_bits, a,b, asq, bsq, (mpfi_ptr)0);  
+  mpfi_inits2((mpfr_prec_t)precision_bits, a,b, asq, bsq, (mpfi_ptr)0);  
   mpfi_set(a, (mpfi_ptr)a_orig.data.num);
   mpfi_set(b, (mpfi_ptr)b_orig.data.num);
   /* mpfi_mul(asq, a, a); */
@@ -1745,10 +1764,10 @@ void mp_interval_pyth_add (MP mp, mp_number *ret, mp_number a_orig, mp_number b_
 @c
 void mp_interval_pyth_sub (MP mp, mp_number *ret, mp_number a_orig, mp_number b_orig) {
   mpfi_t a, b, asq, bsq;
-  mpfi_inits2(precision_bits, a,b, asq, bsq, (mpfi_ptr)0);  
+  mpfi_inits2((mpfr_prec_t)precision_bits, a,b, asq, bsq, (mpfi_ptr)0);  
   mpfi_set(a, (mpfi_ptr)a_orig.data.num);
   mpfi_set(b, (mpfi_ptr)b_orig.data.num);
-// CHECK  if (!mpfi_greater_p(a,b)) {
+// CHECK  if (!mpfi_greater_p(a,b)) \{
   if (!(mpfi_cmp(a,b)>0)) {
     @<Handle erroneous |pyth_sub| and set |a:=0|@>;
   } else {
@@ -1766,7 +1785,7 @@ void mp_interval_pyth_sub (MP mp, mp_number *ret, mp_number a_orig, mp_number b_
 
 @ @<Handle erroneous |pyth_sub| and set |a:=0|@>=
 {
-//CHECK  if (mpfi_less_p(a, b)) {
+//CHECK  if (mpfi_less_p(a, b)) \{
   if (mpfi_cmp(a, b)<0) {
     char msg[256];
     const char *hlp[] = {
@@ -1790,8 +1809,9 @@ void mp_interval_pyth_sub (MP mp, mp_number *ret, mp_number a_orig, mp_number b_
 
 @c
 void mp_interval_m_interval_set(MP mp, mp_number *ret, mp_number a, mp_number b) {
+   (void)mp; 
    mpfi_t ret_val;
-   mpfi_init2(ret_val,precision_bits);
+   mpfi_init2(ret_val,(mpfr_prec_t)precision_bits);
    mpfi_interv_fr(ret_val, a.data.num, b.data.num);
    mpfi_set(ret->data.num,ret_val);
    mpfi_clear(ret_val);
@@ -1799,20 +1819,22 @@ void mp_interval_m_interval_set(MP mp, mp_number *ret, mp_number a, mp_number b)
 
 
 
-@ and two new primitives to retrive the left and right endpoint of an |interval| quantity|:
+@ and two new primitives to retrive the left and right endpoint of an |interval| quantity:
 
 @c
 void mp_interval_m_get_left_endpoint (MP mp, mp_number *ret, mp_number x_orig) {
+   (void)mp; 
    mpfr_t ret_val;
-   mpfr_init2(ret_val,precision_bits);
+   mpfr_init2(ret_val,(mpfr_prec_t)precision_bits);
    mpfi_get_left(ret_val, x_orig.data.num);
    mpfi_set_fr(ret->data.num,ret_val);
    mpfr_clear(ret_val);
 }
 
 void mp_interval_m_get_right_endpoint (MP mp, mp_number *ret, mp_number x_orig) {
+   (void)mp; 
    mpfr_t ret_val;
-   mpfr_init2(ret_val,precision_bits);
+   mpfr_init2(ret_val,(mpfr_prec_t)precision_bits);
    mpfi_get_right(ret_val, x_orig.data.num);
    mpfi_set_fr(ret->data.num,ret_val);
    mpfr_clear(ret_val);
@@ -1857,7 +1879,7 @@ when |x| is |scaled|.
 @c
 void mp_interval_m_exp (MP mp, mp_number *ret, mp_number x_orig) {
   mpfi_t temp;
-  mpfi_init2(temp, precision_bits);
+  mpfi_init2(temp, (mpfr_prec_t)precision_bits);
   mpfi_div_si(temp, x_orig.data.num, 256);
   mpfi_exp(ret->data.num, temp);
   mp_check_mpfi_t(mp, ret->data.num);
@@ -1874,8 +1896,8 @@ void mp_interval_n_arg (MP mp, mp_number *ret, mp_number x_orig, mp_number y_ori
     @<Handle undefined arg@>;
   } else {
     mpfi_t atan2val, oneeighty_angle;
-    mpfi_init2(atan2val, precision_bits);
-    mpfi_init2(oneeighty_angle, precision_bits);
+    mpfi_init2(atan2val, (mpfr_prec_t)precision_bits);
+    mpfi_init2(oneeighty_angle, (mpfr_prec_t)precision_bits);
     ret->type = mp_angle_type;
     mpfi_set_si(oneeighty_angle, 180 * angle_multiplier);
     mpfi_div(oneeighty_angle, oneeighty_angle, PI_mpfi_t);
@@ -1914,8 +1936,8 @@ stored in global integer variables |n_sin| and |n_cos|.
 void mp_interval_sin_cos (MP mp, mp_number z_orig, mp_number *n_cos, mp_number *n_sin) {
   mpfi_t rad;
   mpfi_t one_eighty;
-  mpfi_init2(rad, precision_bits);
-  mpfi_init2(one_eighty, precision_bits);
+  mpfi_init2(rad, (mpfr_prec_t)precision_bits);
+  mpfi_init2(one_eighty, (mpfr_prec_t)precision_bits);
   mpfi_set_si(one_eighty, 180 * 16);
   mpfi_mul (rad, z_orig.data.num, PI_mpfi_t);
   mpfi_div (rad, rad, one_eighty);
@@ -2049,7 +2071,7 @@ static void mp_next_unif_random (MP mp, mp_number *ret) {
   (void)mp;
   mp_new_number (mp, &rop, mp_scaled_type);
   op = (unsigned)ran_arr_next();
-  flt_op = op/(MM*1.0);
+  flt_op = (float)((double)op/(MM*1.0));
   mpfi_set_d ((mpfi_ptr)(rop.data.num), flt_op);
   mp_number_clone (ret, rop);
   free_number (rop);
@@ -2088,7 +2110,7 @@ static void mp_interval_m_unif_rand (MP mp, mp_number *ret, mp_number x_orig) {
   char *r ;mpfr_exp_t e;
   mpfr_t ret_val;
   double ret_d;
-  mpfr_init2(ret_val,precision_bits);
+  mpfr_init2(ret_val,(mpfr_prec_t)precision_bits);
   new_fraction (y);
   new_number (x);
   new_number (abs_x);
@@ -2182,7 +2204,7 @@ static void mp_interval_ab_vs_cd (MP mp, mp_number *ret, mp_number a_orig, mp_nu
 
   int cmp = 0;
   (void)mp;
-  mpfi_inits2(precision_bits, a,b,c,d,ab,cd,(mpfi_ptr)0);
+  mpfi_inits2((mpfr_prec_t)precision_bits, a,b,c,d,ab,cd,(mpfi_ptr)0);
   mpfi_set(a, (mpfi_ptr )a_orig.data.num);
   mpfi_set(b, (mpfi_ptr )b_orig.data.num);
   mpfi_set(c, (mpfi_ptr )c_orig.data.num);

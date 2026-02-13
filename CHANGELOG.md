@@ -6,6 +6,7 @@
 
 * bibtex-x 4.03
 * dvisvgm 3.6
+* metapost 3.0a
 
 ## 26.1 - 2026-1-18
 

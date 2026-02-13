@@ -15,6 +15,7 @@
 
 @ First, we will need some stuff from other files.
 @c
+#include "mpconfig.h"
 #include <w2c/config.h>
 #include <stdio.h>
 #include <stdlib.h>

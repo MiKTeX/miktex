@@ -1,28 +1,17 @@
-/* miktex/W2C/pre.h:                                    -*- C++ -*-
-
-   Copyright (C) 2013-2019 Christian Schenk
-
-   This file is part of the MiKTeX W2CEMU Library.
-
-   The MiKTeX W2CEMU Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-   
-   The MiKTeX W2CEMU Library is distributed in the hope that it will
-   be useful, but WITHOUT ANY WARRANTY; without even the implied
-   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-   See the GNU General Public License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX W2CEMU Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file miktex/W2C/pre.h
+ * @author Christian Schenk
+ * @brief Web2C emulation
+ *
+ * @copyright Copyright © 2013-2026 Christian Schenk
+ *
+ * This file is part of the MiKTeX W2CEMU Library.
+ *
+ * MiKTeX W2CEMU Library is licensed under GNU General Public License version 2
+ * or any later version.
+ */
 
 #pragma once
-
-#if !defined(CD7FC931C9674841BD05A1D2BDF2C)
-#define CD7FC931C9674841BD05A1D2BDF2C
 
 #if defined(__cplusplus)
 #include <miktex/Core/Session>
@@ -37,19 +26,17 @@
 
 // DLL import/export switch
 #if !defined(B96BCD894353492A9CF685C84B9AB5E0)
-#  define MIKTEXW2CEXPORT MIKTEXDLLIMPORT
+#define MIKTEXW2CEXPORT MIKTEXDLLIMPORT
 #endif
 
 // API decoration for exported functions and data
 #define MIKTEXW2CCEEAPI(type) MIKTEXW2CEXPORT type MIKTEXCEECALL
 #define MIKTEXW2CDATA(type) MIKTEXW2CEXPORT type
 
-#define MIKTEX_WEB2C_BEGIN_NAMESPACE            \
-  namespace MiKTeX {                            \
-    namespace Web2C {
+#define MIKTEX_WEB2C_BEGIN_NAMESPACE        \
+    namespace MiKTeX {                      \
+        namespace Web2C {
 
-#define MIKTEX_WEB2C_END_NAMESPACE              \
-    }                                           \
-  }
-
-#endif
+#define MIKTEX_WEB2C_END_NAMESPACE          \
+        }                                   \
+    }
