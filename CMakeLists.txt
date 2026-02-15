@@ -80,6 +80,12 @@ set(CMAKE_C_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
+if (MSVC)
+    foreach(c "" "_DEBUG" "_RELEASE" "_MINSIZEREL" "_RELWITHDEBINFO")
+        set(CMAKE_CXX_FLAGS${c} "${CMAKE_CXX_FLAGS${c}} /Zc:__cplusplus")
+    endforeach()
+endif()
+
 ###############################################################################
 ## system type
 
