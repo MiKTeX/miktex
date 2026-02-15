@@ -33,7 +33,6 @@ target_link_libraries(luatex-luaffi-objects
     PUBLIC
         ${CMAKE_DL_LIBS}
         ${lua53_target_name}
-        ${unxemu_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
