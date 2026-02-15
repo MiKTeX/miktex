@@ -1,7 +1,4 @@
 #pragma once
 #include <string>
 
-using MethodType = const  char* const;
-
-
-
+using MethodType = char const* const;

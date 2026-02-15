@@ -242,6 +242,14 @@ struct mod {
   }
 };
 
+template <>
+struct mod<Int> {
+  Int operator() (Int x, Int y,  size_t i=0) {
+    if(y == 0) dividebyzero(i);
+    return imod(x,y);
+  }
+};
+
 template <typename>
 struct quotient {
   Int operator() (Int x, Int y,  size_t i=0) {

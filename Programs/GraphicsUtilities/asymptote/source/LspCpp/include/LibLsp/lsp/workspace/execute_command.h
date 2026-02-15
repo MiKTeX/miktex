@@ -7,8 +7,6 @@
 
 #include "LibLsp/JsonRpc/NotificationInMessage.h"
 
-
-
 /**
  * The workspace/executeCommand request is sent from the client to the
  * server to trigger command execution on the server. In most cases the
@@ -19,6 +17,5 @@
  * Registration Options: ExecuteCommandRegistrationOptions
  */
 DEFINE_REQUEST_RESPONSE_TYPE(wp_executeCommand, ExecuteCommandParams, lsp::Any, "workspace/executeCommand");
-
 
 DEFINE_NOTIFICATION_TYPE(Notify_sendNotification, ExecuteCommandParams, "workspace/notify")

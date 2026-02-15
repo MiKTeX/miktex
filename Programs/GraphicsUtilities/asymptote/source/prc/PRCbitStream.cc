@@ -19,13 +19,13 @@
 *
 *************/
 
+#include "prc/PRCbitStream.h"
+#include "prc/PRCdouble.h"
+#include <cassert>
 #include <iostream>
-#include <zlib.h>
 #include <stdlib.h>
 #include <string.h>
-#include <cassert>
-#include "PRCbitStream.h"
-#include "PRCdouble.h"
+#include <zlib.h>
 #if defined(MIKTEX)
 #define exit(x) throw x
 #endif

@@ -1,24 +1,23 @@
 #pragma once
 
-
-
 #include "LibLsp/JsonRpc/NotificationInMessage.h"
 
+namespace TextDocumentDidSave
+{
 
-namespace TextDocumentDidSave  {
-
-  struct Params {
+struct Params
+{
     // The document that was saved.
     lsTextDocumentIdentifier textDocument;
 
     // Optional the content when saved. Depends on the includeText value
     // when the save notifcation was requested.
-    optional<std::string>  text;
+    optional<std::string> text;
 
-        MAKE_SWAP_METHOD(TextDocumentDidSave::Params, textDocument, text);
-  };
-
+    MAKE_SWAP_METHOD(TextDocumentDidSave::Params, textDocument, text);
 };
+
+}; // namespace TextDocumentDidSave
 MAKE_REFLECT_STRUCT(TextDocumentDidSave::Params, textDocument, text);
 
 /**
@@ -28,4 +27,3 @@ MAKE_REFLECT_STRUCT(TextDocumentDidSave::Params, textDocument, text);
  * Registration Options: TextDocumentSaveRegistrationOptions
  */
 DEFINE_NOTIFICATION_TYPE(Notify_TextDocumentDidSave, TextDocumentDidSave::Params, "textDocument/didSave");
-

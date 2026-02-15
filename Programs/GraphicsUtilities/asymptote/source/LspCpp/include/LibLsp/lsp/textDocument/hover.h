@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "LibLsp/JsonRpc/RequestInMessage.h"
 #include "LibLsp/JsonRpc/lsResponseMessage.h"
 
@@ -16,27 +15,27 @@
 
 namespace TextDocumentHover
 {
-        typedef  optional< std::vector< std::pair<optional<std::string>, optional<lsMarkedString>> > > Left;
-        typedef   std::pair< Left, optional<MarkupContent> >  Either;
-        struct Result {
-                /**
+typedef optional<std::vector<std::pair<optional<std::string>, optional<lsMarkedString>>>> Left;
+typedef std::pair<Left, optional<MarkupContent>> Either;
+struct Result
+{
+    /**
                  * The hover's content as markdown
                  */
-                Either  contents;
+    Either contents;
 
-                /**
+    /**
                  * An optional range
                  */
-                optional<lsRange> range;
+    optional<lsRange> range;
 
-                MAKE_SWAP_METHOD(Result, contents, range)
-        };
-}
+    MAKE_SWAP_METHOD(Result, contents, range)
+};
+} // namespace TextDocumentHover
 MAKE_REFLECT_STRUCT(TextDocumentHover::Result, contents, range);
 
-extern  void Reflect(Reader& visitor, std::pair<optional<std::string>, optional<lsMarkedString>>& value);
-extern  void Reflect(Reader& visitor, TextDocumentHover::Either& value);
-
+extern void Reflect(Reader& visitor, std::pair<optional<std::string>, optional<lsMarkedString>>& value);
+extern void Reflect(Reader& visitor, TextDocumentHover::Either& value);
 
 DEFINE_REQUEST_RESPONSE_TYPE(td_hover, lsTextDocumentPositionParams, TextDocumentHover::Result, "textDocument/hover")
 
@@ -52,4 +51,3 @@ DEFINE_REQUEST_RESPONSE_TYPE(td_hover, lsTextDocumentPositionParams, TextDocumen
 //                                        jsonrpc,
 //                                                                               id,
 //                                        result);
-

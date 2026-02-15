@@ -4,7 +4,7 @@
 #include <string>
 #include "LibLsp/lsp/lsWorkspaceEdit.h"
 #include "LibLsp/lsp/ExecuteCommandParams.h"
-namespace  buildpath
+namespace buildpath
 {
 //      static  const char* EDIT_ORGNIZEIMPORTS = "java.edit.organizeImports";
 //      static  const char* RESOLVE_SOURCE_ATTACHMENT = "java.project.resolveSourceAttachment";
@@ -16,14 +16,12 @@ namespace  buildpath
 //      static  const char* REMOVE_FROM_SOURCEPATH = "java.project.removeFromSourcePath";
 
 //      static  const char* LIST_SOURCEPATHS = "java.project.listSourcePaths";
-        struct Result {
-                bool status;
-                std::string message;
-        };
+struct Result
+{
+    bool status;
+    std::string message;
+};
 
-
-
-}
-
+} // namespace buildpath
 
 DEFINE_REQUEST_RESPONSE_TYPE(java_executeCommand, ExecuteCommandParams, lsWorkspaceEdit, "java/executeCommand");

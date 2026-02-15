@@ -1,67 +1,65 @@
 // Enum class for v3dheadertypes
 // AUTO-GENERATED from v3dheadertypes.csv
-// Generated at 2024-03-08 08:14:33
-
 namespace camp
 {
 enum v3dheadertypes : uint32_t
 {
-canvasWidth=1,
 // UINT  Canvas width
+canvasWidth=1,
 
-canvasHeight=2,
 // UINT  Canvas heighot
+canvasHeight=2,
 
-absolute=3,
 // BOOL  true: absolute size; false: scale to canvas
+absolute=3,
 
-minBound=4,
 // TRIPLE  Scene minimum bounding box corners
+minBound=4,
 
-maxBound=5,
 // TRIPLE  Scene maximum bounding box corners
+maxBound=5,
 
-orthographic=6,
 // BOOL  true: orthographic; false: perspective
+orthographic=6,
 
-angleOfView=7,
 // REAL  Field of view angle (in radians)
+angleOfView=7,
 
-initialZoom=8,
 // REAL  Initial zoom
+initialZoom=8,
 
-viewportShift=9,
 // PAIR  Viewport shift (for perspective projection)
+viewportShift=9,
 
-viewportMargin=10,
 // PAIR  Margin around viewport
+viewportMargin=10,
 
-light=11,
 // RGB  Direction and color of each point light source
+light=11,
 
-background=12,
 // RGBA  Background color
+background=12,
 
-zoomFactor=13,
 // REAL  Zoom base factor
+zoomFactor=13,
 
-zoomPinchFactor=14,
 // REAL  Zoom pinch factor
+zoomPinchFactor=14,
 
-zoomPinchCap=15,
 // REAL  Zoom pinch limit
+zoomPinchCap=15,
 
-zoomStep=16,
 // REAL  Zoom power step
+zoomStep=16,
 
-shiftHoldDistance=17,
 // REAL  Shift-mode maximum hold distance (pixels)
+shiftHoldDistance=17,
 
-shiftWaitTime=18,
 // REAL  Shift-mode hold time (milliseconds)
+shiftWaitTime=18,
 
-vibrateTime=19,
 // REAL  Shift-mode vibrate time (milliseconds)
+vibrateTime=19,
 
 };
 

@@ -163,12 +163,6 @@ public:
 protected:
   xdr::oxstream& getXDRFile() override;
 
-  [[nodiscard]]
-  char const* data() const;
-
-  [[nodiscard]]
-  size_t const& length() const;
-
 private:
   xdr::memoxstream memxdrfile;
   string name;

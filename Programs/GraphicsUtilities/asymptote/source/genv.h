@@ -21,7 +21,6 @@
 #include "record.h"
 #include "absyn.h"
 #include "access.h"
-#include "coenv.h"
 #include "stack.h"
 
 using types::record;
@@ -31,7 +30,7 @@ namespace trans {
 
 class genv : public gc {
   // The initializer functions for imports, indexed by filename.
-  typedef mem::map<vm::importIndex_t,record *> importMap;
+  typedef mem::map<symbol,record *> importMap;
   importMap imap;
 
   // List of modules in translation.  Used to detect and prevent infinite
@@ -43,22 +42,23 @@ class genv : public gc {
   void checkRecursion(string filename);
 
   // Translate a module to build the record type.
-  record *loadModule(symbol name, string s);
+  record *loadModule(symbol name, string filename);
   record *loadTemplatedModule(
-      symbol name, string s, mem::vector<absyntax::namedTyEntry*> *args
+      symbol id,
+      string filename,
+      mem::vector<absyntax::namedTy*> *args
   );
 
 public:
   genv();
 
   // Get an imported module, translating if necessary.
-  record *getModule(symbol name, string s);
+  record *getModule(symbol name, string filename);
   record *getTemplatedModule(
-      symbol name,
-      string s,
-      string sigHandle,
-      mem::vector<absyntax::namedTyEntry*> *args
+      string filename,
+      mem::vector<absyntax::namedTy*> *args
   );
+  record *getLoadedModule(symbol index);
 
   // Uses the filename->record map to build a filename->initializer map to be
   // used at runtime.

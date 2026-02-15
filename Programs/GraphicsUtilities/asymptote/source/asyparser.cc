@@ -16,12 +16,14 @@
 
 #include "common.h"
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
 #ifdef HAVE_LIBCURL
 #include <curl/curl.h>
+#endif
+
+#include "exithandlers.h"
+
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
 #endif
 
 #if defined(MIKTEX_WINDOWS)
@@ -32,7 +34,7 @@
 #include "interact.h"
 #include "locate.h"
 #include "errormsg.h"
-#include "parser.h"
+#include "asyparser.h"
 #include "util.h"
 
 // The lexical analysis and parsing functions used by parseFile.
@@ -42,7 +44,6 @@ extern int yydebug;
 extern int yy_flex_debug;
 extern bool lexerEOF();
 extern void reportEOF();
-extern bool hangup;
 
 namespace parser {
 
@@ -68,7 +69,7 @@ void error(const string& filename)
 {
   em.sync();
   em << "error: could not load module '" << filename << "'\n";
-  em.sync();
+  em.sync(true);
   throw handled_error();
 }
 }
@@ -120,7 +121,7 @@ bool isURL(const string& filename)
 absyntax::file *parseFile(const string& filename,
                           const char *nameOfAction)
 {
-#if !defined(MIKTEX) || defined(HAVE_LIBCURL)
+#ifdef HAVE_LIBCURL
   if(isURL(filename))
     return parseURL(filename,nameOfAction);
 #endif

@@ -5,24 +5,24 @@
 
 #include "LibLsp/lsp/lsDocumentUri.h"
 
-
-struct ConfigurationItem {
-        /**
+struct ConfigurationItem
+{
+    /**
          * The scope to get the configuration section for.
          */
-        lsDocumentUri scopeUri;
+    lsDocumentUri scopeUri;
 
-        /**
+    /**
          * The configuration section asked for.
          */
-        std::string section;
-        MAKE_SWAP_METHOD(ConfigurationItem, scopeUri, section);
+    std::string section;
+    MAKE_SWAP_METHOD(ConfigurationItem, scopeUri, section);
 };
 MAKE_REFLECT_STRUCT(ConfigurationItem, scopeUri, section);
 struct ConfigurationParams
 {
-        std::vector<ConfigurationItem> items;
-        MAKE_SWAP_METHOD(ConfigurationParams, items)
+    std::vector<ConfigurationItem> items;
+    MAKE_SWAP_METHOD(ConfigurationParams, items)
 };
 
 MAKE_REFLECT_STRUCT(ConfigurationParams, items);
@@ -34,4 +34,6 @@ MAKE_REFLECT_STRUCT(ConfigurationParams, items);
  * order of the passed ConfigurationItems (e.g. the first item in the response is the
  * result for the first configuration item in the params).
  */
-DEFINE_REQUEST_RESPONSE_TYPE(WorkspaceConfiguration, ConfigurationParams,std::vector<lsp::Any>, "workspace/configuration");
+DEFINE_REQUEST_RESPONSE_TYPE(
+    WorkspaceConfiguration, ConfigurationParams, std::vector<lsp::Any>, "workspace/configuration"
+);

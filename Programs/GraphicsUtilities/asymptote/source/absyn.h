@@ -48,7 +48,7 @@ void prettyindent(ostream &out, Int indent);
 void prettyname(ostream &out, string name, Int indent, position pos);
 
 class name;
-class ty;
+class astType;
 class varinit;
 class exp;
 class runnable;

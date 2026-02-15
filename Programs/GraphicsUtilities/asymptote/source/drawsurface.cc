@@ -497,9 +497,9 @@ bool drawBezierTriangle::write(abs3Doutfile *out)
   } else {
     double prerender=renderResolution();
     if(prerender) {
-      GLfloat c[16];
+      GLfloat c[12];
       if(colors)
-        for(size_t i=0; i < 4; ++i)
+        for(size_t i=0; i < 3; ++i)
           storecolor(c,4*i,colors[i]);
       S.init(prerender,colors ? c : NULL);
       S.render(controls,straight,c);

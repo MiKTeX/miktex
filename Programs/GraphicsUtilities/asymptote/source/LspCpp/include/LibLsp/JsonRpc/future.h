@@ -18,161 +18,169 @@
 #include <memory>
 #include <mutex>
 
-namespace lsp {
+namespace lsp
+{
 
 // internal functionality
-namespace detail {
-template <typename T>
-struct promise_state {
-  T val;
-  std::mutex mutex;
-  std::condition_variable cv;
-  bool hasVal = false;
-};
-}  // namespace detail
+namespace detail
+{
+    template<typename T>
+    struct promise_state
+    {
+        T val;
+        std::mutex mutex;
+        std::condition_variable cv;
+        bool hasVal = false;
+    };
+} // namespace detail
 
 // forward declaration
-template <typename T>
+template<typename T>
 class promise;
 
 // future_status is the enumeration returned by future::wait_for and
 // future::wait_until.
-enum class future_status {
-  ready,
-  timeout,
+enum class future_status
+{
+    ready,
+    timeout,
 };
 
 // future is a minimal reimplementation of std::future, that does not suffer
 // from TSAN false positives. See:
 // https://gcc.gnu.org/bugzilla//show_bug.cgi?id=69204
-template <typename T>
-class future {
- public:
-  using State = detail::promise_state<T>;
+template<typename T>
+class future
+{
+public:
+    using State = detail::promise_state<T>;
 
-  // constructors
-  inline future() = default;
-  inline future(future&&) = default;
+    // constructors
+    inline future() = default;
+    inline future(future&&) = default;
 
-  // valid() returns true if the future has an internal state.
-  bool valid() const;
+    // valid() returns true if the future has an internal state.
+    bool valid() const;
 
-  // get() blocks until the future has a valid result, and returns it.
-  // The future must have a valid internal state to call this method.
-  inline T get();
+    // get() blocks until the future has a valid result, and returns it.
+    // The future must have a valid internal state to call this method.
+    inline T get();
 
-  // wait() blocks until the future has a valid result.
-  // The future must have a valid internal state to call this method.
-  void wait() const;
+    // wait() blocks until the future has a valid result.
+    // The future must have a valid internal state to call this method.
+    void wait() const;
 
-  // wait_for() blocks until the future has a valid result, or the timeout is
-  // reached.
-  // The future must have a valid internal state to call this method.
-  template <class Rep, class Period>
-  future_status wait_for(
-      const std::chrono::duration<Rep, Period>& timeout) const;
+    // wait_for() blocks until the future has a valid result, or the timeout is
+    // reached.
+    // The future must have a valid internal state to call this method.
+    template<class Rep, class Period>
+    future_status wait_for(std::chrono::duration<Rep, Period> const& timeout) const;
 
-  // wait_until() blocks until the future has a valid result, or the timeout is
-  // reached.
-  // The future must have a valid internal state to call this method.
-  template <class Clock, class Duration>
-  future_status wait_until(
-      const std::chrono::time_point<Clock, Duration>& timeout) const;
+    // wait_until() blocks until the future has a valid result, or the timeout is
+    // reached.
+    // The future must have a valid internal state to call this method.
+    template<class Clock, class Duration>
+    future_status wait_until(std::chrono::time_point<Clock, Duration> const& timeout) const;
 
- private:
-  friend promise<T>;
-  future(const future&) = delete;
-  inline future(const std::shared_ptr<State>& state);
+private:
+    friend promise<T>;
+    future(future const&) = delete;
+    inline future(std::shared_ptr<State> const& state);
 
-  std::shared_ptr<State> state = std::make_shared<State>();
+    std::shared_ptr<State> state = std::make_shared<State>();
 };
 
-template <typename T>
-future<T>::future(const std::shared_ptr<State>& s) : state(s) {}
-
-template <typename T>
-bool future<T>::valid() const {
-  return static_cast<bool>(state);
+template<typename T>
+future<T>::future(std::shared_ptr<State> const& s) : state(s)
+{
 }
 
-template <typename T>
-T future<T>::get() {
-  std::unique_lock<std::mutex> lock(state->mutex);
-  state->cv.wait(lock, [&] { return state->hasVal; });
-  return state->val;
+template<typename T>
+bool future<T>::valid() const
+{
+    return static_cast<bool>(state);
 }
 
-template <typename T>
-void future<T>::wait() const {
-  std::unique_lock<std::mutex> lock(state->mutex);
-  state->cv.wait(lock, [&] { return state->hasVal; });
+template<typename T>
+T future<T>::get()
+{
+    std::unique_lock<std::mutex> lock(state->mutex);
+    state->cv.wait(lock, [&] { return state->hasVal; });
+    return state->val;
 }
 
-template <typename T>
-template <class Rep, class Period>
-future_status future<T>::wait_for(
-    const std::chrono::duration<Rep, Period>& timeout) const {
-  std::unique_lock<std::mutex> lock(state->mutex);
-  return state->cv.wait_for(lock, timeout, [&] { return state->hasVal; })
-             ? future_status::ready
-             : future_status::timeout;
+template<typename T>
+void future<T>::wait() const
+{
+    std::unique_lock<std::mutex> lock(state->mutex);
+    state->cv.wait(lock, [&] { return state->hasVal; });
 }
 
-template <typename T>
-template <class Clock, class Duration>
-future_status future<T>::wait_until(
-    const std::chrono::time_point<Clock, Duration>& timeout) const {
-  std::unique_lock<std::mutex> lock(state->mutex);
-  return state->cv.wait_until(lock, timeout, [&] { return state->hasVal; })
-             ? future_status::ready
-             : future_status::timeout;
+template<typename T>
+template<class Rep, class Period>
+future_status future<T>::wait_for(std::chrono::duration<Rep, Period> const& timeout) const
+{
+    std::unique_lock<std::mutex> lock(state->mutex);
+    return state->cv.wait_for(lock, timeout, [&] { return state->hasVal; }) ? future_status::ready
+                                                                            : future_status::timeout;
+}
+
+template<typename T>
+template<class Clock, class Duration>
+future_status future<T>::wait_until(std::chrono::time_point<Clock, Duration> const& timeout) const
+{
+    std::unique_lock<std::mutex> lock(state->mutex);
+    return state->cv.wait_until(lock, timeout, [&] { return state->hasVal; }) ? future_status::ready
+                                                                              : future_status::timeout;
 }
 
 // promise is a minimal reimplementation of std::promise, that does not suffer
 // from TSAN false positives. See:
 // https://gcc.gnu.org/bugzilla//show_bug.cgi?id=69204
-template <typename T>
-class promise {
- public:
-  // constructors
-  inline promise() = default;
-  inline promise(promise&& other) = default;
-  inline promise(const promise& other) = default;
+template<typename T>
+class promise
+{
+public:
+    // constructors
+    inline promise() = default;
+    inline promise(promise&& other) = default;
+    inline promise(promise const& other) = default;
 
-  // set_value() stores value to the shared state.
-  // set_value() must only be called once.
-  inline void set_value(const T& value) const;
-  inline void set_value(T&& value) const;
+    // set_value() stores value to the shared state.
+    // set_value() must only be called once.
+    inline void set_value(T const& value) const;
+    inline void set_value(T&& value) const;
 
-  // get_future() returns a future sharing this promise's state.
-  future<T> get_future();
+    // get_future() returns a future sharing this promise's state.
+    future<T> get_future();
 
- private:
-  using State = detail::promise_state<T>;
-  std::shared_ptr<State> state = std::make_shared<State>();
+private:
+    using State = detail::promise_state<T>;
+    std::shared_ptr<State> state = std::make_shared<State>();
 };
 
-template <typename T>
-future<T> promise<T>::get_future() {
-  return future<T>(state);
+template<typename T>
+future<T> promise<T>::get_future()
+{
+    return future<T>(state);
 }
 
-template <typename T>
-void promise<T>::set_value(const T& value) const {
-  std::unique_lock<std::mutex> lock(state->mutex);
-  state->val = value;
-  state->hasVal = true;
-  state->cv.notify_all();
+template<typename T>
+void promise<T>::set_value(T const& value) const
+{
+    std::unique_lock<std::mutex> lock(state->mutex);
+    state->val = value;
+    state->hasVal = true;
+    state->cv.notify_all();
 }
 
-template <typename T>
-void promise<T>::set_value(T&& value) const {
-  std::unique_lock<std::mutex> lock(state->mutex);
-  state->val = std::move(value);
-  state->hasVal = true;
-  state->cv.notify_all();
+template<typename T>
+void promise<T>::set_value(T&& value) const
+{
+    std::unique_lock<std::mutex> lock(state->mutex);
+    state->val = std::move(value);
+    state->hasVal = true;
+    state->cv.notify_all();
 }
 
-}  // namespace lsp
-
-
+} // namespace lsp

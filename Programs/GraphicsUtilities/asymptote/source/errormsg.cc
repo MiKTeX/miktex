@@ -14,6 +14,7 @@
 #endif
 #include <cstdio>
 #include <cstdlib>
+#include <regex>
 
 #include "errormsg.h"
 #include "interact.h"
@@ -25,6 +26,8 @@ position nullPos;
 static nullPosInitializer nullPosInit;
 
 bool errorstream::interrupt=false;
+
+using camp::newl;
 
 ostream& operator<< (ostream& out, const position& pos)
 {
@@ -44,6 +47,7 @@ ostream& operator<< (ostream& out, const position& pos)
     while(count > 0 && getline(fin,s)) {
       count--;
     }
+    s=std::regex_replace(s,std::regex("\t")," ");
     out << s << endl;
     for(size_t i=1; i < pos.column; ++i)
       out << " ";
@@ -51,9 +55,9 @@ ostream& operator<< (ostream& out, const position& pos)
   }
 
   out << filename << ": ";
-  out << pos.line << "." << pos.column << ": ";
+  out << pos.line << "." << pos.column;
 
-  if(settings::getSetting<bool>("xasy")) {
+  if(settings::xasy) {
     camp::openpipeout();
     fprintf(camp::pipeout,"Error\n");
     fflush(camp::pipeout);
@@ -71,7 +75,7 @@ void errorstream::clear()
 void errorstream::message(position pos, const string& s)
 {
   if (floating) out << endl;
-  out << pos << s;
+  out << pos << ": " << s;
   floating = true;
 }
 
@@ -131,9 +135,24 @@ void errorstream::cont()
   floating = false;
 }
 
-void errorstream::sync()
+void errorstream::sync(bool reportTraceback)
 {
   if (floating) out << endl;
+
+  if(reportTraceback && traceback.size()) {
+    bool first=true;
+    for(auto p=this->traceback.rbegin(); p != this->traceback.rend(); ++p) {
+      if(p->filename() != "-") {
+        if(first) {
+          out << newl << "TRACEBACK:";
+          first=false;
+        }
+        cout << newl << (*p) << endl;
+      }
+    }
+    traceback.clear();
+  }
+
   floating = false;
 }
 

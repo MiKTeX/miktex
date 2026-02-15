@@ -39,9 +39,11 @@
 #include "config.h"
 #endif
 
+
 #include "PRC.h"
 #include "PRCbitStream.h"
 #include "writePRC.h"
+#include "PRCuniversalendianness.h"
 
 
 #ifdef HAVE_LIBTIRPC

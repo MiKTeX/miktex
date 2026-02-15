@@ -22,7 +22,7 @@
 #include "stm.h"
 #include "inst.h"
 #include "opsymbols.h"
-#include "process.h"
+#include "asyprocess.h"
 
 //void runCode(absyntax::block *code);
 
@@ -103,7 +103,7 @@ void exp::testCachedType(coenv &e) {
       em.compiler(getPos());
       em << "cached type '" << *ct
          << "' doesn't match actual type '" << *t << "'";
-      em.sync();
+      em.sync(true);
     }
   }
 }
@@ -143,9 +143,9 @@ types::ty *tempExp::trans(coenv &e) {
 
 
 varEntryExp::varEntryExp(position pos, types::ty *t, access *a)
-  : exp(pos), v(new trans::varEntry(t, a, 0, position())) {}
+  : exp(pos), v(new trans::varEntry(t, a, 0, nullPos)) {}
 varEntryExp::varEntryExp(position pos, types::ty *t, vm::bltin f)
-  : exp(pos), v(new trans::varEntry(t, new bltinAccess(f), 0, position())) {}
+  : exp(pos), v(new trans::varEntry(t, new bltinAccess(f), 0, nullPos)) {}
 
 void varEntryExp::prettyprint(ostream &out, Int indent) {
   prettyname(out, "varEntryExp", indent, getPos());
@@ -186,31 +186,6 @@ void nameExp::prettyprint(ostream &out, Int indent)
 
   value->prettyprint(out, indent+1);
 }
-
-void nameExp::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  AsymptoteLsp::SymbolLit accessedName(value->getLit());
-  position basePos = getPos();
-  AsymptoteLsp::filePos castedPos = dynamic_cast<qualifiedName*>(value) ?
-          std::make_pair(stdString(basePos.filename()),
-                         std::make_pair(basePos.Line(), basePos.Column() + 1)) :
-          static_cast<AsymptoteLsp::filePos>(basePos);
-
-  auto varUsageIt = symContext->symMap.varUsage.find(accessedName);
-  if (varUsageIt == symContext->symMap.varUsage.end())
-  {
-    symContext->symMap.varUsage.emplace(accessedName, castedPos);
-  }
-  else
-  {
-    varUsageIt->second.add(castedPos);
-  }
-
-  symContext->symMap.usageByLines.emplace_back(castedPos.second, accessedName);
-#endif
-}
-
 
 void fieldExp::pseudoName::prettyprint(ostream &out, Int indent)
 {
@@ -740,12 +715,7 @@ void argument::prettyprint(ostream &out, Int indent)
   val->prettyprint(out, indent+1);
 }
 
-void argument::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  val->createSymMap(symContext);
-#endif
-}
+
 
 void arglist::prettyprint(ostream &out, Int indent)
 {
@@ -755,15 +725,7 @@ void arglist::prettyprint(ostream &out, Int indent)
     p->prettyprint(out, indent+1);
 }
 
-void arglist::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  for (auto& p: args)
-  {
-    p.createSymMap(symContext);
-  }
-#endif
-}
+
 
 void callExp::prettyprint(ostream &out, Int indent)
 {
@@ -888,10 +850,10 @@ void callExp::reportMismatch(function *ft, signature *source)
         em << "without parameters";
         break;
       case 1:
-        em << "with parameter '" << *source << "'";
+        em << "with parameter '" << toString(*source) << "'";
         break;
       default:
-        em << "with parameters\n'" << *source << "'";
+        em << "with parameters\n'" << toString(*source) << "'";
     }
 }
 
@@ -1083,80 +1045,6 @@ bool callExp::resolved(coenv &e) {
   return cachedApp || cachedVarEntry;
 }
 
-void callExp::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  callee->createSymMap(symContext);
-  args->createSymMap(symContext);
-
-  if (auto col=getColorInformation())
-  {
-    auto const& v=col.value();
-    auto const& colVal=std::get<0>(v);
-    auto const& alpha=std::get<1>(v);
-    auto const& beginArgPos=std::get<2>(v);
-    auto const& lastArgPos=std::get<3>(v);
-    if (alpha.has_value())
-    {
-
-      auto const& red=std::get<0>(colVal);
-      auto const& green=std::get<1>(colVal);
-      auto const& blue=std::get<2>(colVal);
-      std::tuple<double, double, double, double> rgba(red, green, blue, alpha.value());
-
-      symContext->addRGBAColor(rgba, beginArgPos, lastArgPos);
-    }
-    else
-    {
-      symContext->addRGBColor(colVal, beginArgPos, lastArgPos);
-    }
-  }
-#endif
-}
-
-
-optional<std::tuple<callExp::colorInfo, optional<double>, AsymptoteLsp::posInFile, AsymptoteLsp::posInFile>>
-callExp::getColorInformation()
-{
-#ifdef HAVE_LSP
-  if (auto* namedCallee = dynamic_cast<nameExp*>(callee))
-  {
-    std::string calleeName = static_cast<std::string>(namedCallee->getName());
-    std::vector<double> colors;
-
-    auto getLineColumn = [&argsval = args->args](int const& idx)
-    {
-      return argsval[idx].val->getPos().LineColumn();
-    };
-
-    if (calleeName == "rgb" || calleeName == "rgba")
-    {
-      for (auto const& expVec : args->args)
-      {
-        if (auto* valExp=dynamic_cast<realExp*>(expVec.val))
-        {
-          colors.push_back(valExp->getValue<double>());
-        } else if (auto* valExpI=dynamic_cast<intExp*>(expVec.val))
-        {
-          colors.push_back(valExpI->getValue<double>());
-        }
-      }
-    }
-    if (calleeName == "rgb" && colors.size() == 3)
-    {
-      callExp::colorInfo col(colors[0], colors[1], colors[2]);
-      return std::make_tuple(col, optional<double>(), callee->getPos().LineColumn(), getLineColumn(2));
-    }
-    else if (calleeName == "rgba" && colors.size() == 4)
-    {
-      callExp::colorInfo col(colors[0], colors[1], colors[2]);
-      return std::make_tuple(col, optional<double>(colors[3]), callee->getPos().LineColumn(), getLineColumn(3));
-    }
-  }
-#endif
-  return nullopt;
-}
-
 void pairExp::prettyprint(ostream &out, Int indent)
 {
   prettyname(out, "pairExp",indent, getPos());
@@ -1272,12 +1160,6 @@ types::ty *castExp::getType(coenv &e)
   return target->trans(e, true);
 }
 
-void castExp::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  castee->createSymMap(symContext);
-#endif
-}
 
 
 void conditionalExp::prettyprint(ostream &out, Int indent)
@@ -1556,14 +1438,6 @@ types::ty *assignExp::getType(coenv &e)
   types::ty *t = e.e.castTarget(lt, rt, symbol::castsym);
 
   return t ? t : primError();
-}
-
-void assignExp::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  dest->createSymMap(symContext);
-  value->createSymMap(symContext);
-#endif
 }
 
 

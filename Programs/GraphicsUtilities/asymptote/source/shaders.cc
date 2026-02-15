@@ -23,7 +23,7 @@ int GLSLversion;
 
 GLuint compileAndLinkShader(std::vector<ShaderfileModePair> const& shaders,
                             std::vector<std::string> const& defineflags,
-                            bool ssbo, bool interlock, bool compute)
+                            bool ssbo, bool interlock, bool compute, bool test)
 {
   GLuint shader = glCreateProgram();
   std::vector<GLuint> compiledShaders;
@@ -31,8 +31,8 @@ GLuint compileAndLinkShader(std::vector<ShaderfileModePair> const& shaders,
   size_t n=shaders.size();
   for(size_t i=0; i < n; ++i) {
     GLint newshader=createShaderFile(shaders[i].first,shaders[i].second,
-                                     defineflags,ssbo,interlock,compute);
-    if((ssbo || interlock || compute) && newshader == 0) return 0;
+                                     defineflags,ssbo,interlock,compute,test);
+    if(test && newshader == 0) return 0;
     glAttachShader(shader,newshader);
     compiledShaders.push_back(newshader);
   }
@@ -57,7 +57,7 @@ GLuint compileAndLinkShader(std::vector<ShaderfileModePair> const& shaders,
 
 GLuint createShader(const std::string& src, int shaderType,
                     const std::string& filename, bool ssbo, bool interlock,
-                    bool compute)
+                    bool compute, bool test)
 {
   const GLchar *source=src.c_str();
   GLuint shader=glCreateShader(shaderType);
@@ -68,7 +68,7 @@ GLuint createShader(const std::string& src, int shaderType,
   glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 
   if(status != GL_TRUE) {
-    if(ssbo || interlock || compute) return 0;
+    if(test) return 0;
     GLint length;
 
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
@@ -94,7 +94,7 @@ GLuint createShader(const std::string& src, int shaderType,
 
 GLuint createShaderFile(std::string file, int shaderType,
                         std::vector<std::string> const& defineflags,
-                        bool ssbo, bool interlock, bool compute)
+                        bool ssbo, bool interlock, bool compute, bool test)
 {
   std::ifstream shaderFile;
 #if defined(MIKTEX_WINDOWS)
@@ -132,6 +132,7 @@ GLuint createShaderFile(std::string file, int shaderType,
     exit(-1);
   }
 
-  return createShader(shaderSrc.str(),shaderType,file,ssbo,interlock,compute);
+  return createShader(shaderSrc.str(),shaderType,file,ssbo,interlock,compute,
+                      test);
 }
 #endif

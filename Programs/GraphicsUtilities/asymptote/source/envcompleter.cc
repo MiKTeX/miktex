@@ -20,7 +20,7 @@ static void loadBasicList() {
   assert(basicListLoaded==false);
 
 #define ADD(word) basicList.push_back(symbol::literalTrans(#word))
-#include "keywords.cc"
+#include "keywords.h"
 #undef ADD
 
   basicListLoaded=true;

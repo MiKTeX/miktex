@@ -3,194 +3,192 @@
 #include <string>
 namespace lsp
 {
-        class stream
-        {
-        public:
-                virtual ~stream() = default;
-                virtual  bool fail() = 0;
-                virtual  bool bad() = 0;
-                virtual  bool eof() = 0;
-                virtual  bool good() = 0;
-                virtual  void clear() = 0;
-                virtual  std::string  what() = 0;
-                virtual  bool need_to_clear_the_state()
-                {
-                        return false;
-                }
+class stream
+{
+public:
+    virtual ~stream() = default;
+    virtual bool fail() = 0;
+    virtual bool bad() = 0;
+    virtual bool eof() = 0;
+    virtual bool good() = 0;
+    virtual void clear() = 0;
+    virtual std::string what() = 0;
+    virtual bool need_to_clear_the_state()
+    {
+        return false;
+    }
 
-                bool  operator!()
-                {
-                        return bad();
-                }
-        };
-        class istream : public  stream
-        {
-        public:
-                virtual  int get() = 0;
-                virtual ~istream() = default;
-                virtual  istream& read(char* str, std::streamsize count) = 0;
-        };
-        template <class T >
-        class base_istream : public istream
-        {
-        public:
-                explicit  base_istream(T& _t) :_impl(_t)
-                {
+    bool operator!()
+    {
+        return bad();
+    }
+};
+class istream : public stream
+{
+public:
+    virtual int get() = 0;
+    virtual ~istream() = default;
+    virtual istream& read(char* str, std::streamsize count) = 0;
+};
+template<class T>
+class base_istream : public istream
+{
+public:
+    explicit base_istream(T& _t) : _impl(_t)
+    {
+    }
 
-                }
+    int get() override
+    {
+        return _impl.get();
+    }
+    bool fail() override
+    {
+        return _impl.fail();
+    }
+    bool bad() override
+    {
+        return _impl.bad();
+    }
+    bool eof() override
+    {
+        return _impl.eof();
+    }
+    bool good() override
+    {
+        return _impl.good();
+    }
+    istream& read(char* str, std::streamsize count) override
+    {
+        _impl.read(str, count);
+        return *this;
+    }
 
-                int get() override
-                {
-                        return  _impl.get();
-                }
-                bool fail() override
-                {
-                        return  _impl.fail();
-                }
-                bool bad() override
-                {
-                        return  _impl.bad();
-                }
-                bool eof() override
-                {
-                        return  _impl.eof();
-                }
-                bool good() override
-                {
-                        return  _impl.good();
-                }
-                istream& read(char* str, std::streamsize count) override
-                {
-                        _impl.read(str, count);
-                        return *this;
-                }
+    void clear() override
+    {
+        _impl.clear();
+    }
+    T& _impl;
+};
+class ostream : public stream
+{
+public:
+    virtual ~ostream() = default;
 
-                void clear() override
-                {
-                        _impl.clear();
-                }
-                T& _impl;
-        };
-        class ostream : public  stream
-        {
-        public:
-                virtual ~ostream() = default;
+    virtual ostream& write(std::string const&) = 0;
+    virtual ostream& write(std::streamsize) = 0;
+    virtual ostream& flush() = 0;
+};
+template<class T>
+class base_ostream : public ostream
+{
+public:
+    explicit base_ostream(T& _t) : _impl(_t)
+    {
+    }
 
-                virtual  ostream& write(const std::string&) = 0;
-                virtual  ostream& write(std::streamsize) = 0;
-                virtual  ostream& flush() = 0;
+    bool fail() override
+    {
+        return _impl.fail();
+    }
+    bool good() override
+    {
+        return _impl.good();
+    }
+    bool bad() override
+    {
+        return _impl.bad();
+    }
+    bool eof() override
+    {
+        return _impl.eof();
+    }
 
-        };
-        template <class T >
-        class base_ostream : public ostream
-        {
-        public:
-                explicit  base_ostream(T& _t) :_impl(_t)
-                {
+    ostream& write(std::string const& c) override
+    {
+        _impl << c;
+        return *this;
+    }
 
-                }
+    ostream& write(std::streamsize _s) override
+    {
 
-                bool fail() override
-                {
-                        return  _impl.fail();
-                }
-                bool good() override
-                {
-                        return  _impl.good();
-                }
-                bool bad() override
-                {
-                        return  _impl.bad();
-                }
-                bool eof() override
-                {
-                        return  _impl.eof();
-                }
+        _impl << std::to_string(_s);
+        return *this;
+    }
 
-                ostream& write(const std::string& c) override
-                {
-                        _impl << c;
-                        return *this;
-                }
+    ostream& flush() override
+    {
+        _impl.flush();
+        return *this;
+    }
 
-                ostream& write(std::streamsize _s) override
-                {
+    void clear() override
+    {
+        _impl.clear();
+    }
 
-                        _impl << std::to_string(_s);
-                        return *this;
-                }
+protected:
+    T& _impl;
+};
 
-                ostream& flush() override
-                {
-                        _impl.flush();
-                        return *this;
-                }
+template<class T>
+class base_iostream : public istream, public ostream
+{
+public:
+    explicit base_iostream(T& _t) : _impl(_t)
+    {
+    }
 
-                void clear() override
-                {
-                        _impl.clear();
-                }
-        protected:
-                T& _impl;
-        };
+    int get() override
+    {
+        return _impl.get();
+    }
+    bool fail() override
+    {
+        return _impl.fail();
+    }
+    bool bad() override
+    {
+        return _impl.bad();
+    }
+    bool eof() override
+    {
+        return _impl.eof();
+    }
+    bool good() override
+    {
+        return _impl.good();
+    }
+    istream& read(char* str, std::streamsize count) override
+    {
+        _impl.read(str, count);
+        return *this;
+    }
+    ostream& write(std::string const& c) override
+    {
+        _impl << c;
+        return *this;
+    }
 
-        template <class T >
-        class base_iostream : public istream, public ostream
-        {
-        public:
-                explicit  base_iostream(T& _t) :_impl(_t)
-                {
+    ostream& write(std::streamsize _s) override
+    {
+        _impl << std::to_string(_s);
+        return *this;
+    }
 
-                }
+    ostream& flush() override
+    {
+        _impl.flush();
+        return *this;
+    }
 
-                int get() override
-                {
-                        return  _impl.get();
-                }
-                bool fail() override
-                {
-                        return  _impl.fail();
-                }
-                bool bad() override
-                {
-                        return  _impl.bad();
-                }
-                bool eof() override
-                {
-                        return  _impl.eof();
-                }
-                bool good() override
-                {
-                        return  _impl.good();
-                }
-                istream& read(char* str, std::streamsize count) override
-                {
-                        _impl.read(str, count);
-                        return *this;
-                }
-                ostream& write(const std::string& c) override
-                {
-                        _impl << c;
-                        return *this;
-                }
+    void clear() override
+    {
+        _impl.clear();
+    }
 
-                ostream& write(std::streamsize _s) override
-                {
-                        _impl << std::to_string(_s);
-                        return *this;
-                }
-
-                ostream& flush() override
-                {
-                        _impl.flush();
-                        return *this;
-                }
-
-                void clear() override
-                {
-                        _impl.clear();
-                }
-        protected:
-                T& _impl;
-        };
-}
+protected:
+    T& _impl;
+};
+} // namespace lsp

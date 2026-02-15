@@ -68,7 +68,7 @@ dummyRecord::dummyRecord(string s)
 void dummyRecord::add(string name, ty *t, trans::access *a,
                       trans::permission perm) {
   e.addVar(symbol::trans(name),
-           new trans::varEntry(t, a, perm, this, this, position()));
+           new trans::varEntry(t, a, perm, this, this, nullPos));
 }
 
 void dummyRecord::add(string name, function *t, vm::bltin f,

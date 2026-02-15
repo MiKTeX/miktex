@@ -26,11 +26,12 @@
 #include <deque>
 #include <list>
 
-#include <map>
-#include <iostream>
-#include "PRCbitStream.h"
+#include "PRCuniversalendianness.h"
 #include "PRC.h"
+#include "PRCbitStream.h"
 #include <float.h>
+#include <iostream>
+#include <map>
 #include <math.h>
 
 static const uint32_t m1=(uint32_t)-1;
@@ -164,7 +165,7 @@ class PRCSingleAttribute : public PRCAttributeEntry
   PRCSingleAttribute(uint32_t time) : PRCAttributeEntry(), type(KEPRCModellerAttributeTypeTime)
   {
     value.time = time;
-  }  
+  }
 	PRCSingleAttribute(const std::string &text) : PRCAttributeEntry(), type(KEPRCModellerAttributeTypeString)
   {
     value_text = text;}
@@ -179,7 +180,7 @@ class PRCSingleAttribute : public PRCAttributeEntry
   PRCSingleAttribute(uint32_t title, uint32_t time) : PRCAttributeEntry(title), type(KEPRCModellerAttributeTypeTime)
   {
     value.time = time;
-  }  
+  }
 	PRCSingleAttribute(uint32_t title, const std::string &text) : PRCAttributeEntry(title), type(KEPRCModellerAttributeTypeString)
   {
     value_text = text;
@@ -195,7 +196,7 @@ class PRCSingleAttribute : public PRCAttributeEntry
   PRCSingleAttribute(const std::string title, uint32_t time) : PRCAttributeEntry(title), type(KEPRCModellerAttributeTypeTime)
   {
     value.time = time;
-  }  
+  }
 	PRCSingleAttribute(const std::string title, const std::string &text) : PRCAttributeEntry(title), type(KEPRCModellerAttributeTypeString)
   {
     value_text = text;
@@ -333,14 +334,14 @@ struct PRCVector2d
   x(c?c[0]:fx), y(c?c[1]:fy) {}
   PRCVector2d(const PRCVector2d& sVector2d) :
   x(sVector2d.x), y(sVector2d.y) {}
-  
+
   void Set(double fx, double fy)
   { x = fx; y = fy; }
   double Dot(const PRCVector2d & sPt) const
   { return(x*sPt.x)+(y*sPt.y); }
   double LengthSquared()
   { return(x*x+y*y); }
-  
+
   friend PRCVector2d operator + (const PRCVector2d& a, const PRCVector2d& b)
   { return PRCVector2d(a.x+b.x,a.y+b.y); }
   friend PRCVector2d operator - (const PRCVector2d& a)
@@ -353,10 +354,10 @@ struct PRCVector2d
   { return PRCVector2d(a.x*d,a.y*d); }
   friend PRCVector2d operator / (const PRCVector2d& a, const double d)
   { return PRCVector2d(a.x/d,a.y/d); }
-    
+
   double Length();
   bool Normalize();
-  
+
   bool operator==(const PRCVector2d &v) const
   {
     return x==v.x && y==v.y;
@@ -426,7 +427,7 @@ class PRCMaterialGeneric : public ContentPRCBase, public PRCMaterial
 public:
   PRCMaterialGeneric(std::string n="") :
     ContentPRCBase(PRC_TYPE_GRAPH_Material,n),
-    ambient(m1), diffuse(m1), emissive(m1), specular(m1), 
+    ambient(m1), diffuse(m1), emissive(m1), specular(m1),
     shininess(0.0),
     ambient_alpha(1.0), diffuse_alpha(1.0), emissive_alpha(1.0), specular_alpha(1.0)
     {}
@@ -503,7 +504,7 @@ class PRCTessFace
 public:
   PRCTessFace() :
   start_wire(0), used_entities_flag(0),
-  start_triangulated(0), number_of_texture_coordinate_indexes(0), 
+  start_triangulated(0), number_of_texture_coordinate_indexes(0),
   is_rgba(false), behaviour(PRC_GRAPHICS_Show)
   {}
   void serializeTessFace(PRCbitStream&);
@@ -742,7 +743,7 @@ public:
   {
     set(t);
   }
-  
+
   void serializeGeneralTransformation3d(PRCbitStream&) const;
   void serializeTransformation3d(PRCbitStream& pbs)  const { serializeGeneralTransformation3d(pbs); }
   double mat[4][4];
@@ -766,7 +767,7 @@ public:
   }
   void set(const double t[])
   {
-    if(t!=NULL) 
+    if(t!=NULL)
      for (size_t i=0;i<4;i++)
        for (size_t j=0;j<4;j++)
          mat[i][j]=t[4*i+j];
@@ -861,8 +862,8 @@ public:
   ~PRCCoordinateSystem() { delete axis_set; }
   void serializeCoordinateSystem(PRCbitStream&);
   void serializeRepresentationItem(PRCbitStream &pbs) { serializeCoordinateSystem(pbs); }
-  void setAxisSet(PRCGeneralTransformation3d*& transform) { axis_set = transform; transform = NULL; } 
-  void setAxisSet(PRCCartesianTransformation3d*& transform) { axis_set = transform; transform = NULL; } 
+  void setAxisSet(PRCGeneralTransformation3d*& transform) { axis_set = transform; transform = NULL; }
+  void setAxisSet(PRCCartesianTransformation3d*& transform) { axis_set = transform; transform = NULL; }
   PRCTransformation3d *axis_set;
   bool operator==(const PRCCoordinateSystem &t) const
   {
@@ -873,9 +874,9 @@ public:
     PRCCartesianTransformation3d*   axis_set_cartesian = dynamic_cast<PRCCartesianTransformation3d*>(axis_set);
     PRCCartesianTransformation3d* t_axis_set_cartesian = dynamic_cast<PRCCartesianTransformation3d*>(t.axis_set);
     if(axis_set_general!=NULL)
-      return (t_axis_set_general!=NULL?(*axis_set_general==*t_axis_set_general):false); 
+      return (t_axis_set_general!=NULL?(*axis_set_general==*t_axis_set_general):false);
     if(axis_set_cartesian!=NULL)
-      return (t_axis_set_cartesian!=NULL?(*axis_set_cartesian==*t_axis_set_cartesian):false); 
+      return (t_axis_set_cartesian!=NULL?(*axis_set_cartesian==*t_axis_set_cartesian):false);
     return false;
   }
 };
@@ -988,7 +989,7 @@ public:
   PRCContentSurface() :
     PRCBaseGeometry(), extend_info(KEPRCExtendTypeNone) {}
   PRCContentSurface(std::string n) :
-    PRCBaseGeometry(n,makeCADID()),extend_info(KEPRCExtendTypeNone) {} 
+    PRCBaseGeometry(n,makeCADID()),extend_info(KEPRCExtendTypeNone) {}
   void serializeContentSurface(PRCbitStream&);
   EPRCExtendType extend_info;
 };
@@ -1029,7 +1030,7 @@ public:
   PRCContentCurve() :
     PRCBaseGeometry(), extend_info(KEPRCExtendTypeNone), is_3d(true) {}
   PRCContentCurve(std::string n) :
-    PRCBaseGeometry(n,makeCADID()),extend_info(KEPRCExtendTypeNone), is_3d(true) {} 
+    PRCBaseGeometry(n,makeCADID()),extend_info(KEPRCExtendTypeNone), is_3d(true) {}
   void serializeContentCurve(PRCbitStream&);
   EPRCExtendType extend_info;
   bool is_3d;
@@ -1241,7 +1242,7 @@ public:
   PRCContentWireEdge() :
     PRCBaseTopology(), curve_3d(NULL), has_curve_trim_interval(false) {}
   PRCContentWireEdge(std::string n) :
-    PRCBaseTopology(n,makeCADID()), curve_3d(NULL), has_curve_trim_interval(false) {} 
+    PRCBaseTopology(n,makeCADID()), curve_3d(NULL), has_curve_trim_interval(false) {}
   ~PRCContentWireEdge() { delete curve_3d; }
   void serializeContentWireEdge(PRCbitStream &pbs);
 // void setCurve(PRCCurve*& curve) { curve_3d = curve; curve = NULL; }
@@ -1267,7 +1268,7 @@ public:
   ~PRCSingleWireBody() { delete wire_edge; }
   void serializeSingleWireBody(PRCbitStream &pbs);
   void serializeBody(PRCbitStream &pbs) { serializeSingleWireBody(pbs); }
-  void setWireEdge(PRCWireEdge*& wireEdge) { wire_edge = wireEdge; wireEdge = NULL; }  
+  void setWireEdge(PRCWireEdge*& wireEdge) { wire_edge = wireEdge; wireEdge = NULL; }
   PRCWireEdge* wire_edge;
 };
 
@@ -1277,7 +1278,7 @@ public:
   PRCFace() :
     PRCBaseTopology(), base_surface(NULL), have_surface_trim_domain(false), have_tolerance(false), tolerance(0), number_of_loop(0), outer_loop_index(-1) {}
   PRCFace(std::string n) :
-    PRCBaseTopology(n,makeCADID()), base_surface(NULL), have_surface_trim_domain(false), have_tolerance(false), tolerance(0), number_of_loop(0), outer_loop_index(-1) {} 
+    PRCBaseTopology(n,makeCADID()), base_surface(NULL), have_surface_trim_domain(false), have_tolerance(false), tolerance(0), number_of_loop(0), outer_loop_index(-1) {}
   ~PRCFace() { delete base_surface; }
   void serializeFace(PRCbitStream &pbs);
   void serializeTopoItem(PRCbitStream &pbs) { serializeFace(pbs); }
@@ -1316,7 +1317,7 @@ public:
   PRCConnex() :
     PRCBaseTopology() {}
   PRCConnex(std::string n) :
-    PRCBaseTopology(n,makeCADID()) {} 
+    PRCBaseTopology(n,makeCADID()) {}
   ~PRCConnex() { for(PRCShellList::iterator it=shell.begin(); it!=shell.end(); ++it) delete *it; }
   void serializeConnex(PRCbitStream &pbs);
   void serializeTopoItem(PRCbitStream &pbs) { serializeConnex(pbs); }
@@ -1346,7 +1347,7 @@ public:
   PRCCompressedFace() :
     PRCBaseTopology(), orientation_surface_with_shell(true), degree(0) {}
   PRCCompressedFace(std::string n) :
-    PRCBaseTopology(n,makeCADID()), orientation_surface_with_shell(true), degree(0) {} 
+    PRCBaseTopology(n,makeCADID()), orientation_surface_with_shell(true), degree(0) {}
   void serializeCompressedFace(PRCbitStream &pbs, double brep_data_compressed_tolerance);
   void serializeContentCompressedFace(PRCbitStream &pbs);
   void serializeCompressedAnaNurbs(PRCbitStream &pbs, double brep_data_compressed_tolerance);

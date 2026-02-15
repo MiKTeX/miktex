@@ -30,7 +30,8 @@ enum modifier {
   DEFAULT_STATIC,
   DEFAULT_DYNAMIC,
   EXPLICIT_STATIC,
-  EXPLICIT_DYNAMIC
+  EXPLICIT_DYNAMIC,
+  AUTOUNRAVEL,
 };
 
 } // namespace trans

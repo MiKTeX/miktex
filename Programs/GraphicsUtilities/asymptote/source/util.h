@@ -21,9 +21,14 @@ extern "C" int sigaction(int signum, const struct sigaction *act, struct sigacti
 #include <csignal>
 
 #include "common.h"
+#include <unordered_set>
 
-#if !defined(MIKTEX) || defined(HAVE_STRINGS_H)
+#if !defined(_MSC_VER)
 #include <strings.h>
+#else
+#include <cstring>
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
 #endif
 
 // Demangle a typeid name (if the proper library is installed.
@@ -42,6 +47,9 @@ string stripFile(string name);
 
 // Strip the extension from a filename.
 string stripExt(string name, const string& suffix="");
+
+// Escapes characters specified in set
+string escapeCharacters(string const& inText, std::unordered_set<char> const& charactersToEscape);
 
 void readDisabled();
 void writeDisabled();
@@ -166,5 +174,7 @@ unsigned unsignedcast(Int n);
 unsignedInt unsignedIntcast(Int n);
 int intcast(Int n);
 Int Intcast(unsignedInt n);
+
+bool fileExists(string const& path);
 
 #endif

@@ -18,7 +18,7 @@
 #include "runtriple.h"
 #include "access.h"
 #include "virtualfieldaccess.h"
-#include "process.h"
+#include "asyprocess.h"
 
 namespace run {
 void arrayDeleteHelper(vm::stack *Stack);
@@ -30,6 +30,8 @@ void arrayDeleteHelper(vm::stack *Stack);
 #endif
 
 namespace types {
+
+const signature::OPEN_t signature::OPEN;
 
 /* Base types */
 #define PRIMITIVE(name,Name,asyName)            \
@@ -74,14 +76,14 @@ void ty::print(ostream& out) const
 #define FIELD(Type, name, func)                                 \
   if (sig == 0 && id == name) {                                 \
     static trans::virtualFieldAccess a(run::func);              \
-    static trans::varEntry v(Type(), &a, 0, position());        \
+    static trans::varEntry v(Type(), &a, 0, nullPos);        \
     return &v;                                                  \
   }
 
 #define RWFIELD(Type, name, getter, setter)                             \
   if (sig == 0 && id == name) {                                         \
     static trans::virtualFieldAccess a(run::getter, run::setter);       \
-    static trans::varEntry v(Type(), &a, 0, position());                \
+    static trans::varEntry v(Type(), &a, 0, nullPos);                \
     return &v;                                                          \
   }
 
@@ -90,7 +92,7 @@ void ty::print(ostream& out) const
       equivalent(sig, Type()->getSignature()))                          \
     {                                                                   \
       static trans::virtualFieldAccess a(run::func, 0, run::func##Helper); \
-      static trans::varEntry v(Type(), &a, 0, position());              \
+      static trans::varEntry v(Type(), &a, 0, nullPos);              \
       return &v;                                                        \
     }
 
@@ -102,7 +104,7 @@ void ty::print(ostream& out) const
       /* for some fields, v needs to be dynamic */                      \
       /* e.g. when the function type depends on an array type. */       \
       trans::varEntry *v =                                              \
-        new trans::varEntry(name##Type(), &a, 0, position());           \
+        new trans::varEntry(name##Type(), &a, 0, nullPos);           \
       return v;                                                         \
     }
 
@@ -173,20 +175,6 @@ trans::varEntry *primitiveTy::virtualField(symbol id, signature *sig)
   return 0;
 }
 
-ty *overloadedDimensionType() {
-  overloaded *o=new overloaded;
-  o->add(dimensionType());
-  o->add(IntArray());
-  return o;
-}
-
-ty *overloadedModeType() {
-  overloaded *o=new overloaded;
-  o->add(modeType());
-  o->add(primBoolean());
-  return o;
-}
-
 ty *ty::virtualFieldGetType(symbol id)
 {
   trans::varEntry *v = virtualField(id, 0);
@@ -197,12 +185,12 @@ ty *primitiveTy::virtualFieldGetType(symbol id)
 {
   if(kind == ty_file) {
     if (id == SYM(dimension))
-      return overloadedDimensionType();
+      return dimensionType();
 
     if (id == SYM(line) || id == SYM(csv) ||
         id == SYM(word) || id == SYM(singlereal) ||
         id == SYM(singleint) || id == SYM(signedint))
-      return overloadedModeType();
+      return modeType();
 
     if (id == SYM(read))
       return readType();
@@ -376,15 +364,10 @@ bool argumentEquivalent(const formal &f1, const formal& f2) {
     return false;
 }
 
-ostream& operator<< (ostream& out, const signature& s)
+
+string toString(const signature& s)
 {
-  if (s.isOpen) {
-    out << "(<open>)";
-    return out;
-  }
-
-  out << "(";
-
+  ostringstream out;
   for (size_t i = 0; i < s.formals.size(); ++i)
     {
       if (i > 0)
@@ -397,6 +380,20 @@ ostream& operator<< (ostream& out, const signature& s)
       out << " ";
     out << "... " << s.rest;
   }
+
+  return out.str();
+}
+
+ostream& operator<< (ostream& out, const signature& s)
+{
+  if (s.isOpen) {
+    out << "(<open>)";
+    return out;
+  }
+
+  out << "(";
+
+  out << toString(s);
 
   out << ")";
 
@@ -420,8 +417,9 @@ bool equivalent(const signature *s1, const signature *s2)
   else if (s2->isOpen)
     return false;
 
-  if (s1->formals.size() != s2->formals.size())
+  if (s1->formals.size() != s2->formals.size()) {
     return false;
+  }
 
   if (!std::equal(s1->formals.begin(),s1->formals.end(),s2->formals.begin(),
                   (bool (*)(const formal&,const formal&)) equivalent))

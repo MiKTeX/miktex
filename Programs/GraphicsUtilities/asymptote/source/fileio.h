@@ -28,9 +28,9 @@
 #include "interact.h"
 #include "errormsg.h"
 #include "util.h"
-#include "process.h"
+#include "asyprocess.h"
 #include "locate.h"
-#include "parser.h"
+#include "asyparser.h"
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
 #endif
@@ -54,20 +54,8 @@ static const string FileModes[]=
 
 extern FILE *pipeout;
 
-inline void openpipeout()
-{
-  int fd=intcast(settings::getSetting<Int>("outpipe"));
-  if(!pipeout && fd >= 0) pipeout=fdopen(fd,"w");
-  if(!pipeout) {
-    cerr << "Cannot open outpipe " << fd << endl;
-    exit(-1);
-  }
-}
-
-inline string locatefile(string name) {
-  string s=settings::locateFile(name,false,"");
-  return s.empty() ? name : s;
-}
+void openpipeout();
+string locatefile(string name);
 
 class file : public gc {
 protected:
@@ -93,13 +81,11 @@ protected:
 
 public:
 
-  bool Standard() {return standard;}
+  bool Standard();
+  bool enabled() {return !standard || settings::verbose > 1 ||
+      interact::interactive || !settings::getSetting<bool>("quiet");}
 
-  void standardEOF() {
-#if defined(HAVE_LIBREADLINE) && defined(HAVE_LIBCURSES)
-    cout << endl;
-#endif
-  }
+  void standardEOF();
 
   template<class T>
   void purgeStandard(T&) {
@@ -117,50 +103,20 @@ public:
     }
   }
 
-  void purgeStandard(string&) {
-    if(cin.eof())
-      standardEOF();
-  }
+  void purgeStandard(string&);
 
-  void dimension(Int Nx=-1, Int Ny=-1, Int Nz=-1) {
-    if(Nx < -2 || Ny < -2 || Nz < -2) {
-      ostringstream buf;
-      buf << "Invalid array dimensions: " << Nx << ", " << Ny << ", " << Nz;
-      reportError(buf);
-    }
-
-    nx=Nx; ny=Ny; nz=Nz;
-  }
+  void dimension(Int Nx=-1, Int Ny=-1, Int Nz=-1);
 
   file(const string& name, bool check=true, Mode type=NOMODE,
-       bool binary=false, bool closed=false) :
-    name(name), check(check), type(type), linemode(false), csvmode(false),
-    wordmode(false), singlereal(false), singleint(true), signedint(true),
-    closed(closed), standard(name.empty()), binary(binary), nullfield(false),
-    whitespace("") {dimension();}
+       bool binary=false, bool closed=false);
 
   virtual void open() {}
 
-  void Check() {
-    if(error()) {
-      ostringstream buf;
-      buf << "Cannot open file \"" << name << "\"";
-      reportError(buf);
-    }
-  }
+  void Check();
 
-  virtual ~file() {}
+  virtual ~file();
 
-  bool isOpen() {
-    if(closed) {
-      ostringstream buf;
-      buf << "I/O operation attempted on ";
-      if(name != "") buf << "closed file \'" << name << "\'";
-      else buf << "null file";
-      reportError(buf);
-    }
-    return true;
-  }
+  bool isOpen();
 
   string filename() {return name;}
   virtual bool eol() {return false;}
@@ -177,12 +133,7 @@ public:
 
   string FileMode() {return FileModes[type];}
 
-  void unsupported(const char *rw, const char *type) {
-    ostringstream buf;
-    buf << rw << " of type " << type << " not supported in " << FileMode()
-        << " mode";
-    reportError(buf);
-  }
+  void unsupported(const char *rw, const char *type);
 
   void noread(const char *type) {unsupported("Read",type);}
   void nowrite(const char *type) {unsupported("Write",type);}
@@ -286,7 +237,7 @@ public:
   bool eof() {return pipeout ? feof(pipeout) : true;}
   bool error() {return pipeout ? ferror(pipeout) : true;}
   void clear() {if(pipeout) clearerr(pipeout);}
-  void flush() {if(pipeout) fflush(pipeout);}
+  void flush();
 
   void seek(Int pos, bool begin=true) {
     if(!standard && pipeout) {
@@ -299,9 +250,7 @@ public:
     return pipeout ? ftell(pipeout) : 0;
   }
 
-  void write(const string& val) {
-    fprintf(pipeout,"%s",val.c_str());
-  }
+  void write(const string& val);
 
   void write(bool val) {
     ostringstream s;
@@ -447,10 +396,7 @@ public:
   void write(guide *val) {*fstream << *val;}
   void write(const transform& val) {*fstream << val;}
 
-  void writeline() {
-    *fstream << newline;
-    if(errorstream::interrupt) throw interrupted();
-  }
+  void writeline();
 };
 
 class ofile : public file {
@@ -465,60 +411,22 @@ public:
 
   ~ofile() {close();}
 
-  void open() {
-    if(standard) {
-      if(mode & std::ios::binary)
-        reportError("Cannot open standard output in binary mode");
-      stream=&cout;
-    } else {
-      name=outpath(name);
-#if defined(MIKTEX_WINDOWS)
-      stream = fstream = new std::ofstream(MiKTeX::Util::CharBuffer<wchar_t>(name).GetData(), mode | std::ios::trunc);
-#else
-      stream=fstream=new std::ofstream(name.c_str(),mode | std::ios::trunc);
-#endif
-      stream->precision(settings::getSetting<Int>("digits"));
-      index=processData().ofile.add(fstream);
-      Check();
-    }
-  }
+  void open();
 
   bool text() {return true;}
   bool eof() {return stream->eof();}
   bool error() {return stream->fail();}
 
-  void close() {
-    if(!standard && fstream) {
-      fstream->close();
-      closed=true;
-      delete fstream;
-      fstream=NULL;
-      processData().ofile.remove(index);
-    }
-  }
+  void close();
   void clear() {stream->clear();}
-  Int precision(Int p) {
-    return p == 0 ? stream->precision(settings::getSetting<Int>("digits")) :
-      stream->precision(p);
-  }
+  Int precision(Int p);
   void flush() {stream->flush();}
 
-  void seek(Int pos, bool begin=true) {
-    if(!standard && fstream) {
-      clear();
-      fstream->seekp(pos,begin ? std::ios::beg : std::ios::end);
-    }
-  }
+  void seek(Int pos, bool begin=true);
 
-  size_t tell() {
-    if(fstream)
-      return fstream->tellp();
-    else
-      return 0;
-  }
+  size_t tell();
 
-  bool enabled() {return !standard || settings::verbose > 1 ||
-      interact::interactive || !settings::getSetting<bool>("quiet");}
+  bool enabled();
 
   void write(bool val) {*stream << (val ? "true " : "false ");}
   void write(Int val) {*stream << val;}
@@ -741,21 +649,7 @@ public:
 
   bool error() override {return !gzfile;}
 
-  void open() override {
-    name=locatefile(inpath(name));
-    gzfile=gzopen(name.c_str(),"rb");
-    Check();
-
-    while(!gzeof(gzfile)) {
-      std::vector<char> tmpBuf(readSize);
-      auto filSz = gzread(gzfile,tmpBuf.data(),readSize);
-      std::copy(tmpBuf.begin(),tmpBuf.begin()+filSz,std::back_inserter(readData));
-    }
-    gzclose(gzfile);
-
-    fstream=new xdr::memixstream(readData);
-    index=processData().ixfile.add(fstream);
-  }
+  void open() override;
 
   void close() override {
     closeFile();
@@ -765,15 +659,7 @@ public:
 
 
 protected:
-  void closeFile()
-  {
-    if(fstream) {
-      fstream->close();
-      closed=true;
-      delete fstream;
-      processData().ixfile.remove(index);
-    }
-  }
+  void closeFile();
 };
 
 class ioxfile : public ixfile {

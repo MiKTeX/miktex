@@ -6,23 +6,23 @@
  * General parameters to register for a capability.
  */
 
-struct Registration {
-        static  Registration Create(const std::string& method);
-        /**
+struct Registration
+{
+    static Registration Create(std::string const& method);
+    /**
          * The id used to register the request. The id can be used to deregister
          * the request again.
          */
-        std::string id;
+    std::string id;
 
-        /**
+    /**
          * The method / capability to register for.
          */
 
-        std::string method;
+    std::string method;
 
-        MAKE_SWAP_METHOD(Registration, id, method);
+    MAKE_SWAP_METHOD(Registration, id, method);
 };
-
 
 MAKE_REFLECT_STRUCT(Registration, id, method);
 
@@ -35,8 +35,8 @@ MAKE_REFLECT_STRUCT(Registration, id, method);
  */
 struct RegistrationParams
 {
-        std::vector<Registration> registrations;
-        MAKE_SWAP_METHOD(RegistrationParams, registrations);
+    std::vector<Registration> registrations;
+    MAKE_SWAP_METHOD(RegistrationParams, registrations);
 };
 /**
  * The client/registerCapability request is sent from the server to the client
@@ -46,4 +46,4 @@ struct RegistrationParams
  */
 MAKE_REFLECT_STRUCT(RegistrationParams, registrations);
 
-DEFINE_REQUEST_RESPONSE_TYPE(Req_ClientRegisterCapability, RegistrationParams,JsonNull, "client/registerCapability");
+DEFINE_REQUEST_RESPONSE_TYPE(Req_ClientRegisterCapability, RegistrationParams, JsonNull, "client/registerCapability");

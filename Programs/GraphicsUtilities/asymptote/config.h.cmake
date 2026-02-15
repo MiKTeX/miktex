@@ -1,7 +1,6 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define if building universal (internal helper macro) */
-#cmakedefine AC_APPLE_UNIVERSAL_BUILD
+#pragma once
 
 /* Directory for documentation */
 #cmakedefine ASYMPTOTE_DOCDIR
@@ -9,7 +8,16 @@
 /* System directory for global .asy files */
 #cmakedefine ASYMPTOTE_SYSDIR
 
-/* Define to 1 if you have GLSL compute shaders. */
+/* Freeglut is enabled */
+#cmakedefine FREEGLUT
+
+/* GC backtrace is enabled */
+#cmakedefine GC_BACKTRACE
+
+/* GC Debug is enabled */
+#cmakedefine GC_DEBUG
+
+/* Define to 1 if you have `GLSL compute shaders`. */
 #cmakedefine HAVE_COMPUTE_SHADER 1
 
 /* Define to 1 if you have the <curses.h> header file. */
@@ -42,55 +50,46 @@
 /* Define to 1 if fseeko (and presumably ftello) exists and is declared. */
 #cmakedefine HAVE_FSEEKO 1
 
-/* Define to 1 if you have GNU <getopt.h>. */
-#cmakedefine HAVE_GNU_GETOPT_H 1
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the `lgamma' function. */
 #cmakedefine HAVE_LGAMMA 1
 
-/* Define to 1 if you have the `curl' library (-lcurl). */
+/* Define to 1 if you have the `curl` library (-lcurl). */
 #cmakedefine HAVE_LIBCURL 1
 
-/* Define to 1 if you have the `ncurses' library (-lncurses). */
+/* Define to 1 if you have the `ncurses` library (-lncurses). */
 #cmakedefine HAVE_LIBCURSES 1
 
 /* Define to 1 if you have the `edit' library (-ledit). */
 #cmakedefine HAVE_LIBEDIT 1
 
-/* Define to 1 if you have the `fftw3' library (-lfftw3). */
+/* Define to 1 if you have the `fftw3` library (-lfftw3). */
 #cmakedefine HAVE_LIBFFTW3 1
 
 /* Define to 1 if you have the `gccpp' library (-lgccpp). */
 #cmakedefine HAVE_LIBGCCPP 1
 
-/* Define to 1 if you have the `GL' library (-lGL). */
+/* Define to 1 if you have the `GL` library (-lGL). */
 #cmakedefine HAVE_LIBGL 1
 
-/* Define to 1 if you have the <glm/glm.hpp> header. */
+/* Define to 1 if you have `the <glm/glm.hpp> header`. */
 #cmakedefine HAVE_LIBGLM 1
 
 /* Define to 1 if you have the `glut' library (-lglut). */
 #cmakedefine HAVE_LIBGLUT 1
 
-/* Define to 1 if you have the `' library (-l). gsl */
+/* Define to 1 if you have the `gsl` library (-lgsl). */
 #cmakedefine HAVE_LIBGSL 1
 
 /* Define to 1 if you have the <libintl.h> header file. */
 #cmakedefine HAVE_LIBINTL_H 1
 
-/* Define to 1 if you have the `ncurses' library (-lncurses). */
-#cmakedefine HAVE_LIBM 1
-
-/* Define to 1 if you have the `OpenImageIO' library (-lOpenImageIO). */
-#cmakedefine HAVE_LIBOPENIMAGEIO 1
-
 /* Define to 1 if you have the `OSMesa' library (-lOSMesa). */
 #cmakedefine HAVE_LIBOSMESA 1
 
-/* Define to 1 if you have the `readline' library (-lreadline). */
+/* Define to 1 if you have the `readline` library (-lreadline). */
 #cmakedefine HAVE_LIBREADLINE 1
 
 /* Define to 1 if you have the `rt' library (-lrt). */
@@ -99,8 +98,11 @@
 /* Define to 1 if you have the `sigsegv' library (-lsigsegv). */
 #cmakedefine HAVE_LIBSIGSEGV 1
 
-/* Define to 1 if you have the `tinfo' library (-ltinfo). */
+/* Define to 1 if you have the `tinfo` library (-ltinfo). */
 #cmakedefine HAVE_LIBTINFO 1
+
+/* Define to 1 if you have the `tirpc` library (-ltirpc). */
+#cmakedefine HAVE_LIBTIRPC 1
 
 /* Define to 1 if you have the `z' library (-lz). */
 #cmakedefine HAVE_LIBZ 1
@@ -111,7 +113,7 @@
 /* Define to 1 if the system has the type `long long'. */
 #cmakedefine HAVE_LONG_LONG 1
 
-/* Define to 1 if you have Language server protocol. */
+/* Define to 1 if you have `Language server protocol`. */
 #cmakedefine HAVE_LSP 1
 
 /* Define to 1 if you have the `memrchr' function. */
@@ -138,10 +140,7 @@
 /* Define to 1 if the system has the type `ptrdiff_t'. */
 #cmakedefine HAVE_PTRDIFF_T 1
 
-/* Define to 1 if you have a working <tirpc/rpc/rpc.h> header. */
-#cmakedefine HAVE_RPC_RPC_H 1
-
-/* Define to 1 if you have GLSL shader storage buffer objects. */
+/* Define to 1 if you have `GLSL shader storage buffer objects`. */
 #cmakedefine HAVE_SSBO 1
 
 /* Define to 1 if you have the <stddef.h> header file. */
@@ -186,13 +185,10 @@
 /* Define to 1 if you have the `tgamma' function. */
 #cmakedefine HAVE_TGAMMA 1
 
-/* Define to 1 if you have <tr1/unordered_map>. */
-#cmakedefine HAVE_TR1_UNORDERED_MAP 1
-
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
 
-/* Define to 1 if you have <unordered_map>. */
+/* Unordered map is present */
 #cmakedefine HAVE_UNORDERED_MAP 1
 
 /* Define to 1 if you have the `vfork' function. */
@@ -206,6 +202,9 @@
 
 /* Define to 1 if `vfork' works. */
 #cmakedefine HAVE_WORKING_VFORK 1
+
+/* ZLib library present */
+#cmakedefine HAVE_ZLIB 1
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT "${PACKAGE_BUGREPORT}"
@@ -234,17 +233,14 @@
    backward compatibility; new code need not use it. */
 #cmakedefine STDC_HEADERS 1
 
-/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
-   significant byte first (like Motorola and SPARC, unlike Intel). */
-#if defined AC_APPLE_UNIVERSAL_BUILD
-# if defined __BIG_ENDIAN__
-#  define WORDS_BIGENDIAN 1
-# endif
-#else
-# ifndef WORDS_BIGENDIAN
-#  undef WORDS_BIGENDIAN
-# endif
-#endif
+/* Endianness is determined at compile time */
+#cmakedefine UNIVERSAL_ENDIAN_BUILD
+
+/* GC Enabled */
+#cmakedefine USEGC
+
+/* Build is big endian */
+#cmakedefine WORDS_BIGENDIAN
 
 /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
    `char[]'. */

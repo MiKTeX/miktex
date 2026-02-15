@@ -19,11 +19,10 @@ namespace absyntax {
 typedef fundef newFunctionExp;
 
 class newRecordExp : public exp {
-  ty *result;
+  astType *result;
 
-  static bool encodeLevel(position pos, coenv &e, trans::tyEntry *ent);
 public:
-  newRecordExp(position pos, ty *result)
+  newRecordExp(position pos, astType *result)
     : exp(pos), result(result) {}
 
   void prettyprint(ostream &out, Int indent);
@@ -36,14 +35,14 @@ public:
 };
 
 class newArrayExp : public exp {
-  ty *celltype;
+  astType *celltype;
   explist *dimexps;
   dimensions *dims;
   arrayinit *ai;
 
 public:
   newArrayExp(position pos,
-              ty *celltype,
+              astType *celltype,
               explist *dimexps,
               dimensions *dims,
               arrayinit *ai)

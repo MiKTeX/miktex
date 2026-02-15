@@ -8,7 +8,9 @@
 #ifndef PROFILER_H
 #define PROFILER_H
 
+#if !defined(_WIN32)
 #include <sys/time.h>
+#endif
 #if defined(MIKTEX_WINDOWS)
 #include <WinSock2.h>
 #endif
@@ -26,13 +28,13 @@ string lookupBltin(bltin b);
 
 inline position positionFromLambda(lambda *func) {
   if (func == 0)
-    return position();
+    return nullPos;
 
   program& code = *func->code;
 
   // Check for empty program.
   if (code.begin() == code.end())
-    return position();
+    return nullPos;
 
   return code.begin()->pos;
 }

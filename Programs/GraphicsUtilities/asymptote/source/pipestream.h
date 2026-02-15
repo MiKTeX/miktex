@@ -19,13 +19,17 @@
 
 #ifndef PIPESTREAM_H
 #define PIPESTREAM_H
+#if defined(_WIN32) && !defined(MIKTEX_WINDOWS)
+
+#include "win32pipestream.h"
+typedef w32::Win32IoPipeStream iopipestream;
+
+#else
 
 #if !defined(MIKTEX_WINDOWS)
 #include <sys/wait.h>
 #endif
 #include <unistd.h>
-#include <fcntl.h>
-
 #include "common.h"
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/PipeStream.h>
@@ -113,4 +117,5 @@ public:
   }
 };
 
+#endif
 #endif

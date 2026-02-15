@@ -5,13 +5,12 @@
 #include <string>
 #include "checkHashCodeEqualsStatus.h"
 
+struct GenerateToStringParams
+{
+    lsCodeActionParams context;
+    std::vector<LspVariableBinding> fields;
 
-struct GenerateToStringParams {
-        lsCodeActionParams context;
-        std::vector< LspVariableBinding >fields;
-
-        MAKE_SWAP_METHOD(GenerateToStringParams, context, fields)
-
+    MAKE_SWAP_METHOD(GenerateToStringParams, context, fields)
 };
 MAKE_REFLECT_STRUCT(GenerateToStringParams, context, fields)
 

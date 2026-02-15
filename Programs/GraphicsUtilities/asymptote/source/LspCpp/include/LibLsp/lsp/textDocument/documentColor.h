@@ -6,13 +6,14 @@
 #include "LibLsp/lsp/lsTextDocumentIdentifier.h"
 #include "LibLsp/lsp/lsRange.h"
 #include <vector>
-struct DocumentColorParams {
-        /**
+struct DocumentColorParams
+{
+    /**
          * The text document.
          */
 
-         lsTextDocumentIdentifier textDocument;
-         MAKE_SWAP_METHOD(DocumentColorParams, textDocument);
+    lsTextDocumentIdentifier textDocument;
+    MAKE_SWAP_METHOD(DocumentColorParams, textDocument);
 };
 MAKE_REFLECT_STRUCT(DocumentColorParams, textDocument);
 
@@ -27,47 +28,51 @@ MAKE_REFLECT_STRUCT(DocumentColorParams, textDocument);
  * Since version 3.6.0
  */
 
-namespace TextDocument {
-        struct  Color {
-                /**
+namespace TextDocument
+{
+struct Color
+{
+    /**
                  * The red component of this color in the range [0-1].
                  */
-                double red = 0;
+    double red = 0;
 
-                /**
+    /**
                  * The green component of this color in the range [0-1].
                  */
-                double green = 0;
+    double green = 0;
 
-                /**
+    /**
                  * The blue component of this color in the range [0-1].
                  */
-                double blue = 0;
+    double blue = 0;
 
-                /**
+    /**
                  * The alpha component of this color in the range [0-1].
                  */
-                double alpha = 0;
-                MAKE_SWAP_METHOD(TextDocument::Color, red, green, blue, alpha)
-        };
-}
+    double alpha = 0;
+    MAKE_SWAP_METHOD(TextDocument::Color, red, green, blue, alpha)
+};
+} // namespace TextDocument
 MAKE_REFLECT_STRUCT(TextDocument::Color, red, green, blue, alpha)
 
-
-struct ColorInformation {
-        /**
+struct ColorInformation
+{
+    /**
          * The range in the document where this color appers.
          */
 
-        lsRange range;
+    lsRange range;
 
-        /**
+    /**
          * The actual color value for this color range.
          */
 
-        TextDocument::Color color;
-        MAKE_SWAP_METHOD(ColorInformation, range, color)
+    TextDocument::Color color;
+    MAKE_SWAP_METHOD(ColorInformation, range, color)
 };
-MAKE_REFLECT_STRUCT(ColorInformation,range,color)
+MAKE_REFLECT_STRUCT(ColorInformation, range, color)
 
-DEFINE_REQUEST_RESPONSE_TYPE(td_documentColor, DocumentColorParams,std::vector<ColorInformation>, "textDocument/documentColor");
+DEFINE_REQUEST_RESPONSE_TYPE(
+    td_documentColor, DocumentColorParams, std::vector<ColorInformation>, "textDocument/documentColor"
+);

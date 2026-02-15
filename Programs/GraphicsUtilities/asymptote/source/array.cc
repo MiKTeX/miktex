@@ -78,24 +78,26 @@ void array::setNonBridgingSlice(size_t l, size_t r, mem::vector<item> *a)
 {
   assert(0 <= l);
   assert(l <= r);
+  
+  size_t const sliceLength=r-l;
 
   size_t asize=a->size();
-  if (asize == r-l) {
+  if (asize == sliceLength) {
     // In place
     std::copy(a->begin(), a->end(), this->begin()+l);
   }
-  else if (asize < r-l) {
+  else if (asize < sliceLength) {
     // Shrinking
     std::copy(a->begin(), a->end(), this->begin()+l);
-    this->erase(this->begin()+l+a->size(), this->begin()+r);
+    this->erase(this->begin()+(l+a->size()), this->begin()+r);
   }
   else {
     // Expanding
     // NOTE: As a speed optimization, we could check capacity() to see if the
     // array can fit the new entries, and build the new array from scratch
     // (using swap()) if a new allocation is necessary.
-    std::copy(a->begin(), a->begin()+r-l, this->begin()+l);
-    this->insert(this->begin()+r, a->begin()+r-l, a->end());
+    std::copy(a->begin(), a->begin()+sliceLength, this->begin()+l);
+    this->insert(this->begin()+r, a->begin()+sliceLength, a->end());
   }
 }
 

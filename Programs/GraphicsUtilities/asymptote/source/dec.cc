@@ -17,8 +17,8 @@
 #include "modifier.h"
 #include "runtime.h"
 #include "locate.h"
-#include "parser.h"
-// #include "builtin.h"  // for trans::addRecordOps
+#include "asyparser.h"
+#include "builtin.h"  // for trans::addRecordOps
 
 namespace absyntax {
 
@@ -27,9 +27,53 @@ using namespace types;
 
 using mem::list;
 
-trans::tyEntry *ty::transAsTyEntry(coenv &e, record *where)
+symbol intSymbol() {
+  const static symbol* intSymbol = new symbol(symbol::literalTrans("int"));
+  return *intSymbol;
+}
+
+bool usableInTemplate(ty *t) {
+  assert(t);
+  if (t->primitive()) return true;
+  assert(t->kind != ty_null);
+  assert(t->kind != ty_overloaded);
+
+  if (t->kind == ty_record) {
+    record* r= dynamic_cast<record*>(t);
+    assert(r);
+    assert(r->getLevel());
+    if (!r->getLevel()->getParent()) return false;// r is actually a module
+    if (!r->getLevel()->getParent()->getParent()) {
+      return true;// r is a top-level record, or all nestings are static
+    }
+    return false; // r is nested non-statically
+  }
+  if (t->kind == ty_function) {
+    function* f= dynamic_cast<function*>(t);
+    assert(f);
+    // Check the types of the result and all the parameters.
+    if (!usableInTemplate(f->result)) return false;
+    const signature& sig= *f->getSignature();
+    for (const types::formal& f : sig.formals) {
+      if (!usableInTemplate(f.t)) return false;
+    }
+    if (sig.hasRest() && !usableInTemplate(sig.getRest().t)) return false;
+    return true;
+  }
+  if (t->kind == ty_array) {
+    array* a= dynamic_cast<array*>(t);
+    assert(a);
+    return usableInTemplate(a->celltype);
+  }
+  // We should have already handled all the cases.
+  assert(false);
+  return false;
+}
+
+
+trans::tyEntry *astType::transAsTyEntry(coenv &e, record *where)
 {
-  return new trans::tyEntry(trans(e, false), 0, where, getPos());
+  return new trans::tyEntry(trans(e, false), nullptr, where, getPos());
 }
 
 
@@ -38,6 +82,45 @@ void nameTy::prettyprint(ostream &out, Int indent)
   prettyname(out, "nameTy",indent, getPos());
 
   id->prettyprint(out, indent+1);
+}
+
+void addNameOps(coenv &e, record *r, record *qt, varEntry *qv, position pos) {
+  for (auto au : qt->e.ve.getAutoUnravels()) {
+    symbol auName = au.first;
+    varEntry *v = au.second;
+    if (!v->checkPerm(READ, e.c)) {
+      em.error(pos);
+      em << "cannot access '" << auName << "' in current scope";
+      continue;
+    }
+    if (r && e.c.getPermission() != PUBLIC) {
+      // Add an additional restriction to v based on c.getPermission().
+      v = new varEntry(*v, e.c.getPermission(), r);
+    }
+    varEntry *qqv = qualifyVarEntry(qv, v);
+    auto enter= [&](trans::venv& ve) {
+      // Add op only if it does not already exist.
+      if (!ve.lookByType(auName, qqv->getType())) {
+        ve.enter(auName, qqv);
+      }
+    };
+    if (r) {
+      enter(r->e.ve);
+    }
+    enter(e.e.ve);
+  }
+}
+
+void nameTy::addOps(coenv &e, record *r, AutounravelOption opt)
+{
+  if (opt == AutounravelOption::Apply)
+  {
+    if (record* qt= dynamic_cast<record*>(id->getType(e, true)); qt)
+    {
+      varEntry* qv= id->getVarEntry(e);
+      addNameOps(e, r, qt, qv, getPos());
+    }
+  }
 }
 
 types::ty *nameTy::trans(coenv &e, bool tacit)
@@ -87,7 +170,7 @@ void arrayTy::prettyprint(ostream &out, Int indent)
 }
 
 // NOTE: Can this be merged with trans somehow?
-void arrayTy::addOps(coenv &e, record *r)
+void arrayTy::addOps(coenv &e, record *r, AutounravelOption)
 {
   types::ty *t=trans(e, true);
 
@@ -127,10 +210,9 @@ arrayTy::operator string() const
   return ss.str();
 }
 
-tyEntryTy::tyEntryTy(position pos, types::ty *t)
-  : ty(pos), ent(new trans::tyEntry(t, 0, 0, position()))
-{
-}
+tyEntryTy::tyEntryTy(position pos, types::ty* t)
+    : astType(pos), ent(new trans::tyEntry(t, nullptr, nullptr, nullPos))
+{}
 
 void tyEntryTy::prettyprint(ostream &out, Int indent)
 {
@@ -194,32 +276,30 @@ void block::transAsField(coenv &e, record *r)
   Scope scopeHolder(e, scope);
   for (list<runnable *>::iterator p = stms.begin(); p != stms.end(); ++p) {
     (*p)->markTransAsField(e, r);
-    if (em.errors() && !settings::getSetting<bool>("debug"))
+    if (em.errors() && !settings::debug)
       break;
   }
 }
 
 bool block::transAsTemplatedField(
-    coenv &e, record *r, mem::vector<absyntax::namedTyEntry*>* args
+  coenv &e, record *r, mem::vector<absyntax::namedTy*>* args
 ) {
   Scope scopeHolder(e, scope);
-  auto p = stms.begin();
-  if (p == stms.end()) {
-    return true;  // empty file
-  }
-  receiveTypedefDec *dec = dynamic_cast<receiveTypedefDec *>(*p);
-  if (!dec) {
+  receiveTypedefDec *dec = getTypedefDec();
+  if (dec == nullptr) {
     em.error(getPos());
     em << "expected 'typedef import(<types>);'";
-    em.sync();
+    em.sync(true);
     return false;
   }
-  if(!dec->transAsParamMatcher(e, r, args))
+  if(!dec->transAsParamMatcher(e, r, args/*, caller*/))
     return false;
 
+  auto p = stms.begin();
+  // Start with second statement since the first was a receiveTypedefDec.
   while (++p != stms.end()) {
     (*p)->markTransAsField(e, r);
-    if (em.errors() && !settings::getSetting<bool>("debug")) {
+    if (em.errors() && !settings::debug) {
       return false;
     }
   }
@@ -227,18 +307,14 @@ bool block::transAsTemplatedField(
   return true;
 }
 
-void block::transAsRecordBody(coenv &e, record *r)
+receiveTypedefDec* block::getTypedefDec()
 {
-  transAsField(e, r);
-  e.c.closeRecord();
-}
+  auto p= stms.begin();
 
-bool block::transAsTemplatedRecordBody(
-    coenv &e, record *r, mem::vector<absyntax::namedTyEntry*> *args
-) {
-  bool succeeded = transAsTemplatedField(e, r, args);
-  e.c.closeRecord();
-  return succeeded;
+  // Check for an empty file
+  if (p == stms.end()) return nullptr;
+
+  return dynamic_cast<receiveTypedefDec*>(*p);
 }
 
 record *block::transAsFile(genv& ge, symbol id)
@@ -252,22 +328,39 @@ record *block::transAsFile(genv& ge, symbol id)
   env e(ge);
   coenv ce(c, e);
 
-  // Translate the abstract syntax.
   if (settings::getSetting<bool>("autoplain")) {
     autoplainRunnable()->transAsField(ce, r);
   }
-  transAsRecordBody(ce, r);
+  // If the file starts with a template declaration and it was accessed
+  // or imported without template arguments, further translation is
+  // likely futile.
+  if (getTypedefDec() != nullptr) {
+    if(!settings::getSetting<bool>("listvariables")) {
+      em.error(getPos());
+      em << "templated module access requires template parameters";
+      em.sync();
+    }
+    return r;
+  }
+
+  // Translate the abstract syntax.
+  transAsField(ce, r);
+  ce.c.closeRecord();
+
   em.sync();
   if (em.errors()) return nullptr;
 
   return r;
 }
 
-record *block::transAsTemplatedFile(
-    genv& ge, symbol id, mem::vector<absyntax::namedTyEntry*>* args
-) {
+record* block::transAsTemplatedFile(
+        genv& ge, symbol id, mem::vector<absyntax::namedTy*>* args
+)
+{
+
+
   // Create the new module.
-  record *r = new record(id, new frame(id,0,0));
+  record *r = new record(id, new frame(id, 0, 0));
 
   // Create coder and environment to translate the module.
   // File-level modules have dynamic fields by default.
@@ -275,12 +368,15 @@ record *block::transAsTemplatedFile(
   env e(ge);
   coenv ce(c, e);
 
-  // Translate the abstract syntax.
+  // Import `plain` before even translating "typedef import" since the latter
+  // might change the meanings of symbols provided by `plain`.
   if (settings::getSetting<bool>("autoplain")) {
     autoplainRunnable()->transAsField(ce, r);
   }
 
-  bool succeeded = transAsTemplatedRecordBody(ce, r, args);
+  // Translate the abstract syntax.
+  bool succeeded = transAsTemplatedField(ce, r, args);
+  ce.c.closeRecord();
   if (!succeeded) {
     return nullptr;
   }
@@ -321,14 +417,7 @@ vardec *block::asVardec()
   return var;
 }
 
-void block::createSymMap(AsymptoteLsp::SymbolContext* symContext) {
-#ifdef HAVE_LSP
-  for (auto const& p : stms)
-  {
-    p->createSymMap(symContext);
-  }
-#endif
-}
+
 
 void dec::prettyprint(ostream &out, Int indent)
 {
@@ -383,13 +472,36 @@ bool modifierList::staticSet()
 
 modifier modifierList::getModifier()
 {
-  if (mods.size() > 1) {
-    em.error(getPos());
-    em << "too many modifiers";
-  }
-
   assert(staticSet());
-  return mods.front();
+  int numAutounravel = 0;
+  int numStatic = 0;
+  for (modifier m : mods) {
+    switch (m) {
+      case AUTOUNRAVEL:
+        ++numAutounravel;
+        break;
+      case EXPLICIT_STATIC:
+      case DEFAULT_STATIC:
+        ++numStatic;
+        break;
+      default:
+        em.compiler(getPos());
+        em << "invalid modifier";
+    }
+  }
+  if (numAutounravel > 1) {
+    em.error(getPos());
+    em << "too many autounravel modifiers";
+  }
+  if (numStatic > 1) {
+    em.error(getPos());
+    em << "too many static modifiers";
+  }
+  if (numAutounravel) {
+    return AUTOUNRAVEL;
+  } else {
+    return mods.front();
+  }
 }
 
 permission modifierList::getPermission()
@@ -414,11 +526,18 @@ void modifiedRunnable::prettyprint(ostream &out, Int indent)
 void modifiedRunnable::transAsField(coenv &e, record *r)
 {
   if (mods->staticSet()) {
+    modifier mod = mods->getModifier();
     if (e.c.isTopLevel()) {
-      em.warning(getPos());
-      em << "static modifier is meaningless at top level";
+      if (mod == AUTOUNRAVEL) {
+        em.error(getPos());
+        em << "top-level fields cannot be autounraveled";
+        return;
+      } else {
+        em.warning(getPos());
+        em << "static modifier is meaningless at top level";
+      }
     }
-    e.c.pushModifier(mods->getModifier());
+    e.c.pushModifier(mod);
   }
 
   permission p = mods->getPermission();
@@ -455,9 +574,10 @@ types::ty *decidstart::getType(types::ty *base, coenv &, bool)
 trans::tyEntry *decidstart::getTyEntry(trans::tyEntry *base, coenv &e,
                                        record *where)
 {
-  return dims ? new trans::tyEntry(getType(base->t,e,false), 0,
-                                   where, getPos()) :
-    base;
+  return dims ? new trans::tyEntry(
+                        getType(base->t, e, false), nullptr, where, getPos()
+                )
+              : base;
 }
 
 void decidstart::addOps(types::ty *base, coenv &e, record *r)
@@ -470,56 +590,7 @@ void decidstart::addOps(types::ty *base, coenv &e, record *r)
   }
 }
 
-void decidstart::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  std::string name(static_cast<std::string>(getName()));
-  AsymptoteLsp::posInFile pos(getPos().LineColumn());
-  if (auto decCtx=dynamic_cast<AsymptoteLsp::AddDeclContexts*>(symContext))
-  {
-    decCtx->additionalDecs.emplace(std::piecewise_construct,
-            std::forward_as_tuple(name), std::forward_as_tuple(name, pos));
-  }
-  else
-  {
-    symContext->symMap.varDec[name] = AsymptoteLsp::SymbolInfo(name, pos);
-  }
-#endif
-}
 
-void decidstart::createSymMapWType(
-    AsymptoteLsp::SymbolContext* symContext, absyntax::ty* base
-) {
-#ifdef HAVE_LSP
-  std::string name(static_cast<std::string>(getName()));
-  AsymptoteLsp::posInFile pos(getPos().LineColumn());
-  if (auto decCtx=dynamic_cast<AsymptoteLsp::AddDeclContexts*>(symContext))
-  {
-    if (base == nullptr)
-    {
-      decCtx->additionalDecs.emplace(std::piecewise_construct,
-                                     std::forward_as_tuple(name),
-                                     std::forward_as_tuple(name, pos));
-    }
-    else
-    {
-      decCtx->additionalDecs.emplace(
-          std::piecewise_construct,
-          std::forward_as_tuple(name),
-          std::forward_as_tuple(name, static_cast<std::string>(*base), pos)
-      );
-    }
-  }
-  else
-  {
-    symContext->symMap.varDec[name] = base == nullptr ?
-            AsymptoteLsp::SymbolInfo(name, pos) :
-            AsymptoteLsp::SymbolInfo(name,
-                                     static_cast<std::string>(*base),
-                                     pos);
-  }
-#endif
-}
 
 
   void fundecidstart::prettyprint(ostream &out, Int indent)
@@ -549,7 +620,7 @@ types::ty *fundecidstart::getType(types::ty *base, coenv &e, bool tacit)
 trans::tyEntry *fundecidstart::getTyEntry(trans::tyEntry *base, coenv &e,
                                           record *where)
 {
-  return new trans::tyEntry(getType(base->t,e,false), 0, where, getPos());
+  return new trans::tyEntry(getType(base->t,e,false), nullptr, where, getPos());
 }
 
 void fundecidstart::addOps(types::ty *base, coenv &e, record *r)
@@ -561,9 +632,6 @@ void fundecidstart::addOps(types::ty *base, coenv &e, record *r)
   types::function *ft=dynamic_cast<types::function *>(getType(base, e, true));
   assert(ft);
 
-  e.e.addFunctionOps(ft);
-  if (r)
-    r->e.addFunctionOps(ft);
 }
 
 
@@ -601,13 +669,17 @@ void addVar(coenv &e, record *r, varEntry *v, symbol id)
 {
   // Test for 'operator init' definitions that implicitly define constructors:
   if (definesImplicitConstructor(e, r, v, id))
-    addConstructorFromInitializer(position(), e, r, v);
+    addConstructorFromInitializer(nullPos, e, r, v);
 
   // Add to the record so it can be accessed when qualified; add to the
   // environment so it can be accessed unqualified in the scope of the
   // record definition.
-  if (r)
+  if (r) {
     r->e.addVar(id, v);
+    if (e.c.isAutoUnravel()) {
+      r->e.ve.registerAutoUnravel(id, v);
+    }
+  }
   e.e.addVar(id, v);
 }
 
@@ -718,28 +790,7 @@ void decid::transAsTypedefField(coenv &e, trans::tyEntry *base, record *r)
   addTypeWithPermission(e, r, ent, start->getName());
 }
 
-void decid::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  start->createSymMap(symContext);
-  if (init)
-  {
-    init->createSymMap(symContext);
-  }
-#endif
-}
 
-void decid::createSymMapWType(
-    AsymptoteLsp::SymbolContext* symContext, absyntax::ty* base
-) {
-#ifdef HAVE_LSP
-  start->createSymMapWType(symContext, base);
-  if (init)
-  {
-    init->createSymMap(symContext);
-  }
-#endif
-}
 
 
 void decidlist::prettyprint(ostream &out, Int indent)
@@ -760,26 +811,6 @@ void decidlist::transAsTypedefField(coenv &e, trans::tyEntry *base, record *r)
 {
   for (list<decid *>::iterator p = decs.begin(); p != decs.end(); ++p)
     (*p)->transAsTypedefField(e, base, r);
-}
-
-void decidlist::createSymMap(AsymptoteLsp::SymbolContext* symContext) {
-#ifdef HAVE_LSP
-  for (auto const& p : decs)
-  {
-    p->createSymMap(symContext);
-  }
-#endif
-}
-
-void decidlist::createSymMapWType(
-    AsymptoteLsp::SymbolContext* symContext, absyntax::ty* base
-) {
-#ifdef HAVE_LSP
-  for (auto const& p : decs)
-  {
-    p->createSymMapWType(symContext, base);
-  }
-#endif
 }
 
 
@@ -813,12 +844,7 @@ types::ty *vardec::singleGetType(coenv &e)
   return did->getStart()->getType(base->trans(e), e);
 }
 
-void vardec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  decs->createSymMapWType(symContext, base);
-#endif
-}
+
 
 
 // Helper class for imports.  This essentially evaluates to the run::loadModule
@@ -830,8 +856,10 @@ class loadModuleExp : public exp {
   function *ft;
 
 public:
-  loadModuleExp(position pos, record *imp)
-    : exp(pos) {ft=new function(imp,primString(),primString());}
+  loadModuleExp(position pos, record* imp) : exp(pos)
+  {
+    ft= new function(imp, primString(), primInt());
+  }
 
   void prettyprint(ostream &out, Int indent) {
     prettyname(out, "loadModuleExp", indent, getPos());
@@ -862,18 +890,24 @@ public:
 // the import, but doesn't add the import to the environment.
 varEntry *accessModule(position pos, coenv &e, record *r, symbol id)
 {
-  record *imp=e.e.getModule(id, (string)id);
+  string filename=(string) id;
+  bool tainted=settings::debug && em.errors();
+  record *imp=e.e.getModule(id, filename);
   if (!imp) {
-    em.error(pos);
-    em << "could not load module '" << id << "'";
-    em.sync();
+    if(!tainted) {
+      em.error(pos);
+      em << "could not load module '" << filename << "'";
+      em.sync(true);
+    }
     return 0;
   }
   else {
     // Create a varinit that evaluates to the module.
-    // This is effectively the expression 'loadModule(filename,"")'.
-    callExp init(pos, new loadModuleExp(pos, imp),
-                 new stringExp(pos, (string)id), new stringExp(pos, ""));
+    // This is effectively the expression 'loadModule(filename, 0)'.
+    callExp init(
+            pos, new loadModuleExp(pos, imp), new stringExp(pos, filename),
+            new intExp(pos, 0)
+    );
 
     // The varEntry should have whereDefined()==0 as it is not defined inside
     // the record r.
@@ -883,50 +917,91 @@ varEntry *accessModule(position pos, coenv &e, record *r, symbol id)
   }
 }
 
+
+
+// Returns the number of items that will be added to the stack once the
+// translation has been run (always either 0 or 1).
+Int transPushParent(formal *f, coenv &e) {
+  if (f->getType(e)->kind != types::ty_record) {
+    return 0;
+  }
+  astType *astT = f->getAbsyntaxType();
+  tyEntry *ent = astT->transAsTyEntry(e, nullptr);
+  bool succeeded = e.c.encodeParent(f->getPos(), ent);
+  if (!succeeded) {
+    em.compiler(f->getPos());
+    em << "failed to encode parent level";
+    em.sync(true);
+  }
+
+  return 1;
+}
+
+// Translates formals into namedTys.
+mem::vector<namedTy*> *computeTemplateArgs(formals *args, coenv &e) {
+  auto *computedArgs = new mem::vector<namedTy*>();
+  for (formal *f : *args) {
+    symbol theName = f->getName();
+    position sourcePos = f->getPos();
+    if (theName == symbol::nullsym) {
+      em.error(sourcePos);
+      em << "expected typename=";
+      em.sync(true);
+      return nullptr;
+    }
+    types::ty *t = f->getType(e);
+    if (!usableInTemplate(t)) {
+      em.error(f->getAbsyntaxType()->getPos());
+      em << "non-statically nested types cannot be used in templates";
+      em.sync(true);
+      return nullptr;
+    }
+    computedArgs->push_back(new namedTy(sourcePos, theName, t));
+  }
+  return computedArgs;
+}
+
 // Creates a local variable to hold the import and translate the accessing of
 // the import, but doesn't add the import to the environment.
 varEntry *accessTemplatedModule(position pos, coenv &e, record *r, symbol id,
                                 formals *args)
 {
-  stringstream s;
-  s << args->getSignature(e)->handle();
-  string sigHandle=s.str();
+  string moduleName=(string) id;
 
-  auto *computedArgs = new mem::vector<namedTyEntry*>();
-  mem::vector<tySymbolPair> *fields = args->getFields();
-  for (auto p = fields->begin(); p != fields->end(); ++p) {
-    ty* theType = p->ty;
-    symbol theName = p->sym;
-    if (theName == symbol::nullsym) {
-      em.error(theType->getPos());
-      em << "expected typename=";
-      em.sync();
-      return nullptr;
-    }
-    computedArgs->push_back(new namedTyEntry(
-        theType->getPos(), theName, theType->transAsTyEntry(e, r)
-    ));
+  mem::vector<namedTy*> *computedArgs = computeTemplateArgs(args, e);
+  if (!computedArgs) {
+    return nullptr;
   }
 
-  record *imp=e.e.getTemplatedModule(id, (string) id, sigHandle, computedArgs);
+  record *imp=e.e.getTemplatedModule(moduleName,computedArgs);
   if (!imp) {
     em.error(pos);
     em << "could not load module '" << id << "'";
-    em.sync();
+    em.sync(true);
     return nullptr;
   }
-  else {
-    // Create a varinit that evaluates to the module.
-    // This is effectively the expression 'loadModule(filename,index)'.
-    callExp init(pos, new loadModuleExp(pos, imp),
-                 new stringExp(pos, (string) id), new stringExp(pos, sigHandle));
-
-    // The varEntry should have whereDefined()==0 as it is not defined inside
-    // the record r.
-    varEntry *v=makeVarEntryWhere(e, r, imp, 0, pos);
-    initializeVar(pos, e, v, &init);
-    return v;
+  // Encode action: Push parents to the stack.
+  Int numParents = 0;
+  // We push parents in reverse order so that we can later pop them in
+  // order, meaning that if more than one parameter has an error, the first
+  // error will be reported rather than the last.
+  for (auto p = args->rbegin(); p != args->rend(); ++p) {
+    numParents += transPushParent(*p, e);
   }
+
+  // Create a varinit that evaluates to the module.
+  // This is effectively the expression 'loadModule(index, numParents)'.
+  callExp init(
+          pos, new loadModuleExp(pos, imp),
+          new stringExp(pos, imp->getTemplateIndex()),
+          new intExp(pos, numParents)
+  );
+
+  // The varEntry should have whereDefined()==nullptr as it is not defined
+  // inside the record r.
+  varEntry *v=makeVarEntryWhere(e, r, imp, nullptr, pos);
+  initializeVar(pos, e, v, &init);
+  return v;
 }
 
 
@@ -945,47 +1020,25 @@ void idpair::transAsAccess(coenv &e, record *r)
     addVar(e, r, v, dest);
 }
 
-void idpair::transAsUnravel(coenv &e, record *r,
-                            protoenv &source, varEntry *qualifier)
+tyEntry *idpair::transAsUnravel(coenv &e, record *r,
+                                protoenv &source, varEntry *qualifier)
 {
   checkValidity();
 
-  if (r)
-    r->e.add(src, dest, source, qualifier, e.c);
-  if (!e.e.add(src, dest, source, qualifier, e.c)) {
+  if (r) {
+    auto fieldsAdded = r->e.add(src, dest, source, qualifier, e.c)->varsAdded;
+    if (e.c.isAutoUnravel()) {
+      for (varEntry *v : fieldsAdded) {
+        r->e.ve.registerAutoUnravel(dest, v);
+      }
+    }
+  }
+  protoenv::Added *added = e.e.add(src, dest, source, qualifier, e.c);
+  if (added->empty()) {
     em.error(getPos());
     em << "no matching types or fields of name '" << src << "'";
   }
-}
-
-void idpair::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  if (valid)
-  {
-    string fullSrc(settings::locateFile(src, true));
-    if (not AsymptoteLsp::isVirtualFile((std::string)(fullSrc.c_str())))
-    {
-      if (not fullSrc.empty())
-      {
-        symContext->addEmptyExtRef((std::string)(fullSrc.c_str()));
-      }
-
-      // add (dest, source) to reference map.
-      auto s = symContext->extRefs.fileIdPair.emplace(
-          dest, (std::string) fullSrc.c_str()
-      );
-      auto it=std::get<0>(s);
-      auto success=std::get<1>(s);
-      if (not success)
-      {
-        it->second = (std::string)(fullSrc.c_str());
-      }
-
-      symContext->extRefs.addAccessVal(static_cast<std::string>(dest));
-    }
-  }
-#endif
+  return added->typeAdded;
 }
 
 
@@ -1005,38 +1058,24 @@ void idpairlist::transAsAccess(coenv &e, record *r)
     (*p)->transAsAccess(e,r);
 }
 
-void idpairlist::transAsUnravel(coenv &e, record *r,
-                                protoenv &source, varEntry *qualifier)
-{
-  for (list<idpair *>::iterator p=base.begin();
-       p != base.end();
-       ++p)
-    (*p)->transAsUnravel(e,r,source,qualifier);
-}
-
-void idpairlist::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  for (auto& idp : base)
+mem::vector<tyEntry*> idpairlist::transAsUnravel(
+  coenv &e, record *r, protoenv &source, varEntry *qualifier
+) {
+  mem::vector<tyEntry*> result;
+  for (idpair *p : base)
   {
-    idp->createSymMap(symContext);
+    tyEntry *typeAdded = p->transAsUnravel(e,r,source,qualifier);
+    result.push_back(typeAdded);
   }
-#endif
+  return result;
 }
 
-  idpairlist * const WILDCARD = 0;
+idpairlist * const WILDCARD = 0;
 
 void accessdec::prettyprint(ostream &out, Int indent)
 {
   prettyname(out, "accessdec", indent, getPos());
   base->prettyprint(out, indent+1);
-}
-
-void accessdec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  base->createSymMap(symContext);
-#endif
 }
 
 void templateAccessDec::transAsField(coenv& e, record* r) {
@@ -1054,36 +1093,94 @@ void typeParam::prettyprint(ostream &out, Int indent) {
   out << "typeParam (" << paramSym <<  ")\n";
 }
 
-bool typeParam::transAsParamMatcher(coenv &e, namedTyEntry* arg) {
-  if (arg->dest != paramSym) {
+void recordInitializer(coenv &e, symbol id, record *r, position here)
+{
+  // This is almost equivalent to the code
+  //   autounravel A operator init() { return new A; }
+  // where A is the name of the record. The "almost" is because the code below
+  // does not add the operator init to the environment, since in practice it
+  // would be added to the outer environment, not the record's environment.
+  // Since it is always added *after* any code in the record, we lose nothing
+  // by not adding it to the environment.
+  // Additionally, the "autounravel" is made low-priority (will not override
+  // user-defined operator init) which is possible only for built-in functions.
+  formals formals(here);
+  simpleName recordName(here, id);
+  nameTy result(here, &recordName);
+  newRecordExp exp(here, &result);
+  returnStm stm(here, &exp);
+  fundef fun(here, &result, &formals, &stm);
+  assert(r);
+  {
+    e.c.pushModifier(AUTOUNRAVEL);
+    function *ft = fun.transType(e, false);
+    assert(ft);
+
+    symbol initSym=symbol::opTrans("init");
+    varinit *init=fun.makeVarInit(ft);
+
+    assert(ft->kind != types::ty_inferred);
+
+    varEntry *v=makeVarEntry(here, e, r, ft);
+    r->e.addVar(initSym, v);
+    r->e.ve.registerAutoUnravel(initSym, v, trans::AutounravelPriority::OFFER);
+    initializeVar(here, e, v, init);
+    e.c.popModifier();
+  }
+}
+
+bool typeParam::transAsParamMatcher(coenv &e, record *module, namedTy* arg) {
+  symbol name = arg->dest;
+  ty *t = arg->t;
+  if (name != paramSym) {
     em.error(arg->pos);
     em << "template argument name does not match module: passed "
-       << arg->dest
+       << name
        << ", expected "
        << paramSym;
     return false;
   }
-  e.e.addType(paramSym, arg->ent);
-  // The code below would add e.g. operator== to the context, but potentially
-  // ignore overrides of operator==:
+  if (t->kind != types::ty_record) {
+    tyEntry *ent = new tyEntry(t, nullptr, module, getPos());
+    addTypeWithPermission(e, module, ent, name);
+    return true;
+  }
+
+  // We can now assume t is a record (i.e., asy struct).
+  record *r = dynamic_cast<record *>(t);
+  assert(r);
   //
-  // types::ty *t = arg.ent->t;
-  // if (t->kind == types::ty_record) {
-  //   record *r = dynamic_cast<record *>(t);
-  //   if (r) {
-  //     trans::addRecordOps(e.e.ve, r);
-  //   }
-  // } else if (t->kind == types::ty_array) {
-  //   array *a = dynamic_cast<array *>(t);
-  //   if (a) {
-  //     trans::addArrayOps(e.e.ve, a);
-  //   }
-  // } else if (t->kind == types::ty_function) {
-  //   function *f = dynamic_cast<function *>(t);
-  //   if (f) {
-  //     trans::addFunctionOps(e.e.ve, f);
-  //   }
-  // }
+  // Build a varEntry v for the parent level and encode the bytecode
+  // to pop the parent off the stack into v. The varEntry needs a type,
+  // but the only thing we use from the type is the level, so make a
+  // new fake record.
+  string fakeParentName;
+# ifdef DEBUG_FRAME
+  {
+    ostringstream oss;
+    oss << "<fake parent of " << name << " holding ";
+    print(oss, r->getLevel()->getParent());
+    oss << ">";
+    fakeParentName = oss.str();
+  }
+# else
+  fakeParentName = "<fake parent of " + static_cast<string>(name) + ">";
+# endif
+  record* fakeParent = new record(
+          symbol::literalTrans(fakeParentName), r->getLevel()->getParent()
+  );
+  varEntry *v = makeVarEntryWhere(e, module, fakeParent, nullptr, getPos());
+  // Encode bytecode to pop the parent off the stack into v.
+  v->encode(WRITE, getPos(), e.c);
+  e.c.encodePop();
+  //
+  // Build tyEntry, using v as ent->v.
+  tyEntry *ent = new tyEntry(t, v, module, getPos());
+  addTypeWithPermission(e, module, ent, name);
+
+  // Add any autounravel fields.
+  addNameOps(e, module, r, v, getPos());
+
   return true;
 }
 
@@ -1097,9 +1194,25 @@ void typeParamList::add(typeParam *tp) {
   params.push_back(tp);
 }
 
+// RAII class to set the permission of a coder to a new value, and then reset it
+// to the old value when the object goes out of scope.
+class PermissionSetter {
+  coder &c;
+  permission oldPerm;
+public:
+  PermissionSetter(coder &c, permission newPerm) : c(c), oldPerm(c.getPermission()) {
+    c.setPermission(newPerm);
+  }
+  ~PermissionSetter() {
+    c.setPermission(oldPerm);
+  }
+};
+
 bool typeParamList::transAsParamMatcher(
-    coenv &e, mem::vector<namedTyEntry*> *args
+  coenv &e, record *r, mem::vector<namedTy*> *args
 ) {
+
+  // Check that the number of arguments passed matches the number of parameters.
   if (args->size() != params.size()) {
     position pos = getPos();
     if (args->size() >= 1) {
@@ -1115,47 +1228,28 @@ bool typeParamList::transAsParamMatcher(
     }
     return false;
   }
+
+  // Set the permission to PRIVATE while translating type parameters.
+  PermissionSetter ps(e.c, PRIVATE);
+  // Pop the parents off the stack. They were pushed in reverse order.
+  // With this approach, the first error will be reported, rather than the last.
   for (size_t i = 0; i < params.size(); ++i) {
-    bool succeeded = params[i]->transAsParamMatcher(e, (*args)[i]);
+    bool succeeded = params[i]->transAsParamMatcher(e, r, (*args)[i]);
     if (!succeeded) return false;
   }
   return true;
 }
 
-symbol intSymbol() {
-  const static symbol* intSymbol = new symbol(symbol::literalTrans("int"));
-  return *intSymbol;
-}
-
-symbol templatedSymbol() {
-  const static symbol* templatedSymbol =
-      new symbol(symbol::literalTrans("/templated"));
-  return *templatedSymbol;
-}
-
 bool receiveTypedefDec::transAsParamMatcher(
-    coenv& e, record *r, mem::vector<namedTyEntry*> *args
+  coenv& e, record *r, mem::vector<namedTy*> *args
 ) {
-  bool succeeded = params->transAsParamMatcher(e, args);
-
-  types::ty *intTy = e.e.lookupType(intSymbol());
-  assert(intTy);
-  e.e.addVar(templatedSymbol(),
-             makeVarEntryWhere(e, nullptr, intTy, r, getPos())
-            );
-
+  bool succeeded = params->transAsParamMatcher(e, r, args);
   return succeeded;
 }
 
 void receiveTypedefDec::transAsField(coenv& e, record *r) {
   em.error(getPos());
-  types::ty *intTy = e.e.lookupType(intSymbol());
-  assert(intTy);
-  if (e.e.lookupVarByType(templatedSymbol(), intTy)) {
-    em << "'typedef import(<types>)' must precede any other code";
-  } else {
-    em << "templated module access requires template parameters";
-  }
+  em << "unexpected 'typedef import'";
   em.sync();
 }
 
@@ -1174,9 +1268,18 @@ void fromdec::transAsField(coenv &e, record *r)
       if (r)
         r->e.add(q.t->e, q.v, e.c);
       e.e.add(q.t->e, q.v, e.c);
+    } else {
+      auto typesAdded = fields->transAsUnravel(e, r, q.t->e, q.v);
+      for (tyEntry *te : typesAdded) {
+        if (te) {
+          record *t = dynamic_cast<record*>(te->t);
+          if (t) {
+            addNameOps(e, r, t, te->v, getPos());
+          }
+        }
+      }
+
     }
-    else
-      fields->transAsUnravel(e, r, q.t->e, q.v);
   }
 }
 
@@ -1199,17 +1302,6 @@ fromdec::qualifier unraveldec::getQualifier(coenv &e, record *)
   }
 
   return qualifier(qt,id->getVarEntry(e));
-}
-
-void unraveldec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  std::string fileName = static_cast<std::string>(id->getName());
-  if (not AsymptoteLsp::isVirtualFile(fileName))
-  {
-    symContext->extRefs.addUnravelVal(fileName);
-  }
-#endif
 }
 
 void fromaccessdec::prettyprint(ostream &out, Int indent)
@@ -1240,27 +1332,7 @@ fromdec::qualifier fromaccessdec::getQualifier(coenv &e, record *r)
     return qualifier(0,0);
 }
 
-void fromaccessdec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  // filename is id;
-  std::string idStr(id);
-  symContext->extRefs.addEmptyExtRef(idStr);
 
-  auto* f=this->fields;
-  if (f)
-  {
-    // add [dest] -> [src, filename] to fromAccessDecls;
-    f->processListFn(
-            [&symContext, &idStr](symbol const& src, symbol const& dest)
-            {
-              std::string srcId(src);
-              std::string destId(dest);
-              symContext->extRefs.addFromAccessVal(idStr, srcId, destId);
-            });
-  }
-#endif
-}
 
 void importdec::prettyprint(ostream &out, Int indent)
 {
@@ -1268,12 +1340,7 @@ void importdec::prettyprint(ostream &out, Int indent)
   base.prettyprint(out, indent+1);
 }
 
-void importdec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  base.createSymMap(symContext);
-#endif
-}
+
 
 void includedec::prettyprint(ostream &out, Int indent)
 {
@@ -1285,7 +1352,7 @@ void includedec::loadFailed(coenv &)
 {
   em.warning(getPos());
   em << "could not parse file of name '" << filename << "'";
-  em.sync();
+  em.sync(true);
 }
 
 void includedec::transAsField(coenv &e, record *r)
@@ -1298,19 +1365,7 @@ void includedec::transAsField(coenv &e, record *r)
   ast->transAsField(e, r);
 }
 
-void includedec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  std::string fullname(
-      (std::string) settings::locateFile(filename, true).c_str()
-  );
-  if (not AsymptoteLsp::isVirtualFile(fullname))
-  {
-    symContext->addEmptyExtRef(fullname);
-    symContext->extRefs.includeVals.emplace(fullname);
-  }
-#endif
-}
+
 
 
 void typedec::prettyprint(ostream &out, Int indent)
@@ -1331,78 +1386,75 @@ void recorddec::prettyprint(ostream &out, Int indent)
 
 void recorddec::transRecordInitializer(coenv &e, record *parent)
 {
-  position here=getPos();
-
-  // This is equivalent to the code
-  //   A operator init() { return new A; }
-  // where A is the name of the record.
-  formals formals(here);
-  simpleName recordName(here, id);
-  nameTy result(here, &recordName);
-  newRecordExp exp(here, &result);
-  returnStm stm(here, &exp);
-  fundec init(here, &result, symbol::opTrans("init"), &formals, &stm);
-
-  init.transAsField(e, parent);
+  recordInitializer(e,id,parent,getPos());
 }
 
 void recorddec::addPostRecordEnvironment(coenv &e, record *r, record *parent) {
   if (parent)
     parent->e.add(r->postdefenv, 0, e.c);
   e.e.add(r->postdefenv, 0, e.c);
+  // Add the autounravel fields also.
+  addNameOps(e, parent, r, nullptr, getPos());
 }
 
 void recorddec::transAsField(coenv &e, record *parent)
 {
+  if (e.c.isAutoUnravel()) {
+    em.error(getPos());
+    em << "types cannot be autounraveled";
+  }
   record *r = parent ? parent->newRecord(id, e.c.isStatic()) :
     e.c.newRecord(id);
 
-  addTypeWithPermission(e, parent, new trans::tyEntry(r,0,parent,getPos()),
-                        id);
-  e.e.addRecordOps(r);
-  if (parent)
-    parent->e.addRecordOps(r);
+  addTypeWithPermission(
+          e, parent, new trans::tyEntry(r, nullptr, parent, getPos()), id
+  );
+  trans::addRecordOps(r);
 
   // Start translating the initializer.
   coder c=e.c.newRecordInit(getPos(), r);
   coenv re(c,e.e);
 
-  body->transAsRecordBody(re, r);
-
+  {
+    // Make sure the autounraveled fields are limited to the record's scope.
+    // If the scope is too broad, then user-provide autounravel overrides will
+    // defer to already-defined ops when they should not.
+    bool useScope = body->scope;
+    // RAII: Close the scope when scopeHolder runs its destructor.
+    Scope scopeHolder(re, useScope);
+    // Autounravel the record ops into the record's environment.
+    addNameOps(re, nullptr, r, nullptr, getPos());
+    // We've already handled the scope ourselves, so tell `body` not to add an
+    // additional scope when running `transAsField`.
+    body->scope = false;
+    // Translate the main body of the record.
+    body->transAsField(re, r);
+    // Restore the original value of the `scope` boolean. This probably makes no
+    // difference but is included out of an abundance of caution.
+    body->scope = useScope;
+  }  // Close the scope.
   // After the record is translated, add a default initializer so that a
   // variable of the type of the record is initialized to a new instance by
   // default.
-  transRecordInitializer(e, parent);
+  transRecordInitializer(re, r);
+
+  // This would normally be done right after transAsField, but we needed to add
+  // the default initializer first.
+  re.c.closeRecord();
+
 
   // Add types and variables defined during the record that should be added to
   // the enclosing environment.  These are the implicit constructors defined by
-  // "operator init".
+  // "operator init", as well as the autounravel fields (both builtin and user
+  // defined).
   addPostRecordEnvironment(e, r, parent);
-}
-
-void recorddec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  auto* newCtx = symContext->newContext(getPos().LineColumn());
-  auto* structTyInfo = symContext->newTypeDec<AsymptoteLsp::StructDecs>(
-          static_cast<std::string>(id), getPos().LineColumn());
-  if (structTyInfo != nullptr)
-  {
-    structTyInfo->ctx = newCtx;
-    body->createSymMap(newCtx);
-  }
-  else
-  {
-    cerr << "Cannot create new struct context" << endl;
-  }
-#endif
 }
 
 runnable *autoplainRunnable() {
   // Abstract syntax for the code:
   //   private import plain;
-  position pos=position();
-  static importdec ap(pos, new idpair(pos, symbol::trans("plain")));
+  position pos=nullPos;
+  static importdec ap(pos, new idpair(pos, symbol::literalTrans("plain")));
   static modifiedRunnable mr(pos, trans::PRIVATE, &ap);
 
   return &mr;

@@ -42,12 +42,7 @@ void blockStm::prettyprint(ostream &out, Int indent)
   base->prettyprint(out, indent+1);
 }
 
-void blockStm::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  base->createSymMap(symContext->newContext(getPos().LineColumn()));
-#endif
-}
+
 
 void expStm::prettyprint(ostream &out, Int indent)
 {
@@ -134,7 +129,7 @@ void tryToWriteExp(coenv &e, exp *expr)
     if (t->kind == ty_overloaded) {
       // Translate the expr in order to print the ambiguity error first.
       expr->trans(e);
-      em.sync();
+      em.sync(true);
       assert(em.errors());
 
       // Then, write out all of the types.
@@ -176,11 +171,6 @@ void expStm::interactiveTrans(coenv &e)
     baseExpTrans(e, body);
 }
 
-void expStm::createSymMap(AsymptoteLsp::SymbolContext* symContext) {
-#ifdef HAVE_LSP
-  body->createSymMap(symContext);
-#endif
-}
 
 
 void ifStm::prettyprint(ostream &out, Int indent)
@@ -216,18 +206,6 @@ void ifStm::trans(coenv &e)
   e.c.defLabel(end);
 }
 
-  void ifStm::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-  {
-#ifdef HAVE_LSP
-    test->createSymMap(symContext);
-    onTrue->createSymMap(symContext);
-
-    if (onFalse)
-    {
-      onFalse->createSymMap(symContext);
-    }
-#endif
-  }
 
 
 void transLoopBody(coenv &e, stm *body) {
@@ -298,24 +276,6 @@ void whileStm::trans(coenv &e)
   e.c.popLoop();
 }
 
-void whileStm::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  // while (<xyz>) { <body> }
-  // the <xyz> part belongs in the main context as the while statement,
-  // as it cannot declare new variables and only knows the symbols from that context.
-
-  test->createSymMap(symContext);
-
-  // for the body part, { <body> } are encapsulated in
-  // the blockStm, while <body> are direct statements.
-  // If the while block does not use { <body> }, then the body
-  // can be considered the same context as it cannot declare new variables and again, can
-  // only uses the variable already known before this while statement.
-
-  body->createSymMap(symContext);
-#endif
-}
 
 
   void doStm::prettyprint(ostream &out, Int indent)
@@ -344,15 +304,6 @@ void doStm::trans(coenv &e)
 
   e.c.popLoop();
 }
-
-void doStm::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  body->createSymMap(symContext);
-  test->createSymMap(symContext);
-#endif
-}
-
 
 void forStm::prettyprint(ostream &out, Int indent)
 {
@@ -395,27 +346,7 @@ void forStm::trans(coenv &e)
   e.e.endScope();
 }
 
-void forStm::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  AsymptoteLsp::SymbolContext* ctx(symContext);
-  if (init)
-  {
-    auto* declCtx(symContext->newContext(getPos().LineColumn()));
-    init->createSymMap(declCtx);
-    ctx = declCtx;
-  }
-  if (test)
-  {
-    test->createSymMap(ctx);
-  }
-  if (update)
-  {
-    update->createSymMap(ctx);
-  }
-  body->createSymMap(ctx);
-#endif
-}
+
 
 void extendedForStm::prettyprint(ostream &out, Int indent)
 {
@@ -495,26 +426,7 @@ void extendedForStm::trans(coenv &e) {
          new blockStm(pos, &b)).trans(e);
 }
 
-void extendedForStm::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  auto* declCtx(symContext->newContext(getPos().LineColumn()));
 
-  std::string varName(var);
-
-  // FIXME: How do we get the position of the actual variable name?
-  //        Right now, we only get the starting position of the type declaration
-  declCtx->symMap.varDec.emplace(std::piecewise_construct,
-          std::forward_as_tuple(varName),
-          std::forward_as_tuple(
-                  varName,
-                  static_cast<std::string>(*start),
-                  start->getPos().LineColumn()
-                  ));
-  set->createSymMap(symContext);
-  body->createSymMap(declCtx);
-#endif
-}
 
 
 void breakStm::prettyprint(ostream &out, Int indent)
@@ -580,15 +492,6 @@ void returnStm::trans(coenv &e)
   e.c.encode(inst::ret);
 }
 
-void returnStm::createSymMap(AsymptoteLsp::SymbolContext* symContext)
-{
-#ifdef HAVE_LSP
-  if (value)
-  {
-    value->createSymMap(symContext);
-  }
-#endif
-}
 
 
 void stmExpList::prettyprint(ostream &out, Int indent)

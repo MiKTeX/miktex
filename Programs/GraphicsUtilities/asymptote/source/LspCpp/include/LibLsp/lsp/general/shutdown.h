@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "LibLsp/JsonRpc/lsResponseMessage.h"
 #include "LibLsp/JsonRpc/RequestInMessage.h"
 
@@ -12,4 +11,3 @@
  */
 
 DEFINE_REQUEST_RESPONSE_TYPE(td_shutdown, optional<JsonNull>, optional<lsp::Any>, "shutdown");
-

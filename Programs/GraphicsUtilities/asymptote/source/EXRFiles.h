@@ -4,7 +4,7 @@
 
 #pragma once
 #include "common.h"
-#include "cudareflect/tinyexr/tinyexr.h"
+#include <tinyexr.h>
 
 namespace camp
 {

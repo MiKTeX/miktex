@@ -323,7 +323,7 @@ void write(vm::stack *s)
   string S=pop<string>(s,emptystring);
   vm::item it=pop(s);
   bool defaultfile=isdefault(it);
-  camp::ofile *f=defaultfile ? &camp::Stdout : vm::get<camp::ofile*>(it);
+  camp::file *f=defaultfile ? &camp::Stdout : vm::get<camp::file*>(it);
   if(!f->isOpen() || !f->enabled()) return;
 
   size_t size=checkArray(a);
@@ -354,7 +354,7 @@ void writeArray(vm::stack *s)
   string S=pop<string>(s,emptystring);
   vm::item it=pop(s);
   bool defaultfile=isdefault(it);
-  camp::ofile *f=defaultfile ? &camp::Stdout : vm::get<camp::ofile*>(it);
+  camp::file *f=defaultfile ? &camp::Stdout : vm::get<camp::file*>(it);
   if(!f->isOpen() || !f->enabled()) return;
 
   size_t asize=checkArray(a);
@@ -409,7 +409,7 @@ void writeArray2(vm::stack *s)
   array *a=pop<array*>(s);
   vm::item it=pop(s);
   bool defaultfile=isdefault(it);
-  camp::ofile *f=defaultfile ? &camp::Stdout : vm::get<camp::ofile*>(it);
+  camp::file *f=defaultfile ? &camp::Stdout : vm::get<camp::file*>(it);
   if(!f->isOpen() || !f->enabled()) return;
 
   size_t size=checkArray(a);
@@ -441,7 +441,7 @@ void writeArray3(vm::stack *s)
   array *a=pop<array*>(s);
   vm::item it=pop(s);
   bool defaultfile=isdefault(it);
-  camp::ofile *f=defaultfile ? &camp::Stdout : vm::get<camp::ofile*>(it);
+  camp::file *f=defaultfile ? &camp::Stdout : vm::get<camp::file*>(it);
   if(!f->isOpen() || !f->enabled()) return;
 
   size_t size=checkArray(a);

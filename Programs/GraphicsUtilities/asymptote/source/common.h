@@ -11,36 +11,49 @@
 #undef NDEBUG
 #endif
 
+#if defined(_WIN32)
+#include <Winsock2.h>
+#endif
+
 #include <iostream>
 #include <memory>
 #include <climits>
+#include <cstdint>
+
+#if defined(_MSC_VER)
+// for and/or/not operators. not supported natively on MSVC
+#include <BaseTsd.h>
+#include <ciso646>
+typedef SSIZE_T ssize_t;
+#define STDOUT_FILENO 1
+#define STDIN_FILENO 0
+#define STDERR_FILENO 2
+#endif
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#if __cplusplus < 201703L
+#ifdef DEBUG_CSTACKTRACE
+// To output a stacktrace when you are compiling with
+// CFLAGS="-g -O0 -DDEBUG_CSTACKTRACE", insert code like the following:
+// cerr << boost::stacktrace::stacktrace();
+// at the appropriate place.
+// NOTE: This gives useful information on MacOS, but seems to give only
+// hex addresses (rather than function names) on Linux. Possible remedies
+// may be found at https://stackoverflow.com/q/52583544/2318074 and linked
+// pages.
+#  ifndef _GNU_SOURCE
+#    define _GNU_SOURCE
+#  endif
 
-#ifdef HAVE_LSP
-#include <boost/optional.hpp>
-#include <boost/none.hpp>
-using boost::optional;
-#define nullopt boost::none
-using boost::make_optional;
-#else
-#include "optional.hpp"
-#define boost nonstd
+#  include <boost/stacktrace.hpp>
+#endif
+
+#include <optional.hpp>
 using nonstd::optional;
 using nonstd::nullopt;
 using nonstd::make_optional;
-#endif
-
-#else
-#include <optional>
-using std::optional;
-using std::nullopt;
-using std::make_optional;
-#endif
 
 using std::make_pair;
 
@@ -60,25 +73,10 @@ using std::make_pair;
 
 #include "memory.h"
 
-#if defined(HAVE_LONG_LONG) && defined(LLONG_MAX) && defined(LLONG_MIN)
-#define Int_MAX2 LLONG_MAX
-#define Int_MIN LLONG_MIN
-typedef long long Int;
-typedef unsigned long long unsignedInt;
-#else
-#undef HAVE_LONG_LONG
-#ifdef HAVE_LONG
-#define Int_MAX2 LONG_MAX
-#define Int_MIN LONG_MIN
-typedef long Int;
-typedef unsigned long unsignedInt;
-#else
-#define Int_MAX2 INT_MAX
-#define Int_MIN INT_MIN
-typedef int Int;
-typedef unsigned int unsignedInt;
-#endif
-#endif
+#define Int_MAX2 INT64_MAX
+#define Int_MIN INT64_MIN
+typedef int64_t Int;
+typedef uint64_t unsignedInt;
 
 #ifndef COMPACT
 #if Int_MAX2 >= 0x7fffffffffffffffLL

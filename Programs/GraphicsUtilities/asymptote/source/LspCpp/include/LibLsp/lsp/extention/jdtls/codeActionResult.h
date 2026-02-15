@@ -7,9 +7,10 @@
 #include <set>
 #include "LibLsp/lsp/textDocument/code_action.h"
 
-namespace SourceAssistProcessor {
+namespace SourceAssistProcessor
+{
 
-        /*std::set<std::string> UNSUPPORTED_RESOURCES = { "module-info.java", "package-info.java"
+/*std::set<std::string> UNSUPPORTED_RESOURCES = { "module-info.java", "package-info.java"
         };*/
 
 //      static  const char* COMMAND_ID_ACTION_OVERRIDEMETHODSPROMPT = "java.action.overrideMethodsPrompt";
@@ -19,4 +20,4 @@ namespace SourceAssistProcessor {
 //      static  const char* COMMAND_ID_ACTION_GENERATEACCESSORSPROMPT = "java.action.generateAccessorsPrompt";
 //      static  const char* COMMAND_ID_ACTION_GENERATECONSTRUCTORSPROMPT = "java.action.generateConstructorsPrompt";
 //      static  const char* COMMAND_ID_ACTION_GENERATEDELEGATEMETHODSPROMPT = "java.action.generateDelegateMethodsPrompt";
-};
+}; // namespace SourceAssistProcessor

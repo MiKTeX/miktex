@@ -16,28 +16,27 @@
 //txt.An invalid sequence(e.g. (1) delete file a.txt and (2) insert text into file a.txt) will cause failure of the operation.
 //How the client recovers from the failure is described by the client capability : workspace.workspaceEdit.failureHandling
 
-
-
 struct lsChangeAnnotations
 {
-        lsChangeAnnotation id;
-        MAKE_SWAP_METHOD(lsChangeAnnotations, id)
+    lsChangeAnnotation id;
+    MAKE_SWAP_METHOD(lsChangeAnnotations, id)
 };
 MAKE_REFLECT_STRUCT(lsChangeAnnotations, id)
-struct lsWorkspaceEdit {
-        // Holds changes to existing resources.
-        // changes ? : { [uri:string]: TextEdit[]; };
-        // std::unordered_map<lsDocumentUri, std::vector<lsTextEdit>> changes;
+struct lsWorkspaceEdit
+{
+    // Holds changes to existing resources.
+    // changes ? : { [uri:string]: TextEdit[]; };
+    // std::unordered_map<lsDocumentUri, std::vector<lsTextEdit>> changes;
 
-        // An array of `TextDocumentEdit`s to express changes to specific a specific
-        // version of a text document. Whether a client supports versioned document
-        // edits is expressed via `WorkspaceClientCapabilites.versionedWorkspaceEdit`.
-        //
-        optional< std::map<std::string, std::vector<lsTextEdit> > >  changes;
-        typedef std::pair < optional<lsTextDocumentEdit>, optional<lsp::Any> > Either;
+    // An array of `TextDocumentEdit`s to express changes to specific a specific
+    // version of a text document. Whether a client supports versioned document
+    // edits is expressed via `WorkspaceClientCapabilites.versionedWorkspaceEdit`.
+    //
+    optional<std::map<std::string, std::vector<lsTextEdit>>> changes;
+    typedef std::pair<optional<lsTextDocumentEdit>, optional<lsp::Any>> Either;
 
-        optional <  std::vector< Either > > documentChanges;
-        /**
+    optional<std::vector<Either>> documentChanges;
+    /**
          * A map of change annotations that can be referenced in
          * `AnnotatedTextEdit`s or create, rename and delete file / folder
          * operations.
@@ -47,11 +46,10 @@ struct lsWorkspaceEdit {
          *
          * @since 3.16.0
          */
-        optional< lsChangeAnnotations > changeAnnotations;
+    optional<lsChangeAnnotations> changeAnnotations;
 
-        MAKE_SWAP_METHOD(lsWorkspaceEdit, changes, documentChanges, changeAnnotations)
+    MAKE_SWAP_METHOD(lsWorkspaceEdit, changes, documentChanges, changeAnnotations)
 };
 MAKE_REFLECT_STRUCT(lsWorkspaceEdit, changes, documentChanges, changeAnnotations)
 
 extern void Reflect(Reader& visitor, lsWorkspaceEdit::Either& value);
-

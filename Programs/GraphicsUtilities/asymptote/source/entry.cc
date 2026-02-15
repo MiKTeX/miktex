@@ -95,17 +95,24 @@ varEntry *qualifyVarEntry(varEntry *qv, varEntry *v)
 }
 
 
-bool tenv::add(symbol dest,
+tyEntry *tenv::add(symbol dest,
                names_t::value_type &x, varEntry *qualifier, coder &c)
 {
-  if (!x.second.empty()) {
-    tyEntry *ent=x.second.front();
-    if (ent->checkPerm(READ, c)) {
-      enter(dest, qualifyTyEntry(qualifier, ent));
-      return true;
-    }
+  mem::list<tyEntry *>& ents=x.second;
+  if (ents.empty()) {
+    return nullptr;
   }
-  return false;
+  tyEntry *ent=ents.front();
+  if (!ent->checkPerm(READ, c)) {
+    return nullptr;
+  }
+  if (permission perm = c.getPermission(); perm != PUBLIC) {
+    // Add an additional restriction to ent based on c.getPermission().
+    ent = new tyEntry(ent, perm, c.thisType());
+  }
+  tyEntry *qEnt = qualifyTyEntry(qualifier, ent);
+  enter(dest, qEnt);
+  return qEnt;
 }
 
 void tenv::add(tenv& source, varEntry *qualifier, coder &c) {
@@ -114,13 +121,13 @@ void tenv::add(tenv& source, varEntry *qualifier, coder &c) {
     add(p->first, *p, qualifier, c);
 }
 
-bool tenv::add(symbol src, symbol dest,
+tyEntry *tenv::add(symbol src, symbol dest,
                tenv& source, varEntry *qualifier, coder &c) {
   names_t::iterator p = source.names.find(src);
   if (p != source.names.end())
     return add(dest, *p, qualifier, c);
   else
-    return false;
+    return nullptr;
 }
 
 // To avoid writing qualifiers everywhere.
@@ -265,6 +272,14 @@ size_t specialHash(symbol name, const ty *t) {
   DEBUG_CACHE_ASSERT(t);
   return name.hash() * 107 + t->hash();
 }
+size_t hash(symbol name, const ty *t) {
+  if (name.special()) {
+    return specialHash(name, t);
+  } else {
+    return nonSpecialHash(name, t);
+  }
+}
+
 
 varEntry *core_venv::storeNonSpecial(symbol name, varEntry *ent) {
   DEBUG_CACHE_ASSERT(name.notSpecial());
@@ -406,6 +421,26 @@ size_t numFormals(ty *t) {
   return sig ? sig->getNumFormals() : 0;
 }
 
+size_t SigHash::operator()(const mem::pair<symbol, ty*>& p) const {
+  return hash(p.first, p.second);
+}
+
+bool SigEquiv::operator()(const mem::pair<symbol, ty*>& p1,
+                            const mem::pair<symbol, ty*>& p2) const {
+  symbol name1 = p1.first, name2 = p2.first;
+  if (name1 != name2)
+    return false;
+  ty *t1 = p1.second, *t2 = p2.second;
+  DEBUG_CACHE_ASSERT(t1);
+  DEBUG_CACHE_ASSERT(t2);
+  if (name1.special()) {
+    return equivalent(t1, t2);
+  } else {
+    return equivalent(t1->getSignature(), t2->getSignature());
+  }
+}
+
+
 void venv::checkName(symbol name)
 {
 #if 0
@@ -526,7 +561,7 @@ void venv::namevalue::replaceType(ty *new_t, ty *old_t) {
 }
 
 #ifdef DEBUG_CACHE
-void venv::namevalue::popType(ty *s)
+void venv::namevalue::popType(astType *s)
 #else
   void venv::namevalue::popType()
 #endif
@@ -696,21 +731,29 @@ varEntry *venv::lookBySignature(symbol name, signature *sig) {
 
 void venv::add(venv& source, varEntry *qualifier, coder &c)
 {
-  core_venv::const_iterator end = source.core.end();
-  for (core_venv::const_iterator p = source.core.begin(); p != end; ++p)
-    {
-      DEBUG_CACHE_ASSERT(p->filled());
+  const bool isAutoUnravel = c.isAutoUnravel();
+  for (const cell& p : source.core) {
+    DEBUG_CACHE_ASSERT(p.filled());
 
-      varEntry *v=p->ent;
-      if (v->checkPerm(READ, c)) {
-        enter(p->name, qualifyVarEntry(qualifier, v));
+    varEntry *v=p.ent;
+    if (v->checkPerm(READ, c)) {
+      if (permission perm = c.getPermission(); perm != PUBLIC) {
+        // Add an additional restriction to v based on c.getPermission().
+        v = new varEntry(*v, perm, c.thisType());
+      }
+      varEntry *qve=qualifyVarEntry(qualifier, v);
+      enter(p.name, qve);
+      if (isAutoUnravel) {
+        registerAutoUnravel(p.name, qve);
       }
     }
+  }
 }
 
-bool venv::add(symbol src, symbol dest,
-               venv& source, varEntry *qualifier, coder &c)
-{
+bool venv::add(
+  symbol src, symbol dest, venv& source, varEntry *qualifier, coder &c,
+  mem::vector<varEntry*> *addedVec
+) {
   ty *t=source.getType(src);
 
   if (!t)
@@ -722,7 +765,15 @@ bool venv::add(symbol src, symbol dest,
       {
         varEntry *v=source.lookByType(src, *i);
         if (v->checkPerm(READ, c)) {
-          enter(dest, qualifyVarEntry(qualifier, v));
+          if (permission perm = c.getPermission(); perm != PUBLIC) {
+            // Add an additional restriction to v based on c.getPermission().
+            v = new varEntry(*v, perm, c.thisType());
+          }
+          varEntry *qve=qualifyVarEntry(qualifier, v);
+          enter(dest, qve);
+          if (addedVec != nullptr) {
+            addedVec->push_back(qve);
+          }
           added=true;
         }
       }
@@ -730,11 +781,19 @@ bool venv::add(symbol src, symbol dest,
   }
   else {
     varEntry *v=source.lookByType(src, t);
-    if (v->checkPerm(READ, c)) {
-      enter(dest, qualifyVarEntry(qualifier, v));
-      return true;
+    if (!v->checkPerm(READ, c)) {
+      return false;
     }
-    return false;
+    if (permission perm = c.getPermission(); perm != PUBLIC) {
+      // Add an additional restriction to v based on c.getPermission().
+      v = new varEntry(*v, perm, c.thisType());
+    }
+    varEntry *qve=qualifyVarEntry(qualifier, v);
+    enter(dest, qve);
+    if (addedVec != nullptr) {
+      addedVec->push_back(qve);
+    }
+    return true;
   }
 }
 
@@ -782,6 +841,24 @@ void venv::completions(mem::list<symbol >& l, string start)
   for(namemap::iterator N = names.begin(); N != names.end(); ++N)
     if (prefix(start, N->first) && N->second.t)
       l.push_back(N->first);
+}
+
+void venv::registerAutoUnravel(symbol name, varEntry *v,
+                               AutounravelPriority priority)
+{
+  mem::pair<symbol, ty*> p = {name, v->getType()};
+  if (nonShadowableAutoUnravels.find(p) != nonShadowableAutoUnravels.end()) {
+    if (priority == AutounravelPriority::FORCE) {
+      em.error(v->getPos());
+      em << "cannot shadow autounravel " << name;
+    }
+    return;
+  }
+  autoUnravels.emplace_front(name, v);
+  if (priority == AutounravelPriority::FORCE) {
+    // The value doesn't matter, we just need to know that the key exists.
+    nonShadowableAutoUnravels[p] = nullptr;
+  }
 }
 
 } // namespace trans

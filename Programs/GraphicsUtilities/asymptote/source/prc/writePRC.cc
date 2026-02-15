@@ -19,9 +19,9 @@
 *
 *************/
 
-#include "writePRC.h"
-#include <climits>
+#include "prc/writePRC.h"
 #include <cassert>
+#include <climits>
 
 // debug print includes
 #include <iostream>
@@ -40,7 +40,7 @@ using namespace std;
 #endif
 
 // Count leading zeros.
-uint32_t CLZ(uint32_t a) 
+uint32_t CLZ(uint32_t a)
 {
 #if __GNUC_PREREQ(3,4)
   return __builtin_clz(a);
@@ -51,7 +51,7 @@ uint32_t CLZ(uint32_t a)
     8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31
   };
 
-  a |= a >> 1; // first round down to one less than a power of 2 
+  a |= a >> 1; // first round down to one less than a power of 2
   a |= a >> 2;
   a |= a >> 4;
   a |= a >> 8;
@@ -62,7 +62,7 @@ uint32_t CLZ(uint32_t a)
 }
 
 // Portable integer implementation of ceil(log2(x)).
-uint32_t Log2(uint32_t x) 
+uint32_t Log2(uint32_t x)
 {
   assert(x != 0);
   uint32_t L=31-CLZ(x);
@@ -243,10 +243,10 @@ void UserData::write(PRCbitStream &pbs)
 
 void PRCAttributeEntry::serializeAttributeEntry(PRCbitStream &pbs) const
 {
-  WriteBoolean (title_is_integer) 
+  WriteBoolean (title_is_integer)
   if (title_is_integer)
     WriteUnsignedInteger (title_integer)
-  else	
+  else
     WriteString (title_text)
 }
 
@@ -267,7 +267,7 @@ void PRCSingleAttribute::serializeSingleAttribute(PRCbitStream &pbs) const
       break;
     case KEPRCModellerAttributeTypeString:
       WriteString (value_text)
-      break; 
+      break;
     default:
       break;
   }
@@ -275,24 +275,24 @@ void PRCSingleAttribute::serializeSingleAttribute(PRCbitStream &pbs) const
 
 void PRCAttribute::serializeAttribute(PRCbitStream &pbs) const
 {
-  WriteUnsignedInteger (PRC_TYPE_MISC_Attribute) 
-  
+  WriteUnsignedInteger (PRC_TYPE_MISC_Attribute)
+
   SerializeAttributeEntry
   const uint32_t size_of_attribute_keys = attribute_keys.size();
-  WriteUnsignedInteger (size_of_attribute_keys) 
-  for(uint32_t i=0;i<size_of_attribute_keys;i++) 
-    SerializeContentSingleAttribute (attribute_keys[i]) 
+  WriteUnsignedInteger (size_of_attribute_keys)
+  for(uint32_t i=0;i<size_of_attribute_keys;i++)
+    SerializeContentSingleAttribute (attribute_keys[i])
 }
 
 void PRCAttributes::serializeAttributes(PRCbitStream &pbs) const
 {
   if (attributes.empty()) { // shortcut for most typical case
     const uint32_t number_of_attributes = 0;
-    WriteUnsignedInteger (number_of_attributes) 
+    WriteUnsignedInteger (number_of_attributes)
     return;
   }
   const uint32_t number_of_attributes = attributes.size();
-  WriteUnsignedInteger (number_of_attributes) 
+  WriteUnsignedInteger (number_of_attributes)
   for(PRCAttributeList::const_iterator it = attributes.begin(); it != attributes.end(); ++it)
   {
     SerializeAttribute(*it)
@@ -356,7 +356,7 @@ void PRCTextureDefinition::serializeTextureDefinition(PRCbitStream &pbs)
   const uint32_t size_texture_mapping_attributes_components = 1;
   const uint8_t *texture_mapping_attributes_components = &texture_mapping_attribute_components;
   const EPRCTextureMappingType eMappingType = KEPRCTextureMappingType_Stored;
-  
+
   const double red = 1.0;
   const double green = 1.0;
   const double blue = 1.0;
@@ -374,8 +374,8 @@ void PRCTextureDefinition::serializeTextureDefinition(PRCbitStream &pbs)
 
   SerializeContentPRCBase
 
-  WriteUnsignedInteger (picture_index+1) 
-  WriteCharacter (texture_dimension) 
+  WriteUnsignedInteger (picture_index+1)
+  WriteCharacter (texture_dimension)
 
   //   SerializeTextureMappingType
   WriteInteger (eMappingType) // Texture mapping type
@@ -384,19 +384,19 @@ void PRCTextureDefinition::serializeTextureDefinition(PRCbitStream &pbs)
   //     WriteInteger (eMappingOperator) // Texture mapping operator
   //     WriteInteger (transformation)
   //     if (transformation)
-  //        SerializeCartesianTransformation3d (transformation) 
+  //        SerializeCartesianTransformation3d (transformation)
   //  }
 
-  WriteUnsignedInteger (texture_mapping_attributes) // Texture mapping attributes 
+  WriteUnsignedInteger (texture_mapping_attributes) // Texture mapping attributes
   WriteUnsignedInteger (size_texture_mapping_attributes_intensities)
   for (i=0;i<size_texture_mapping_attributes_intensities;i++)
      WriteDouble (texture_mapping_attributes_intensities[i])
   WriteUnsignedInteger (size_texture_mapping_attributes_components)
   for (i=0;i<size_texture_mapping_attributes_components;i++)
-     WriteCharacter (texture_mapping_attributes_components[i]) 
+     WriteCharacter (texture_mapping_attributes_components[i])
 
   WriteInteger (texture_function)
-  // reserved for future use; see Texture function 
+  // reserved for future use; see Texture function
   if (texture_function == KEPRCTextureFunction_Blend)
   {
      WriteDouble (red) // blend color component in the range [0.0,1.0]
@@ -405,20 +405,20 @@ void PRCTextureDefinition::serializeTextureDefinition(PRCbitStream &pbs)
      WriteDouble (alpha) // blend color component in the range [0.0,1.0]
   }
 
-  WriteInteger (blend_src_rgb) // Texture blend parameter 
-  // reserved for future use; see Texture blend parameter 
+  WriteInteger (blend_src_rgb) // Texture blend parameter
+  // reserved for future use; see Texture blend parameter
   if (blend_src_rgb != KEPRCTextureBlendParameter_Unknown)
-     WriteInteger (blend_dst_rgb) // Texture blend parameter 
+     WriteInteger (blend_dst_rgb) // Texture blend parameter
 
-  WriteInteger (blend_src_alpha) // Texture blend parameter 
-  // reserved for future use; see Texture blend parameter 
+  WriteInteger (blend_src_alpha) // Texture blend parameter
+  // reserved for future use; see Texture blend parameter
   if (blend_src_alpha != KEPRCTextureBlendParameter_Unknown)
-     WriteInteger (blend_dst_alpha) // Texture blend parameter 
+     WriteInteger (blend_dst_alpha) // Texture blend parameter
 
-  WriteCharacter (texture_applying_mode) // Texture applying mode 
+  WriteCharacter (texture_applying_mode) // Texture applying mode
   if (texture_applying_mode & PRC_TEXTURE_APPLYING_MODE_ALPHATEST)
   {
-     WriteInteger (alpha_test) // Texture alpha test 
+     WriteInteger (alpha_test) // Texture alpha test
      WriteDouble (alpha_test_reference)
   }
 
@@ -448,14 +448,14 @@ void PRCMaterialGeneric::serializeMaterialGeneric(PRCbitStream &pbs)
   WriteDouble (specular_alpha)
 }
 
-void PRCTextureApplication::serializeTextureApplication(PRCbitStream &pbs) 
+void PRCTextureApplication::serializeTextureApplication(PRCbitStream &pbs)
 {
   WriteUnsignedInteger (PRC_TYPE_GRAPH_TextureApplication)
   SerializeContentPRCBase
 
-  WriteUnsignedInteger (material_generic_index+1) 
-  WriteUnsignedInteger (texture_definition_index+1) 
-  WriteUnsignedInteger (next_texture_index+1) 
+  WriteUnsignedInteger (material_generic_index+1)
+  WriteUnsignedInteger (texture_definition_index+1)
+  WriteUnsignedInteger (next_texture_index+1)
   WriteUnsignedInteger (UV_coordinates_index+1)
 }
 
@@ -464,7 +464,7 @@ void PRCLinePattern::serializeLinePattern(PRCbitStream &pbs)
   uint32_t i = 0;
   WriteUnsignedInteger (PRC_TYPE_GRAPH_LinePattern)
   SerializeContentPRCBase
-  
+
   const uint32_t size_lengths = lengths.size();
   WriteUnsignedInteger (size_lengths)
   for (i=0;i<size_lengths;i++)
@@ -599,19 +599,19 @@ void resetGraphicsAndName()
 void  PRCMarkup::serializeMarkup(PRCbitStream &pbs)
 {
   WriteUnsignedInteger (PRC_TYPE_MKP_Markup)
-  SerializeContentPRCBase 
+  SerializeContentPRCBase
   SerializeGraphics
-  WriteUnsignedInteger (type) 
-  WriteUnsignedInteger (sub_type) 
+  WriteUnsignedInteger (type)
+  WriteUnsignedInteger (sub_type)
   const uint32_t number_of_linked_items = 0;
-  WriteUnsignedInteger (number_of_linked_items) 
-//  for (i=0;i<number_of_linked_items;i++) 
+  WriteUnsignedInteger (number_of_linked_items)
+//  for (i=0;i<number_of_linked_items;i++)
 //     SerializeReferenceUniqueIdentifier (linked_items[i])
   const uint32_t number_of_leaders = 0;
-  WriteUnsignedInteger (number_of_leaders) 
-//  for (i=0;i<number_of_leaders;i++) 
+  WriteUnsignedInteger (number_of_leaders)
+//  for (i=0;i<number_of_leaders;i++)
 //     SerializeReferenceUniqueIdentifier (leaders[i])
-  WriteUnsignedInteger (index_tessellation + 1) 
+  WriteUnsignedInteger (index_tessellation + 1)
   SerializeUserData
 }
 
@@ -621,7 +621,7 @@ void  PRCAnnotationItem::serializeAnnotationItem(PRCbitStream &pbs)
 // group___tf_annotation_item_____serialize_content2.html
 // group___tf_annotation_entity_____serialize_content2.html
   WriteUnsignedInteger (PRC_TYPE_MKP_AnnotationItem)
-  SerializeContentPRCBase 
+  SerializeContentPRCBase
   SerializeGraphics
   SerializeReferenceUniqueIdentifier (markup)
   SerializeUserData
@@ -629,7 +629,7 @@ void  PRCAnnotationItem::serializeAnnotationItem(PRCbitStream &pbs)
 
 void  PRCRepresentationItemContent::serializeRepresentationItemContent(PRCbitStream &pbs)
 {
-  SerializeContentPRCBase 
+  SerializeContentPRCBase
   SerializeGraphics
   WriteUnsignedInteger (index_local_coordinate_system + 1)
   WriteUnsignedInteger (index_tessellation + 1)
@@ -639,7 +639,7 @@ void  PRCBrepModel::serializeBrepModel(PRCbitStream &pbs)
 {
    WriteUnsignedInteger (PRC_TYPE_RI_BrepModel)
 
-   SerializeRepresentationItemContent 
+   SerializeRepresentationItemContent
    WriteBit (has_brep_data)
    if (has_brep_data)
    {
@@ -654,7 +654,7 @@ void  PRCPolyBrepModel::serializePolyBrepModel(PRCbitStream &pbs)
 {
    WriteUnsignedInteger (PRC_TYPE_RI_PolyBrepModel)
 
-   SerializeRepresentationItemContent 
+   SerializeRepresentationItemContent
    WriteBoolean (is_closed)
    SerializeUserData
 }
@@ -663,7 +663,7 @@ void  PRCPointSet::serializePointSet(PRCbitStream &pbs)
 {
   WriteUnsignedInteger (PRC_TYPE_RI_PointSet)
 
-  SerializeRepresentationItemContent 
+  SerializeRepresentationItemContent
 
   const uint32_t number_of_points = point.size();
   WriteUnsignedInteger (number_of_points)
@@ -678,7 +678,7 @@ void  PRCSet::serializeSet(PRCbitStream &pbs)
 {
   WriteUnsignedInteger (PRC_TYPE_RI_Set)
 
-  SerializeRepresentationItemContent 
+  SerializeRepresentationItemContent
 
   const uint32_t number_of_elements = elements.size();
   WriteUnsignedInteger (number_of_elements)
@@ -742,7 +742,7 @@ void  PRCWire::serializeWire(PRCbitStream &pbs)
 {
    WriteUnsignedInteger (PRC_TYPE_RI_Curve)
 
-   SerializeRepresentationItemContent 
+   SerializeRepresentationItemContent
    WriteBit (has_wire_body)
    if (has_wire_body)
    {
@@ -757,7 +757,7 @@ void  PRCPolyWire::serializePolyWire(PRCbitStream &pbs)
 {
   WriteUnsignedInteger (PRC_TYPE_RI_PolyWire)
 
-  SerializeRepresentationItemContent 
+  SerializeRepresentationItemContent
   SerializeUserData
 }
 
@@ -767,7 +767,7 @@ void  PRCGeneralTransformation3d::serializeGeneralTransformation3d(PRCbitStream 
   // Like Fortran, PRC uses transposed (column-major) format!
   for (int j=0;j<4;j++)
     for (int i=0;i<4;i++)
-     WriteDouble(mat[i][j]); 
+     WriteDouble(mat[i][j]);
 }
 
 void  PRCCartesianTransformation3d::serializeCartesianTransformation3d(PRCbitStream &pbs) const
@@ -807,7 +807,7 @@ void  PRCCartesianTransformation3d::serializeCartesianTransformation3d(PRCbitStr
 }
 
 void  PRCTransformation::serializeTransformation(PRCbitStream &pbs)
-{ 
+{
    WriteBit ( has_transformation )
    if (has_transformation)
    {
@@ -842,7 +842,7 @@ void  PRCCoordinateSystem::serializeCoordinateSystem(PRCbitStream &pbs)
 {
   WriteUnsignedInteger (PRC_TYPE_RI_CoordinateSystem)
 
-  SerializeRepresentationItemContent 
+  SerializeRepresentationItemContent
   axis_set->serializeTransformation3d(pbs);
   SerializeUserData
 }
@@ -871,10 +871,10 @@ void SerializeArrayRGBA (const std::vector<uint8_t> &rgba_vertices,const bool is
   const std::vector<uint8_t> &vector_color = rgba_vertices;
   const uint32_t number_of_colors=vector_color.size();
   const uint32_t number_of_vectors=number_of_colors / number_by_vector;
-  // first one 
+  // first one
   for (i=0;i<number_by_vector;i++)
      WriteCharacter (vector_color[i])
-  
+
   for (i=1;i<number_of_vectors;i++)
   {
      bool b_same = true;
@@ -901,22 +901,22 @@ void  PRCTessFace::serializeTessFace(PRCbitStream &pbs)
   WriteUnsignedInteger (PRC_TYPE_TESS_Face)
 
   const uint32_t size_of_line_attributes=line_attributes.size();
-  WriteUnsignedInteger (size_of_line_attributes) 
-  for (i=0;i<size_of_line_attributes;i++) 
+  WriteUnsignedInteger (size_of_line_attributes)
+  for (i=0;i<size_of_line_attributes;i++)
      SerializeLineAttr (line_attributes[i])
 
-  WriteUnsignedInteger (start_wire) 
+  WriteUnsignedInteger (start_wire)
   const uint32_t size_of_sizes_wire=sizes_wire.size();
-  WriteUnsignedInteger (size_of_sizes_wire) 
-  for (i=0;i<size_of_sizes_wire;i++) 
+  WriteUnsignedInteger (size_of_sizes_wire)
+  for (i=0;i<size_of_sizes_wire;i++)
      WriteUnsignedInteger (sizes_wire[i])
 
-  WriteUnsignedInteger (used_entities_flag) 
+  WriteUnsignedInteger (used_entities_flag)
 
-  WriteUnsignedInteger (start_triangulated) 
+  WriteUnsignedInteger (start_triangulated)
   const uint32_t size_of_sizes_triangulated=sizes_triangulated.size();
-  WriteUnsignedInteger (size_of_sizes_triangulated) 
-  for (i=0;i<size_of_sizes_triangulated;i++) 
+  WriteUnsignedInteger (size_of_sizes_triangulated)
+  for (i=0;i<size_of_sizes_triangulated;i++)
      WriteUnsignedInteger (sizes_triangulated[i])
 
   if(number_of_texture_coordinate_indexes==0 &&
@@ -932,7 +932,7 @@ void  PRCTessFace::serializeTessFace(PRCbitStream &pbs)
       PRC_FACETESSDATA_TriangleStripeOneNormalTextured
      ))
     WriteUnsignedInteger (1)  // workaround for error of not setting number_of_texture_coordinate_indexes
-  else 
+  else
     WriteUnsignedInteger (number_of_texture_coordinate_indexes)
 
   const bool has_vertex_colors = !rgba_vertices.empty();
@@ -951,7 +951,7 @@ void  PRCTessFace::serializeTessFace(PRCbitStream &pbs)
      // not described
      }
   }
-  if (size_of_line_attributes) 
+  if (size_of_line_attributes)
      WriteUnsignedInteger (behaviour)
 }
 
@@ -969,7 +969,7 @@ void  PRC3DTess::serialize3DTess(PRCbitStream &pbs)
 {
   uint32_t i=0; // universal index for PRC standart compatibility
   WriteUnsignedInteger (PRC_TYPE_TESS_3D)
-  SerializeContentBaseTessData 
+  SerializeContentBaseTessData
   WriteBoolean (has_faces)
   WriteBoolean (has_loops)
   const bool must_recalculate_normals=normal_coordinate.empty();
@@ -982,28 +982,28 @@ void  PRC3DTess::serialize3DTess(PRCbitStream &pbs)
      // definition similar to VRML
      WriteDouble (crease_angle)
   }
-  
+
   const uint32_t number_of_normal_coordinates=normal_coordinate.size();
   WriteUnsignedInteger (number_of_normal_coordinates)
   for (i=0;i<number_of_normal_coordinates;i++)
      WriteDouble (normal_coordinate[i])
-  
+
   const uint32_t number_of_wire_indices=wire_index.size();
   WriteUnsignedInteger (number_of_wire_indices)
   for (i=0;i<number_of_wire_indices;i++)
      WriteUnsignedInteger (wire_index[i])
-  
+
   // note : those can be single triangles, triangle fans or stripes
   const uint32_t number_of_triangulated_indices=triangulated_index.size();
   WriteUnsignedInteger (number_of_triangulated_indices)
   for (i=0;i<number_of_triangulated_indices;i++)
      WriteUnsignedInteger (triangulated_index[i])
-  
+
   const uint32_t number_of_face_tessellation=face_tessellation.size();
   WriteUnsignedInteger (number_of_face_tessellation)
   for (i=0;i<number_of_face_tessellation;i++)
      SerializeTessFace (face_tessellation[i])
-  
+
   const uint32_t number_of_texture_coordinates=texture_coordinate.size();
   WriteUnsignedInteger (number_of_texture_coordinates)
   for (i=0;i<number_of_texture_coordinates;i++)
@@ -1022,12 +1022,12 @@ void  PRC3DWireTess::serialize3DWireTess(PRCbitStream &pbs)
 // group___tf3_d_wire_tess_data_____serialize_content2.html
   uint32_t i=0; // universal index for PRC standart compatibility
   WriteUnsignedInteger (PRC_TYPE_TESS_3D_Wire)
-  SerializeContentBaseTessData 
+  SerializeContentBaseTessData
   const uint32_t number_of_wire_indexes=wire_indexes.size();
   WriteUnsignedInteger (number_of_wire_indexes)
   for (i=0;i<number_of_wire_indexes;i++)
      WriteUnsignedInteger (wire_indexes[i])
-  
+
   const bool has_vertex_colors = !rgba_vertices.empty();
   WriteBoolean (has_vertex_colors)
   if (has_vertex_colors)
@@ -1053,7 +1053,7 @@ void  PRCMarkupTess::serializeMarkupTess(PRCbitStream &pbs)
 // group___tf_markup_tess_data_____serialize_content2.html
   uint32_t i=0; // universal index for PRC standart compatibility
   WriteUnsignedInteger (PRC_TYPE_TESS_Markup)
-  SerializeContentBaseTessData 
+  SerializeContentBaseTessData
 
   const uint32_t number_of_codes=codes.size();
   WriteUnsignedInteger (number_of_codes)
@@ -1150,12 +1150,12 @@ void PRCContentSurface::serializeContentSurface(PRCbitStream &pbs)
 }
 
 void  PRCNURBSSurface::serializeNURBSSurface(PRCbitStream &pbs)
-{ 
+{
    uint32_t i=0;
 //  uint32_t i=0, j=0;
-   WriteUnsignedInteger (PRC_TYPE_SURF_NURBS) 
+   WriteUnsignedInteger (PRC_TYPE_SURF_NURBS)
 
-   SerializeContentSurface 
+   SerializeContentSurface
    WriteBoolean ( is_rational )
    WriteUnsignedInteger ( degree_in_u )
    WriteUnsignedInteger ( degree_in_v )
@@ -1202,7 +1202,7 @@ void writeUnsignedIntegerWithVariableBitNumber(PRCbitStream &pbs, uint32_t value
       if( value >= 1u<<(bit_number - 1 - i) )
       {
          WriteBoolean (true)
-      
+
          value -= 1u<<(bit_number - 1 - i);
       }
       else
@@ -1214,7 +1214,7 @@ void writeUnsignedIntegerWithVariableBitNumber(PRCbitStream &pbs, uint32_t value
 #define WriteUnsignedIntegerWithVariableBitNumber( value, bit_number )  writeUnsignedIntegerWithVariableBitNumber( pbs, (value), (bit_number) );
 
 void writeIntegerWithVariableBitNumber(PRCbitStream &pbs, int32_t iValue, uint32_t uBitNumber)
-{ 
+{
   WriteBoolean(iValue<0);
   WriteUnsignedIntegerWithVariableBitNumber(abs(iValue), uBitNumber - 1);
 }
@@ -1259,7 +1259,7 @@ int32_t intdiv(double dValue, double dTolerance)
   assert(ratio <= INT_MAX);
   int32_t iTempValue=(int32_t) ratio;
   if(ratio - iTempValue >= 0.5) iTempValue++;
-  if(dValue < 0) 
+  if(dValue < 0)
     return -iTempValue;
   else
     return iTempValue;
@@ -1331,7 +1331,7 @@ void  PRCCompressedFace::serializeCompressedAnaNurbs(PRCbitStream &pbs, double b
 {
    // WriteCompressedEntityType ( PRC_HCG_AnaNurbs )
    const bool is_a_curve = false;
-   WriteBoolean ( is_a_curve ) 
+   WriteBoolean ( is_a_curve )
    WriteUnsignedIntegerWithVariableBitNumber (13 , 4)
    serializeContentCompressedFace( pbs );
    serializeCompressedNurbs( pbs, brep_data_compressed_tolerance );
@@ -1342,7 +1342,7 @@ void  PRCCompressedFace::serializeCompressedNurbs(PRCbitStream &pbs, double brep
    const double nurbs_tolerance = 0.2*brep_data_compressed_tolerance;
    const uint32_t degree_in_u = degree;
    const uint32_t degree_in_v = degree;
-   
+
    WriteUnsignedIntegerWithVariableBitNumber ( degree_in_u, 5)
    WriteUnsignedIntegerWithVariableBitNumber ( degree_in_v, 5)
 
@@ -1358,10 +1358,10 @@ void  PRCCompressedFace::serializeCompressedNurbs(PRCbitStream &pbs, double brep
    WriteBoolean (false) // Multiplicity_is_already_stored - no
    WriteUnsignedIntegerWithVariableBitNumber( degree_in_v+1,number_bit)
    WriteBoolean (true) // Multiplicity_is_already_stored - yes
-  
-   const bool is_closed_u = false; 
+
+   const bool is_closed_u = false;
    WriteBoolean ( is_closed_u )
-   const bool is_closed_v = false; 
+   const bool is_closed_v = false;
    WriteBoolean ( is_closed_v )
 
    const uint32_t number_of_control_point_in_u = degree_in_u + 1;
@@ -1375,7 +1375,7 @@ void  PRCCompressedFace::serializeCompressedNurbs(PRCbitStream &pbs, double brep
    for(uint32_t i=0;i<number_of_control_point_in_u;i++)
    for(uint32_t j=0;j<number_of_control_point_in_v;j++)
       P[i][j] = control_point[i*number_of_control_point_in_v+j];
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
    itriple compressed_control_point[number_of_control_point_in_u][number_of_control_point_in_v];
    uint32_t control_point_type[number_of_control_point_in_u][number_of_control_point_in_v];
 #else
@@ -1385,7 +1385,7 @@ void  PRCCompressedFace::serializeCompressedNurbs(PRCbitStream &pbs, double brep
 
    uint32_t number_of_bits_for_isomin = 1;
    uint32_t number_of_bits_for_rest = 1;
-   
+
    for(uint32_t j = 1; j < number_of_control_point_in_v; j++)
    {
       compressed_control_point[0][j] = iroundto(P[0][j]-P[0][j-1], nurbs_tolerance );
@@ -1410,7 +1410,7 @@ void  PRCCompressedFace::serializeCompressedNurbs(PRCbitStream &pbs, double brep
      compressed_control_point[i][j].x = 0;
      compressed_control_point[i][j].y = 0;
      compressed_control_point[i][j].z = 0;
-     
+
      PRCVector3d V = P[i-1][j] - P[i-1][j-1];
      PRCVector3d U = P[i][j-1] - P[i-1][j-1];
      PRCVector3d Pc = P[i][j] - (P[i-1][j-1] + U + V);
@@ -1420,7 +1420,7 @@ void  PRCCompressedFace::serializeCompressedNurbs(PRCbitStream &pbs, double brep
        control_point_type[i][j] = 0;
        P[i][j] = P[i-1][j-1] + U + V;
      }
-     else 
+     else
      {
        PRCVector3d N = U*V;
        PRCVector3d Ue = U;
@@ -1473,27 +1473,27 @@ void  PRCCompressedFace::serializeCompressedNurbs(PRCbitStream &pbs, double brep
    WriteDouble ( P[0][0].x )
    WriteDouble ( P[0][0].y )
    WriteDouble ( P[0][0].z )
-   
+
    for(uint32_t j = 1; j < number_of_control_point_in_v; j++)
    {
       WriteIntegerWithVariableBitNumber(compressed_control_point[0][j].x, number_of_bits_for_isomin+1)
       WriteIntegerWithVariableBitNumber(compressed_control_point[0][j].y, number_of_bits_for_isomin+1)
       WriteIntegerWithVariableBitNumber(compressed_control_point[0][j].z, number_of_bits_for_isomin+1)
    }
-   
+
    for(uint32_t i = 1; i < number_of_control_point_in_u; i++)
    {
       WriteIntegerWithVariableBitNumber(compressed_control_point[i][0].x, number_of_bits_for_isomin+1)
       WriteIntegerWithVariableBitNumber(compressed_control_point[i][0].y, number_of_bits_for_isomin+1)
       WriteIntegerWithVariableBitNumber(compressed_control_point[i][0].z, number_of_bits_for_isomin+1)
    }
-   
+
    for(uint32_t i = 1; i < number_of_control_point_in_u; i++)
    {
       for(uint32_t j = 1; j < number_of_control_point_in_v; j++)
       {
          WriteUnsignedIntegerWithVariableBitNumber ( control_point_type[i][j], 2 )
-         
+
          if(control_point_type[i][j] == 1)
          {
             WriteIntegerWithVariableBitNumber ( compressed_control_point[i][j].z, number_of_bits_for_rest+1 )
@@ -1511,7 +1511,7 @@ void  PRCCompressedFace::serializeCompressedNurbs(PRCbitStream &pbs, double brep
          }
       }
    }
-   
+
    const uint32_t type_param_u = 0;
    WriteBoolean( type_param_u == 0 )
    const uint32_t type_param_v = 0;
@@ -1528,10 +1528,10 @@ void PRCCompressedBrepData::serializeCompressedShell(PRCbitStream &pbs)
 
    if( number_of_face != 1 )
       WriteNumberOfBitsThenUnsignedInteger (number_of_face)
-   
+
    for( i=0; i < number_of_face; i++)
          SerializeCompressedFace ( face[i] )
-   
+
    const bool is_an_iso_face = false;
    for( i=0; i < number_of_face; i++)
       WriteBoolean ( is_an_iso_face )
@@ -1541,7 +1541,7 @@ void PRCCompressedBrepData::serializeCompressedBrepData(PRCbitStream &pbs)
 {
    WriteUnsignedInteger ( PRC_TYPE_TOPO_BrepDataCompress )
    SerializeContentBody
-   
+
    WriteDouble ( brep_data_compressed_tolerance )
    const uint32_t number_of_bits_to_store_reference = 1;
    WriteNumberOfBitsThenUnsignedInteger ( number_of_bits_to_store_reference )
@@ -1549,7 +1549,7 @@ void PRCCompressedBrepData::serializeCompressedBrepData(PRCbitStream &pbs)
    WriteUnsignedIntegerWithVariableBitNumber ( number_vertex_iso, number_of_bits_to_store_reference )
    const uint32_t number_edge_iso = 0;
    WriteUnsignedIntegerWithVariableBitNumber ( number_edge_iso, number_of_bits_to_store_reference )
-   
+
    const uint32_t number_of_shell = 1;
    const uint32_t number_of_connex = 1;
    WriteBoolean ( number_of_shell == 1 && number_of_connex == 1 )
@@ -1562,31 +1562,31 @@ void PRCCompressedBrepData::serializeCompressedBrepData(PRCbitStream &pbs)
 }
 
 void  PRCBlend01::serializeBlend01(PRCbitStream &pbs)
-{ 
-   WriteUnsignedInteger (PRC_TYPE_SURF_Blend01) 
+{
+   WriteUnsignedInteger (PRC_TYPE_SURF_Blend01)
 
    SerializeContentSurface
    SerializeTransformation
    SerializeUVParameterization
-   SerializePtrCurve ( center_curve ) 
-   SerializePtrCurve ( origin_curve ) 
-   SerializePtrCurve ( tangent_curve ) 
+   SerializePtrCurve ( center_curve )
+   SerializePtrCurve ( origin_curve )
+   SerializePtrCurve ( tangent_curve )
 }
 
 void  PRCRuled::serializeRuled(PRCbitStream &pbs)
-{ 
-   WriteUnsignedInteger (PRC_TYPE_SURF_Ruled) 
+{
+   WriteUnsignedInteger (PRC_TYPE_SURF_Ruled)
 
    SerializeContentSurface
    SerializeTransformation
    SerializeUVParameterization
-   SerializePtrCurve ( first_curve ) 
-   SerializePtrCurve ( second_curve ) 
+   SerializePtrCurve ( first_curve )
+   SerializePtrCurve ( second_curve )
 }
 
 void  PRCSphere::serializeSphere(PRCbitStream &pbs)
-{ 
-   WriteUnsignedInteger (PRC_TYPE_SURF_Sphere) 
+{
+   WriteUnsignedInteger (PRC_TYPE_SURF_Sphere)
 
    SerializeContentSurface
    SerializeTransformation
@@ -1595,8 +1595,8 @@ void  PRCSphere::serializeSphere(PRCbitStream &pbs)
 }
 
 void  PRCCone::serializeCone(PRCbitStream &pbs)
-{ 
-   WriteUnsignedInteger (PRC_TYPE_SURF_Cone) 
+{
+   WriteUnsignedInteger (PRC_TYPE_SURF_Cone)
 
    SerializeContentSurface
    SerializeTransformation
@@ -1606,8 +1606,8 @@ void  PRCCone::serializeCone(PRCbitStream &pbs)
 }
 
 void  PRCCylinder::serializeCylinder(PRCbitStream &pbs)
-{ 
-   WriteUnsignedInteger (PRC_TYPE_SURF_Cylinder) 
+{
+   WriteUnsignedInteger (PRC_TYPE_SURF_Cylinder)
 
    SerializeContentSurface
    SerializeTransformation
@@ -1616,8 +1616,8 @@ void  PRCCylinder::serializeCylinder(PRCbitStream &pbs)
 }
 
 void  PRCTorus::serializeTorus(PRCbitStream &pbs)
-{ 
-   WriteUnsignedInteger (PRC_TYPE_SURF_Torus) 
+{
+   WriteUnsignedInteger (PRC_TYPE_SURF_Torus)
 
    SerializeContentSurface
    SerializeTransformation
@@ -1627,18 +1627,18 @@ void  PRCTorus::serializeTorus(PRCbitStream &pbs)
 }
 
 void PRCFace::serializeFace(PRCbitStream &pbs)
-{ 
+{
    uint32_t i = 0;
-   WriteUnsignedInteger (PRC_TYPE_TOPO_Face) 
+   WriteUnsignedInteger (PRC_TYPE_TOPO_Face)
 
    SerializeBaseTopology
    SerializePtrSurface ( base_surface )
    WriteBit ( have_surface_trim_domain )
    if ( have_surface_trim_domain )
-      SerializeDomain ( surface_trim_domain ) 
+      SerializeDomain ( surface_trim_domain )
    WriteBit ( have_tolerance )
    if ( have_tolerance )
-      WriteDouble ( tolerance ) 
+      WriteDouble ( tolerance )
    WriteUnsignedInteger ( number_of_loop )
    WriteInteger ( outer_loop_index )
    for (i=0;i<number_of_loop;i++)
@@ -1648,14 +1648,14 @@ void PRCFace::serializeFace(PRCbitStream &pbs)
 }
 
 void PRCShell::serializeShell(PRCbitStream &pbs)
-{ 
+{
    uint32_t i = 0;
-   WriteUnsignedInteger (PRC_TYPE_TOPO_Shell) 
+   WriteUnsignedInteger (PRC_TYPE_TOPO_Shell)
 
    SerializeBaseTopology
    WriteBoolean ( shell_is_closed )
    uint32_t number_of_face = face.size();
-   WriteUnsignedInteger ( number_of_face ) 
+   WriteUnsignedInteger ( number_of_face )
    for (i=0;i<number_of_face;i++)
    {
       SerializePtrTopology ( face[i] )
@@ -1671,13 +1671,13 @@ void PRCShell::addFace(PRCFace*& pFace, uint8_t orientation)
 }
 
 void PRCConnex::serializeConnex(PRCbitStream &pbs)
-{ 
+{
    uint32_t i = 0;
-   WriteUnsignedInteger (PRC_TYPE_TOPO_Connex) 
+   WriteUnsignedInteger (PRC_TYPE_TOPO_Connex)
 
    SerializeBaseTopology
    uint32_t number_of_shell = shell.size();
-   WriteUnsignedInteger ( number_of_shell ) 
+   WriteUnsignedInteger ( number_of_shell )
    for (i=0;i<number_of_shell;i++)
    {
       SerializePtrTopology ( shell[i] )
@@ -1694,11 +1694,11 @@ void PRCConnex::addShell(PRCShell*& pShell)
 void PRCBrepData::serializeBrepData(PRCbitStream &pbs)
 {
    uint32_t i = 0;
-   WriteUnsignedInteger ( PRC_TYPE_TOPO_BrepData) 
+   WriteUnsignedInteger ( PRC_TYPE_TOPO_BrepData)
 
-   SerializeContentBody 
+   SerializeContentBody
    uint32_t number_of_connex = connex.size();
-   WriteUnsignedInteger ( number_of_connex ) 
+   WriteUnsignedInteger ( number_of_connex )
    for ( i=0; i<number_of_connex; i++)
    {
       SerializePtrTopology ( connex[i] )
@@ -1725,8 +1725,8 @@ void PRCContentWireEdge::serializeContentWireEdge(PRCbitStream &pbs)
 
 void PRCWireEdge::serializeWireEdge(PRCbitStream &pbs)
 {
-   WriteUnsignedInteger (PRC_TYPE_TOPO_WireEdge) 
-   SerializeContentWireEdge 
+   WriteUnsignedInteger (PRC_TYPE_TOPO_WireEdge)
+   SerializeContentWireEdge
 }
 
 void PRCContentCurve::serializeContentCurve(PRCbitStream &pbs)
@@ -1737,11 +1737,11 @@ void PRCContentCurve::serializeContentCurve(PRCbitStream &pbs)
 }
 
 void  PRCNURBSCurve::serializeNURBSCurve(PRCbitStream &pbs)
-{ 
+{
    uint32_t i=0;
-   WriteUnsignedInteger (PRC_TYPE_CRV_NURBS) 
+   WriteUnsignedInteger (PRC_TYPE_CRV_NURBS)
 
-   SerializeContentCurve 
+   SerializeContentCurve
    WriteBoolean ( is_rational )
    WriteUnsignedInteger ( degree )
    uint32_t highest_index_of_control_point = control_point.size()-1;
@@ -1764,16 +1764,16 @@ void  PRCNURBSCurve::serializeNURBSCurve(PRCbitStream &pbs)
 }
 
 void  PRCPolyLine::serializePolyLine(PRCbitStream &pbs)
-{ 
+{
    uint32_t i=0;
-   WriteUnsignedInteger (PRC_TYPE_CRV_PolyLine) 
+   WriteUnsignedInteger (PRC_TYPE_CRV_PolyLine)
 
-   SerializeContentCurve 
+   SerializeContentCurve
    SerializeTransformation
    SerializeParameterization
    uint32_t number_of_point = point.size();
-   WriteUnsignedInteger ( number_of_point ) 
-   for (i=0; i<number_of_point; i++) 
+   WriteUnsignedInteger ( number_of_point )
+   for (i=0; i<number_of_point; i++)
    {
       if (is_3d)
          SerializeVector3d ( point[i] )
@@ -1783,26 +1783,26 @@ void  PRCPolyLine::serializePolyLine(PRCbitStream &pbs)
 }
 
 void  PRCCircle::serializeCircle(PRCbitStream &pbs)
-{ 
-   WriteUnsignedInteger (PRC_TYPE_CRV_Circle) 
+{
+   WriteUnsignedInteger (PRC_TYPE_CRV_Circle)
 
-   SerializeContentCurve 
+   SerializeContentCurve
    SerializeTransformation
    SerializeParameterization
    WriteDouble ( radius )
 }
 
 void  PRCComposite::serializeComposite(PRCbitStream &pbs)
-{ 
+{
    uint32_t i=0;
-   WriteUnsignedInteger (PRC_TYPE_CRV_Composite) 
+   WriteUnsignedInteger (PRC_TYPE_CRV_Composite)
 
-   SerializeContentCurve 
+   SerializeContentCurve
    SerializeTransformation
    SerializeParameterization
    uint32_t number_of_curves = base_curve.size();
-   WriteUnsignedInteger ( number_of_curves ) 
-   for (i=0; i<number_of_curves; i++) 
+   WriteUnsignedInteger ( number_of_curves )
+   for (i=0; i<number_of_curves; i++)
    {
       SerializePtrCurve ( base_curve[i] )
       WriteBoolean ( base_sense[i] )
@@ -1811,8 +1811,8 @@ void  PRCComposite::serializeComposite(PRCbitStream &pbs)
 }
 
 void PRCTopoContext::serializeTopoContext(PRCbitStream &pbs)
-{ 
-   WriteUnsignedInteger (PRC_TYPE_TOPO_Context) 
+{
+   WriteUnsignedInteger (PRC_TYPE_TOPO_Context)
 
    SerializeContentPRCBase
    WriteCharacter ( behaviour )
@@ -1827,32 +1827,32 @@ void PRCTopoContext::serializeTopoContext(PRCbitStream &pbs)
 }
 
 void PRCTopoContext::serializeContextAndBodies(PRCbitStream &pbs)
-{ 
+{
    uint32_t i=0;
-   SerializeTopoContext 
+   SerializeTopoContext
    uint32_t number_of_bodies = body.size();
-   WriteUnsignedInteger (number_of_bodies) 
-   for (i=0;i<number_of_bodies;i++) 
-      SerializeBody (body[i]) 
+   WriteUnsignedInteger (number_of_bodies)
+   for (i=0;i<number_of_bodies;i++)
+      SerializeBody (body[i])
 }
 
 void PRCTopoContext::serializeGeometrySummary(PRCbitStream &pbs)
-{ 
+{
    uint32_t i=0;
    uint32_t number_of_bodies = body.size();
-   WriteUnsignedInteger (number_of_bodies) 
-   for (i=0;i<number_of_bodies;i++) 
+   WriteUnsignedInteger (number_of_bodies)
+   for (i=0;i<number_of_bodies;i++)
    {
-      WriteUnsignedInteger ( body[i]->serialType() ) 
+      WriteUnsignedInteger ( body[i]->serialType() )
       if ( IsCompressedType(body[i]->serialType()) )
       {
-         WriteDouble ( body[i]->serialTolerance() ) 
+         WriteDouble ( body[i]->serialTolerance() )
       }
    }
 }
 
 void PRCTopoContext::serializeContextGraphics(PRCbitStream &pbs)
-{ 
+{
    uint32_t i=0, j=0, k=0, l=0;
    ResetCurrentGraphics
    uint32_t number_of_body = body.size();
@@ -1888,17 +1888,17 @@ void PRCTopoContext::serializeContextGraphics(PRCbitStream &pbs)
    uint32_t number_of_treat_type = 0;
    if (has_graphics && !element.empty())
      number_of_treat_type = 1;
-   WriteUnsignedInteger (number_of_treat_type) 
-   for (i=0;i<number_of_treat_type;i++) 
+   WriteUnsignedInteger (number_of_treat_type)
+   for (i=0;i<number_of_treat_type;i++)
    {
       const uint32_t element_type = PRC_TYPE_TOPO_Face;
-      WriteUnsignedInteger (element_type) 
+      WriteUnsignedInteger (element_type)
       const uint32_t number_of_element = element.size();
-      WriteUnsignedInteger (number_of_element) 
-      for (j=0;j<number_of_element;j++) 
+      WriteUnsignedInteger (number_of_element)
+      for (j=0;j<number_of_element;j++)
       {
-         WriteBoolean ( element[j]->has_graphics() ) 
-         if (element[j]->has_graphics()) 
+         WriteBoolean ( element[j]->has_graphics() )
+         if (element[j]->has_graphics())
          {
             element[j]->serializeGraphics(pbs);
          }
@@ -1929,26 +1929,26 @@ uint32_t PRCTopoContext::addCompressedBrepData(PRCCompressedBrepData*& pCompress
 
 void PRCSingleWireBody::serializeSingleWireBody(PRCbitStream &pbs)
 {
-  WriteUnsignedInteger ( PRC_TYPE_TOPO_SingleWireBody) 
+  WriteUnsignedInteger ( PRC_TYPE_TOPO_SingleWireBody)
 
-  SerializeContentBody 
+  SerializeContentBody
   SerializePtrTopology ( wire_edge )
 }
 
 void PRCUniqueId::serializeCompressedUniqueId(PRCbitStream &pbs) const
 {
-   WriteUnsignedInteger (id0) 
-   WriteUnsignedInteger (id1) 
-   WriteUnsignedInteger (id2) 
-   WriteUnsignedInteger (id3) 	
+   WriteUnsignedInteger (id0)
+   WriteUnsignedInteger (id1)
+   WriteUnsignedInteger (id2)
+   WriteUnsignedInteger (id3)
 }
 
 void PRCUniqueId::serializeFileStructureUncompressedUniqueId(std::ostream& out) const
 {
-   WriteUncompressedUnsignedInteger (id0) 
-   WriteUncompressedUnsignedInteger (id1) 
-   WriteUncompressedUnsignedInteger (id2) 
-   WriteUncompressedUnsignedInteger (id3) 
+   WriteUncompressedUnsignedInteger (id0)
+   WriteUncompressedUnsignedInteger (id1)
+   WriteUncompressedUnsignedInteger (id2)
+   WriteUncompressedUnsignedInteger (id3)
 }
 
 void PRCUnit::serializeUnit(PRCbitStream &pbs)
@@ -1959,11 +1959,11 @@ void PRCUnit::serializeUnit(PRCbitStream &pbs)
 
 void PRCProductOccurrence::serializeProductOccurrence(PRCbitStream &pbs)
 {
-   WriteUnsignedInteger ( PRC_TYPE_ASM_ProductOccurence ) 
+   WriteUnsignedInteger ( PRC_TYPE_ASM_ProductOccurence )
 
-   SerializePRCBaseWithGraphics 
+   SerializePRCBaseWithGraphics
 
-// SerializeReferencesOfProductOccurrence 
+// SerializeReferencesOfProductOccurrence
    WriteUnsignedInteger (index_part+1)
    WriteUnsignedInteger (index_prototype+1)
    if (index_prototype != m1)
@@ -1995,16 +1995,16 @@ void PRCProductOccurrence::serializeProductOccurrence(PRCbitStream &pbs)
    WriteBit (has_location)
    if (has_location)
      location->serializeTransformation3d (pbs);
-   
-   WriteUnsignedInteger (0) // number_of_references
-   
-// SerializeMarkups (markups)
-   WriteUnsignedInteger (0) // number_of_linked_items 
-   WriteUnsignedInteger (0) // number_of_leaders 
-   WriteUnsignedInteger (0) // number_of_markups 
-   WriteUnsignedInteger (0) // number_of_annotation_entities 
 
-   
+   WriteUnsignedInteger (0) // number_of_references
+
+// SerializeMarkups (markups)
+   WriteUnsignedInteger (0) // number_of_linked_items
+   WriteUnsignedInteger (0) // number_of_leaders
+   WriteUnsignedInteger (0) // number_of_markups
+   WriteUnsignedInteger (0) // number_of_annotation_entities
+
+
    WriteUnsignedInteger (0) // number_of_views
    WriteBit (false) // has_entity_filter
    WriteUnsignedInteger (0) // number_of_display_filters
@@ -2064,8 +2064,8 @@ uint32_t PRCPartDefinition::addRepresentationItem(PRCRepresentationItem*& pRepre
 
 void PRCPartDefinition::serializePartDefinition(PRCbitStream &pbs)
 {
-  WriteUnsignedInteger ( PRC_TYPE_ASM_PartDefinition ) 
-	
+  WriteUnsignedInteger ( PRC_TYPE_ASM_PartDefinition )
+
   SerializePRCBaseWithGraphics
   SerializeBoundingBox
 
@@ -2073,13 +2073,13 @@ void PRCPartDefinition::serializePartDefinition(PRCbitStream &pbs)
   WriteUnsignedInteger (number_of_representation_items)
   for (uint32_t i=0;i<number_of_representation_items;i++)
     SerializeRepresentationItem (representation_item[i])
-	
+
   // SerializeMarkups (markups)
-  WriteUnsignedInteger (0) // number_of_linked_items 
-  WriteUnsignedInteger (0) // number_of_leaders 
-  WriteUnsignedInteger (0) // number_of_markups 
-  WriteUnsignedInteger (0) // number_of_annotation_entities 
+  WriteUnsignedInteger (0) // number_of_linked_items
+  WriteUnsignedInteger (0) // number_of_leaders
+  WriteUnsignedInteger (0) // number_of_markups
+  WriteUnsignedInteger (0) // number_of_annotation_entities
 
   WriteUnsignedInteger (0) // number_of_views
   SerializeUserData
-}	
+}

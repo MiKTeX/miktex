@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "LibLsp/JsonRpc/RequestInMessage.h"
 #include "LibLsp/lsp/out_list.h"
 
@@ -12,5 +11,6 @@
  *
  * Since version 3.6.0
  */
-DEFINE_REQUEST_RESPONSE_TYPE(td_typeDefinition,
-        lsTextDocumentPositionParams, LocationListEither::Either, "textDocument/typeDefinition");
+DEFINE_REQUEST_RESPONSE_TYPE(
+    td_typeDefinition, lsTextDocumentPositionParams, LocationListEither::Either, "textDocument/typeDefinition"
+);

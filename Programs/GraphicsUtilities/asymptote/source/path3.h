@@ -17,10 +17,6 @@
 #include "path.h"
 #include "arrayop.h"
 
-// For CYGWIN
-#undef near
-#undef far
-
 namespace camp {
 
 void checkEmpty3(Int n);
@@ -287,13 +283,13 @@ public:
   triple mintimes() const {
     checkEmpty3(n);
     bounds();
-    return camp::triple(times.left,times.bottom,times.near);
+    return camp::triple(times.leftBound,times.bottomBound,times.nearBound);
   }
 
   triple maxtimes() const {
     checkEmpty3(n);
     bounds();
-    return camp::triple(times.right,times.top,times.far);
+    return camp::triple(times.rightBound,times.topBound,times.farBound);
   }
 
   template<class T>
