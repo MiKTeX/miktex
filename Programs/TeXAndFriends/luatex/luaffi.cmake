@@ -1,6 +1,6 @@
 ## luaffi.cmake
 ##
-## Copyright (C) 2010-2025 Christian Schenk
+## Copyright (C) 2010-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -33,6 +33,7 @@ target_link_libraries(luatex-luaffi-objects
     PUBLIC
         ${CMAKE_DL_LIBS}
         ${lua53_target_name}
+        ${unxemu_dll_name}
 )
 
 if(USE_SYSTEM_ZLIB)
