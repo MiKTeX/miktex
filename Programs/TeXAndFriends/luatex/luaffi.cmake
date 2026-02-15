@@ -36,6 +36,13 @@ target_link_libraries(luatex-luaffi-objects
         ${unxemu_dll_name}
 )
 
+if(MIKTEX_NATIVE_WINDOWS)
+    target_link_libraries(luatex-luaffi-objects
+        PUBLIC
+            ${unxemu_dll_name}
+    )
+endif()
+
 if(USE_SYSTEM_ZLIB)
     target_link_libraries(luatex-luaffi-objects PUBLIC MiKTeX::Imported::ZLIB)
 else()
