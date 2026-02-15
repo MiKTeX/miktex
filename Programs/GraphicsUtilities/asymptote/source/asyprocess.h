@@ -87,10 +87,10 @@ public:
 };
 
 typedef std::pair<size_t,size_t> linecolumn;
-typedef mem::map<CONST linecolumn,string> xkey_t;
+typedef mem::map<const linecolumn,string> xkey_t;
 typedef mem::deque<camp::transform> xtransform_t;
-typedef mem::map<CONST string,xtransform_t> xmap_t;
-typedef mem::map<CONST size_t,types::signature *> sigMap_t;
+typedef mem::map<const string,xtransform_t> xmap_t;
+typedef mem::map<const size_t,types::signature *> sigMap_t;
 
 struct processDataStruct {
   texstream tex; // Bi-directional pipe to latex (to find label bbox)

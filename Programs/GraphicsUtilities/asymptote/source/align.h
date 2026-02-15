@@ -89,23 +89,58 @@ inline void deleteAlign(T *v, size_t len)
 
 namespace utils {
 
-inline unsigned int ceilquotient(unsigned int a, unsigned int b)
+extern size_t ALIGNMENT;
+
+inline size_t ceilquotient(size_t a, size_t b)
 {
   return (a+b-1)/b;
 }
 
 inline Complex *ComplexAlign(size_t size)
 {
+  if(size == 0) return NULL;
   Complex *v;
-  Array::newAlign(v,size,sizeof(Complex));
+  Array::newAlign(v,size,ALIGNMENT);
+  return v;
+}
+
+// Return a contiguous array v of n aligned buffers of length size.
+// Deallocate with deleteAlign(v[0]); delete [] v;
+inline Complex **ComplexAlign(size_t n, size_t size)
+{
+  if(n == 0 || size == 0) return NULL;
+  Complex **v=new Complex*[n];
+  size_t Size=ALIGNMENT*ceilquotient(size,ALIGNMENT);
+  Complex *B=ComplexAlign((n-1)*Size+size);
+  for(size_t i=0; i < n; ++i)
+    v[i]=B+i*Size;
   return v;
 }
 
 inline double *doubleAlign(size_t size)
 {
   double *v;
-  Array::newAlign(v,size,sizeof(Complex));
+  Array::newAlign(v,size,ALIGNMENT);
   return v;
+}
+
+// Return a contiguous array v of n aligned buffers of length size.
+// Deallocate with deleteAlign(v[0]); delete [] v;
+inline double **doubleAlign(size_t n, size_t size)
+{
+  if(n == 0 || size == 0) return NULL;
+  double **v=new double*[n];
+  size_t Size=ALIGNMENT*ceilquotient(size,ALIGNMENT);
+  double *B=doubleAlign((n-1)*Size+size);
+  for(size_t i=0; i < n; ++i)
+    v[i]=B+i*Size;
+  return v;
+}
+
+// Extend n*sizeof(Complex) to a multiple of ALIGNMENT
+inline size_t align(size_t n)
+{
+  return ceilquotient(n*sizeof(Complex),ALIGNMENT)*ALIGNMENT/sizeof(Complex);
 }
 
 template<class T>

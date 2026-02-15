@@ -450,7 +450,7 @@ void igzxfile::open()
   Check();
 
   while(!gzeof(gzfile)) {
-    std::vector<char> tmpBuf(readSize);
+    std::vector<uint8_t> tmpBuf(readSize);
     auto filSz = gzread(gzfile,tmpBuf.data(),readSize);
     std::copy(tmpBuf.begin(),tmpBuf.begin()+filSz,std::back_inserter(readData));
   }
@@ -467,6 +467,22 @@ void igzxfile::closeFile()
     closed=true;
     delete fstream;
     processData().ixfile.remove(index);
+  }
+}
+
+void ogzxfile::close()
+{
+  if(!destroyed) {
+    std::vector<uint8_t> const resultingData=
+      memxdrfile.createCopyOfCurrentData();
+
+    memxdrfile.close();
+    gzFile file=gzopen(name.c_str(),"wb9");
+    gzwrite(file,resultingData.data(),resultingData.size());
+    gzclose(file);
+    if(settings::verbose > 0)
+      cout << "Wrote " << name << endl;
+    destroyed=true;
   }
 }
 #endif

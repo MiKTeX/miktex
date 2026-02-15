@@ -25,8 +25,6 @@ void interruptHandler(int)
   em.Interrupt(true);
 }
 
-bool hangup=false;
-
 int returnCode()
 {
   return em.processStatus() || interact::interactive ? 0 : 1;
@@ -53,5 +51,4 @@ void signalHandler(int)
 
 void hangup_handler(int sig)
 {
-  hangup=true;
 }

@@ -5,7 +5,6 @@
  */
 #if defined(_WIN32)
 #include "win32pipestream.h"
-#include "win32helpers.h"
 #include "util.h"
 #include "errormsg.h"
 

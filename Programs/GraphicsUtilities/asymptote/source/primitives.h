@@ -2,7 +2,7 @@
  * primitives.h
  * Andy Hammerlindl 2007/04/27
  *
- * A list of the primative types in Asymptote, defined using the
+ * A list of the primitive types in Asymptote, defined using the
  * PRIMITIVE(name,Name,asyName) macro.  This macro should be defined in by the
  * code including this file for the context at hand.
  *

@@ -1,9 +1,15 @@
+#include <cassert>
+#if !defined(MIKTEX)
+#include "xstream.h"
+#endif
+
 #if defined(HAVE_CONFIG_H)
 #include "config.h"
+#else
+#define HAVE_LIBTIRPC 1
 #endif
 
 #if defined(HAVE_LIBTIRPC)
-#include "xstream.h"
 
 namespace xdr
 {
@@ -60,7 +66,7 @@ ixstream::ixstream(bool singleprecision)
 void ixstream::open(const char* filename, open_mode)
 {
   clear();
-  buf=fopen(filename,"r");
+  buf=fopen(filename,"rb");
   if(buf) xdrstdio_create(&xdri,buf,XDR_DECODE);
   else set(badbit);
 }
@@ -114,6 +120,7 @@ ixstream& ixstream::operator>>(double& x)
     if(!xdr_double(&xdri, &x)) set(eofbit);
   return *this;
 }
+
 ixstream& ixstream::operator>>(xbyte& x)
 {
   int c=fgetc(buf);
@@ -130,7 +137,7 @@ oxstream::oxstream(bool singleprecision): singleprecision(singleprecision)
 void oxstream::open(const char* filename, open_mode mode)
 {
   clear();
-  buf=fopen(filename,(mode & app) ? "a" : "w");
+  buf=fopen(filename,(mode & app) ? "ab" : "wb");
   if(buf) xdrstdio_create(&xdro,buf,XDR_ENCODE);
   else set(badbit);
 }
@@ -191,7 +198,7 @@ memoxstream::memoxstream(bool singleprecision)
   fmem_init(&fmInstance);
   buf=fmem_open(&fmInstance, "w+");
 #else
-    buf=open_memstream(&buffer,&size);
+  buf=open_memstream(&buffer,&size);
 #endif
   if(buf)
     xdrstdio_create(&xdro,buf,XDR_ENCODE);
@@ -219,17 +226,19 @@ std::vector<uint8_t> memoxstream::createCopyOfCurrentData() {
   size_t retSize=0;
   void* streamPtr=nullptr;
 
-  // DANGER: There's a /severe/ issue with certain systems (though such cases should be rare)
-  // about a potential memory leak.
+  // DANGER: There's a severe but rare issue with certain systems
+  // involving a potential memory leak.
 
   // See https://github.com/Kreijstal/fmem/issues/6
 
-  // Right now, we have no reasonable way to determine if tmpfile implementation is being used
-  // or not, so we cannot have a way to conditionally free the memory.
+  // Right now, we have no reasonable way to determine if a tmpfile
+  // implementation is being used, so we cannot have a way to
+  // conditionally free the memory.
 
-  // In most systems, we have open_memstream and Windows tmpfile API
-  // which the allocation/mapping is handled by the system and hence
-  // no need to free the pointer ourselves, but tmpfile implementation uses malloc that doesn't
+  // On most systems, we have the open_memstream and Windows tmpfile API,
+  // where the allocation/mapping is handled by the system; hence
+  // there is no need to free the pointer ourselves.
+  // But the tmpfile implementation uses malloc that doesn't
   // get freed, so it is our job to manually free it.
   fmem_mem(&fmInstance, &streamPtr, &retSize);
 
@@ -242,7 +251,7 @@ std::vector<uint8_t> memoxstream::createCopyOfCurrentData() {
   std::vector ret(bytePtr, bytePtr + retSize);
   return ret;
 #else
-    // for sanity check, always want to make sure we have a vector of bytes
+    // for sanity check, always ensure that we have a vector of bytes
     static_assert(sizeof(char) == sizeof(uint8_t));
 
     if (buffer == nullptr)
@@ -256,44 +265,79 @@ std::vector<uint8_t> memoxstream::createCopyOfCurrentData() {
 }
 
 // memixstream
-memixstream::memixstream(char* data, size_t length, bool singleprecision)
-  : ixstream(singleprecision)
+#if defined(_WIN32)
+memixstream::memixstream(uint8_t* data, size_t length, bool singleprecision)
+  : ixstream(singleprecision), data(data), length(length)
 {
+  clear();
   xdrmem_create(&xdri,data,length,XDR_DECODE);
 }
-memixstream::memixstream(std::vector<char>& data, bool singleprecision)
+#else
+memixstream::memixstream(uint8_t* data, size_t length, bool singleprecision)
+  : ixstream(singleprecision)
+{
+  clear();
+  buf=fmemopen(data,length,"r");
+  if(buf) xdrstdio_create(&xdri,buf,XDR_DECODE);
+  else set(badbit);
+}
+#endif
+
+memixstream::memixstream(std::vector<uint8_t>& data, bool singleprecision)
   : memixstream(data.data(), data.size(), singleprecision)
 {
+}
+
+#if defined(_WIN32)
+xstream& memixstream::seek(OffsetType pos, seekdir dir) {
+  clear();
+  if(!xdr_setpos(&xdri,pos))
+    set(eofbit);
+  return *this;
+}
+
+OffsetType memixstream::tell() {
+  return xdr_getpos(&xdri);
+}
+
+ixstream& memixstream::operator>>(xbyte& x)
+{
+  size_t position=tell();
+  if(position < length) {
+    x=data[position++];
+    seek(position);
+  } else set(eofbit);
+  return *this;
 }
 
 memixstream::~memixstream()
 {
   xdr_destroy(&xdri);
 }
-void memixstream::close()
+#else
+memixstream::~memixstream()
 {
-  xdr_destroy(&xdri);
+  if(buf) {
+    fclose(buf);
+    buf=nullptr;
+  }
 }
-
-void memixstream::open(const char* filename, open_mode openMode)
-{
-}
+#endif
 
 // ioxstream
-
 void ioxstream::open(const char* filename, open_mode mode)
 {
   clear();
   if(mode & app)
-    buf=fopen(filename,"a+");
+    buf=fopen(filename,"ab+");
   else if(mode & trunc)
-    buf=fopen(filename,"w+");
+    buf=fopen(filename,"wb+");
   else if(mode & out) {
-    buf=fopen(filename,"r+");
+    buf=fopen(filename,"rb+");
     if(!buf)
-      buf=fopen(filename,"w+");
+      buf=fopen(filename,"wb+");
   } else
-    buf=fopen(filename,"r");
+    buf=fopen(filename,"rb");
   if(buf) {
     xdrstdio_create(&xdri,buf,XDR_DECODE);
     xdrstdio_create(&xdro,buf,XDR_ENCODE);
@@ -311,7 +355,6 @@ void ioxstream::close() {
 }
 ioxstream::ioxstream()
 {
-
 }
 ioxstream::ioxstream(const char* filename)
 {
@@ -325,44 +368,6 @@ ioxstream::~ioxstream()
 {
   ioxstream::close();
 }
-
-
-// ixstream + oxstream operator implementation
-
-#define IXSTREAM_CC_DECL(T) ixstream& ixstream::operator >> (T& x)
-#define IXSTREAM_IMPL(T,N) IXSTREAM_CC_DECL(T) {if(!xdr_##N(&xdri, &x)) set(eofbit); return *this;}
-
-IXSTREAM_IMPL(int, int);
-IXSTREAM_IMPL(unsigned int, u_int);
-IXSTREAM_IMPL(long, long);
-IXSTREAM_IMPL(unsigned long, u_long);
-IXSTREAM_IMPL(long long, longlong_t);
-IXSTREAM_IMPL(unsigned long long, u_longlong_t);
-IXSTREAM_IMPL(short, short);
-IXSTREAM_IMPL(unsigned short, u_short);
-IXSTREAM_IMPL(char, char);
-#ifndef _CRAY
-IXSTREAM_IMPL(unsigned char, u_char);
-#endif
-IXSTREAM_IMPL(float, float);
-
-#define OXSTREAM_CC_DECL(T) oxstream& oxstream::operator << (T x)
-#define OXSTREAM_IMPL(T,N) OXSTREAM_CC_DECL(T) {if(!xdr_##N(&xdro, &x)) set(badbit); return *this;}
-
-OXSTREAM_IMPL(int, int);
-OXSTREAM_IMPL(unsigned int, u_int);
-OXSTREAM_IMPL(long, long);
-OXSTREAM_IMPL(unsigned long, u_long);
-OXSTREAM_IMPL(long long, longlong_t);
-OXSTREAM_IMPL(unsigned long long, u_longlong_t);
-OXSTREAM_IMPL(short, short);
-OXSTREAM_IMPL(unsigned short, u_short);
-OXSTREAM_IMPL(char, char);
-
-#ifndef _CRAY
-OXSTREAM_IMPL(unsigned char, u_char);
-#endif
-OXSTREAM_IMPL(float, float);
 
 oxstream& endl(oxstream& s) { s.flush(); return s; }
 oxstream& flush(oxstream& s) {s.flush(); return s;}

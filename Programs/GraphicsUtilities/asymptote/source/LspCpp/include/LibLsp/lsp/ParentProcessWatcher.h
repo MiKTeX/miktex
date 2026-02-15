@@ -2,6 +2,7 @@
 
 #include "LibLsp/JsonRpc/MessageIssue.h"
 #include <memory>
+#include <cstdint>
 
 class ParentProcessWatcher
 {

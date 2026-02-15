@@ -4,10 +4,6 @@
  * Render 3D Bezier paths and surfaces.
  *****/
 
-#ifdef __CYGWIN__
-#define _POSIX_C_SOURCE 200809L
-#endif
-
 #if defined(MIKTEX)
 #include <miktex/asy-first.h>
 #include <miktex/asy.h>
@@ -1164,8 +1160,10 @@ void capzoom()
   if(Zoom <= minzoom) Zoom=minzoom;
   if(Zoom >= maxzoom) Zoom=maxzoom;
 
-  if(Zoom != lastzoom) remesh=true;
-  lastzoom=Zoom;
+  if(fabs(Zoom-lastzoom) > settings::getSetting<double>("zoomThreshold")) {
+    remesh=true;
+    lastzoom=Zoom;
+  }
 }
 
 void fullscreen(bool reposition=true)
@@ -1298,10 +1296,10 @@ void display()
 
 void update()
 {
+  capzoom();
+
   glutDisplayFunc(display);
   glutShowWindow();
-  if(Zoom != lastzoom) remesh=true;
-  lastzoom=Zoom;
   double cz=0.5*(Zmin+Zmax);
 
   dviewMat=translate(translate(dmat4(1.0),dvec3(cx,cy,cz))*drotateMat,
@@ -1836,9 +1834,9 @@ projection camera(bool user)
         double R2=Rotate[j4+2];
         double R3=Rotate[j4+3];
         double T4ij=T[i4+j];
-        sumCamera += T4ij*(R3-cx*R0-cy*R1-cz*R2);
+        sumCamera += T4ij*(R3-cx*R0-cy*R1);
         sumUp += Tup[i4+j]*R1;
-        sumTarget += T4ij*(R3-cx*R0-cy*R1);
+        sumTarget += T4ij*(R3-cx*R0-cy*R1+cz*R2);
       }
       vCamera[i]=sumCamera;
       vUp[i]=sumUp;

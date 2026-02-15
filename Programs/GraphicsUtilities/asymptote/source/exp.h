@@ -1126,7 +1126,7 @@ public:
   types::ty *getType(coenv &e) override;
 };
 
-// Postfix expresions are illegal. This is caught here as we can give a
+// Postfix expressions are illegal. This is caught here as we can give a
 // more meaningful error message to the user, rather than a "parse
 // error."
 class postfixExp : public exp {

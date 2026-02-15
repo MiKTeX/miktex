@@ -39,7 +39,7 @@ struct symbolRecord {
 
 // The table size must be a power of two so that (h % tableSize) can be
 // replaced by (h & tableMask).  1 << 15 was chosen based on the number of
-// unique symbols (roughly 4000) which occured in all of the base modules.
+// unique symbols (roughly 4000) which occurred in all of the base modules.
 const size_t SYMBOL_TABLE_BASE_CAPACITY = 1 << 15;
 symbolRecord baseSymbolTable[SYMBOL_TABLE_BASE_CAPACITY];
 

@@ -21,10 +21,12 @@
 #ifdef HAVE_GL
 
 #include <csignal>
+#ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION
+#endif
 #include <GL/glew.h>
 
 #ifdef __APPLE__
-#define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
 
 #ifdef HAVE_LIBGLUT
@@ -220,7 +222,7 @@ struct Billboard {
 extern Billboard BB;
 
 #ifdef HAVE_LIBGLM
-typedef mem::map<CONST Material,size_t> MaterialMap;
+typedef mem::map<const Material,size_t> MaterialMap;
 
 extern std::vector<Material> materials;
 extern MaterialMap materialMap;

@@ -797,14 +797,9 @@ namespace AsymptoteLsp
         ss << " " << argname.value();
       }
 
-      if (std::next(it) != arguments.end())
-      {
-        ss << ",";
-      }
-
       if (std::next(it) != arguments.end() or restArgs.has_value())
       {
-        ss << " ";
+        ss << ", ";
       }
     }
 

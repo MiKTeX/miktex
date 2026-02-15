@@ -66,6 +66,13 @@ bool entry::checkPerm(action act, coder &c) {
 void entry::reportPerm(action act, position pos, coder &c) {
   for (mem::list<pr>::iterator p=perms.begin(); p != perms.end(); ++p)
     p->report(act, pos, c);
+
+}
+
+void entry::listPerm() {
+  mem::string permissionName[]={"restricted","public","private"};
+  for (mem::list<pr>::iterator p=perms.begin(); p != perms.end(); ++p)
+    cout << permissionName[(*p).perm] << " ";
 }
 
 
@@ -807,12 +814,15 @@ void listValue(symbol name, varEntry *v, record *module)
 {
   if (!module || v->whereDefined() == module)
     {
-      if (settings::getSetting<bool>("where"))
-        cout << v->getPos();
+      bool where=settings::getSetting<bool>("where");
+      if (where)
+        cout << v->getPos() << endl;
 
+      v->listPerm();
       v->getType()->printVar(cout, name);
 
-      cout << ";\n";
+      cout << ";" << endl;
+      if(where) cout << endl;
     }
 }
 

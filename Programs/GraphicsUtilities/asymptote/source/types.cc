@@ -175,6 +175,20 @@ trans::varEntry *primitiveTy::virtualField(symbol id, signature *sig)
   return 0;
 }
 
+ty *overloadedDimensionType() {
+  overloaded *o=new overloaded;
+  o->add(dimensionType());
+  o->add(IntArray());
+  return o;
+}
+
+ty *overloadedModeType() {
+  overloaded *o=new overloaded;
+  o->add(modeType());
+  o->add(primBoolean());
+  return o;
+}
+
 ty *ty::virtualFieldGetType(symbol id)
 {
   trans::varEntry *v = virtualField(id, 0);
@@ -185,12 +199,12 @@ ty *primitiveTy::virtualFieldGetType(symbol id)
 {
   if(kind == ty_file) {
     if (id == SYM(dimension))
-      return dimensionType();
+      return overloadedDimensionType();
 
     if (id == SYM(line) || id == SYM(csv) ||
         id == SYM(word) || id == SYM(singlereal) ||
         id == SYM(singleint) || id == SYM(signedint))
-      return modeType();
+      return overloadedModeType();
 
     if (id == SYM(read))
       return readType();
@@ -377,7 +391,7 @@ string toString(const signature& s)
 
   if (s.rest.t) {
     if (!s.formals.empty())
-      out << " ";
+      out << ", ";
     out << "... " << s.rest;
   }
 

@@ -25,12 +25,12 @@ std::ostream& operator<< (std::ostream& out, const table<B>& t);
 template <class B>
 class table {
 protected:
-  typedef mem::multimap<symbol CONST,B> scope_t;
+  typedef mem::multimap<symbol const,B> scope_t;
   typedef typename scope_t::iterator scope_iterator;
   typedef mem::list<scope_t> scopes_t;
   typedef mem::list<B> name_t;
   typedef typename name_t::iterator name_iterator;
-  typedef mem::map<symbol CONST,name_t> names_t;
+  typedef mem::map<symbol const,name_t> names_t;
   typedef typename names_t::iterator names_iterator;
 
   scopes_t scopes;

@@ -5,7 +5,7 @@
 #include <limits>
 #include <memory>
 #include <vector>
-
+#include <cstdint>
 // Cache that evicts old entries which have not been used recently. Implemented
 // using array/linear search so this works well for small array sizes.
 template<typename TKey, typename TValue>

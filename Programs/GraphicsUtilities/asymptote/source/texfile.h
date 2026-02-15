@@ -318,7 +318,7 @@ public:
   void put(const string& label, const transform& T, const pair& z,
            const pair& Align);
 
-  void beginlayer(const string& psname, bool postscript);
+  void beginlayer(string psname, bool postscript);
   void endlayer();
 
   virtual void Offset(const bbox& box, bool special=false) {};

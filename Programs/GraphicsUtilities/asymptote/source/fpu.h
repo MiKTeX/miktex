@@ -32,10 +32,16 @@ inline void fpu_trap(bool trap=true)
   else fedisableexcept(fpu_exceptions());
 }
 
+#elif defined(_WIN32)
+inline void fpu_trap(bool trap = true)
+{
+  unsigned int mask = _EM_INVALID | _EM_ZERODIVIDE | _EM_OVERFLOW;
+  unsigned int current_word = 0;
+  _controlfp_s(&current_word, trap ? 0 : mask, mask);
+}
+
 #else
-
 inline void fpu_trap(bool=true) {}
-
 #endif
 
 #endif

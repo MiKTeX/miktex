@@ -70,7 +70,7 @@ public:
     }
     uint32_t GetUint32() override
     {
-        return uint32_t(m_->GetUint64());
+        return static_cast<uint32_t>(m_->GetUint64());
     }
     int64_t GetInt64() override
     {

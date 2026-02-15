@@ -1,7 +1,7 @@
 #pragma once
 
 #include "macro_map.h"
-
+#include <cstdint>
 #include <cassert>
 #include <memory>
 #include <string>

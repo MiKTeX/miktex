@@ -2,19 +2,19 @@
 #include <thread>
 #include <atomic>
 #include <functional>
-#include <boost/asio.hpp>
+#include <LibLsp/lsp/asio.h>
 
-template<typename Duration = boost::posix_time::milliseconds>
+template<typename Duration = std::chrono::milliseconds>
 class SimpleTimer
 {
 public:
     SimpleTimer(unsigned int duration, std::function<void()> const& _call_back)
-        : is_running_(true), call_back(_call_back), _deadline_timer(_ios, Duration(duration))
+        : is_running_(true), call_back(_call_back), _timer(_ios, Duration(duration))
     {
-        _deadline_timer.async_wait(
-            [&](boost::system::error_code const& e)
+        _timer.async_wait(
+            [&](std::error_code const& e)
             {
-                if (e.value() == boost::asio::error::operation_aborted)
+                if (e.value() == asio::error::operation_aborted)
                 {
                     return;
                 }
@@ -43,7 +43,7 @@ public:
 private:
     std::atomic_bool is_running_;
     std::function<void()> call_back;
-    boost::asio::io_context _ios;
-    boost::asio::deadline_timer _deadline_timer;
+    asio::io_context _ios;
+    asio::steady_timer       _timer;
     std::thread _thread;
 };

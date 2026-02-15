@@ -79,6 +79,7 @@ public:
 
   bool checkPerm(action act, coder &c);
   void reportPerm(action act, position pos, coder &c);
+  void listPerm();
 
   record *whereDefined() {
     return where;
@@ -432,11 +433,7 @@ class venv {
   // current (possibly overloaded) type of the name.
   // The hash table implementation is slightly faster than the std::map binary
   // tree implementation, so we use it if we can.
-#ifdef NOHASH
-  typedef mem::map<symbol CONST, namevalue> namemap;
-#else
   typedef mem::unordered_map<symbol, namevalue, namehash, nameeq> namemap;
-#endif
   namemap names;
 
 
@@ -467,9 +464,7 @@ public:
   struct file_env_tag {};
   venv(file_env_tag)
     : core(fileCoreSize),
-#ifndef NOHASH
       names(fileNamesSize),
-#endif
       empty_scopes(0) {}
 
   // Add a new variable definition.

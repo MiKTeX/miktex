@@ -37,7 +37,6 @@
 #include <Shlwapi.h>
 #include <Shellapi.h>
 #include <direct.h>
-#include "win32helpers.h"
 
 #define getcwd _getcwd
 #define chdir _chdir
@@ -89,8 +88,33 @@ string demangle(const char* s)
 }
 #endif
 
+void showCommand(const mem::vector<string>& s)
+{
+  if(settings::verbose > 1) {
+    cerr << s[0];
+    size_t count=s.size();
+    for(size_t i=1; i < count; ++i)
+      cerr << " " << s[i];
+    cerr << endl;
+  }
+}
+
 // windows specific unnamed spaces
 #if defined(_WIN32)
+
+int setenv(const char *name, const char *value, bool overwrite) {
+  assert(overwrite);
+#if defined(MIKTEX_WINDOWS)
+  putenv((std::string(name) + "=" + (value != nullptr ? value : "")).c_str());
+#else
+  return SetEnvironmentVariableA(name,value);
+#endif
+}
+
+int unsetenv(const char *name) {
+  return setenv(name,NULL,true);
+}
+
 namespace w32 = camp::w32;
 
 namespace
@@ -106,12 +130,17 @@ namespace
 int SystemWin32(const mem::vector<string>& command, int quiet, bool wait,
                 const char* hint, const char* application, int* ppid)
 {
+  if(*application == 0) application=hint;
+
   cout.flush();
   if (command.empty())
   {
     camp::reportError("Command cannot be empty");
     return -1;
   }
+  if(!quiet)
+    showCommand(command);
+
   string cmdlineStr=camp::w32::buildWindowsCmd(command);
 
   STARTUPINFOA startInfo={};
@@ -140,17 +169,20 @@ int SystemWin32(const mem::vector<string>& command, int quiet, bool wait,
     startInfo.hStdError= quiet >= 2 ? nulFileHandle.getHandle() : GetStdHandle(STD_ERROR_HANDLE);
 
     ostringstream errorMessage;
-    errorMessage << "Cannot open " << application << "\n";
+    errorMessage << "Cannot open " << application;
     string const errorMessageOut=errorMessage.str();
-    w32::checkResult(CreateProcessA(
+    auto const result=CreateProcessA(
                        nullptr,
                        cmdlineStr.data(),
                        nullptr, nullptr, true,
                        0,
                        nullptr, nullptr,
                        &startInfo,
-                       &procInfo),
-                     errorMessageOut.c_str());
+                       &procInfo);
+    if(!result) {
+      execError(command.at(0).c_str(),hint,application);
+      w32::checkResult(result);
+    }
   }
   if (ppid)
   {
@@ -409,16 +441,13 @@ char **args(const mem::vector<string>& s, bool quiet)
 {
   size_t count=s.size();
 
+  if(!quiet)
+    showCommand(s);
+
   char **argv=NULL;
   argv=new char*[count+1];
   for(size_t i=0; i < count; ++i)
     argv[i]=StrdupNoGC(s[i]);
-
-  if(!quiet && settings::verbose > 1) {
-    cerr << argv[0];
-    for(size_t i=1; i < count; ++i) cerr << " " << argv[i];
-    cerr << endl;
-  }
 
   argv[count]=NULL;
   return argv;
@@ -435,7 +464,7 @@ void execError(const char *command, const char *hint, const char *application)
          << ": " << endl << endl
          << "import settings;" << endl
          << hint << "=\"LOCATION\";" << endl << endl
-         << "where LOCATION specifies the location of "
+         << "where LOCATION is the fully qualified file name for "
          << application << "." << endl << endl
          << "Alternatively, set the environment variable ASYMPTOTE_" << s
          << endl << "or use the command line option -" << hint

@@ -1,5 +1,5 @@
 #pragma once
-#include <boost/asio.hpp>
+#include <LibLsp/lsp/asio.h>
 #include <iostream>
 
 namespace lsp
@@ -7,8 +7,8 @@ namespace lsp
 class ProcessIoService
 {
 public:
-    using IOService = boost::asio::io_context;
-    using Work = boost::asio::executor_work_guard<boost::asio::io_context::executor_type>;
+    using IOService = asio::io_context;
+    using Work = asio::executor_work_guard<asio::io_context::executor_type>;
     using WorkPtr = std::unique_ptr<Work>;
 
     ProcessIoService()
@@ -22,7 +22,7 @@ public:
     ProcessIoService(ProcessIoService const&) = delete;
     ProcessIoService& operator=(ProcessIoService const&) = delete;
 
-    boost::asio::io_context& getIOService()
+    asio::io_context& getIOService()
     {
         return ioService_;
     }

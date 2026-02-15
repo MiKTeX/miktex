@@ -143,8 +143,7 @@ struct times<Int> {
   Int operator() (Int x, Int y, size_t i=0) {
     if(y == 0) return 0;
     if(y < 0) {y=-y; x=-x;}
-    if((y > int_MAX || x > int_MAX/(int) y || x < int_MIN/(int) y) &&
-       (x > Int_MAX/y || x < Int_MIN/y))
+    if(y > Int_MAX || x > Int_MAX/y || x < Int_MIN/y)
       integeroverflow(i);
     return x*y;
   }

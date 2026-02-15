@@ -2,7 +2,7 @@
  * inst.h
  * Andy Hammerlindl 2002/06/27
  *
- * Descibes the items and instructions that are used by the virtual machine.
+ * Describes the items and instructions that are used by the virtual machine.
  *****/
 
 #ifndef INST_H

@@ -157,8 +157,11 @@ void texfile::prologue(bool deconstruct)
     beginpage();
 }
 
-void texfile::beginlayer(const string& psname, bool postscript)
+void texfile::beginlayer(string psname, bool postscript)
 {
+#ifdef _WIN32
+  backslashToSlash(psname);
+#endif
   if(box.right > box.left && box.top > box.bottom) {
     if(postscript) {
       if(settings::context(texengine))

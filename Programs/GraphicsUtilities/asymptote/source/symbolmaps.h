@@ -434,7 +434,7 @@ namespace AsymptoteLsp
     // access -> (file, id)
     // unravel -> id
     // include -> file
-    // import = acccess + unravel
+    // import = access + unravel
 
     using extRefMap = std::unordered_map<std::string, SymbolContext*>;
     extRefMap extFileRefs;
@@ -500,7 +500,7 @@ namespace AsymptoteLsp
     // access -> (file, id)
     // unravel -> id
     // include -> file
-    // import = acccess + unravel
+    // import = access + unravel
 
     ExternalRefs extRefs;
 

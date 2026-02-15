@@ -287,6 +287,11 @@ void v3dfile::addPixel(triple const& z0, double width)
   getXDRFile() << (uint32_t) materialIndex;
 }
 
+void v3dfile::write(const string& s)
+{
+//  getXDRFile() << s;
+}
+
 void v3dfile::finalize()
 {
   if(!finalized) {
@@ -299,10 +304,11 @@ void v3dfile::finalize()
 
 xdr::oxstream& gzv3dfile::getXDRFile()
 {
-  return memxdrfile;
+  return memfile.memxdrfile;
 }
 
-gzv3dfile::gzv3dfile(string const& name, bool singleprecision): v3dfile(singleprecision), memxdrfile(singleprecision), name(name), destroyed(false)
+gzv3dfile::gzv3dfile(string const& name, bool singleprecision):
+  v3dfile(singleprecision), memfile(name,singleprecision)
 {
   writeInit();
 }
@@ -314,19 +320,8 @@ gzv3dfile::~gzv3dfile()
 
 void gzv3dfile::close()
 {
-  if(!destroyed) {
-    finalize();
-
-    std::vector<uint8_t> const resultingData = memxdrfile.createCopyOfCurrentData();
-
-    memxdrfile.close();
-    gzFile file=gzopen(name.c_str(), "wb9");
-    gzwrite(file, resultingData.data(), resultingData.size());
-    gzclose(file);
-    if(settings::verbose > 0)
-      cout << "Wrote " << name << endl;
-    destroyed=true;
-  }
+  finalize();
+  memfile.close();
 }
 
 uint32_t LightHeader::getWordSize(bool singleprecision) const

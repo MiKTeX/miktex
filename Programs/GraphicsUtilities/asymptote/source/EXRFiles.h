@@ -3,8 +3,9 @@
 //
 
 #pragma once
+
 #include "common.h"
-#include <tinyexr.h>
+
 
 namespace camp
 {

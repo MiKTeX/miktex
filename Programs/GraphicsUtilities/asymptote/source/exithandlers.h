@@ -7,8 +7,6 @@
 
 int returnCode();
 
-extern bool hangup;
-
 void interruptHandler(int);
 void exitHandler(int);
 void signalHandler(int);

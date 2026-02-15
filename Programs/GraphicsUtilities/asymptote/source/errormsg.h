@@ -241,7 +241,7 @@ public:
     anyStatusErrors=true;
   }
 
-  // Returns true if no errors have occured that should be reported by the
+  // Returns true if no errors have occurred that should be reported by the
   // return value of the process.
   bool processStatus() const {
     return !anyStatusErrors;

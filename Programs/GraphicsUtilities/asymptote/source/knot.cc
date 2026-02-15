@@ -49,7 +49,7 @@ ostream& info(ostream& o, string name, knotlist& l)
 
 #define INFO(x) info(cerr,#x,x)
 
-/***** Auxillary computation functions *****/
+/***** Auxiliary computation functions *****/
 
 // Computes the relative distance of a control point given the angles.
 // The name is somewhat misleading as the velocity (with respect to the
@@ -204,7 +204,7 @@ struct dzprop : public knotprop<pair> {
 };
 
 // Compute the distance between points, using the already computed dz.  This
-// doesn't use the infomation in the knots, but the knotprop class is useful as
+// doesn't use the information in the knots, but the knotprop class is useful as
 // it takes care of the iteration for us.
 struct dprop : public knotprop<double> {
   cvector<pair>& dz;
@@ -331,13 +331,13 @@ cvector<weqn> recalc(cvector<eqn>& e)
   we.push_back(lasteqn); // As a placeholder.
   for (Int j=1; j < n; j++) {
     // Subtract a factor of the last equation so that the first entry is
-    // zero, then procede to scale it.
+    // zero, then proceed to scale it.
     eqn& q=e[j];
     lasteqn=scale(weqn(0,q.piv-q.pre*lasteqn.post,q.post,
                        q.aug-q.pre*lasteqn.aug,-q.pre*lasteqn.w));
     we.push_back(lasteqn);
   }
-  // To keep all of the infomation enocoded in the linear equations, we need
+  // To keep all of the information enocoded in the linear equations, we need
   // to augment the computation to replace our trivial start weqn with a
   // real one.  To do this, we take one more step in the iteration and
   // compute the weqn for j=n, since n=0 (mod n).
@@ -421,7 +421,7 @@ struct ref : public knotprop<eqn> {
   }
   eqn mid(Int j) {
     // Subtract a factor of the last equation so that the first entry is
-    // zero, then procede to scale it.
+    // zero, then proceed to scale it.
     eqn& q=e[j];
     return scale(eqn(0,q.piv-q.pre*lasteqn.post,q.post,
                      q.aug-q.pre*lasteqn.aug));

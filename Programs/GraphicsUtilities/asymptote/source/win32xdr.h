@@ -21,8 +21,8 @@ struct Win32XDR
   FILE* file;
   struct
   {
-    char* data;
-    char* dataCursor;
+    uint8_t* data;
+    uint8_t* dataCursor;
     size_t memSize;
   } nonFileMem;
   uint32_t fileMode;
@@ -33,9 +33,12 @@ void w32_xdrstdio_create(Win32XDR* xdrs, FILE* file, uint32_t op);
 void w32_xdr_destroy(Win32XDR* xdrs);
 
 void w32_xdrmem_create(
-  Win32XDR* xdrs, char* addr, unsigned int size,
+  Win32XDR* xdrs, uint8_t* addr, size_t size,
   uint32_t op
 );
+
+size_t w32_xdr_getpos(Win32XDR* xdrs);
+bool w32_xdr_setpos(Win32XDR* xdrs, size_t pos);
 
 template<typename T>
 bool w32_internal_xdr_write_raw_bytes(Win32XDR* xdr, T& data)
@@ -65,7 +68,7 @@ bool w32_internal_xdr_read_raw_bytes(Win32XDR* xdr, T& result)
   {
     result = *reinterpret_cast<T*>(xdr->nonFileMem.dataCursor);
     xdr->nonFileMem.dataCursor += sizeof(T);
-    return true;
+    return xdr->nonFileMem.dataCursor <= xdr->nonFileMem.data + xdr->nonFileMem.memSize;
   }
 }
 
@@ -97,7 +100,7 @@ struct w32_internal_xdr_conv_fn<uint16_t>
 template<>
 struct w32_internal_xdr_conv_fn<uint32_t>
 {
-  typedef u_long NetType;
+  typedef unsigned __int32 NetType;
   static auto constexpr host2NetFn = htonl;
   static auto constexpr net2HostFn = ntohl;
 };
@@ -149,27 +152,44 @@ bool w32_internal_xdr_u_type(Win32XDR* xdrs, THostType* ip)
   }
 }
 
-bool w32_xdr_int(Win32XDR* xdrs, int32_t* ip);
-bool w32_xdr_u_int(Win32XDR* xdrs, uint32_t* ip);
+bool w32_xdr_int32_t(Win32XDR* xdrs, int32_t* ip);
+bool w32_xdr_u_int32_t(Win32XDR* xdrs, uint32_t* ip);
 
-// See https://learn.microsoft.com/en-us/cpp/cpp/data-type-ranges?view=msvc-170
-// long and int are both 4 bits
+bool w32_xdr_int64_t(Win32XDR* xdrs, int64_t* ip);
+bool w32_xdr_u_int64_t(Win32XDR* xdrs, uint64_t* ip);
 
-bool w32_xdr_u_long(Win32XDR* xdrs, unsigned long* ip);
-bool w32_xdr_long(Win32XDR* xdrs, long* ip);
-
-bool w32_xdr_short(Win32XDR* xdrs, int16_t* ip);
-bool w32_xdr_u_short(Win32XDR* xdrs, uint16_t* ip);
+bool w32_xdr_int16_t(Win32XDR* xdrs, int16_t* ip);
+bool w32_xdr_u_int16_t(Win32XDR* xdrs, uint16_t* ip);
 
 bool w32_xdr_char(Win32XDR* xdrs, char* ip);
 bool w32_xdr_u_char(Win32XDR* xdrs, unsigned char* ip);
 
-bool w32_xdr_u_longlong_t(Win32XDR* xdrs, uint64_t* ip);
-bool w32_xdr_longlong_t(Win32XDR* xdrs, int64_t* ip);
-
 bool w32_xdr_float(Win32XDR* xdrs, float* ip);
 bool w32_xdr_double(Win32XDR* xdrs, double* ip);
 
+typedef Win32XDR XDR;
+#define xdrstdio_create w32_xdrstdio_create
+#define xdr_destroy w32_xdr_destroy
+#define xdrmem_create w32_xdrmem_create
+
+#define xdr_getpos w32_xdr_getpos
+#define xdr_setpos w32_xdr_setpos
+
+#define xdr_int16_t w32_xdr_int16_t
+#define xdr_u_int16_t w32_xdr_u_int16_t
+#define xdr_int32_t w32_xdr_int32_t
+#define xdr_u_int32_t w32_xdr_u_int32_t
+#define xdr_int64_t w32_xdr_int64_t
+#define xdr_u_int64_t w32_xdr_u_int64_t
+
+#define xdr_char w32_xdr_char
+#define xdr_u_char w32_xdr_u_char
+
+#define xdr_float w32_xdr_float
+#define xdr_double w32_xdr_double
+
+#define XDR_DECODE W32_XDR_DECODE
+#define XDR_ENCODE W32_XDR_ENCODE
 
 #endif
 #endif

@@ -45,7 +45,7 @@ public:
   RegKeyWrapper(RegKeyWrapper const&) = delete;
   RegKeyWrapper& operator=(RegKeyWrapper const&) = delete;
 
-  RegKeyWrapper(RegKeyWrapper&& other) noexcept;
+  RegKeyWrapper(RegKeyWrapper&&) noexcept;
   RegKeyWrapper& operator=(RegKeyWrapper&& other) noexcept;
 
   /**

@@ -18,7 +18,7 @@ public:
 
   virtual ~drawBegin() {}
 
-  bool begingroup() {return true;}
+  bool begingroup() override {return true;}
 };
 
 class drawEnd : public drawElement {
@@ -27,7 +27,7 @@ public:
 
   virtual ~drawEnd() {}
 
-  bool endgroup() {return true;}
+  bool endgroup() override {return true;}
 };
 
 class drawBegin3 : public drawElementLC {
@@ -51,11 +51,11 @@ public:
 
   virtual ~drawBegin3() {}
 
-  bool begingroup() {return true;}
-  bool begingroup3() {return true;}
+  bool begingroup() override {return true;}
+  bool begingroup3() override {return true;}
 
   bool write(prcfile *out, unsigned int *count, double compressionlimit,
-             groupsmap& groups) {
+             groupsmap& groups) override {
     groupmap& group=groups.back();
     if(name.empty()) name="group";
     groupmap::const_iterator p=group.find(name);
@@ -87,7 +87,7 @@ public:
     center=t*s->center;
   }
 
-  drawElement *transformed(const double* t) {
+  drawElement *transformed(const double* t) override {
     return new drawBegin3(t,this);
   }
 };
@@ -98,13 +98,54 @@ public:
 
   virtual ~drawEnd3() {}
 
-  bool endgroup() {return true;}
-  bool endgroup3() {return true;}
+  bool endgroup() override {return true;}
+  bool endgroup3() override {return true;}
 
-  bool write(prcfile *out, unsigned int *, double, groupsmap& groups) {
+  bool write(prcfile *out, unsigned int *, double, groupsmap& groups)
+    override {
     groups.pop_back();
     out->endgroup();
     return true;
+  }
+};
+
+class drawBeginTransform : public drawElement {
+  string geometry;
+  string color;
+  double duration;
+  bool autoplay;
+public:
+  drawBeginTransform(string geometry, string color,
+                     double duration, bool autoplay) :
+    geometry(geometry), color(color),
+    duration(duration), autoplay(autoplay){}
+
+  virtual ~drawBeginTransform() {}
+
+  bool write(abs3Doutfile *out) override {
+    out->initTransform();
+    out->write("\nbeginTransform(");
+    out->write(geometry.empty() ? "null" : geometry);
+    out->write(",");
+    out->write(color.empty() ? "null" : color);
+    out->write(",");
+    out->write(duration);
+    out->write(",");
+    out->write(autoplay ? "true" : "false");
+    out->write(");\n");
+    return true;
+  }
+};
+
+class drawEndTransform : public drawElement {
+public:
+  drawEndTransform() {}
+
+  virtual ~drawEndTransform() {}
+
+  bool write(abs3Doutfile *out) override {
+    out->write("endTransform();\n\n");
+    return false;
   }
 };
 

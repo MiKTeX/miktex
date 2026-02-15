@@ -146,9 +146,9 @@ typedef mem::vector<box> boxvector;
 
 typedef mem::list<bbox> bboxlist;
 
-typedef mem::map<CONST string,unsigned> groupmap;
+typedef mem::map<const string,unsigned> groupmap;
 typedef mem::vector<groupmap> groupsmap;
-typedef mem::map<CONST triple, int> centerMap;
+typedef mem::map<const triple, int> centerMap;
 
 inline bool operator < (const triple& a, const triple& b) {
   return a.getx() < b.getx() ||

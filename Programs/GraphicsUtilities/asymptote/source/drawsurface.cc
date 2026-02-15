@@ -223,6 +223,7 @@ bool drawBezierPatch::write(abs3Doutfile *out)
     return true;
 
   setcolors(diffuse,emissive,specular,shininess,metallic,fresnel0,out);
+  out->setKEY(KEY);
 
   if(billboard) {
     meshinit();
@@ -484,6 +485,7 @@ bool drawBezierTriangle::write(abs3Doutfile *out)
     return true;
 
   setcolors(diffuse,emissive,specular,shininess,metallic,fresnel0,out);
+  out->setKEY(KEY);
 
   if(billboard) {
     meshinit();
@@ -800,6 +802,7 @@ bool drawSphere::write(abs3Doutfile *out)
   drawElement::centerIndex=0;
 
   setcolors(diffuse,emissive,specular,shininess,metallic,fresnel0,out);
+  out->setKEY(KEY);
 
   triple O,E;
   P(E,1.0,0.0,0.0);
@@ -838,6 +841,7 @@ bool drawCylinder::write(abs3Doutfile *out)
   drawElement::centerIndex=0;
 
   setcolors(diffuse,emissive,specular,shininess,metallic,fresnel0,out);
+  out->setKEY(KEY);
 
   triple E,H,O;
   P(E,1.0,0.0,0.0);
@@ -876,6 +880,7 @@ bool drawDisk::write(abs3Doutfile *out)
   drawElement::centerIndex=0;
 
   setcolors(diffuse,emissive,specular,shininess,metallic,fresnel0,out);
+  out->setKEY(KEY);
 
   triple E,H,O;
   P(E,1.0,0.0,0.0);
@@ -900,6 +905,7 @@ bool drawTube::write(abs3Doutfile *out)
   drawElement::centerIndex=0;
 
   setcolors(diffuse,emissive,specular,shininess,metallic,fresnel0,out);
+  out->setKEY(KEY);
 
   bbox3 b;
   b.add(T*m);
@@ -995,6 +1001,7 @@ bool drawTriangles::write(abs3Doutfile *out)
   } else drawElement::centerIndex=0;
 
   setcolors(diffuse,emissive,specular,shininess,metallic,fresnel0,out);
+  out->setKEY(KEY);
   out->addTriangles(nP,P,nN,N,nC,C,nI,PI,NI,CI);
 #endif
   return true;

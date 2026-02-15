@@ -14,7 +14,8 @@ typedef std::complex<double> Complex;
 #include <chrono>
 
 namespace utils {
-int ALIGNMENT=2*sizeof(Complex); // Must be a multiple of sizeof(Complex)
+// Must be a power of two and at least sizeof(Complex)
+size_t ALIGNMENT=2*sizeof(Complex);
 }
 
 using namespace utils;

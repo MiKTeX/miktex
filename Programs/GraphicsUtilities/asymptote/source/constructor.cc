@@ -50,7 +50,7 @@ bool definesImplicitConstructor(coenv &e, record *r, varEntry *v, symbol id)
   return false;
 }
 
-// Given the coenv of the body of the constructor, encode the neccessary
+// Given the coenv of the body of the constructor, encode the necessary
 // instructions to make a new initialized object.
 void transConstructorBody(position pos, coenv &e, record *r, varEntry *init)
 {

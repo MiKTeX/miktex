@@ -9,7 +9,7 @@
  *
  * genv sets up the basic type bindings and function bindings for
  * builtin functions, casts and operators, and imports plain (if set),
- * but all other initialization, is done by the local environmet defined
+ * but all other initialization, is done by the local environment defined
  * in env.h.
  *****/
 

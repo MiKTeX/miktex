@@ -1407,7 +1407,7 @@ void gen_rungsl_venv(venv &ve)
   addGSLRealRealRealFunc<gsl_cdf_gamma_Qinv>
     (SYM(cdf_gamma_Qinv),SYM(Q),SYM(a),SYM(b));
 
-  // Sperical distributions
+  // Spherical distributions
   addFunc(GSLModule->e.ve,GSLrng_dir2d,primPair(),SYM(rng_dir2d),
           formal(primString(),SYM(method),true,false));
   addFunc(GSLModule->e.ve,GSLrng_dir3d,primTriple(),SYM(rng_dir3d));

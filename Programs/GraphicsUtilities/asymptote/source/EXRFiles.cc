@@ -3,6 +3,7 @@
 //
 
 #include "EXRFiles.h"
+#include <tinyexr.h>
 #include "locate.h"
 
 namespace camp

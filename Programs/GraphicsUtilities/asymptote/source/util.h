@@ -11,13 +11,6 @@
 #include <sys/types.h>
 #include <iostream>
 #include <cstdlib>
-
-#ifdef __CYGWIN__
-extern "C" int sigaddset(sigset_t *set, int signum);
-extern "C" int sigemptyset(sigset_t *set);
-extern "C" int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact);
-#endif
-
 #include <csignal>
 
 #include "common.h"
@@ -99,35 +92,6 @@ int System(const mem::vector<string> &command, int quiet=0, bool wait=true,
            const char *hint=NULL, const char *application="",
            int *pid=NULL);
 
-#if defined(__DECCXX_LIBCXX_RH70)
-extern "C" char *strsignal(int sig);
-extern "C" double asinh(double x);
-extern "C" double acosh(double x);
-extern "C" double atanh(double x);
-extern "C" double cbrt(double x);
-extern "C" double erf(double x);
-extern "C" double erfc(double x);
-extern "C" double lgamma(double x);
-extern "C" double remainder(double x, double y);
-extern "C" double hypot(double x, double y) throw();
-extern "C" double jn(Int n, double x);
-extern "C" double yn(Int n, double x);
-extern "C" int isnan(double);
-#endif
-
-
-#if defined(__DECCXX_LIBCXX_RH70) || defined(__CYGWIN__)
-extern "C" int usleep(useconds_t);
-extern "C" int kill(pid_t pid, int sig) throw();
-extern "C" int snprintf(char *str, size_t size, const char *format,...);
-#include <stdio.h>
-extern "C" FILE *fdopen(int fd, const char *mode);
-extern "C" int fileno(FILE *);
-extern "C" char *strptime(const char *s, const char *format, struct tm *tm);
-extern "C" int setenv(const char *name, const char *value, int overwrite);
-extern "C" int unsetenv(const char *name);
-#endif
-
 extern bool False;
 
 // Strip blank lines (which would break the bidirectional TeX pipe)
@@ -152,12 +116,6 @@ void execError(const char *command, const char *hint, const char *application);
 // pop-up a new viewer if the old one has been closed.
 void popupHelp();
 
-#ifdef __CYGWIN__
-inline long long llabs(long long x) {return x >= 0 ? x : -x;}
-extern "C" char *initstate (unsigned seed, char *state, size_t size);
-extern "C" long random (void);
-#endif
-
 inline Int Abs(Int x) {
 #ifdef HAVE_LONG_LONG
   return llabs(x);
@@ -176,5 +134,10 @@ int intcast(Int n);
 Int Intcast(unsignedInt n);
 
 bool fileExists(string const& path);
+
+#if defined(_WIN32)
+int setenv(const char *name, const char *value, bool overwrite);
+int unsetenv(const char *name);
+#endif
 
 #endif

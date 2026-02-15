@@ -64,7 +64,7 @@ private:
   // The stack stores a map of initialized imported modules by name, so that
   // each module is initialized only once and each import refers to the same
   // instance.
-  using importInstanceMap = mem::map<CONST mem::string, vmFrame*>;
+  using importInstanceMap = mem::map<const mem::string, vmFrame*>;
   importInstanceMap instMap;
 
   // One can associate an environment to embedded code while running.

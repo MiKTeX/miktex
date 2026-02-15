@@ -28,6 +28,7 @@
 #include "v3dtypes.h"
 #undef transform
 #include "v3dheadertypes.h"
+#include "fileio.h"
 
 namespace camp
 {
@@ -136,6 +137,9 @@ public:
 
   void addPixel(triple const& z0, double width) override;
 
+  void write(const string& s) override;
+  void write(double x) override {}
+
   void precision(int digits) override {}
 
 
@@ -164,9 +168,8 @@ protected:
   xdr::oxstream& getXDRFile() override;
 
 private:
-  xdr::memoxstream memxdrfile;
+  camp::ogzxfile memfile;
   string name;
-  bool destroyed;
   void close() override;
 };
 

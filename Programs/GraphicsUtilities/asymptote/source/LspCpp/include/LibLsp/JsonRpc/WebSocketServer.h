@@ -1,10 +1,8 @@
 #pragma once
 
-#include <boost/asio.hpp>
 #include <string>
-#include <boost/beast/core/tcp_stream.hpp>
-#include <boost/beast/websocket/stream.hpp>
-
+#include <LibLsp/lsp/asio.h>
+#include <ixwebsocket/IXWebSocketServer.h>
 #include "RemoteEndPoint.h"
 #include "stream.h"
 #include "threaded_queue.h"
@@ -20,9 +18,9 @@ namespace lsp
 class websocket_stream_wrapper : public istream, public ostream
 {
 public:
-    websocket_stream_wrapper(boost::beast::websocket::stream<boost::beast::tcp_stream>& _w);
+    websocket_stream_wrapper(std::shared_ptr<ix::WebSocket> _w);
 
-    boost::beast::websocket::stream<boost::beast::tcp_stream>& ws_;
+    std::shared_ptr<ix::WebSocket> ws_;
     std::atomic<bool> quit {};
     std::shared_ptr<MultiQueueWaiter> request_waiter;
     ThreadedQueue<char> on_request;
@@ -73,11 +71,7 @@ public:
 
 private:
     struct Data;
-    /// Perform an asynchronous accept operation.
-    void do_accept();
 
-    /// Wait for a request to stop the server.
-    void do_stop();
     Data* d_ptr = nullptr;
 };
 

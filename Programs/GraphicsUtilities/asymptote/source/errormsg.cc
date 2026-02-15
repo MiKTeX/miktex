@@ -36,7 +36,8 @@ ostream& operator<< (ostream& out, const position& pos)
 
   string filename=pos.file->name();
 
-  if(filename != "-" && !settings::getSetting<bool>("quiet")) {
+  if(filename != "-" && !(settings::getSetting<bool>("quiet") ||
+                          settings::getSetting<bool>("where"))) {
 #if defined(MIKTEX_WINDOWS)
     std::ifstream fin(UW_(filename));
 #else

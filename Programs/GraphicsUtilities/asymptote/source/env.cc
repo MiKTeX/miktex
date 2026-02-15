@@ -40,7 +40,7 @@ access *protoenv::baseLookupCast(ty *target, ty *source, symbol name) {
          source->kind != ty_overloaded);
 
   // If errors already exist, don't report more.  This may, however, cause
-  // problems with resoving the signature of an overloaded function.  The
+  // problems with resolving the signature of an overloaded function.  The
   // abstract syntax should check if any of the parameters had an error before
   // finding the signature.
   if (target->kind == ty_error || source->kind == ty_error)

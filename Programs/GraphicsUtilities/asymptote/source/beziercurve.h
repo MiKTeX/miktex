@@ -65,8 +65,13 @@ struct Pixel
     material0Data.append0(data);
   }
 
+  void notRendered() {
+    material0Data.rendered=false;
+  }
+
   void queue(const triple& p, double width) {
     data.clear();
+    notRendered();
     MaterialIndex=materialIndex;
     data.indices.push_back(data.vertex0(p,width));
     append();

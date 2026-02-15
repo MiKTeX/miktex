@@ -14,7 +14,7 @@ extern size_t threshold;
 
 namespace parallel {
 extern size_t lastThreads;
-inline int get_thread_num()
+inline size_t get_thread_num()
 {
 #ifdef SINGLE_THREAD
   return 0;
@@ -23,7 +23,11 @@ inline int get_thread_num()
 #endif
 }
 
-inline int get_max_threads()
+inline size_t get_thread_num(size_t threads) {
+  return threads > 1 ? get_thread_num() : 0;
+}
+
+inline size_t get_max_threads()
 {
 #ifdef SINGLE_THREAD
   return 1;
@@ -44,16 +48,16 @@ inline int get_max_threads()
 #endif
 
 #ifndef SINGLE_THREAD
-#define OMPIF(condition,directive,code)    \
-  if(threads > 1 && condition) {             \
-    _Pragma(directive)                             \
-      code                                   \
+#define OMPIF(condition,directive,code)         \
+  if(threads > 1 && condition) {                \
+    _Pragma(directive)                          \
+      code                                      \
       } else {code}
 #else
 #define OMPIF(condition,directive,code) {code}
 #endif
 
-#define PARALLELIF(condition,code) \
+#define PARALLELIF(condition,code)                              \
   OMPIF(condition,"omp parallel for num_threads(threads)",code)
 
 namespace parallel {

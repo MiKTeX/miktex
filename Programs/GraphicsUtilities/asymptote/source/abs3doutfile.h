@@ -17,9 +17,13 @@ inline bool distinct(const uint32_t *I, const uint32_t *J)
 class abs3Doutfile : public gc {
 protected:
   bool singleprecision;
+  string KEY;
 public:
-  abs3Doutfile(bool singleprecision=false) : singleprecision(singleprecision) {}
+  abs3Doutfile(bool singleprecision=false) : singleprecision(singleprecision),
+                                             KEY("") {}
   virtual ~abs3Doutfile()=default;
+
+  void setKEY(const string& KEY) {this->KEY=KEY;}
 
   virtual void close()=0;
 
@@ -66,6 +70,10 @@ public:
 
   virtual void precision(int digits)=0;
 
+  virtual void write(const string& s)=0;
+  virtual void write(double x)=0;
+
+  virtual void initTransform() {};
 };
 
 }

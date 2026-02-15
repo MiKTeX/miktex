@@ -83,7 +83,7 @@ typedef array stringarray;
 using types::stringArray;
 
 namespace camp {
-bool allowRender=true;
+bool allowRender=false;
 }
 
 #if defined(HAVE_LIBREADLINE) && defined(HAVE_LIBCURSES)
@@ -95,7 +95,7 @@ struct historyState {
   HISTORY_STATE state;
 };
 
-typedef mem::map<CONST string, historyState> historyMap_t;
+typedef mem::map<const string, historyState> historyMap_t;
 historyMap_t historyMap;
 static HISTORY_STATE history_save;
 
@@ -262,9 +262,10 @@ void gen_runhistory2(stack *Stack)
   }
 
   /* Get a line from the user. */
+  bool allowRenderSave=allowRender;
   allowRender=false;
   line=readline(prompt.c_str());
-  allowRender=true;
+  allowRender=allowRenderSave;
 
   if(!line) cout << endl;
 
@@ -282,14 +283,14 @@ void gen_runhistory2(stack *Stack)
 
 // Save a string in a local history named name.
 // If store=true, store the local history in the file historyfilename(name).
-#line 212 "./runhistory.in"
+#line 213 "./runhistory.in"
 // void saveline(string name, string value, bool store=true);
 void gen_runhistory3(stack *Stack)
 {
   bool store=vm::pop<bool>(Stack,true);
   string value=vm::pop<string>(Stack);
   string name=vm::pop<string>(Stack);
-#line 213 "./runhistory.in"
+#line 214 "./runhistory.in"
 #if defined(HAVE_LIBREADLINE) && defined(HAVE_LIBCURSES)
   store_history(&history_save);
   bool newhistory=historyMap.find(name) == historyMap.end();
@@ -328,7 +329,7 @@ void gen_runhistory_venv(venv &ve)
   addFunc(ve, run::gen_runhistory1, stringArray(), SYM(history), formal(primInt(), SYM(n), true, false));
 #line 160 "./runhistory.in"
   addFunc(ve, run::gen_runhistory2, primString(), SYM(readline), formal(primString(), SYM(prompt), true, false), formal(primString(), SYM(name), true, false), formal(primBoolean(), SYM(tabcompletion), true, false));
-#line 210 "./runhistory.in"
+#line 211 "./runhistory.in"
   addFunc(ve, run::gen_runhistory3, primVoid(), SYM(saveline), formal(primString(), SYM(name), false, false), formal(primString(), SYM(value), false, false), formal(primBoolean(), SYM(store), true, false));
 }
 

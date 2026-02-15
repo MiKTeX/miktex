@@ -26,13 +26,12 @@
 #include "drawlayer.h"
 #include "drawsurface.h"
 #include "drawpath3.h"
-#include "win32helpers.h"
+#include "seconds.h"
 
 #if defined(_WIN32)
 #include <Windows.h>
 #include <shellapi.h>
 #include <cstdio>
-#define unlink _unlink
 #endif
 
 #include <thread>
@@ -546,19 +545,7 @@ bool picture::texprocess(const string& texname, const string& outname,
           string dvipsrc=getSetting<string>("dir");
           if(dvipsrc.empty()) dvipsrc=systemDir;
           dvipsrc += dirsep+"nopapersize.ps";
-#if defined(MIKTEX_WINDOWS)
-          putenv(("DVIPSRC=" + dvipsrc).c_str());
-#else
-#if !defined(_WIN32)
-          setenv("DVIPSRC",dvipsrc.c_str(),1);
-#else
-          auto setEnvResult = SetEnvironmentVariableA("DVIPSRC",dvipsrc.c_str());
-          if (!setEnvResult)
-          {
-              camp::reportError("Cannot set DVIPSRC environment variable");
-          }
-#endif
-#endif
+          setenv("DVIPSRC",dvipsrc.c_str(),true);
           string papertype=getSetting<string>("papertype") == "letter" ?
             "letterSize" : "a4size";
           cmd.push_back(getSetting<string>("dvips"));
@@ -883,7 +870,7 @@ bool picture::postprocess(const string& prename, const string& outname,
   if(pdftex || !epsformat) {
     if(pdfformat) {
       if(pdftex) {
-        status=rename(prename.c_str(),outname.c_str());
+        status=renameOverwrite(prename.c_str(),outname.c_str());
         if(status != 0)
           reportError("Cannot rename "+prename+" to "+outname);
       } else status=epstopdf(prename,outname);
@@ -914,6 +901,8 @@ bool picture::postprocess(const string& prename, const string& outname,
         cmd.push_back("-r"+String(res)+"x"+String(res));
         push_split(cmd,getSetting<string>("gsOptions"));
         cmd.push_back("-sOutputFile="+outname);
+        cmd.push_back("-dTextAlphaBits=4");
+        cmd.push_back("-dGraphicsAlphaBits=4");
         cmd.push_back(prename);
         status=System(cmd,0,true,"gs","Ghostscript");
       } else if(!svg && !xasy) {
@@ -930,7 +919,8 @@ bool picture::postprocess(const string& prename, const string& outname,
         push_split(cmd,getSetting<string>("convertOptions"));
         cmd.push_back("-resize");
         cmd.push_back(String(100.0/expand)+"%x");
-        if(outputformat == "jpg") cmd.push_back("-flatten");
+        if(outputformat == "jpg" || outputformat == "jpeg")
+          cmd.push_back("-flatten");
         cmd.push_back(outputformat+":"+outname);
         status=System(cmd,0,true,"convert");
       }
@@ -949,7 +939,7 @@ bool picture::postprocess(const string& prename, const string& outname,
 bool picture::display(const string& outname, const string& outputformat,
                       bool wait, bool view, bool epsformat)
 {
-  static mem::map<CONST string,int> pids;
+  static mem::map<const string,int> pids;
   if (settings::view() && view)
   {
     int status;
@@ -959,7 +949,7 @@ bool picture::display(const string& outname, const string& outputformat,
 
     if(epsformat || pdfformat) {
       // Check to see if there is an existing viewer for this outname.
-      mem::map<CONST string,int>::iterator const p=pids.find(outname);
+      mem::map<const string,int>::iterator const p=pids.find(outname);
       bool running=(p != pids.end());
       string Viewer=
         pdfformat ?
@@ -1418,9 +1408,9 @@ bool picture::shipout(picture *preamble, const string& Prefix,
       if(Labels) {
         tex->epilogue();
         if(context) prefix=stripDir(prefix);
+        delete tex;
         status=texprocess(texname,dvi ? outname : prename,prefix,
                           bboxshift,dvi);
-        delete tex;
         if(!keep) {
           for(mem::list<string>::iterator p=files.begin(); p != files.end();
               ++p)
@@ -1529,8 +1519,7 @@ bool picture::shipout3(const string& prefix, const string& format,
       ms.push((*p)->transf3());
     else if((*p)->endgroup3())
       ms.pop();
-    else
-      pic->append((*p)->transformed(ms.T()));
+    pic->append((*p)->transformed(ms.T()));
   }
 
   pic->b3=bbox3();

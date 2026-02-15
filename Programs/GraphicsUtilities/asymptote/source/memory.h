@@ -14,36 +14,7 @@
 #include <deque>
 #include <string>
 #include <sstream>
-
-#ifndef NOHASH
-
-#ifdef HAVE_TR1_UNORDERED_MAP
-
-#include <memory>
-#include <tr1/unordered_map>
-#define EXT std::tr1
-
-#else
-
-#ifdef HAVE_UNORDERED_MAP
 #include <unordered_map>
-#define EXT std
-#else
-#define EXT __gnu_cxx
-#include <ext/hash_map>
-#define unordered_map hash_map
-#define unordered_multimap hash_multimap
-#endif
-
-#endif
-
-#endif
-
-#ifdef __DECCXX_LIBCXX_RH70
-#define CONST
-#else
-#define CONST const
-#endif
 
 #ifdef USEGC
 
@@ -122,7 +93,7 @@ struct pair : public std::pair<T, S>, public gc {
   pair(T t, S s) : std::pair<T,S>(t,s) {}
 };
 
-#define PAIR_ALLOC gc_allocator<std::pair<CONST Key,T> > /* space */
+#define PAIR_ALLOC gc_allocator<std::pair<const Key,T> > /* space */
 
 #undef GC_CONTAINER
 
@@ -140,24 +111,21 @@ GC_CONTAINER(multimap);
 
 #undef GC_CONTAINER
 
-#ifndef NOHASH
 #define GC_CONTAINER(KIND)                              \
   template <typename Key, typename T,                   \
-            typename Hash = EXT::hash<Key>,             \
+            typename Hash = std::hash<Key>,             \
             typename Eq = std::equal_to<Key> >          \
   struct KIND : public                                  \
-  EXT::KIND<Key,T,Hash,Eq,PAIR_ALLOC>, public gc {      \
-    KIND() : EXT::KIND<Key,T,Hash,Eq,PAIR_ALLOC> () {}  \
+  std::KIND<Key,T,Hash,Eq,PAIR_ALLOC>, public gc {      \
+    KIND() : std::KIND<Key,T,Hash,Eq,PAIR_ALLOC> () {}  \
     KIND(size_t n)                                      \
-      : EXT::KIND<Key,T,Hash,Eq,PAIR_ALLOC> (n) {}      \
+      : std::KIND<Key,T,Hash,Eq,PAIR_ALLOC> (n) {}      \
   }
 
 GC_CONTAINER(unordered_map);
 GC_CONTAINER(unordered_multimap);
 
 #undef GC_CONTAINER
-#undef EXT
-#endif
 
 #undef PAIR_ALLOC
 

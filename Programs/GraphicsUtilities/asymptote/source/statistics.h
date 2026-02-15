@@ -10,10 +10,10 @@ template <class T, class S, class C>
 void clearpq(std::priority_queue<T, S, C>& q) {
   struct HackedQueue : private std::priority_queue<T, S, C> {
     static S& Container(std::priority_queue<T, S, C>& q) {
-            return q.*&HackedQueue::c;
-        }
-    };
-    HackedQueue::Container(q).clear();
+      return q.*&HackedQueue::c;
+    }
+  };
+  HackedQueue::Container(q).clear();
 }
 
 class statistics {

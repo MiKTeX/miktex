@@ -20,7 +20,7 @@
 #ifndef __fftwpp_h__
 #define __fftwpp_h__ 1
 
-#define __FFTWPP_H_VERSION__ 3.01
+#define __FFTWPP_H_VERSION__ 3.03
 
 #if defined(MIKTEX)
 #include <miktex/ExitThrows>
@@ -258,7 +258,7 @@ public:
 
   static void planThreads(size_t threads) {
 #ifndef FFTWPP_SINGLE_THREAD
-    omp_set_num_threads(threads);
+    omp_set_num_threads(fftw::maxthreads);
     fftw_plan_with_nthreads(threads);
 #endif
   }
@@ -656,7 +656,7 @@ public:
     }
   }
 
-  bool time(Complex *in, Complex *out) {
+  bool time0(Complex *in, Complex *out) {
     utils::statistics S(true),ST(true);
     utils::statistics medianS(true),medianST(true);
 
@@ -690,6 +690,13 @@ public:
     return S.median() <= ST.median();
   }
 
+  bool time(Complex *in, Complex *out) {
+    bool alloc=!in;
+    if(alloc) in=utils::ComplexAlign((doubles+1)/2);
+    bool result=time0(in,out);
+    if(alloc) Array::deleteAlign(in,(doubles+1)/2);
+    return result;
+  }
 
   fftw_plan Plan(int Q, fftw_complex *in, fftw_complex *out) {
     return fftw_plan_many_dft(1,&nx,Q,in,NULL,istride,idist,
@@ -1007,7 +1014,7 @@ public:
 //   ostride is the spacing between the elements of each Complex vector;
 //   idist is the spacing between the first elements of the real vectors;
 //   odist is the spacing between the first elements of the Complex vectors;
-//   in contains the n real values stored as a Complex array;
+//   in contains the n real values;
 //   out contains the first n/2+1 Complex Fourier values.
 //
 class mrcfft1d {
@@ -1102,10 +1109,12 @@ public:
 //   Backward.fft(out);
 //
 // Notes:
-//   stride is the spacing between the elements of each Complex vector;
-//   dist is the spacing between the first elements of the vectors;
+//   istride is the spacing between the elements of each Complex vector;
+//   ostride is the spacing between the elements of each real vector;
+//   idist is the spacing between the first elements of the Complex vectors;
+//   odist is the spacing between the first elements of the real vectors;
 //   in contains the first n/2+1 Complex Fourier values;
-//   out contains the n real values stored as a Complex array.
+//   out contains the n real values.
 //
 class mcrfft1d {
   bool single;

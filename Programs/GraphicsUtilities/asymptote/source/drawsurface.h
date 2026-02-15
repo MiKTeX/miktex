@@ -435,7 +435,7 @@ public:
     drawPRC(t,p,opacity,shininess,metallic,fresnel0), core(core) {}
 
   drawCylinder(const double* t, const drawCylinder *s) :
-    drawPRC(t,s), core(s->core) {}
+    drawElement(s->KEY), drawPRC(t,s), core(s->core) {}
 
   bool write(prcfile *out, unsigned int *, double, groupsmap&) override;
   bool write(abs3Doutfile *out) override;
@@ -453,7 +453,7 @@ public:
     drawPRC(t,p,opacity,shininess,metallic,fresnel0) {}
 
   drawDisk(const double* t, const drawDisk *s) :
-    drawPRC(t,s) {}
+    drawElement(s->KEY), drawPRC(t,s) {}
 
   bool write(prcfile *out, unsigned int *, double, groupsmap&) override;
   bool write(abs3Doutfile *out) override;

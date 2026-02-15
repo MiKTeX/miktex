@@ -1,5 +1,4 @@
 /**
- * @file win32helpers.cc
  * @brief Windows-specific utility functions
  * @author Supakorn "Jamie" Rassameemasmuang (jamievlin [at] outlook.com)
  */
@@ -231,7 +230,7 @@ string getErrorMessage(DWORD const& errorCode)
 
   string retString(messageOut);
   LocalFree(messageOut);
-  
+
   return retString;
 }
 

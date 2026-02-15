@@ -691,7 +691,7 @@ double path::arctime(double goal) const
 
 // }}}
 
-// {{{ Direction Time Calulation
+// {{{ Direction Time Calculation
 // Algorithm Stolen from Knuth's MetaFont
 inline double cubicDir(const solvedKnot& left, const solvedKnot& right,
                        const pair& rot)
