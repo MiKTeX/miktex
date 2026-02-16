@@ -71,7 +71,7 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 3.00" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version "metapost_version /* printed when \MP\ starts */
 
 
 @<\MP\ version header@>=
