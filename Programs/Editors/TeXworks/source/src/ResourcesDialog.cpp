@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2011-2024  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2011-2025  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -13,16 +13,15 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	For links to further information, or to contact the authors,
-	see <http://www.tug.org/texworks/>.
+	see <https://tug.org/texworks/>.
 */
 
 #include "ResourcesDialog.h"
 
 #include "Settings.h"
-#include "TWUtils.h"
 
 #include "utils/ResourcesLibrary.h"
 
@@ -49,8 +48,15 @@ void ResourcesDialog::init()
 
 	locationOfResources->setText(pathToLink(Tw::Utils::ResourcesLibrary::getLibraryPath(QString(), false)));
 
+	QStringList dictPaths;
+	for (const QString & dir : Tw::Utils::ResourcesLibrary::getLibraryPaths(QStringLiteral("dictionaries"), false)) {
+		dictPaths << pathToLink(dir);
+	}
+	locationOfDictionaries->setText(dictPaths.join(QStringLiteral("<br>")));
+
 	connect(locationOfSettings, &QLabel::linkActivated, this, &ResourcesDialog::openURL);
 	connect(locationOfResources, &QLabel::linkActivated, this, &ResourcesDialog::openURL);
+	connect(locationOfDictionaries, &QLabel::linkActivated, this, &ResourcesDialog::openURL);
 
 	adjustSize();
 

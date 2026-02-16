@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2023-2024  Stefan Löffler
+ * Copyright (C) 2023-2025  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -145,7 +145,7 @@ public:
 
 // Class to perform (possibly) lengthy operations on pages in the background
 // Modelled after the "Blocking Fortune Client Example" in the Qt docs
-// (http://doc.qt.nokia.com/stable/network-blockingfortuneclient.html)
+// (https://doc.qt.io/qt-5/qtnetwork-blockingfortuneclient-example.html)
 
 // The `PDFPageProcessingThread` is a thread that processes background jobs.
 // Each job is represented by a subclass of `PageProcessingRequest` and

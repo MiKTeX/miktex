@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2019-2025  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -13,10 +13,10 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	For links to further information, or to contact the authors,
-	see <http://www.tug.org/texworks/>.
+	see <https://tug.org/texworks/>.
 */
 
 #ifndef JSScriptInterface_H
@@ -42,7 +42,7 @@ public:
 	Script* newScript(const QString& fileName) override;
 
 	QString scriptLanguageName() const override { return QString::fromLatin1("QtScript"); }
-	QString scriptLanguageURL() const override { return QString::fromLatin1("http://doc.qt.io/qt-5/qtscript-index.html"); }
+	QString scriptLanguageURL() const override { return QString::fromLatin1("https://doc.qt.io/qt-5/qtscript-index.html"); }
 	bool canHandleFile(const QFileInfo& fileInfo) const override { return fileInfo.suffix() == QLatin1String("js"); }
 };
 

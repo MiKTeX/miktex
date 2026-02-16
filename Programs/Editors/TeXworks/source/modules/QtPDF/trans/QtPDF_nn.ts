@@ -819,19 +819,19 @@
         <translation>Uthenting av tekst er ikkje tillate for dette dokumentet.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2264"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2266"/>
         <source>Goto page %1</source>
         <translation>Gå til side %1</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2276"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2278"/>
         <source>Execute `%1`</source>
         <translation>Køyr «%1»</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2541"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2543"/>
         <source>Layers</source>
-        <translation type="unfinished"></translation>
+        <translation>Lag</translation>
     </message>
     <message>
         <location filename="../src/InfoWidgets.cpp" line="54"/>

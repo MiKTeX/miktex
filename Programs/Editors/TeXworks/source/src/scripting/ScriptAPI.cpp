@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2025  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -13,17 +13,17 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	For links to further information, or to contact the authors,
-	see <http://www.tug.org/texworks/>.
+	see <https://tug.org/texworks/>.
 */
 
 #include "DefaultPrefs.h"
 #include "Engine.h"
 #include "Settings.h"
 #include "TWApp.h"
-#include "document/SpellChecker.h"
+#include "document/SpellCheckManager.h"
 #include "scripting/ScriptObject.h"
 #include "scripting/ScriptAPI.h"
 #include "utils/SystemCommand.h"
@@ -370,7 +370,7 @@ Q_INVOKABLE
 QMap<QString, QVariant> ScriptAPI::getDictionaryList(const bool forceReload /* = false */)
 {
 	QMap<QString, QVariant> retVal;
-	const QMultiHash<QString, QString> * h = Tw::Document::SpellChecker::getDictionaryList(forceReload);
+	const QMultiHash<QString, QString> * h = Tw::Document::SpellCheckManager::getDictionaryList(forceReload);
 	for (QMultiHash<QString, QString>::const_iterator it = h->begin(); it != h->end(); ++it) {
 		if (!retVal.contains(it.value()))
 			retVal[it.value()] = QVariant::fromValue((QList<QVariant>() << it.key()));

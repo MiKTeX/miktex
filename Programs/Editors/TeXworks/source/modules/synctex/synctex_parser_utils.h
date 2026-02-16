@@ -67,10 +67,10 @@ extern "C" {
 #endif
 
 #	if defined(_WIN32) || defined(__OS2__)
-#       define SYNCTEX_CASE_SENSITIVE_PATH 0
+#   define SYNCTEX_CASE_SENSITIVE_PATH 0
 #		define SYNCTEX_IS_PATH_SEPARATOR(c) ('/' == c || '\\' == c)
 #	else
-#       define SYNCTEX_CASE_SENSITIVE_PATH 1
+#   define SYNCTEX_CASE_SENSITIVE_PATH 1
 #		define SYNCTEX_IS_PATH_SEPARATOR(c) ('/' == c)
 #	endif
     
@@ -117,6 +117,11 @@ void _synctex_strip_last_path_extension(char * string);
  *  The return value is an undefined non 0 value when the two file names are equivalent.
  *  It is 0 otherwise. */
 synctex_bool_t _synctex_is_equivalent_file_name(const char *lhs, const char *rhs);
+
+/**
+ * The client is responsible of the management of the returned string, if any.
+ */
+char * _synctex_merge_strings(const char * first,...);
 
 /*	Description forthcoming.*/
 synctex_bool_t _synctex_path_is_absolute(const char * name);

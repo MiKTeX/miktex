@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2025  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -13,16 +13,15 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	For links to further information, or to contact the authors,
-	see <http://www.tug.org/texworks/>.
+	see <https://tug.org/texworks/>.
 */
 
 #ifndef COMPLETING_EDIT_H
 #define COMPLETING_EDIT_H
 
-#include "document/SpellChecker.h"
 #include "ui/LineNumberWidget.h"
 #include "ui_CompletingEdit.h"
 
@@ -36,6 +35,14 @@
 class QCompleter;
 class QStandardItemModel;
 class QTextCodec;
+
+namespace Tw {
+namespace Document {
+
+class SpellChecker;
+
+} // namespace Document
+} // namespace Tw
 
 class CompletingEdit : public QTextEdit, private Ui::CompletingEdit
 {
@@ -112,7 +119,7 @@ protected:
 	bool event(QEvent *event) override;
 	void scrollContentsBy(int dx, int dy) override;
 
-	Tw::Document::SpellChecker::Dictionary * getSpellChecker() const;
+	Tw::Document::SpellChecker getSpellChecker() const;
 
 private slots:
 	void cursorPositionChangedSlot();

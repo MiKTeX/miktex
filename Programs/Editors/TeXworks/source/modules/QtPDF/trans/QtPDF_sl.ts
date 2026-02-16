@@ -813,18 +813,18 @@
         <translation>Kopiranje besedila iz tega dokumenta ni dovoljeno.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2264"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2266"/>
         <source>Goto page %1</source>
         <translatorcomment>morda raje kar &apos;Na stran %1&apos;</translatorcomment>
         <translation type="unfinished">Pojdi na stran %1</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2276"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2278"/>
         <source>Execute `%1`</source>
         <translation type="unfinished">Izvedi `%1`</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2541"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2543"/>
         <source>Layers</source>
         <translation type="unfinished"></translation>
     </message>

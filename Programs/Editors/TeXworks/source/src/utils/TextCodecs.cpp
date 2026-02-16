@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2012-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2012-2025  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -13,10 +13,10 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	For links to further information, or to contact the authors,
-	see <http://www.tug.org/texworks/>.
+	see <https://tug.org/texworks/>.
 */
 
 #include "utils/TextCodecs.h"
@@ -27,7 +27,7 @@ namespace Utils {
 // NOTE: The convert*Unicode functions are modeled after those in the files in
 // <Qt>/src/corelib/codecs/
 
-// This data is extracted from http://en.wikipedia.org/w/index.php?title=Macintosh_Central_European_encoding&oldid=450446783
+// This data is extracted from https://en.wikipedia.org/w/index.php?title=Macintosh_Central_European_encoding&oldid=450446783
 ushort MacCentralEurRomanCodec::unicodeCodepoints[] = {
 	0x00C4, 0x0100, 0x0101, 0x00C9, 0x0104, 0x00D6, 0x00DC, 0x00E1,
 	0x0105, 0x010C, 0x00E4, 0x010D, 0x0106, 0x0107, 0x00E9, 0x0179,

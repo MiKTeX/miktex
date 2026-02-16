@@ -803,17 +803,17 @@
 <context>
     <name>QtPDF::PDFDocumentView</name>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2264"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2266"/>
         <source>Goto page %1</source>
         <translation>Gehe zu Seite %1</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2276"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2278"/>
         <source>Execute `%1`</source>
         <translation>Führe `%1` aus</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2541"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2543"/>
         <source>Layers</source>
         <translation>Ebenen</translation>
     </message>

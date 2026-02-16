@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2024  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2025  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -13,10 +13,10 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	For links to further information, or to contact the authors,
-	see <http://www.tug.org/texworks/>.
+	see <https://tug.org/texworks/>.
 */
 
 #include "CompletingEdit.h"
@@ -26,6 +26,7 @@
 #include "TWApp.h"
 #include "TWUtils.h"
 #include "TeXHighlighter.h"
+#include "document/SpellChecker.h"
 #include "document/TeXDocument.h"
 #include "utils/ResourcesLibrary.h"
 
@@ -111,10 +112,23 @@ CompletingEdit::CompletingEdit(QWidget *parent /* = nullptr */)
 
 void CompletingEdit::prefixLines(const QString &prefix)
 {
-	const QTextCursor selection{textCursor()};
+	QTextCursor selection{textCursor()};
 	QTextCursor cursor{selection};
 
 	cursor.beginEditBlock();
+
+	// Expand the front of the selection to include the newly added prefix
+	// if it is at the beginning of a block
+	// Note that selectionStart <= selectionEnd always holds, but position might
+	// be smaller than anchor (in case the user selected from right to left)
+	const bool expandFront = [](const QTextCursor & selection) {
+		if (!selection.hasSelection()) {
+			return false;
+		}
+		QTextCursor selectionStart{selection};
+		selectionStart.setPosition(selection.selectionStart());
+		return selectionStart.atBlockStart();
+	}(selection);
 
 	cursor.setPosition(cursor.selectionStart());
 	if (!cursor.atBlockStart()) {
@@ -126,6 +140,18 @@ void CompletingEdit::prefixLines(const QString &prefix)
 			// Reached end of file (no more blocks)
 			break;
 		}
+	}
+
+	if (expandFront) {
+		if (selection.position() == selection.selectionStart()) {
+			selection.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, static_cast<decltype(selection.position())>(prefix.size()));
+		}
+		else {
+			const auto selectionEnd = selection.selectionEnd();
+			selection.setPosition(static_cast<decltype(selection.position())>(selection.selectionStart() - prefix.size()));
+			selection.setPosition(selectionEnd, QTextCursor::KeepAnchor);
+		}
+		setTextCursor(selection);
 	}
 
 	cursor.endEditBlock();
@@ -144,7 +170,7 @@ void CompletingEdit::unPrefixLines(const QString &prefix)
 	}
 
 	while (cursor.position() < selection.selectionEnd() || cursor.position() == selection.selectionStart()) {
-		cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, prefix.length());
+		cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, static_cast<decltype(cursor.position())>(prefix.length()));
 		if (cursor.selectedText() == prefix) {
 			cursor.removeSelectedText();
 		}
@@ -1095,15 +1121,15 @@ void CompletingEdit::contextMenuEvent(QContextMenuEvent *event)
 	menu->insertSeparator(menu->actions().first());
 	menu->insertAction(menu->actions().first(), act);
 
-	const Tw::Document::SpellChecker::Dictionary * dictionary = getSpellChecker();
-	if (dictionary) {
+	const Tw::Document::SpellChecker & spellChecker = getSpellChecker();
+	if (spellChecker) {
 		currentWord = cursorForPosition(event->pos());
 		currentWord.setPosition(currentWord.position());
 		if (selectWord(currentWord)) {
-			if (!dictionary->isWordCorrect(currentWord.selectedText())) {
+			if (!spellChecker.isWordCorrect(currentWord.selectedText())) {
 				QAction *sep = menu->insertSeparator(menu->actions().first());
 
-				QList<QString> suggestions = dictionary->suggestionsForWord(currentWord.selectedText());
+				QList<QString> suggestions = spellChecker.suggestionsForWord(currentWord.selectedText());
 				if (suggestions.size() == 0)
 					menu->insertAction(sep, new QAction(tr("No suggestions"), menu));
 				else {
@@ -1155,11 +1181,8 @@ void CompletingEdit::addToDictionary()
 
 void CompletingEdit::ignoreWord()
 {
-	Tw::Document::SpellChecker::Dictionary * dictionary = getSpellChecker();
-	if (dictionary == nullptr)
-		return;
 	// note that this is not persistent after quitting TW
-	dictionary->ignoreWord(currentWord.selectedText());
+	getSpellChecker().ignoreWord(currentWord.selectedText());
 	emit rehighlight();
 }
 
@@ -1408,14 +1431,14 @@ void CompletingEdit::scrollContentsBy(int dx, int dy)
 	QTextEdit::scrollContentsBy(dx, dy);
 }
 
-Tw::Document::SpellChecker::Dictionary * CompletingEdit::getSpellChecker() const
+Tw::Document::SpellChecker CompletingEdit::getSpellChecker() const
 {
 	Tw::Document::TeXDocument * doc = qobject_cast<Tw::Document::TeXDocument *>(document());
 	if (doc == nullptr)
-		return nullptr;
+		return {};
 	TeXHighlighter * highlighter = doc->getHighlighter();
 	if (highlighter == nullptr)
-		return nullptr;
+		return {};
 	return highlighter->getSpellChecker();
 }
 

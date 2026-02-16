@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2024  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2025  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -1648,7 +1648,7 @@ void PDFDocumentView::showRuler(const bool show)
 // ========================
 //
 PDFDocumentMagnifierView::PDFDocumentMagnifierView(PDFDocumentView *parent /* = nullptr */) :
-  Super(parent),
+  Super(parent != nullptr ? parent->viewport() : nullptr),
   _parent_view(parent)
 {
   // the magnifier should initially be hidden
@@ -2014,7 +2014,9 @@ void PDFPageGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
   else { // presentation mode
     // Clip to the exposed rectangle to prevent unnecessary drawing operations.
     // This can provide up to a 50% speedup depending on the size of the tile.
-    painter->setClipRect(option->exposedRect);
+    // NB: enlarge the exposed rect a bit to avoid artifacts, e.g., due to anti-aliasing
+    const QRectF exposedRect{option->exposedRect.adjusted(-1, -1, 1, 1)};
+    painter->setClipRect(exposedRect);
 
     // The transformation matrix of the `painter` object contains information
     // such as the current zoom level of the widget viewing this PDF page. We
@@ -2030,7 +2032,7 @@ void PDFPageGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     painter->setPen(tilePen);
 #endif
 
-    QRect visibleRect = scaleT.mapRect(option->exposedRect).toAlignedRect();
+    const QRect visibleRect = scaleT.mapRect(exposedRect).toAlignedRect();
 
     // Each tile is rendered at TILE_SIZE pixels, which may be scaled (e.g. on
     // high-dpi screens) and displayed at an effective size

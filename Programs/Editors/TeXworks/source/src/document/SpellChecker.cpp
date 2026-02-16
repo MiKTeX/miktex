@@ -1,221 +1,138 @@
-/*
-	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019-2024  Stefan Löffler
+#include "SpellChecker.h"
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-	For links to further information, or to contact the authors,
-	see <http://www.tug.org/texworks/>.
-*/
-
-#if defined(MIKTEX)
-#include <fmt/format.h>
-#include <fmt/ostream.h>
-#include <miktex/Core/AutoResource>
-#include <miktex/miktex-texworks.hpp>
-#endif
-#include "document/SpellChecker.h"
-
-#include "TWUtils.h" // for TWUtils::getLibraryPath
-#include "utils/ResourcesLibrary.h"
+#include "SpellCheckManager.h"
 
 #include <hunspell.h>
-
-#include <QLocale>
 
 namespace Tw {
 namespace Document {
 
-QMultiHash<QString, QString> * SpellChecker::dictionaryList = nullptr;
-QHash<const QString,SpellChecker::Dictionary*> * SpellChecker::dictionaries = nullptr;
-SpellChecker * SpellChecker::_instance = new SpellChecker();
-
-// static
-QString SpellChecker::labelForDict(QString &dict)
+std::shared_ptr<Hunhandle> SpellChecker::DictRef::getHunhandle() const
 {
-	QLocale loc{dict};
-
-	if (loc.language() != QLocale::C) {
-		const QString languageString = QLocale::languageToString(loc.language());
-#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
-		const QString territoryString = (loc.country() != QLocale::AnyCountry ? QLocale::countryToString(loc.country()) : QString());
-#else
-		const QString territoryString = (loc.territory() != QLocale::AnyTerritory ? QLocale::territoryToString(loc.territory()) : QString());
-#endif
-		if (!territoryString.isEmpty()) {
-			//: Format to display spell-checking dictionaries (ex. "English - United States (en_US)")
-			return tr("%1 - %2 (%3)").arg(languageString, territoryString, dict);
-		}
-		else {
-			//: Format to display spell-checking dictionaries (ex. "English (en)")
-			return tr("%1 (%2)").arg(languageString, dict);
-		}
+	std::shared_ptr<Hunhandle> retVal = hunhandle.lock();
+	if (!retVal) {
+		retVal = SpellCheckManager::getDictionary(language);
+		hunhandle = retVal;
 	}
-	return dict;
+	return retVal;
 }
 
-QMultiHash<QString, QString> * SpellChecker::getDictionaryList(const bool forceReload /* = false */)
+bool SpellChecker::DictRef::operator==(const DictRef & other) const
 {
-	if (dictionaryList) {
-		if (!forceReload)
-			return dictionaryList;
-		delete dictionaryList;
-	}
+	return (language == other.language && getHunhandle() == other.getHunhandle() && codec == other.codec);
+}
 
-	dictionaryList = new QMultiHash<QString, QString>();
-	const QStringList dirs = Tw::Utils::ResourcesLibrary::getLibraryPaths(QStringLiteral("dictionaries"));
-	foreach (QDir dicDir, dirs) {
-		foreach (QFileInfo dicFileInfo, dicDir.entryInfoList(QStringList(QString::fromLatin1("*.dic")),
-					QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase)) {
-			QFileInfo affFileInfo(dicFileInfo.dir(), dicFileInfo.completeBaseName() + QLatin1String(".aff"));
-			if (affFileInfo.isReadable())
-				dictionaryList->insert(dicFileInfo.canonicalFilePath(), dicFileInfo.completeBaseName());
+bool SpellChecker::DictRef::isValid() const
+{
+	return (!language.isEmpty() && codec != nullptr && getHunhandle());
+}
+
+SpellChecker::SpellChecker(const QString & language)
+	: SpellChecker()
+{
+	setLanguages(QStringList{language});
+}
+
+bool SpellChecker::operator==(const SpellChecker & other) const
+{
+	return m_dicts == other.m_dicts;
+}
+
+bool SpellChecker::isValid() const
+{
+	// Return true if we have (at least) one valid dictionary
+	for (const DictRef & dictRef : m_dicts) {
+		if (dictRef) {
+			return true;
 		}
 	}
-#if defined(MIKTEX)
-	{
-		std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
-		for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
-		{
-			MiKTeX::Util::PathName dicPath = session->GetRootDirectoryPath(r) / MIKTEX_PATH_HUNSPELL_DICT_DIR;
-			QDir dicDir(QString::fromUtf8(dicPath.GetData()));
-			for (const auto& dicFileInfo : dicDir.entryInfoList({ QStringLiteral("*.dic") }, QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase))
-			{
-				QFileInfo affFileInfo(dicFileInfo.dir(), dicFileInfo.completeBaseName() + QStringLiteral(".aff"));
-				if (affFileInfo.isReadable())
-				{
-					dictionaryList->insert(dicFileInfo.canonicalFilePath(), dicFileInfo.completeBaseName());
-				}
-			}
+	return false;
+}
+
+QStringList SpellChecker::languages() const
+{
+	QStringList retVal;
+	for (const DictRef & dictRef : m_dicts) {
+		if (dictRef) {
+			retVal.push_back(dictRef.language);
 		}
 	}
-#endif
-
-	emit SpellChecker::instance()->dictionaryListChanged();
-	return dictionaryList;
+	return retVal;
 }
 
-// static
-SpellChecker::Dictionary * SpellChecker::getDictionary(const QString& language)
+bool SpellChecker::setLanguages(const QStringList & languages)
 {
-	if (language.isEmpty())
-		return nullptr;
+	bool ok{true};
+	m_dicts.clear();
+	for (const QString & language : languages) {
+		std::shared_ptr<Hunhandle> ptrHunhandle = SpellCheckManager::getDictionary(language);
+		if (!ptrHunhandle) {
+			ok = false;
+			continue;
+		}
+		DictRef dictRef;
+		dictRef.hunhandle = ptrHunhandle;
+		dictRef.language = language;
+		dictRef.codec = QTextCodec::codecForName(Hunspell_get_dic_encoding(ptrHunhandle.get()));
+		if (dictRef.codec == nullptr) {
+			dictRef.codec = QTextCodec::codecForLocale();
+		}
+		m_dicts.push_back(std::move(dictRef));
+	}
+	return ok;
+}
 
-	if (!dictionaries)
-		dictionaries = new QHash<const QString, Dictionary*>;
-
-	if (dictionaries->contains(language))
-		return dictionaries->value(language);
-
-	const QStringList dirs = Tw::Utils::ResourcesLibrary::getLibraryPaths(QStringLiteral("dictionaries"));
-	foreach (QDir dicDir, dirs) {
-		QFileInfo affFile(dicDir, language + QLatin1String(".aff"));
-		QFileInfo dicFile(dicDir, language + QLatin1String(".dic"));
-		if (affFile.isReadable() && dicFile.isReadable()) {
-#if defined(MIKTEX)
-			MIKTEX_INFO(fmt::format("loading dictionary: {0}", language.toUtf8().data()));
-#endif
-#if defined(MIKTEX_WINDOWS)
-			Hunhandle* h = Hunspell_create(affFile.canonicalFilePath().toUtf8().data(), dicFile.canonicalFilePath().toUtf8().data());
-#else
-			Hunhandle * h = Hunspell_create(affFile.canonicalFilePath().toLocal8Bit().data(),
-								dicFile.canonicalFilePath().toLocal8Bit().data());
-#endif
-			dictionaries->insert(language, new Dictionary(language, h));
-			return dictionaries->value(language);
+bool SpellChecker::isWordCorrect(const QString & word) const
+{
+	for (const DictRef & dictRef : m_dicts) {
+		if (!dictRef) {
+			continue;
+		}
+		std::shared_ptr<Hunhandle> ptrHunhandle = dictRef.getHunhandle();
+		if (Hunspell_spell(ptrHunhandle.get(), dictRef.codec->fromUnicode(word).data()) != 0) {
+			return true;
 		}
 	}
-#if defined(MIKTEX)
-	std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
-	MIKTEX_AUTO(session->UnloadFilenameDatabase());
-	for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
-	{
-		MiKTeX::Util::PathName dicPath = session->GetRootDirectoryPath(r) / MIKTEX_PATH_HUNSPELL_DICT_DIR;
-		const QString dictPath = QString::fromStdWString(dicPath.ToWideCharString());
-		QFileInfo affFile(dictPath + "/" + language + ".aff");
-		QFileInfo dicFile(dictPath + "/" + language + ".dic");
-		if (affFile.isReadable() && dicFile.isReadable())
-		{
-			MIKTEX_INFO(fmt::format("loading dictionary: {0}", language.toUtf8().data()));
-#if defined(MIKTEX_WINDOWS)
-			Hunhandle* h = Hunspell_create(affFile.canonicalFilePath().toUtf8().data(), dicFile.canonicalFilePath().toUtf8().data());
-#else
-			Hunhandle * h = Hunspell_create(affFile.canonicalFilePath().toLocal8Bit().data(),
-								dicFile.canonicalFilePath().toLocal8Bit().data());
-#endif
-			dictionaries->insert(language, new Dictionary(language, h));
-			return dictionaries->value(language);
-		}
-	}
-#endif
-	return nullptr;
+	return false;
 }
 
-// static
-void SpellChecker::clearDictionaries()
-{
-	if (!dictionaries)
-		return;
-
-	foreach(Dictionary * d, *dictionaries)
-		delete d;
-
-	delete dictionaries;
-	dictionaries = nullptr;
-}
-
-SpellChecker::Dictionary::Dictionary(const QString & language, Hunhandle * hunhandle)
-	: _language(language)
-	, _hunhandle(hunhandle)
-	, _codec(nullptr)
-{
-	if (_hunhandle)
-		_codec = QTextCodec::codecForName(Hunspell_get_dic_encoding(_hunhandle));
-	if (!_codec)
-		_codec = QTextCodec::codecForLocale(); // almost certainly wrong, if we couldn't find the actual name!
-}
-
-SpellChecker::Dictionary::~Dictionary()
-{
-	if (_hunhandle)
-		Hunspell_destroy(_hunhandle);
-}
-
-bool SpellChecker::Dictionary::isWordCorrect(const QString & word) const
-{
-	return (Hunspell_spell(_hunhandle, _codec->fromUnicode(word).data()) != 0);
-}
-
-QList<QString> SpellChecker::Dictionary::suggestionsForWord(const QString & word) const
+QList<QString> SpellChecker::suggestionsForWord(const QString & word) const
 {
 	QList<QString> suggestions;
-	char ** suggestionList{nullptr};
 
-	int numSuggestions = Hunspell_suggest(_hunhandle, &suggestionList, _codec->fromUnicode(word).data());
-	suggestions.reserve(numSuggestions);
-	for (int iSuggestion = 0; iSuggestion < numSuggestions; ++iSuggestion)
-		suggestions.append(_codec->toUnicode(suggestionList[iSuggestion]));
+	for (const DictRef & dictRef : m_dicts) {
+		if (!dictRef) {
+			continue;
+		}
+		std::shared_ptr<Hunhandle> ptrHunhandle = dictRef.getHunhandle();
+		char ** suggestionList{nullptr};
 
-	Hunspell_free_list(_hunhandle, &suggestionList, numSuggestions);
+		int numSuggestions = Hunspell_suggest(ptrHunhandle.get(), &suggestionList, dictRef.codec->fromUnicode(word).data());
+		suggestions.reserve(suggestions.size() + numSuggestions);
+		for (int iSuggestion = 0; iSuggestion < numSuggestions; ++iSuggestion) {
+			suggestions.append(dictRef.codec->toUnicode(suggestionList[iSuggestion]));
+		}
 
+		Hunspell_free_list(ptrHunhandle.get(), &suggestionList, numSuggestions);
+	}
 	return suggestions;
 }
 
-void SpellChecker::Dictionary::ignoreWord(const QString & word)
+void SpellChecker::ignoreWord(const QString & word)
 {
-	// note that this is not persistent after quitting TW
-	Hunspell_add(_hunhandle, _codec->fromUnicode(word).data());
+	// FIXME: this adds the word to the first (valid) Hunhandle, which
+	// (from the user's perspective) corresponds to an arbitrary language;
+	// if that language is deactivated later the ignore list disappears as
+	// well
+	for (const DictRef & dictRef : m_dicts) {
+		if (!dictRef) {
+			continue;
+		}
+		std::shared_ptr<Hunhandle> ptrHunhandle = dictRef.getHunhandle();
+		// note that this is not persistent after quitting TW
+		Hunspell_add(ptrHunhandle.get(), dictRef.codec->fromUnicode(word).data());
+		return;
+	}
 }
 
 } // namespace Document

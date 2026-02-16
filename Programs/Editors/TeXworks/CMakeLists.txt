@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2009-2025 Christian Schenk
+## Copyright (C) 2009-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -119,6 +119,8 @@ set(texworks_sources
     source/src/TemplateDialog.h
     source/src/document/Document.cpp
     source/src/document/Document.h
+    source/src/document/SpellCheckManager.cpp
+    source/src/document/SpellCheckManager.h
     source/src/document/SpellChecker.cpp
     source/src/document/SpellChecker.h
     source/src/document/TeXDocument.cpp

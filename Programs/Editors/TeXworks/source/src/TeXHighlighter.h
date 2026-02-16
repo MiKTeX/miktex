@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2025  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -13,10 +13,10 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	For links to further information, or to contact the authors,
-	see <http://www.tug.org/texworks/>.
+	see <https://tug.org/texworks/>.
 */
 
 #ifndef TEX_HIGHLIGHTER_H
@@ -35,6 +35,7 @@ namespace Tw {
 namespace Document {
 
 class TeXDocument;
+class SpellChecker;
 
 } // namespace Document
 } // namespace Tw
@@ -107,8 +108,9 @@ public:
 	explicit TeXHighlighter(Tw::Document::TeXDocument * parent);
 	void setActiveIndex(int index);
 
-	void setSpellChecker(Tw::Document::SpellChecker::Dictionary * dictionary);
-	Tw::Document::SpellChecker::Dictionary * getSpellChecker() const { return _dictionary; }
+	void setSpellChecker(const Tw::Document::SpellChecker & spellChecker);
+	const Tw::Document::SpellChecker & getSpellChecker() const { return _spellChecker; }
+	Tw::Document::SpellChecker & getSpellChecker() { return _spellChecker; }
 
 	QString getSyntaxMode() const {
 		return (highlightIndex >= 0 && highlightIndex < syntaxOptions().size())
@@ -149,7 +151,7 @@ private:
 	int highlightIndex;
 	bool isTagging;
 
-	Tw::Document::SpellChecker::Dictionary * _dictionary;
+	Tw::Document::SpellChecker _spellChecker;
 
 	Tw::Document::TeXDocument * texDoc;
 };

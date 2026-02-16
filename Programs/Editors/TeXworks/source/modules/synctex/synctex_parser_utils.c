@@ -81,8 +81,8 @@ void *_synctex_malloc(size_t size) {
 }
 
 void _synctex_free(void * ptr) {
-        free(ptr);
-    }
+  free(ptr);
+}
 
 #if !defined(_WIN32)
 #   include <syslog.h>
@@ -335,9 +335,6 @@ int _synctex_copy_with_quoting_last_path_component(const char * src, char ** des
 	}
 	return 1; /*  Bad parameter, this value is subject to changes. */
 }
-
-/*  The client is responsible of the management of the returned string, if any. */
-char * _synctex_merge_strings(const char * first,...);
 
 char * _synctex_merge_strings(const char * first,...) {
 	va_list arg;

@@ -26,9 +26,9 @@ class PDFPageGraphicsItem;
 class PDFPageLayout : public QObject {
   Q_OBJECT
   struct LayoutItem {
-    PDFPageGraphicsItem * page;
-    int row;
-    int col;
+    PDFPageGraphicsItem * page{nullptr};
+    int row{-1};
+    int col{-1};
   };
 
   QList<LayoutItem> _layoutItems;

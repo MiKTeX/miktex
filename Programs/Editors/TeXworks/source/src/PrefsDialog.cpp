@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2024  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2025  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -13,10 +13,10 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	For links to further information, or to contact the authors,
-	see <http://www.tug.org/texworks/>.
+	see <https://tug.org/texworks/>.
 */
 
 #include "PrefsDialog.h"
@@ -28,7 +28,7 @@
 #include "TWApp.h"
 #include "TWUtils.h"
 #include "TeXHighlighter.h"
-#include "document/SpellChecker.h"
+#include "document/SpellCheckManager.h"
 
 #include <QFileDialog>
 #include <QFontDatabase>
@@ -482,9 +482,9 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	dlg.smartQuotes->addItems(quotesModes);
 
 	QList< DictPair > dictList;
-	foreach (const QString& dictKey, Tw::Document::SpellChecker::getDictionaryList()->uniqueKeys()) {
-		foreach (QString dict, Tw::Document::SpellChecker::getDictionaryList()->values(dictKey)) {
-			const QString label{Tw::Document::SpellChecker::labelForDict(dict)};
+	foreach (const QString& dictKey, Tw::Document::SpellCheckManager::getDictionaryList()->uniqueKeys()) {
+		foreach (QString dict, Tw::Document::SpellCheckManager::getDictionaryList()->values(dictKey)) {
+			const QString label{Tw::Document::SpellCheckManager::labelForDict(dict)};
 			dictList << qMakePair(label, dict);
 		}
 	}

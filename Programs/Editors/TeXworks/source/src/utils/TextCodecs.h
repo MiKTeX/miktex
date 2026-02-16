@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2025  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -13,10 +13,10 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	For links to further information, or to contact the authors,
-	see <http://www.tug.org/texworks/>.
+	see <https://tug.org/texworks/>.
 */
 
 #ifndef TWTextCodecs_H
@@ -32,7 +32,7 @@ class MacCentralEurRomanCodec : public QTextCodec
 	Q_DISABLE_COPY(MacCentralEurRomanCodec)
 public:
 	// NOTE: The mib number is arbitrary since this encoding is not in the IANA
-	// list (http://www.iana.org/assignments/character-sets).
+	// list (https://www.iana.org/assignments/character-sets/).
 	int mibEnum() const override { return -4000; }
 	QByteArray name() const override { return "Mac Central European Roman"; }
 	QList<QByteArray> aliases() const override;

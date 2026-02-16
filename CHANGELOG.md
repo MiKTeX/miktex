@@ -8,6 +8,7 @@
 * bibtex-x 4.03
 * dvisvgm 3.6
 * metapost 3.00
+* texworks 0.6.11
 
 ## 26.1 - 2026-1-18
 

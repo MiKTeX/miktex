@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2025  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -13,10 +13,10 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	For links to further information, or to contact the authors,
-	see <http://www.tug.org/texworks/>.
+	see <https://tug.org/texworks/>.
 */
 
 #if defined(MIKTEX_WINDOWS)
@@ -117,8 +117,12 @@ TWScriptableWindow::addScriptsToMenu(QMenu *menu, TWScriptList *scripts)
 		TWScriptList *list = qobject_cast<TWScriptList*>(obj);
 		if (list) {
 			QMenu *m = menu->addMenu(list->getName());
-			if (addScriptsToMenu(m, list) == 0)
+			if (addScriptsToMenu(m, list) == 0) {
 				menu->removeAction(m->menuAction());
+			}
+			else {
+				++count;
+			}
 		}
 	}
 	return count;

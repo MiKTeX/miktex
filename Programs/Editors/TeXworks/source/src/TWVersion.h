@@ -13,13 +13,13 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	For links to further information, or to contact the authors,
-	see <http://www.tug.org/texworks/>.
+	see <https://tug.org/texworks/>.
 */
 
 #define VER_MAJOR			0
 #define VER_MINOR			6
-#define VER_BUGFIX			10
-#define TEXWORKS_VERSION	"0.6.10"
+#define VER_BUGFIX			11
+#define TEXWORKS_VERSION	"0.6.11"

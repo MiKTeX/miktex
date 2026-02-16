@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2025  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -13,18 +13,19 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	For links to further information, or to contact the authors,
-	see <http://www.tug.org/texworks/>.
+	see <https://tug.org/texworks/>.
 */
 
 #include "TeXHighlighter.h"
-#include "TWUtils.h"
+#include "document/SpellChecker.h"
 #include "document/TeXDocument.h"
 #include "utils/ResourcesLibrary.h"
 
 #include <QTextCursor>
+#include <QTime>
 #include <climits> // for INT_MAX
 
 QList<TeXHighlighter::HighlightingSpec> *TeXHighlighter::syntaxRules = nullptr;
@@ -34,7 +35,6 @@ TeXHighlighter::TeXHighlighter(Tw::Document::TeXDocument * parent)
 	: NonblockingSyntaxHighlighter(parent)
 	, highlightIndex(-1)
 	, isTagging(true)
-	, _dictionary(nullptr)
 	, texDoc(parent)
 {
 	loadPatterns();
@@ -58,7 +58,7 @@ void TeXHighlighter::spellCheckRange(const QString &text, QString::size_type ind
 			if (end > limit)
 				end = limit;
 			if (start < end) {
-				if (!_dictionary->isWordCorrect(text.mid(start, end - start)))
+				if (!_spellChecker.isWordCorrect(text.mid(start, end - start)))
 					setFormat(start, end - start, spellFormat);
 			}
 		}
@@ -90,11 +90,11 @@ void TeXHighlighter::highlightBlock(const QString &text)
 			// If we found a rule, apply it and advance the character index to
 			// the end of the highlighted range
 			if (firstRule && firstMatch.hasMatch() && (len = firstMatch.capturedLength()) > 0) {
-				if (_dictionary && firstIndex > charPos)
+				if (_spellChecker && firstIndex > charPos)
 					spellCheckRange(text, charPos, firstIndex, spellFormat);
 				setFormat(firstIndex, len, firstRule->format);
 				charPos = firstIndex + len;
-				if (_dictionary && firstRule->spellCheck)
+				if (_spellChecker && firstRule->spellCheck)
 					spellCheckRange(text, firstIndex, charPos, firstRule->spellFormat);
 			}
 			// If no rule matched, we can break out of the loop
@@ -102,7 +102,7 @@ void TeXHighlighter::highlightBlock(const QString &text)
 				break;
 		}
 	}
-	if (_dictionary)
+	if (_spellChecker)
 		spellCheckRange(text, charPos, text.length(), spellFormat);
 
 	if (texDoc) {
@@ -148,10 +148,10 @@ void TeXHighlighter::setActiveIndex(int index)
 		rehighlight();
 }
 
-void TeXHighlighter::setSpellChecker(Tw::Document::SpellChecker::Dictionary * dictionary)
+void TeXHighlighter::setSpellChecker(const Tw::Document::SpellChecker & spellChecker)
 {
-	if (_dictionary != dictionary) {
-		_dictionary = dictionary;
+	if (_spellChecker != spellChecker) {
+		_spellChecker = spellChecker;
 		QTimer::singleShot(1, this, SLOT(rehighlight()));
 	}
 }
