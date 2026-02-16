@@ -16242,8 +16242,9 @@ var s_out, v, v_out: scaled;
     must_set_text_pos: boolean;  {move must be set using Tm or Td operator}
     move_looks_like_interword_space: boolean; {move could be a space}
 begin
-    must_insert_space := false;
     must_end_string := false;
+    must_insert_space := false;
+    must_set_text_pos := false;
 
     if not pdf_doing_text then begin
         pdf_begin_text;
