@@ -19,8 +19,8 @@ LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 /*tex
 
-    These are now obsolete because we found otu that no one uses them. A few are used in \CONTEXT\ 
-    but we can deal with that. Most users moved on to \LUAMETATEX\ where we plenty of ways to 
+    These are now obsolete because we found otu that no one uses them. A few are used in \CONTEXT\
+    but we can deal with that. Most users moved on to \LUAMETATEX\ where we plenty of ways to
     control the engine. Some code is still present because we need it for legacy progress reports.
 
     \starttyping
@@ -154,8 +154,6 @@ int permit_math_obsolete = 0;
 #define is_new_mathfont(A)   ((font_math_params(A) > 0))
 #define is_old_mathfont(A,B) ((font_math_params(A) == 0) && (font_params(A) >= (B)))
 #define assume_new_math(A)   ((font_math_params(A) > 0) && (font_oldmath(A) == 0))
-
-#define protect_glyph(A) subtype(A) = 256
 
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
@@ -1239,7 +1237,7 @@ static pointer char_box(internal_font_number f, int c, pointer bb)
     subtype(b) = math_char_list ;
     reset_attributes(b, bb);
     p = new_glyph(f, c);
-    protect_glyph(p);
+    protect_glyph_node(p);
     reset_attributes(p, bb);
     list_ptr(b) = p;
     return b;
@@ -3294,10 +3292,10 @@ static scaled make_op(pointer q, int cur_style)
         /*tex v is the still empty target */
         height(v) = height(y);
         depth(v) = depth(y);
-        if (opentype) {
-            width(v) -= delta;
+	if (opentype) {
+          width(v) -= delta;
          // delta = 0;
-        }
+	}
         /*tex
 
             Attach the limits to |y| and adjust |height(v)|, |depth(v)| to
@@ -3625,12 +3623,12 @@ static pointer attach_hkern_to_new_hlist(pointer q, scaled delta2, halfword subt
     the new fonts so eventualy there will be an option to ignore such
     corrections.
 
-    We used to use the base characters corner kerns (we only had cambria to test) 
-    but now use the ssty ones instead. 
+    We used to use the base characters corner kerns (we only had cambria to test)
+    but now use the ssty ones instead.
 
-    In the following code the |\mathscriptcharmode| and |\mathscriptboxmode| are 
-    still present but they are obsolete. We keep them because older documentation 
-    can then be run. 
+    In the following code the |\mathscriptcharmode| and |\mathscriptboxmode| are
+    still present but they are obsolete. We keep them because older documentation
+    can then be run.
 
 */
 
@@ -3734,9 +3732,9 @@ static pointer attach_hkern_to_new_hlist(pointer q, scaled delta2, halfword subt
 #define x_su_style(n,cur_style,su_style) \
     (noadoptionnosubscript(n) ? cur_style : su_style(cur_style))
 
-/*tex 
+/*tex
 
-    Here |subshift| and |supshift| are no longer used. We could remove them. 
+    Here |subshift| and |supshift| are no longer used. We could remove them.
 
 */
 
@@ -4293,7 +4291,7 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_styl
                 /*tex we could look at neighbours */
                 *delta = char_italic(cur_f, cur_c);
                 p = new_glyph(cur_f, cur_c);
-                protect_glyph(p);
+                protect_glyph_node(p);
                 reset_attributes(p, node_attr(nucleus(q)));
              // /*tex no italic correction in mid-word of text font */
              // if (((type(nucleus(q))) == math_text_char_node) && (space(cur_f) != 0)) {

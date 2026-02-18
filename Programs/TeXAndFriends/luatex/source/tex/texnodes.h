@@ -349,6 +349,10 @@ typedef enum {
 #  define char_rhmin(a)    ((const int)(((unsigned)lang_data(a) & 0x000000FF)))
 #  define char_uchyph(a)   ((const int)(((unsigned)lang_data(a) & 0x80000000)>>31))
 
+#  define protect_glyph_node(n)      subtype(n) = ((quarterword) subtype(n) | 0xFF00)
+#  define unprotect_glyph_node(n)    subtype(n) = ((quarterword) subtype(n) & 0x00FF)
+#  define is_protected_glyph_node(n)              ((quarterword) subtype(n) & 0xFF00)
+
 #  define make_lang_data(a,b,c,d) (a>0 ? (1<<31): 0)+ \
   (b<<16)+ (((c>0 && c<256) ? c : 255)<<8)+(((d>0 && d<256) ? d : 255))
 
@@ -742,13 +746,13 @@ typedef enum {
 #  define first_common_whatsit      open_node
 #  define last_common_whatsit       user_defined_node
 #  define backend_first_dvi_whatsit dvi_literal_node
-#  define backend_last_dvi_whatsit  dvi_literal_node 
-#  define backend_first_pdf_whatsit pdf_literal_node 
+#  define backend_last_dvi_whatsit  dvi_literal_node
+#  define backend_first_pdf_whatsit pdf_literal_node
 #  define backend_last_pdf_whatsit  pdf_link_state_node  /* Don't forget to adapt this when extending! */
 
-/* 
-    We add quite some slack for future usage because who knows how we need to be compatible with 
-    other engines. 
+/*
+    We add quite some slack for future usage because who knows how we need to be compatible with
+    other engines.
 */
 
 #  define MAX_WHATSIT_TYPE 48
