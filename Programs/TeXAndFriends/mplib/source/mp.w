@@ -6887,7 +6887,7 @@ void mp_flush_below_variable (MP mp, mp_node p) {
     mp_recycle_value (mp, p);   /* this sets |type(p)=undefined| */
   } else {
     q = subscr_head (p);
-    while (mp_name_type (q) == mp_subscr) {
+    while (q && mp_name_type (q) == mp_subscr) {
       mp_flush_below_variable (mp, q);
       r = q;
       q = mp_link (q);

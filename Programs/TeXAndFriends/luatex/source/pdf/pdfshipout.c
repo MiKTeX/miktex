@@ -96,7 +96,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
     }
     /*tex Ship out box |p|:*/
     if (shipping_mode == SHIPPING_PAGE && box_dir(p) != page_direction_par)
-        normal_warning("backend","pagedir differs from bodydir, the output may be placed wrongly on the page");
+        normal_warning("backend","shipped box direction differs from page direction, the output may be placed wrongly on the page");
     /*tex
         Update the values of |max_h| and |max_v|; but if the page is too large,
         |goto done|. Sometimes the user will generate a huge page because other

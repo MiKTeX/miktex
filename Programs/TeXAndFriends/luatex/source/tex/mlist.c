@@ -3292,10 +3292,10 @@ static scaled make_op(pointer q, int cur_style)
         /*tex v is the still empty target */
         height(v) = height(y);
         depth(v) = depth(y);
-	if (opentype) {
-          width(v) -= delta;
-         // delta = 0;
-	}
+	//if (opentype) {
+        //  width(v) -= delta;
+        // // delta = 0;
+	//}
         /*tex
 
             Attach the limits to |y| and adjust |height(v)|, |depth(v)| to

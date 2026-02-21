@@ -5,13 +5,6 @@
  *   The external declarations:
  */
 #include "protos.h"
-#ifdef OS2
-#include <stdlib.h>
-#endif
-#if !defined(WIN32)
-extern char *getenv();
-extern int system();
-#endif
 #if defined MSDOS || defined OS2
 /*
  *  Write mfjob file
