@@ -1587,8 +1587,8 @@ void gen_runtime115(stack *Stack)
   (*t)[2]=realCutime;
   (*t)[3]=realCstime;
   (*t)[4]=wallClock.seconds();
-  {Stack->push<realarray*>(t); return;}
 #endif
+  {Stack->push<realarray*>(t); return;}
 }
 
 
