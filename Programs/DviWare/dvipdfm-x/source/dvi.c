@@ -2059,7 +2059,7 @@ do_glyphs (int do_actual_text)
       (double)((unsigned char)(font->rgba_color >> 24) & 0xff) / 255,
       (double)((unsigned char)(font->rgba_color >> 16) & 0xff) / 255,
       (double)((unsigned char)(font->rgba_color >>  8) & 0xff) / 255);
-    pdf_color_push(&color, &color);
+    pdf_color_push(&color, &color, PDF_COLOR_SOURCE_DVIPS);
     /* Opacity:
      * Enter graphics_mode and then enclose with save/resotre
      * since pdf_color_pop() may not restore graphics state.
@@ -2105,7 +2105,7 @@ do_glyphs (int do_actual_text)
       graphics_mode(); 
       pdf_dev_grestore();
     }
-    pdf_color_pop();
+    pdf_color_pop(PDF_COLOR_SOURCE_DVIPS);
   }
   RELEASE(xloc);
   RELEASE(yloc);

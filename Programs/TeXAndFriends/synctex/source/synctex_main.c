@@ -46,13 +46,13 @@
  If you include or use a significant part of the synctex package into a software,
  I would appreciate to be listed as contributor and see "SyncTeX" highlighted.
  
- Version 1.2
- Thu Jun 19 09:39:21 UTC 2008
+ Version 1.22
+ Sun Mar 22 06:22:32 UTC 2026
  
  History:
  --------
  
- - the -d option for an input directory
+ See the ChangeLog
  
  Important notice:
  -----------------
@@ -104,16 +104,16 @@
 inline static double my_fmax(double x, double y) { return (x < y) ? y : x; }
 #endif
 
-/* I use the definition in kpathsea --ak
-#ifdef WIN32
-#   define snprintf _snprintf
+#ifdef __SYNCTEX_WORK__
+/* I use the definition in kpathsea --ak*/
+#   ifdef WIN32
+#       define snprintf _snprintf
+#   endif
+#else
+#   ifdef WIN32
+#       include <kpathsea/progname.h>
+#   endif
 #endif
-*/
-
-#ifdef WIN32
-#   include <kpathsea/progname.h>
-#endif
-
 
 #if SYNCTEX_DEBUG
 #   ifdef WIN32
@@ -467,7 +467,7 @@ int synctex_view_proceed(synctex_view_params_t * Ps) {
                         buffer_cur += printed;size-=printed;\
                         printed = snprintf(buffer_cur,size,FORMAT,WHAT);\
                         if((unsigned)printed >= (unsigned)size) {\
-                            synctex_help_view("Snprintf problem");\
+                            synctex_help_view("snprintf problem");\
                             free(buffer);\
                             return -1;\
                         }\
@@ -755,7 +755,7 @@ int synctex_edit_proceed(synctex_edit_params_t * Ps) {
                         buffer_cur += printed;size-=printed;\
                         printed = snprintf(buffer_cur,size,FORMAT,WHAT);\
                         if((unsigned)printed >= (unsigned)size) {\
-                            synctex_help_edit("Snprintf problem");\
+                            synctex_help_edit("snprintf problem");\
                             free(buffer);\
                             return -1;\
                         }\

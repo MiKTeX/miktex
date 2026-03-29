@@ -102,8 +102,8 @@ static char MapChars(char **String);
  * Format:
  * Keyword { item1 item2 ... } [ item1 item2 ... ]
  * Keyword [ item1 item2 ... ] { item1 item2 ... }
- * Keyword = { item1 item2 ... }
- * Keyword = [ item1 item2 ... ]
+ * Keyword = { item1 item2 ... }
+ * Keyword = [ item1 item2 ... ]
  * Keyword = item
  *
  * Returns whether the attempt was a successful one.

@@ -1122,7 +1122,7 @@ void scan_token(psobj *inputP)
   int ch;
   unsigned char *stateP = s0;
   unsigned char entry;
-  int (*actionP)();
+  int (*actionP)(int);
  
   /* Define input source */
   inputFileP = inputP->data.fileP;

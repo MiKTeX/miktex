@@ -965,7 +965,7 @@ BEGIN
       BEGIN
 #ifdef UTF_8
         if (ex_buf[ex_buf_ptr-3]==0xE3 || ex_buf[ex_buf_ptr-3]==0xEF)
-          /* expect U+3001 "?" or U+FF0C "," :: Ideographic/Fulwidth Comma */
+          /* expect U+3001 "、" or U+FF0C "，" :: Ideographic/Fulwidth Comma */
           ex_buf_ptr = ex_buf_ptr - 3;
         else
           /* expect "and " or "AND " */

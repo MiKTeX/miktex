@@ -45,8 +45,10 @@ This module is responsible for handling the TYPE1IMAGER "XYspace" object.
 #include "fonts.h"
 #include "arith.h"
 
-static void FindFfcn(DOUBLE, DOUBLE, fractpel (**)());
-static void FindIfcn(DOUBLE, DOUBLE, fractpel *, fractpel *, fractpel (**)());
+static void FindFfcn(DOUBLE, DOUBLE,
+		fractpel (**)(DOUBLE,DOUBLE,DOUBLE,DOUBLE));
+static void FindIfcn(DOUBLE, DOUBLE, fractpel *, fractpel *,
+		fractpel (**)(int32_t,int32_t,int32_t,int32_t));
 /*
 :h3.Entry Points Provided to the TYPE1IMAGER User
 */
@@ -539,7 +541,8 @@ being zero:
  
 static void FindFfcn(
        register DOUBLE cx, register DOUBLE cy,  /* x and y coefficients      */
-       register fractpel (**fcnP)())  /* pointer to function to set          */
+       register fractpel (**fcnP)(DOUBLE,DOUBLE,DOUBLE,DOUBLE))
+                                      /* pointer to function to set          */
 {
        if (cx == 0.0)
                *fcnP = FYonly;
@@ -564,7 +567,8 @@ static void FindIfcn(
        register DOUBLE cx, DOUBLE cy,  /* x and y coefficients               */
        register fractpel *icxP,  /* fixed point ...                          */
        register fractpel *icyP,  /* ... coefficients to set                  */
-       register fractpel (**fcnP)())  /* pointer to function to set          */
+       register fractpel (**fcnP)(int32_t,int32_t,int32_t,int32_t))
+                                      /* pointer to function to set          */
 {
        register fractpel imax;  /* maximum of cx and cy                      */
  

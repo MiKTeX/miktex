@@ -2710,6 +2710,8 @@ filter_stream_decode_FlateDecode (const void *data, size_t len, struct decode_pa
     status = inflate(&z, Z_NO_FLUSH);
     if (status == Z_STREAM_END) {
       break;
+    } else if (status == Z_BUF_ERROR) {
+      break;
     } else if (status == Z_DATA_ERROR && z.avail_in == 0) {
       WARN("Ignoring zlib error: status=%d, message=\"%s\"", status, z.msg);
       break;

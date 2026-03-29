@@ -531,7 +531,8 @@ void write_png(integer img)
     }
     /* alpha channel support */
     if (fixedpdfmajorversion == 1 && fixedpdfminorversion < 4
-        && png_get_color_type(png_ptr(img), png_info(img)) | PNG_COLOR_MASK_ALPHA) {
+        && png_get_color_type(png_ptr(img), png_info(img))
+           & PNG_COLOR_MASK_ALPHA) {
         png_set_strip_alpha(png_ptr(img));
         png_copy = false;
     }

@@ -118,13 +118,22 @@ typedef struct _Font {
     char        glyph;
     char        scan;
     fsBitmapFormat format;
-    int         (*get_glyphs) ( /* font, count, chars, encoding, count, glyphs */ );
-    int         (*get_metrics) ( /* font, count, chars, encoding, count, glyphs */ );
+    int         (*get_glyphs) ( /* font, count, chars, encoding, count, glyphs */
+                               struct _Font *pFont, uint32_t count,
+                               unsigned char *chars, FontEncoding charEncoding,
+                               uint32_t *glyphCount,
+                               struct _CharInfo **glyphs );
+    int         (*get_metrics) ( /* font, count, chars, encoding, count, glyphs */
+                               FontPtr pFont, uint32_t count,
+                               register unsigned char *chars,
+                               FontEncoding charEncoding,
+                               uint32_t *glyphCount,
+                               xCharInfo **glyphs );
     int         (*get_bitmaps) (/* client, font, flags, ranges, nranges,
 				    nextents, extents */ );
     int         (*get_extents) (/* client, font, format, flags, ranges,
 				    nranges, nglyphs, offsets, glyphs */ );
-    void        (*unload_font) ( /* font */ );
+    void        (*unload_font) ( FontPtr pFont /* font */ );
     FontPathElementPtr fpe;
     pointer     svrPrivate;
     pointer     fontPrivate;

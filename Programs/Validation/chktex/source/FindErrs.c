@@ -563,9 +563,16 @@ static void WipeArgument(const char *Cmd, char *CmdPtr)
             case '{':
                 SKIP_AHEAD(TmpPtr, TmpC, LATEX_SPACE(TmpC));
                 TmpPtr = GetLTXArg(TmpPtr, ArgBuffer, GET_TOKEN, NULL);
+                break;
+            case '<':
+                SKIP_AHEAD(TmpPtr, TmpC, LATEX_SPACE(TmpC));
+                if (*TmpPtr == '<')
+                    TmpPtr = GetLTXArg(TmpPtr, ArgBuffer, '>', NULL);
+                break;
             case '}':
             case ']':
             case ')':
+            case '>':
                 break;
             default:
                 PrintPrgErr(pmWrongWipeTemp, &Cmd[strlen(Cmd) + 1]);
@@ -576,7 +583,7 @@ static void WipeArgument(const char *Cmd, char *CmdPtr)
         if (TmpPtr)
             strwrite(CmdPtr+CmdLen, VerbClear, TmpPtr - CmdPtr - CmdLen);
         else
-            strxrep(CmdPtr+CmdLen, "()[]{}", *VerbClear);
+            strxrep(CmdPtr+CmdLen, "()<>[]{}", *VerbClear);
     }
 }
 

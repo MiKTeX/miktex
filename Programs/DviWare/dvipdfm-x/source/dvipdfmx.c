@@ -772,11 +772,16 @@ read_config_file (const char *config)
   static char argv0[] = "config_file";
   char *argv[3];
 
+  if (dpx_conf.verbose_level > 0)
+    MESG("DPXCONFIG:");
   fp = DPXFOPEN(config, DPX_RES_TYPE_TEXT);
   if (!fp) {
     WARN("Could not open config file \"%s\".", config);
     return;
+  } else if (dpx_conf.verbose_level > 0) {
+    MESG("\n"); /* too ugly to have bare > at the end */
   }
+
   argv[0] = argv0;
   while ((start = mfgets (work_buffer, WORK_BUFFER_SIZE, fp)) != NULL) {
     int   argc = 1;

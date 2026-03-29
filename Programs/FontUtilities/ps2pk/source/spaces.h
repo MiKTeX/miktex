@@ -57,15 +57,28 @@ struct doublematrix {
 /*END SHARED*/
 /*SHARED*/
  
+struct fractpoint {
+       fractpel x,y;
+} ;
+ 
+/*END SHARED*/
+/*SHARED*/
+ 
 struct XYspace {
        XOBJ_COMMON           /* xobject common data define 3-26-91 PNM       */
 			     /* type = SPACETYPE			     */
-       void (*convert)();     /* calculate "fractpoint" X,Y from float X,Y    */
-       void (*iconvert)();    /* calculate "fractpoint" X,Y from int X,Y      */
-       fractpel (*xconvert)();  /* subroutine of convert                     */
-       fractpel (*yconvert)();  /* subroutine of convert                     */
-       fractpel (*ixconvert)();  /* subroutine of iconvert                   */
-       fractpel (*iyconvert)();  /* subroutine of iconvert                   */
+       void (*convert)(struct fractpoint*,struct XYspace*,DOUBLE,DOUBLE);
+                             /* calculate "fractpoint" X,Y from float X,Y    */
+       void (*iconvert)(struct fractpoint*,struct XYspace*,int32_t,int32_t);
+                             /* calculate "fractpoint" X,Y from int X,Y      */
+       fractpel (*xconvert)(DOUBLE,DOUBLE,DOUBLE,DOUBLE);
+                             /* subroutine of convert                        */
+       fractpel (*yconvert)(DOUBLE,DOUBLE,DOUBLE,DOUBLE);
+                             /* subroutine of convert                        */
+       fractpel (*ixconvert)(int32_t,int32_t,int32_t,int32_t);
+                             /* subroutine of iconvert                       */
+       fractpel (*iyconvert)(int32_t,int32_t,int32_t,int32_t);
+                             /* subroutine of iconvert                       */
        int ID;               /* unique identifier (used in font caching)     */
        unsigned char context;  /* device context of coordinate space         */
        struct doublematrix tofract;  /* xform to get to fractional pels      */
@@ -73,13 +86,6 @@ struct XYspace {
 } ;
  
 #define    INVALIDID  0      /* no valid space will have this ID             */
- 
-/*END SHARED*/
-/*SHARED*/
- 
-struct fractpoint {
-       fractpel x,y;
-} ;
  
 /*END SHARED*/
 /*SHARED*/

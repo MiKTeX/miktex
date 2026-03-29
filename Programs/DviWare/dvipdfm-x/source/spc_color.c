@@ -53,7 +53,7 @@ spc_handler_color_push (struct spc_env *spe, struct spc_arg *args)
 
   error = spc_util_read_colorspec(spe, &colorspec, args, 1);
   if (!error) {
-    pdf_color_push(&colorspec, &colorspec);
+    pdf_color_push(&colorspec, &colorspec, PDF_COLOR_SOURCE_DVIPS);
   }
 
   return  error;
@@ -62,7 +62,7 @@ spc_handler_color_push (struct spc_env *spe, struct spc_arg *args)
 static int
 spc_handler_color_pop  (struct spc_env *spe, struct spc_arg *args)
 {
-  pdf_color_pop();
+  pdf_color_pop(PDF_COLOR_SOURCE_DVIPS);
 
   return  0;
 }

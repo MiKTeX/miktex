@@ -6,11 +6,12 @@
  * AUTHOR:  Piet Tutelaers
  * VERSION: 1.0 (Sept. 1995)
  */
+#include <stdlib.h>     /* exit() */
 #include <stdio.h>	/* printf() */
 #include "basics.h"	/* fatal() */
 #include "filenames.h"	/* basename() */
 
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
    if (argc < 2 || argc > 3) 
       fatal("Usage: basename string [suffix]\n");

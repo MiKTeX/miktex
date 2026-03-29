@@ -1028,7 +1028,7 @@ pdf_load_fontmap_file (const char *filename, int mode)
   DPXFCLOSE(fp);
 
   if (dpx_conf.verbose_level > 0)
-    MESG(">");
+    MESG(">\n");
 
   return  error;
 }
