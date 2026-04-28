@@ -946,7 +946,7 @@ spc_handler_pdfm_bcolor (struct spc_env *spe, struct spc_arg *ap)
     spc_warn(spe, "Invalid color specification?");
   } else {
     skip_white(&ap->curptr, ap->endptr);
-    pdf_color_push(&sc, &fc); /* save currentcolor */
+    pdf_color_push(&sc, &fc, PDF_COLOR_SOURCE_BCOLOR); /* save currentcolor */
   }
 
   return  error;
@@ -1007,7 +1007,7 @@ spc_handler_pdfm_scolor (struct spc_env *spe, struct spc_arg *ap)
 static int
 spc_handler_pdfm_ecolor (struct spc_env *spe, struct spc_arg *args)
 {
-  pdf_color_pop();
+  pdf_color_pop(PDF_COLOR_SOURCE_BCOLOR);
   return 0;
 }
 

@@ -13,7 +13,7 @@
 #include "pdftex_version.h"
 
 #define MIKTEX_COMP_MAJOR_VERSION 4
-#define MIKTEX_COMP_MINOR_VERSION 26
+#define MIKTEX_COMP_MINOR_VERSION 27
 #define MIKTEX_COMP_PATCH_VERSION 0
 
 #define MIKTEX_COMP_ID "miktex-pdftex"

@@ -325,7 +325,7 @@ static int skip_comment(int);
 static int skip_space(int);
  
 static struct cat {
-  int (*actionRoutineP)();
+  int (*actionRoutineP)(int);
   unsigned char *nextStateP;
 } classActionTable[] = {
  

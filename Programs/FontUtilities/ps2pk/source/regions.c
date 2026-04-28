@@ -364,7 +364,7 @@ region, we allow the same ChangeDirection logic to be used by stroking.
 */
  
 static struct edgelist *SortSwath( struct edgelist *, struct edgelist *,
-       struct edgelist *(*)());
+       struct edgelist *(*)(struct edgelist *before0,struct edgelist *edge));
  
 /*SHARED LINE(S) ORIGINATED HERE*/
  
@@ -793,7 +793,7 @@ exactly where the bottom part belongs.
 static struct edgelist *SortSwath(
        struct edgelist *anchor,  /* list being built                         */
        register struct edgelist *edge,  /* incoming edge or pair of edges    */
-       struct edgelist *(*swathfcn)())  /* horizontal sorter                 */
+       struct edgelist *(*swathfcn)(struct edgelist *before0,struct edgelist *edge))  /* horizontal sorter                 */
 {
        register struct edgelist *before,*after;
        struct edgelist base;

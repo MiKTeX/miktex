@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2021 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2026 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -207,7 +207,7 @@ pdf_close_images (void)
          */
         if (dpx_conf.verbose_level > 1 &&
             dpx_conf.file.keep_cache != 1)
-          MESG("pdf_image>> deleting temporary file \"%s\"\n", I->filename);
+          MESG("pdf_image>> deleting temporary file: %s\n", I->filename);
         dpx_delete_temp_file(I->fullname, false); /* temporary filename freed here */
         I->fullname = NULL;
       }
@@ -480,7 +480,7 @@ pdf_ximage_load_image (const char *ident, const char *filename, load_options opt
     return  -1;
   }
   if (dpx_conf.verbose_level > 0) {
-    MESG("(Image:%s", filename);
+    MESG("\n(Image:%s", filename);
     if (dpx_conf.verbose_level > 1)
       MESG("[%s]", fullname);
   }
@@ -1170,8 +1170,7 @@ ps_include_page (pdf_ximage *ximage, const char *filename, load_options options)
     if (dpx_conf.verbose_level > 1) {
       MESG("\n");
       MESG("pdf_image>> Converting file \"%s\" --> \"%s\" via:\n", filename, temp);
-      MESG("pdf_image>>   %s\n", distiller_template);
-      MESG("pdf_image>> ...");
+      /* we'll output the actual command in dpxfile.c */
     }
 
 /* Support non-ascii TEMP and TMP on Windows to call Ghostscript */

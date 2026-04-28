@@ -911,10 +911,14 @@ SYNCTEX_INLINE static void _synctex_will_free(synctex_node_p node) {
  */
 static void _synctex_free_node(synctex_node_p node) {
     if (node) {
+        synctex_node_p sibling;
+        synctex_node_p child;
         SYNCTEX_SCANNER_REMOVE_HANDLE_TO(node);
         SYNCTEX_WILL_FREE(node);
-        synctex_node_free(__synctex_tree_sibling(node));
-        synctex_node_free(_synctex_tree_child(node));
+        sibling = __synctex_tree_reset_sibling(node);
+        child = _synctex_tree_reset_child(node);
+        synctex_node_free(sibling);
+        synctex_node_free(child);
         _synctex_free(node);
     }
     return;
@@ -972,9 +976,11 @@ static void _synctex_free_handle(synctex_node_p handle) {
  */
 static void _synctex_free_leaf(synctex_node_p node) {
     if (node) {
+        synctex_node_p sibling;
         SYNCTEX_SCANNER_REMOVE_HANDLE_TO(node);
         SYNCTEX_WILL_FREE(node);
-        synctex_node_free(__synctex_tree_sibling(node));
+        sibling = __synctex_tree_reset_sibling(node);
+        synctex_node_free(sibling);
         _synctex_free(node);
     }
     return;
@@ -1238,9 +1244,11 @@ static synctex_node_p _synctex_new_input(synctex_scanner_p scanner) {
 
 static void _synctex_free_input(synctex_node_p node){
     if (node) {
+        synctex_node_p sibling;
         SYNCTEX_SCANNER_REMOVE_HANDLE_TO(node);
         SYNCTEX_WILL_FREE(node);
-        synctex_node_free(__synctex_tree_sibling(node));
+        sibling = __synctex_tree_reset_sibling(node);
+        synctex_node_free(sibling);
         _synctex_free(_synctex_data_name(node));
         _synctex_free(node);
     }
@@ -5805,6 +5813,13 @@ SYNCTEX_INLINE static synctex_ns_s _synctex_post_process_ref(synctex_node_p ref)
             synctex_tree_set_friend(sub_ns.node,ns.node);
             ns.node = sub_ns.node;
         }
+        /*  Ensure ref is fully detached before freeing,
+         *  even if __synctex_replace_ref did not detach it
+         *  (e.g. because the ref had no parent).
+         *  Otherwise _synctex_free_leaf would chase the
+         *  stale sibling pointer into the live tree.  */
+        __synctex_tree_reset_sibling(ref);
+        __synctex_tree_reset_parent(ref);
         synctex_node_free(ref);
         ref = next_ref;
     }
@@ -6342,11 +6357,8 @@ synctex_node_p synctex_scanner_input(synctex_scanner_p scanner) {
 }
 synctex_node_p synctex_scanner_input_with_tag(synctex_scanner_p scanner, int tag) {
     synctex_node_p input = scanner?scanner->input:NULL;
-    while (_synctex_data_tag(input)!=tag) {
-        if ((input = __synctex_tree_sibling(input))) {
-            continue;
-        }
-        break;
+    while (input && _synctex_data_tag(input)!=tag) {
+        input = __synctex_tree_sibling(input);
     }
     return input;
 }

@@ -100,9 +100,17 @@ extern int      pdf_colorspace_load_ICCBased      (const char *ident,
 /* Color special
  * See remark in spc_color.c.
  */
+
+/* Source tags for color stack entries.
+ * Used to prevent cross-pops between "color push"/"color pop" (dvips-compatible)
+ * and "pdf:bcolor"/"pdf:ecolor" (dvipdfmx-specific) mechanisms.
+ */
+#define PDF_COLOR_SOURCE_DVIPS   0  /* "color push" / "color pop" */
+#define PDF_COLOR_SOURCE_BCOLOR  1  /* "pdf:bcolor" / "pdf:ecolor" */
+
 extern void     pdf_color_set   (pdf_color *sc, pdf_color *fc);
-extern void     pdf_color_push  (pdf_color *sc, pdf_color *fc);
-extern void     pdf_color_pop   (void);
+extern void     pdf_color_push  (pdf_color *sc, pdf_color *fc, int source);
+extern void     pdf_color_pop   (int source);
 
 /* Color stack
  */

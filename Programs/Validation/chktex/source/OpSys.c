@@ -491,6 +491,8 @@ static int HasFile(char *Dir, const char *Filename, const char *App)
 
 void AddDirectoryFromRelativeFile(const char * Filename, struct WordList *TeXInputs)
 {
+    char buf[BUFFER_SIZE];
+    char * end;
     if ( ! Filename )
         return;
 
@@ -499,7 +501,6 @@ void AddDirectoryFromRelativeFile(const char * Filename, struct WordList *TeXInp
         return;
 
 
-    char buf[BUFFER_SIZE];
     if ( strchr(DIRCHARS,Filename[0]) ) {
         strcpy(buf,Filename);
     } else {
@@ -508,7 +509,7 @@ void AddDirectoryFromRelativeFile(const char * Filename, struct WordList *TeXInp
     }
 
     /* Keep up to the final SLASH -- that will be the directory. */
-    char * end = strrchr(buf,SLASH);
+    end = strrchr(buf,SLASH);
     *end = '\0';
     InsertWord(buf,TeXInputs);
 }

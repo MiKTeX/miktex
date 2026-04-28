@@ -434,6 +434,7 @@ static struct {
   int       current;
   pdf_color stroke[DEV_COLOR_STACK_MAX];
   pdf_color fill[DEV_COLOR_STACK_MAX];
+  int       source[DEV_COLOR_STACK_MAX]; /* PDF_COLOR_SOURCE_DVIPS or _BCOLOR */
 } color_stack = {
   0,
 };
@@ -465,26 +466,75 @@ pdf_color_set (pdf_color *sc, pdf_color *fc)
 }
 
 void
-pdf_color_push (pdf_color *sc, pdf_color *fc)
+pdf_color_push (pdf_color *sc, pdf_color *fc, int source)
 {
   if (color_stack.current >= DEV_COLOR_STACK_MAX-1) {
     WARN("Color stack overflow. Just ignore.");
   } else {
     color_stack.current++;
+    color_stack.source[color_stack.current] = source;
     pdf_color_set(sc, fc);
   }
   return;
 }
 
 void
-pdf_color_pop (void)
+pdf_color_pop (int source)
 {
+  int  i;
+
   if (color_stack.current <= 0) {
     WARN("Color stack underflow. Just ignore.");
-  } else {
-    color_stack.current--;
-    pdf_dev_reset_color(1);
+    return;
   }
+
+  /* Find the topmost entry that matches the given source tag.
+   * This prevents "pdf:ecolor" from popping a "color push" entry
+   * and vice versa, fixing the cross-pop bug when the two mechanisms
+   * are interleaved on the shared stack (e.g., breakable tcolorbox
+   * containing a listings environment spanning a page break).
+   */
+  for (i = color_stack.current; i > 0; i--) {
+    if (color_stack.source[i] == source)
+      break;
+  }
+
+  if (i <= 0) {
+    /* No matching entry found.
+     * Do NOT pop -- leave the stack unchanged to avoid silent corruption.
+     */
+    WARN("Color stack pop: no matching %s entry found. Stack unchanged.",
+         source == PDF_COLOR_SOURCE_BCOLOR ? "bcolor" : "push");
+    return;
+  }
+
+  if (i == color_stack.current) {
+    /* Top entry matches -- normal case, just pop. */
+    color_stack.current--;
+  } else {
+    /* Matching entry is below the top.
+     * Remove it by shifting entries above it down by one.
+     */
+    int  j;
+    if (color_stack.stroke[i].spot_color_name)
+      RELEASE(color_stack.stroke[i].spot_color_name);
+    if (color_stack.fill[i].spot_color_name)
+      RELEASE(color_stack.fill[i].spot_color_name);
+    for (j = i; j < color_stack.current; j++) {
+      pdf_color_copycolor(&color_stack.stroke[j], &color_stack.stroke[j+1]);
+      pdf_color_copycolor(&color_stack.fill[j],   &color_stack.fill[j+1]);
+      color_stack.source[j] = color_stack.source[j+1];
+    }
+    /* Clear the abandoned top slot to avoid dangling spot_color_name
+     * pointers (pdf_color_copycolor is memcpy, so the old top slot
+     * still holds a copy of the pointer now owned by the slot below).
+     */
+    color_stack.stroke[color_stack.current].spot_color_name = NULL;
+    color_stack.fill[color_stack.current].spot_color_name   = NULL;
+    color_stack.current--;
+  }
+
+  pdf_dev_reset_color(1);
   return;
 }
 

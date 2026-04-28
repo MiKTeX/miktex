@@ -95,6 +95,7 @@ static const char *BigBanner =
     "distribution conditions in the GNU General Public License file.\n"
     "Type \"ChkTeX -h\" for help, \"ChkTeX -i\" for distribution info.\n"
     "Author: Jens Berger.\n"
+    "Maintainer: Ivan Andrus.\n"
     "Bug reports: https://savannah.nongnu.org/bugs/?group=chktex\n"
     "             or darthandrus@gmail.com\n"
     "Press " STDIN_BREAK " to terminate stdin input.\n";

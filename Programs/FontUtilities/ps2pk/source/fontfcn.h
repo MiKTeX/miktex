@@ -64,7 +64,7 @@ extern int Type1OpenScalable(encoding, FontPtr *, int, FontEntryPtr, char *,
 		             FontScalablePtr, fsBitmapFormat,
 		             fsBitmapFormatMask, DOUBLE, DOUBLE);
 extern void Type1RegisterFontFileFunctions(void);
-extern void Type1CloseFont();
+extern void Type1CloseFont(FontPtr);
 extern int CheckFSFormat(int format,int fmask,int *bit,int *byte,int *scan,int *glyph,int *image);
  
 /***================================================================***/
