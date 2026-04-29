@@ -40,7 +40,16 @@ struct DocumentSorter
     DocumentSorter(const std::string& packageId)
         : packageId(packageId)
     {
-        preferredNames[0] = packageId;
+        // Set preferred name of 'pkg_name__doc' to 'pkg_name';
+        if (packageId.size() > 5
+            && (packageId.compare(packageId.size()-5,std::string::npos,"__doc")==0))
+        {
+            preferredNames[0] = packageId.substr(0,packageId.size()-5);
+        }
+        else
+        {
+            preferredNames[0] = packageId;
+        }
     }
     bool operator() (const std::string& l, const std::string& r)
     {
