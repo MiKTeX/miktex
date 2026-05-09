@@ -146,6 +146,7 @@ typedef enum {
     c_pdf_linking,
     c_pdf_omit_procset,
     c_pdf_ptex_prefix,
+    c_dvi_gid_encoding,
 } pdf_backend_counters ;
 
 typedef enum {
@@ -230,6 +231,7 @@ extern int pdf_cur_form;
 #  define set_pdf_linking(i)            set_tex_extension_count_register(c_pdf_linking,i)
 #  define set_pdf_omit_procset(i)       set_tex_extension_count_register(c_pdf_omit_procset,i)
 #  define set_pdf_ptex_prefix(i)        set_tex_extension_count_register(c_pdf_ptex_prefix,i)
+#  define set_dvi_gid_encoding(i)       set_tex_extension_count_register(c_dvi_gid_encoding,i)
 
 #  define set_pdf_decimal_digits(i)     set_tex_extension_count_register(c_pdf_decimal_digits,i)
 #  define set_pdf_pk_resolution(i)      set_tex_extension_count_register(c_pdf_pk_resolution,i)

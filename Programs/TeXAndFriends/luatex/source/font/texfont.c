@@ -62,7 +62,7 @@ static void grow_font_table(int id)
     int j;
     if (id >= font_arr_max) {
         font_bytes +=
-            (int) (((id + 8 - font_arr_max) * (int) sizeof(texfont *)));
+	  (((size_t)(id + 8 - font_arr_max) *  sizeof(texfont *)));
         font_tables =
             xrealloc(font_tables,
                      (unsigned) (((unsigned) id + 8) * sizeof(texfont *)));
@@ -106,7 +106,7 @@ int new_font(void)
     charinfo *ci;
     sa_tree_item sa_value = { 0 };
     id = new_font_id();
-    font_bytes += (int) sizeof(texfont);
+    font_bytes +=  sizeof(texfont);
     /*tex Most stuff is zero */
     font_tables[id] = xcalloc(1, sizeof(texfont));
     font_tables[id]->_font_name = NULL;
@@ -154,7 +154,7 @@ int new_font(void)
 void font_malloc_charinfo(internal_font_number f, int num)
 {
     int glyph = font_tables[f]->_charinfo_size;
-    font_bytes += (int) (num * (int) sizeof(charinfo));
+    font_bytes +=  ((size_t)num *  sizeof(charinfo));
     do_realloc(font_tables[f]->_charinfo, (unsigned) (glyph + num), charinfo);
     memset(&(font_tables[f]->_charinfo[glyph]), 0, (size_t) (num * (int) sizeof(charinfo)));
     font_tables[f]->_charinfo_size += num;
@@ -184,14 +184,14 @@ charinfo *get_charinfo(internal_font_number f, int c)
     } else if (c == left_boundarychar) {
         if (left_boundary(f) == NULL) {
             ci = xcalloc(1, sizeof(charinfo));
-            font_bytes += (int) sizeof(charinfo);
+            font_bytes +=  sizeof(charinfo);
             set_left_boundary(f, ci);
         }
         return left_boundary(f);
     } else if (c == right_boundarychar) {
         if (right_boundary(f) == NULL) {
             ci = xcalloc(1, sizeof(charinfo));
-            font_bytes += (int) sizeof(charinfo);
+            font_bytes +=  sizeof(charinfo);
             set_right_boundary(f, ci);
         }
         return right_boundary(f);
@@ -1037,7 +1037,7 @@ void set_font_params(internal_font_number f, int b)
     int i;
     i = font_params(f);
     if (i != b) {
-        font_bytes += (int) ((b - (int) font_params(f) + 1) * (int) sizeof(scaled));
+        font_bytes += ((size_t)(b -  font_params(f) + 1) *  sizeof(scaled));
         do_realloc(param_base(f), (b + 2), int);
         font_params(f) = b;
         if (b > i) {
@@ -1053,7 +1053,7 @@ void set_font_math_params(internal_font_number f, int b)
     int i;
     i = font_math_params(f);
     if (i != b) {
-        font_bytes += ((b - (int) font_math_params(f) + 1) * (int) sizeof(scaled));
+        font_bytes += ((size_t)(b -  font_math_params(f) + 1) * (int) sizeof(scaled));
         do_realloc(math_param_base(f), (b + 2), int);
         font_math_params(f) = b;
         if (b > i) {
@@ -1111,13 +1111,13 @@ int copy_font(int f)
     set_font_encodingbytes(k,font_encodingbytes(f));
     set_font_subfont(k,font_subfont(f));
     i = (int) (sizeof(*param_base(f)) * (unsigned) (font_params(f)+1));
-    font_bytes += i;
+    font_bytes += (size_t)(i);
     param_base(k) = xmalloc((unsigned) (i+1));
     memcpy(param_base(k), param_base(f), (size_t) (i));
     if (font_math_params(f) > 0) {
         i = (int) (sizeof(*math_param_base(f)) *
                    (unsigned) font_math_params(f));
-        font_bytes += i;
+        font_bytes += (size_t)i;
         math_param_base(k) = xmalloc((unsigned) i);
         memcpy(math_param_base(k), math_param_base(f), (size_t) i);
     }
@@ -1601,7 +1601,7 @@ static int undump_charinfo(int f)
     /*tex Name */
     undump_int(x);
     if (x > 0) {
-        font_bytes += x;
+        font_bytes += (size_t)x;
         s = xmalloc((unsigned) x);
         undump_things(*s, x);
     }
@@ -1609,7 +1609,7 @@ static int undump_charinfo(int f)
     /*tex Tounicode */
     undump_int(x);
     if (x > 0) {
-        font_bytes += x;
+        font_bytes += (size_t)x;
         s = xmalloc((unsigned) x);
         undump_things(*s, x);
     }
@@ -1617,7 +1617,7 @@ static int undump_charinfo(int f)
     /*tex Ligatures */
     undump_int(x);
     if (x > 0) {
-        font_bytes += (int) ((unsigned) x * sizeof(liginfo));
+        font_bytes +=  ((size_t)x * sizeof(liginfo));
         lig = xmalloc((unsigned) ((unsigned) x * sizeof(liginfo)));
         undump_things(*lig, x);
     }
@@ -1625,7 +1625,7 @@ static int undump_charinfo(int f)
     /*tex Kerns */
     undump_int(x);
     if (x > 0) {
-        font_bytes += (int) ((unsigned) x * sizeof(kerninfo));
+        font_bytes +=  ((size_t)x * sizeof(kerninfo));
         kern = xmalloc((unsigned) ((unsigned) x * sizeof(kerninfo)));
         undump_things(*kern, x);
     }
@@ -1634,7 +1634,7 @@ static int undump_charinfo(int f)
     /*tex Packets */
     undump_int(x);
     if (x > 0) {
-        font_bytes += x;
+        font_bytes += (size_t)x;
         packet = xmalloc((unsigned) x);
         undump_things(*packet, x);
     }
@@ -1650,7 +1650,7 @@ static int undump_charinfo(int f)
 #define undump_font_string(a)     \
     undump_int (x);               \
     if (x>0) {                    \
-        font_bytes += x;          \
+        font_bytes += (size_t)x;  \
         s = xmalloc((unsigned)x); \
         undump_things(*s,x);      \
         a(f,s);                   \
@@ -1707,7 +1707,7 @@ void undump_font(int f)
     grow_font_table(f);
     tt = xmalloc(sizeof(texfont));
     memset(tt, 0, sizeof(texfont));
-    font_bytes += (int) sizeof(texfont);
+    font_bytes +=  sizeof(texfont);
     undump_font_entry(tt);
     font_tables[f] = tt;
     undump_font_string(set_font_name);
@@ -1719,13 +1719,13 @@ void undump_font(int f)
     undump_font_string(set_font_cidregistry);
     undump_font_string(set_font_cidordering);
     i = (int) (sizeof(*param_base(f)) * ((unsigned) font_params(f) + 1));
-    font_bytes += i;
+    font_bytes += (size_t)i;
     param_base(f) = xmalloc((unsigned) i);
     undump_things(*param_base(f), (font_params(f) + 1));
     if (font_math_params(f) > 0) {
         i = (int) (sizeof(*math_param_base(f)) *
                    ((unsigned) font_math_params(f) + 1));
-        font_bytes += i;
+        font_bytes += (size_t)i;
         math_param_base(f) = xmalloc((unsigned) i);
         undump_things(*math_param_base(f), (font_math_params(f) + 1));
     }

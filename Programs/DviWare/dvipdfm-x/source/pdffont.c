@@ -64,10 +64,7 @@ pdf_font_set_dpi (int font_dpi)
   PKFont_set_dpi(font_dpi);
 }
 
-static union {
-  char p[sizeof(int)];
-  int* i;
-} unique_tag_count;
+static int unique_tag_count;
 
 /* This function used to be implemented as
  *
@@ -112,16 +109,21 @@ pdf_font_make_uniqueTag (char *tag)
 {
   MD5_CONTEXT state;
   unsigned char digest[16];
+  unsigned char unique_tag_count_bytes[4];
   int i, ch;
 
-  unique_tag_count.i++;
+  unique_tag_count++;
+  unique_tag_count_bytes[0] = unique_tag_count;
+  unique_tag_count_bytes[1] = unique_tag_count >> 8;
+  unique_tag_count_bytes[2] = unique_tag_count >> 16;
+  unique_tag_count_bytes[3] = unique_tag_count >> 24;
 
   MD5_init(&state);
   if (dvi_filename)
     MD5_write(&state, dvi_filename, strlen(dvi_filename));
   if (pdf_filename)
     MD5_write(&state, pdf_filename, strlen(pdf_filename));
-  MD5_write(&state, unique_tag_count.p, sizeof(unique_tag_count));
+  MD5_write(&state, unique_tag_count_bytes, sizeof(unique_tag_count_bytes));
   MD5_final(digest, &state);
 
   for (i = 0; i < 6; i++) {

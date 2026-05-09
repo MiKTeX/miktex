@@ -165,6 +165,10 @@ pdf_color_copycolor (pdf_color *color1, const pdf_color *color2)
   ASSERT(color1 && color2);
 
   memcpy(color1, color2, sizeof(pdf_color));
+  if (color2->spot_color_name) {
+    color1->spot_color_name = NEW(strlen(color2->spot_color_name)+1, char);
+    strcpy(color1->spot_color_name, color2->spot_color_name);
+  }
 }
 
 /* Brighten up a color. f == 0 means no change, f == 1 means white. */
@@ -460,6 +464,10 @@ pdf_color_clear_stack (void)
 void
 pdf_color_set (pdf_color *sc, pdf_color *fc)
 {
+  if (color_stack.stroke[color_stack.current].spot_color_name)
+    RELEASE(color_stack.stroke[color_stack.current].spot_color_name);
+  if (color_stack.fill[color_stack.current].spot_color_name)
+    RELEASE(color_stack.fill[color_stack.current].spot_color_name);
   pdf_color_copycolor(&color_stack.stroke[color_stack.current], sc);
   pdf_color_copycolor(&color_stack.fill[color_stack.current], fc);
   pdf_dev_reset_color(1);
@@ -510,27 +518,40 @@ pdf_color_pop (int source)
 
   if (i == color_stack.current) {
     /* Top entry matches -- normal case, just pop. */
+    if (color_stack.stroke[color_stack.current].spot_color_name) {
+      RELEASE(color_stack.stroke[color_stack.current].spot_color_name);
+      color_stack.stroke[color_stack.current].spot_color_name = NULL;
+    }
+    if (color_stack.fill[color_stack.current].spot_color_name) {
+      RELEASE(color_stack.fill[color_stack.current].spot_color_name);
+      color_stack.fill[color_stack.current].spot_color_name   = NULL;
+    }
     color_stack.current--;
   } else {
     /* Matching entry is below the top.
      * Remove it by shifting entries above it down by one.
+     * Free spot_color_name in each destination slot before overwriting
+     * since pdf_color_copycolor deep-copies the pointer.
      */
     int  j;
-    if (color_stack.stroke[i].spot_color_name)
-      RELEASE(color_stack.stroke[i].spot_color_name);
-    if (color_stack.fill[i].spot_color_name)
-      RELEASE(color_stack.fill[i].spot_color_name);
     for (j = i; j < color_stack.current; j++) {
+      if (color_stack.stroke[j].spot_color_name)
+        RELEASE(color_stack.stroke[j].spot_color_name);
+      if (color_stack.fill[j].spot_color_name)
+        RELEASE(color_stack.fill[j].spot_color_name);
       pdf_color_copycolor(&color_stack.stroke[j], &color_stack.stroke[j+1]);
       pdf_color_copycolor(&color_stack.fill[j],   &color_stack.fill[j+1]);
       color_stack.source[j] = color_stack.source[j+1];
     }
-    /* Clear the abandoned top slot to avoid dangling spot_color_name
-     * pointers (pdf_color_copycolor is memcpy, so the old top slot
-     * still holds a copy of the pointer now owned by the slot below).
-     */
-    color_stack.stroke[color_stack.current].spot_color_name = NULL;
-    color_stack.fill[color_stack.current].spot_color_name   = NULL;
+    /* Free and clear the abandoned top slot. */
+    if (color_stack.stroke[color_stack.current].spot_color_name) {
+      RELEASE(color_stack.stroke[color_stack.current].spot_color_name);
+      color_stack.stroke[color_stack.current].spot_color_name = NULL;
+    }
+    if (color_stack.fill[color_stack.current].spot_color_name) {
+      RELEASE(color_stack.fill[color_stack.current].spot_color_name);
+      color_stack.fill[color_stack.current].spot_color_name   = NULL;
+    }
     color_stack.current--;
   }
 

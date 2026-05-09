@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2026 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -342,20 +342,22 @@ parse_pdf_name (const char **pp, const char *endptr)
       WARN("Invalid char in PDF name object. (ignored)");
     } else if (ch == 0) {
       WARN("Null char not allowed in PDF name object. (ignored)");
-    } else if (len < STRING_BUFFER_SIZE) {
-      if (len == PDF_NAME_LEN_MAX) {
-	WARN("PDF name length too long. (>= %d bytes)", PDF_NAME_LEN_MAX);
-      }
+    } else if (len < PDF_NAME_LEN_MAX) {
       name[len++] = ch;
     } else {
-      WARN("PDF name length too long. (>= %d bytes, truncated)",
-	   STRING_BUFFER_SIZE);
+      if (len == PDF_NAME_LEN_MAX) {
+        WARN("PDF name length too long. (>= %d bytes, truncated)",
+             PDF_NAME_LEN_MAX);
+      }
+      len++;  /* count but do not write -- buffer is full */
     }
   }
   if (len < 1) {
     WARN("No valid name object found.");
     return NULL;
   }
+  if (len > PDF_NAME_LEN_MAX)
+    len = PDF_NAME_LEN_MAX;
   name[len] = '\0';
 
   return pdf_new_name(name);

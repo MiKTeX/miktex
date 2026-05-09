@@ -73,6 +73,22 @@ main (int argc, char **argv)
     hb_always_assert (out.length == 0);
   }
 
+  {
+    /* malformed axis range should be rejected, not abort */
+    Triple tent (0.3, 0.5, 0.8);
+    Triple axis_range (0.4, 0.2, 0.3);
+    rebase_tent_result_t out, scratch;
+    rebase_tent (tent, axis_range, default_axis_distances, out, scratch);
+    hb_always_assert (out.length == 0);
+  }
+
+  {
+    /* malformed triple should not abort in renormalization */
+    Triple malformed_range (0.4, 0.2, 0.3);
+    double normalized = renormalizeValue (0.25, malformed_range, default_axis_distances, true);
+    hb_always_assert (approx (normalized, 0.25));
+  }
+
   /* Case 2 */
   {
     Triple tent (0.0, 1.0, 1.0);

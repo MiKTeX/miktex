@@ -78,6 +78,7 @@ typedef enum {
     process_pdf_image_content_callback,
     provide_charproc_data_callback,
     input_level_string_callback,
+    dvi_output_callback,
     total_callbacks,
 } callback_callback_types;
 

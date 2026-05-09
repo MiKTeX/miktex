@@ -837,6 +837,14 @@ static int getpdfptexprefix(lua_State * L)
     return 1 ;
 }
 
+static int setdvigidencoding(lua_State * L)
+{
+    if (lua_type(L, 1) == LUA_TNUMBER) {
+        set_dvi_gid_encoding(lua_tointeger(L, 1));
+    }
+    return 0 ;
+}
+
 static int setpdfgentounicode(lua_State * L)
 {
     /* ensures that glyph_unicode_tree is not null */
@@ -1438,6 +1446,8 @@ static const struct luaL_Reg pdflib[] = {
     { "xformname", getpdfxformname },
     /* experimental */
     { "settypeonewidemode", settypeonewidemode},
+    /* dvi backend */
+    { "setdviencoding", setdvigidencoding },
     /* sentinel */
     {NULL, NULL}
 };

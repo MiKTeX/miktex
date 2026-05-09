@@ -708,6 +708,7 @@ static int dvi_limit = 0;   /* end of the current half buffer */
 static int dvi_ptr = 0;     /* the next available buffer address */
 static int dvi_offset = 0;  /* |dvi_buf_size| times the number of times the output buffer has been fully emptied */
 static int dvi_gone = 0;    /* the number of bytes already output to |dvi_file| */
+static int dvi_write_gid = 0; /* indicate writing \.{GID} codes for |OpenType| fonts */
 
 /*
 To put a byte in the buffer without paying the cost of invoking a procedure
@@ -1295,27 +1296,84 @@ void dvi_place_rule(PDF pdf, halfword q, scaledpos size,int callback_id)
     dvi_four(size.h);
 }
 
+# define dvi_output_callback_first_time_font_used 1 
+
 void dvi_place_glyph(PDF pdf, internal_font_number f, int c, int ex)
 {
     scaled_whd ci;
     synch_dvi_with_pos(pdf->posstruct->pos);
     if (f != pdf->f_cur) {
         /*tex Change font |f_cur| to |f| */
-        if (!font_used(f)) {
+        if (! font_used(f)) {
+# if 0 
+                int font_callback_id = callback_defined(font_definition_callback);
+                if (font_callback_id != 0) {
+                    halfword font_special = null;
+                    run_callback(font_callback_id, "d->N", f, &font_special);
+                    /*
+                        This is a bad patch. Apart from a conceptual issue, we need to check for the 
+                        kind of node returned as |dvi_special| doesn't do any checking. So let's first 
+                        fix the current variant (returning a penalty node with some large penalty value 
+                        that is a valid token memory pointer (say 12345678) can trigger a crash in plain. 
+                    */
+                    if (font_special == null) { 
+                        /* ignore */
+                    } else if (type(font_special) == whatsit_node && (subtype(font_special) == special_node || subtype(font_special) == late_special_node)) {
+                        dvi_special(pdf, font_special);
+                        flush_node(font_special);
+                    } else { 
+                        print_err(" ==> Fatal error occurred: invalid node injection, bad output DVI file produced!");
+                        jump_out();
+                    }
+                }
+# else 
+                int font_callback_id = callback_defined(dvi_output_callback);
+                if (font_callback_id > 0) {
+                    char *result = NULL;
+                    int okay = run_callback(font_callback_id, "dd->R", dvi_output_callback_first_time_font_used, f, &result);
+                    if (okay && (result != NULL)) {
+                        int l = (int) strlen(result);
+                        int k;
+                        if (l == 0) { 
+                            /* silently ignore */
+                        } else if (l > max_halfword) {
+                            /* ignore but we could complain */
+			   normal_warning("dvi", "the dvi_output callback returns a string g that exceeds the maximum length allowed by max_halfword ");
+                        } else if (l < 256) {
+                            dvi_out(xxx1);
+                            dvi_out((unsigned char) l);
+                        } else {
+                            dvi_out(xxx4);
+                            dvi_four(l);
+                        }
+                        for (k = 0; k < l; k++) {
+                            dvi_out(result[k]);
+                        }
+                        free(result);
+                    }
+                }
+            }
             dvi_font_def(f);
             set_font_used(f, true);
-        }
+# endif 
         oval = f - 1;
         ocmd = fnt1;
         out_cmd();
         pdf->f_cur = f;
     }
+    int font_encoding = font_encodingbytes(f);
     if (textdir_is_L(pdf->posstruct->dir)) {
         ci = get_charinfo_whd(f, c);
         /*tex movement optimization for |dir_*L*| */
-        dvi_set(c, ci.wd);
+        if ((font_encoding == 2) && (dvi_write_gid > 0))
+            dvi_set(char_index(f, c), ci.wd);
+        else
+            dvi_set(c, ci.wd);
     } else {
-        dvi_put(c);
+        if ((font_encoding == 2) && (dvi_write_gid > 0))
+            dvi_put(char_index(f, c));
+        else
+            dvi_put(c);
     }
 }
 
@@ -1413,6 +1471,10 @@ void dvi_begin_page(PDF pdf)
     int k;
     /*tex location of the current |bop| */
     int page_loc;
+    unsigned s;
+    /*tex saved |selector| setting */
+    int old_setting;
+    static int gid_special_written = 0;
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     /*tex Initialize variables as |ship_out| begins */
     page_loc = dvi_offset + dvi_ptr;
@@ -1421,6 +1483,20 @@ void dvi_begin_page(PDF pdf)
         dvi_four(count(k));
     dvi_four(last_bop);
     last_bop = page_loc;
+    dvi_write_gid = get_tex_extension_count_register(c_dvi_gid_encoding);
+    if (dvi_write_gid > 0 && gid_special_written == 0) {
+        old_setting = selector;
+        selector = new_string;
+        tprint("vtex:settings.xdvipsk.opentype={enc=gid}");
+        selector = old_setting;
+        dvi_out(xxx1);
+        dvi_out(cur_length);
+        for (s = 0; s < cur_length; s++) {
+            dvi_out(cur_string[s]);
+        }
+        cur_length = 0;
+        gid_special_written = 1;
+    }
 }
 
 void dvi_end_page(PDF pdf)

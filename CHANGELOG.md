@@ -4,8 +4,8 @@
 
 ### Upgraded programs
 
-* dvipdfmx 20260318
-* luatex 1.25.2
+* dvipdfmx 20260404
+* luatex 1.25.7
 
 ## 26.2 - 2026-2-21
 

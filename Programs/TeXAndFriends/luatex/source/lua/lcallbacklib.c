@@ -86,6 +86,7 @@ static const char *const callbacknames[] = {
     "process_pdf_image_content",
     "provide_charproc_data",
     "input_level_string",
+    "dvi_output",
     NULL
 };
 

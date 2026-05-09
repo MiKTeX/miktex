@@ -7,7 +7,8 @@
 --     copyright = 'LuaTeX Development Team',
 -- }
 
-LUATEXCOREVERSION = 1.180 -- we reflect the luatex version where changes happened
+
+LUATEXCOREVERSION = 1.255 -- we reflect the luatex version where changes happened
 
 -- This file overloads some Lua functions. The readline variants provide the same
 -- functionality as LuaTeX <= 1.04 and doing it this way permits us to keep the
@@ -390,12 +391,15 @@ if saferoption == 1 then
     os.spawn   = installdummy("os.spawn")
     os.exec    = installdummy("os.exec")
     os.setenv  = installdummy("os.setenv")
+    --[==[ This is wrong, os.tempdir does not exist but we need to keep it for backward compatibility ]==]
     os.tempdir = installdummy("os.tempdir")
+    --[==[ This one is the correct one ]==]
+    os.tmpdir = installdummy("os.tmpdir")
 
     os.kpsepopen = installdummy("os.kpsepopen")
 
     io.popen   = installdummy("io.popen")
-    io.open    = installdummy("io.open",luatex_io_open_readonly)
+    io.open    = installdummy("io.open")
 
     os.rename  = installdummy("os.rename")
     os.remove  = installdummy("os.remove")

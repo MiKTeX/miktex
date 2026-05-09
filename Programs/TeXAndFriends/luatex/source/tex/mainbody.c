@@ -659,9 +659,9 @@ void close_files_and_terminate(void)
                     " %d multiletter control sequences out of %ld+%d\n",
                     (int) cs_count, (long) hash_size, (int) hash_extra
                 );
-                fprintf(log_file, " %d font%s using %d bytes\n",
+                fprintf(log_file, " %d font%s using %zu bytes\n",
                     (int) max_font_id(), (max_font_id() == 1 ? "" : "s"),
-                    (int) font_bytes
+                    font_bytes
                 );
                 fprintf(log_file,
                     " %di,%dn,%dp,%db,%ds stack positions out of %di,%dn,%dp,%db,%ds\n",

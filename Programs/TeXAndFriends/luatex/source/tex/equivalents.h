@@ -42,7 +42,7 @@ distinction.
 #  define too_big_char   (biggest_char+1) /* 1114112, |biggest_char+1| */
 #  define special_char   (biggest_char+2) /* 1114113, |biggest_char+2| */
 #  define number_chars   (biggest_char+3) /* 1114112, |biggest_char+1| */
-#  define number_fonts (5535-font_base+1)
+#  define number_fonts (65535-font_base+1)
 #  define biggest_lang             32767
 #  define too_big_lang             32768
 #  define text_size                    0  /* size code for the largest size in a family */

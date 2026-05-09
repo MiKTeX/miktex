@@ -37,7 +37,7 @@ they make most sense.
 
 */
 
-int font_bytes;
+size_t font_bytes;
 
 void set_cur_font(internal_font_number f)
 {
