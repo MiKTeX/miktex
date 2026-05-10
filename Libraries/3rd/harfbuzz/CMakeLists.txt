@@ -23,6 +23,7 @@ set(public_include_directories
 
 add_definitions(
     -DHAVE_CONFIG_H
+    -DHAVE_FALLBACK=1
     -DHB_NO_MT
 )
 

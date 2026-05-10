@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2013-2022 Christian Schenk
+## Copyright (C) 2013-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -18,13 +18,15 @@ if(MIKTEX_NATIVE_WINDOWS)
     )
 endif()
 
+add_compile_definitions(HB_DLL_EXPORT)
+
 add_library(${harfbuzz_dll_name} SHARED ${${harfbuzz_dll_name}_sources})
 
 prevent_all_warnings_on_bad_code_target(${harfbuzz_dll_name})
 
 set_property(TARGET ${harfbuzz_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_property(TARGET ${harfbuzz_dll_name} PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+#set_property(TARGET ${harfbuzz_dll_name} PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 set_shared_library_version_properties(
     ${harfbuzz_dll_name}

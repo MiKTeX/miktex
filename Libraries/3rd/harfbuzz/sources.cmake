@@ -1,6 +1,6 @@
 ## sources.cmake
 ##
-## Copyright (C) 2020-2025 Christian Schenk
+## Copyright (C) 2020-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -13,6 +13,7 @@ set(project_sources
 	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-cff-common.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-cff1.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-cff2.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-cff2-to-cff1.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-input.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-instancer-iup.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-instancer-solver.cc
