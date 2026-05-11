@@ -43,6 +43,7 @@ foreach(p ${cmake_policies_new})
 endforeach()
 
 list(APPEND cmake_policies_old
+    CMP0091
     CMP0167
 )
 
