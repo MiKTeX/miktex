@@ -516,7 +516,7 @@ option(
 option(
     WITH_LEGACY_WINDOWS_SUPPORT
     "Wether to support Windows 7/8."
-    TRUE
+    FALSE
 )
 
 option(
