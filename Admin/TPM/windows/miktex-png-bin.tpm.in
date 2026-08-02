@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/miktex/">
+    <TPM:Name>PNG lib @MIKTEX_TARGET_SYSTEM_CPU@</TPM:Name>
+    <TPM:Title>PNG runtime library, Windows @MIKTEX_TARGET_SYSTEM_CPU@</TPM:Title>
+    <TPM:Copyright owner="Glenn Randers-Pehrson" year="1998-2022"/>
+    <TPM:License type="permissive"/>
+    <TPM:Version>1.6.55</TPM:Version>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">@MIKTEX_TARGET_SYSTEM_TAG@</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      libpng is the official PNG reference library. It supports almost
+      all PNG features, is extensible, and has been extensively tested
+      for over 20 years.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${png_dll_name}.dll
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

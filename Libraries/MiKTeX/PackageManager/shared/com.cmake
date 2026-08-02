@@ -77,10 +77,10 @@ set(mpm_ps_sources
   ${generated_mpm_ps_sources}
 )
 
-if(CMAKE_CL_64)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64")
   set(env "amd64")
 else()
-  set(env "win32")
+  set(env "arm64")
 endif()
 
 file(MAKE_DIRECTORY ${mpm_binary_dir}/include)

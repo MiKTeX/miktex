@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/dvips/">
+    <TPM:Name>Dvips @MIKTEX_TARGET_SYSTEM_CPU@</TPM:Name>
+    <TPM:Title>Dvips, Windows @MIKTEX_TARGET_SYSTEM_CPU@</TPM:Title>
+    <TPM:Copyright owner="Radical Eye Software" year="2026"/>
+    <TPM:License type="gpl"/>    
+    <TPM:Version>2026.1</TPM:Version>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">@MIKTEX_TARGET_SYSTEM_TAG@</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+       This package includes the dvips executable.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}afm2tfm.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}dvips.exe
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/ptex/">
+    <TPM:Name>pTeX @MIKTEX_TARGET_SYSTEM_CPU@</TPM:Name>
+    <TPM:Title>pTeX, Windows @MIKTEX_TARGET_SYSTEM_CPU@</TPM:Title>
+    <TPM:Copyright owner="ASCII MEDIA WORKS" year="2009"/>
+    <TPM:Copyright owner="Takuji Tanaka" year="2007-2023"/>
+    <TPM:Copyright owner="Japanese TeX Development Community" year="2010-2023"/>
+    <TPM:License type="bsd3"/>
+    <TPM:Version>2025-12-25</TPM:Version>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">@MIKTEX_TARGET_SYSTEM_TAG@</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      This package includes the pTeX executable.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}euptex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}ptekf.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}upbibtex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}updvitype.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}uppltotf.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}uptftopl.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${ptexenc_dll_name}.dll
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

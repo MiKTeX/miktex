@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2015-2024 Christian Schenk
+## Copyright (C) 2015-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -40,102 +40,102 @@ foreach(tpm ${common_tpms_no_version})
     list(APPEND tpms "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${fn}.tpm")
 endforeach()
 
-if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
+if(${MIKTEX_TARGET_SYSTEM_NAME} STREQUAL "windows")
     set(target_system_tpms
-        windows-x64/miktex-arctrl-bin-x64.tpm.in
-        windows-x64/miktex-asymptote-bin-x64.tpm.in
-        windows-x64/miktex-autosp-bin-x64.tpm.in
-        windows-x64/miktex-axohelp-bin-x64.tpm.in
-        windows-x64/miktex-bibarts-bin-x64.tpm.in
-        windows-x64/miktex-bibtex-bin-x64.tpm.in
-        windows-x64/miktex-bibtex8bit-bin-x64.tpm.in
-        windows-x64/miktex-bzip2-bin-x64.tpm.in
-        windows-x64/miktex-cairo-bin-x64.tpm.in
-        windows-x64/miktex-chktex-bin-x64.tpm.in
-        windows-x64/miktex-cjkutils-bin-x64.tpm.in
-        windows-x64/miktex-console-bin-x64.tpm.in
-        windows-x64/miktex-curl-bin-x64.tpm.in
-        windows-x64/miktex-cweb-bin-x64.tpm.in
-        windows-x64/miktex-devnag-bin-x64.tpm.in
-        windows-x64/miktex-dvicopy-bin-x64.tpm.in
-        windows-x64/miktex-dvipdfmx-bin-x64.tpm.in
-        windows-x64/miktex-dvipng-bin-x64.tpm.in
-        windows-x64/miktex-dvips-bin-x64.tpm.in
-        windows-x64/miktex-dvisvgm-bin-x64.tpm.in
-        windows-x64/miktex-epstopdf-bin-x64.tpm.in
-        windows-x64/miktex-expat-bin-x64.tpm.in
-        windows-x64/miktex-findtexmf-bin-x64.tpm.in
-        windows-x64/miktex-fmt-bin-x64.tpm.in
-        windows-x64/miktex-fontconfig-bin-x64.tpm.in
-        windows-x64/miktex-fonts-bin-x64.tpm.in
-        windows-x64/miktex-freeglut-bin-x64.tpm.in
-        windows-x64/miktex-freetype2-bin-x64.tpm.in
-        windows-x64/miktex-fribidixetex-bin-x64.tpm.in
-        windows-x64/miktex-gd-bin-x64.tpm.in
-        windows-x64/miktex-graphite2-bin-x64.tpm.in
-        windows-x64/miktex-gregorio-bin-x64.tpm.in
-        windows-x64/miktex-gsf2pk-bin-x64.tpm.in
-        windows-x64/miktex-harfbuzz-bin-x64.tpm.in
-        windows-x64/miktex-hunspell-bin-x64.tpm.in
-        windows-x64/miktex-jpeg-bin-x64.tpm.in
-        windows-x64/miktex-kpathsea-bin-x64.tpm.in
-        windows-x64/miktex-lacheck-bin-x64.tpm.in
-        windows-x64/miktex-lcdf-typetools-bin-x64.tpm.in
-        windows-x64/miktex-libressl-bin-x64.tpm.in
-        windows-x64/miktex-log4cxx-bin-x64.tpm.in
-        windows-x64/miktex-lua53-bin-x64.tpm.in
-        windows-x64/miktex-luatex-bin-x64.tpm.in
-        windows-x64/miktex-lzma-bin-x64.tpm.in
-        windows-x64/miktex-m-tx-bin-x64.tpm.in
-        windows-x64/miktex-makeindex-bin-x64.tpm.in
-        windows-x64/miktex-md5-bin-x64.tpm.in
-        windows-x64/miktex-metafont-bin-x64.tpm.in
-        windows-x64/miktex-metapost-bin-x64.tpm.in
-        windows-x64/miktex-mfware-bin-x64.tpm.in
-        windows-x64/miktex-mktex-bin-x64.tpm.in
-        windows-x64/miktex-mo-bin-x64.tpm.in
-        windows-x64/miktex-mpmcli-bin-x64.tpm.in
-        windows-x64/miktex-mspack-bin-x64.tpm.in
-        windows-x64/miktex-mthelp-bin-x64.tpm.in
-        windows-x64/miktex-mtprint-bin-x64.tpm.in
-        windows-x64/miktex-omegaware-bin-x64.tpm.in
-        windows-x64/miktex-pdftex-bin-x64.tpm.in
-        windows-x64/miktex-pixman-bin-x64.tpm.in
-        windows-x64/miktex-pmx-bin-x64.tpm.in
-        windows-x64/miktex-png-bin-x64.tpm.in
-        windows-x64/miktex-poppler-bin-x64.tpm.in
-        windows-x64/miktex-popt-bin-x64.tpm.in
-        windows-x64/miktex-posix-bin-x64.tpm.in
-        windows-x64/miktex-ps2pk-bin-x64.tpm.in
-        windows-x64/miktex-psutils-bin-x64.tpm.in
-        windows-x64/miktex-runtime-bin-x64.tpm.in
-        windows-x64/miktex-synctex-bin-x64.tpm.in
-        windows-x64/miktex-teckit-bin-x64.tpm.in
-        windows-x64/miktex-tex-bin-x64.tpm.in
-        windows-x64/miktex-tex2xindy-bin-x64.tpm.in
-        windows-x64/miktex-tex4ht-bin-x64.tpm.in
-        windows-x64/miktex-texify-bin-x64.tpm.in
-        windows-x64/miktex-texware-bin-x64.tpm.in
-        windows-x64/miktex-texworks-bin-x64.tpm.in
-        windows-x64/miktex-ttf2pk2-bin-x64.tpm.in
-        windows-x64/miktex-uriparser-bin-x64.tpm.in
-        windows-x64/miktex-web-bin-x64.tpm.in
-        windows-x64/miktex-xetex-bin-x64.tpm.in
-        windows-x64/miktex-yap-bin-x64.tpm.in
-        windows-x64/miktex-zlib-bin-x64.tpm.in
-        windows-x64/miktex-zzip-bin-x64.tpm.in
+        windows/miktex-arctrl-bin.tpm.in
+        windows/miktex-asymptote-bin.tpm.in
+        windows/miktex-autosp-bin.tpm.in
+        windows/miktex-axohelp-bin.tpm.in
+        windows/miktex-bibarts-bin.tpm.in
+        windows/miktex-bibtex-bin.tpm.in
+        windows/miktex-bibtex8bit-bin.tpm.in
+        windows/miktex-bzip2-bin.tpm.in
+        windows/miktex-cairo-bin.tpm.in
+        windows/miktex-chktex-bin.tpm.in
+        windows/miktex-cjkutils-bin.tpm.in
+        windows/miktex-console-bin.tpm.in
+        windows/miktex-curl-bin.tpm.in
+        windows/miktex-cweb-bin.tpm.in
+        windows/miktex-devnag-bin.tpm.in
+        windows/miktex-dvicopy-bin.tpm.in
+        windows/miktex-dvipdfmx-bin.tpm.in
+        windows/miktex-dvipng-bin.tpm.in
+        windows/miktex-dvips-bin.tpm.in
+        windows/miktex-dvisvgm-bin.tpm.in
+        windows/miktex-epstopdf-bin.tpm.in
+        windows/miktex-expat-bin.tpm.in
+        windows/miktex-findtexmf-bin.tpm.in
+        windows/miktex-fmt-bin.tpm.in
+        windows/miktex-fontconfig-bin.tpm.in
+        windows/miktex-fonts-bin.tpm.in
+        windows/miktex-freeglut-bin.tpm.in
+        windows/miktex-freetype2-bin.tpm.in
+        windows/miktex-fribidixetex-bin.tpm.in
+        windows/miktex-gd-bin.tpm.in
+        windows/miktex-graphite2-bin.tpm.in
+        windows/miktex-gregorio-bin.tpm.in
+        windows/miktex-gsf2pk-bin.tpm.in
+        windows/miktex-harfbuzz-bin.tpm.in
+        windows/miktex-hunspell-bin.tpm.in
+        windows/miktex-jpeg-bin.tpm.in
+        windows/miktex-kpathsea-bin.tpm.in
+        windows/miktex-lacheck-bin.tpm.in
+        windows/miktex-lcdf-typetools-bin.tpm.in
+        windows/miktex-libressl-bin.tpm.in
+        windows/miktex-log4cxx-bin.tpm.in
+        windows/miktex-lua53-bin.tpm.in
+        windows/miktex-luatex-bin.tpm.in
+        windows/miktex-lzma-bin.tpm.in
+        windows/miktex-m-tx-bin.tpm.in
+        windows/miktex-makeindex-bin.tpm.in
+        windows/miktex-md5-bin.tpm.in
+        windows/miktex-metafont-bin.tpm.in
+        windows/miktex-metapost-bin.tpm.in
+        windows/miktex-mfware-bin.tpm.in
+        windows/miktex-mktex-bin.tpm.in
+        windows/miktex-mo-bin.tpm.in
+        windows/miktex-mpmcli-bin.tpm.in
+        windows/miktex-mspack-bin.tpm.in
+        windows/miktex-mthelp-bin.tpm.in
+        windows/miktex-mtprint-bin.tpm.in
+        windows/miktex-omegaware-bin.tpm.in
+        windows/miktex-pdftex-bin.tpm.in
+        windows/miktex-pixman-bin.tpm.in
+        windows/miktex-pmx-bin.tpm.in
+        windows/miktex-png-bin.tpm.in
+        windows/miktex-poppler-bin.tpm.in
+        windows/miktex-popt-bin.tpm.in
+        windows/miktex-posix-bin.tpm.in
+        windows/miktex-ps2pk-bin.tpm.in
+        windows/miktex-psutils-bin.tpm.in
+        windows/miktex-runtime-bin.tpm.in
+        windows/miktex-synctex-bin.tpm.in
+        windows/miktex-teckit-bin.tpm.in
+        windows/miktex-tex-bin.tpm.in
+        windows/miktex-tex2xindy-bin.tpm.in
+        windows/miktex-tex4ht-bin.tpm.in
+        windows/miktex-texify-bin.tpm.in
+        windows/miktex-texware-bin.tpm.in
+        windows/miktex-texworks-bin.tpm.in
+        windows/miktex-ttf2pk2-bin.tpm.in
+        windows/miktex-uriparser-bin.tpm.in
+        windows/miktex-web-bin.tpm.in
+        windows/miktex-xetex-bin.tpm.in
+        windows/miktex-yap-bin.tpm.in
+        windows/miktex-zlib-bin.tpm.in
+        windows/miktex-zzip-bin.tpm.in
     )
     set(target_system_tpms_no_version
-        windows-x64/miktex-hitex-bin-x64.tpm.in
-        windows-x64/miktex-patgen-bin-x64.tpm.in
-        windows-x64/miktex-ptex-bin-x64.tpm.in
-        windows-x64/miktex-tdsutil-bin-x64.tpm.in
-        windows-x64/miktex-upmendex-bin-x64.tpm.in
-        windows-x64/miktex-xml2pmx-bin-x64.tpm.in
+        windows/miktex-hitex-bin.tpm.in
+        windows/miktex-patgen-bin.tpm.in
+        windows/miktex-ptex-bin.tpm.in
+        windows/miktex-tdsutil-bin.tpm.in
+        windows/miktex-upmendex-bin.tpm.in
+        windows/miktex-xml2pmx-bin.tpm.in
     )
     if(WITH_CONTEXT_SUPPORT)
         list(APPEND target_system_tpms
-            windows-x64/miktex-context-bin-x64.tpm.in
+            windows/miktex-context-bin.tpm.in
         )
     endif()
 endif()

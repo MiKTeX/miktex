@@ -1,6 +1,6 @@
 ## SourcePaths.cmake
 ##
-## Copyright (C) 2006-2025 Christian Schenk
+## Copyright (C) 2006-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -231,11 +231,7 @@ set(LOCNULL_OPTIMIZE_CH         "${CMAKE_SOURCE_DIR}/Programs/TeXAndFriends/web2
 
 # library address file
 if(WIN32)
-    if(CMAKE_CL_64)
-        set(MIKTEX_LIBRARY_ADDRESS_FILE "${CMAKE_SOURCE_DIR}/Libraries/MiKTeX/etc/dll_locs-x64.txt")
-    else()
-        set(MIKTEX_LIBRARY_ADDRESS_FILE "${CMAKE_SOURCE_DIR}/Libraries/MiKTeX/etc/dll_locs.txt")
-    endif()
+    set(MIKTEX_LIBRARY_ADDRESS_FILE "${CMAKE_SOURCE_DIR}/Libraries/MiKTeX/etc/dll_locs-${MIKTEX_TARGET_SYSTEM_CPU}.txt")
 endif()
 
 # build utilities

@@ -1,6 +1,6 @@
 ## InstallPaths.cmake
 ##
-## Copyright (C) 2006-2022 Christian Schenk
+## Copyright (C) 2006-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -32,10 +32,8 @@ set(MIKTEX_PORTABLE_REL_INSTALL_DIR "${MIKTEX_PORTABLE_REL_TEXMF_ROOT}/install")
 set(MIKTEX_PORTABLE_REL_CONFIG_DIR "${MIKTEX_PORTABLE_REL_TEXMF_ROOT}/config")
 set(MIKTEX_PORTABLE_REL_DATA_DIR "${MIKTEX_PORTABLE_REL_TEXMF_ROOT}/data")
 
-if(MIKTEX_NATIVE_WINDOWS AND NOT CMAKE_CL_64)
-    set(MIKTEX_REL_MIKTEX_BIN_DIR "miktex/bin")
-elseif(MIKTEX_NATIVE_WINDOWS AND CMAKE_CL_64)
-    set(MIKTEX_REL_MIKTEX_BIN_DIR "miktex/bin/x64")
+if(MIKTEX_TARGET_SYSTEM_NAME STREQUAL "windows")
+    set(MIKTEX_REL_MIKTEX_BIN_DIR "miktex/bin/${MIKTEX_TARGET_SYSTEM_CPU}")
 else()
     set(MIKTEX_REL_MIKTEX_BIN_DIR "miktex/bin/${MIKTEX_TARGET_SYSTEM_TAG}")
 endif()

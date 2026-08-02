@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/miktex/">
+    <TPM:Name>log4cxx lib @MIKTEX_TARGET_SYSTEM_CPU@</TPM:Name>
+    <TPM:Title>log4cxx runtime library, Windows @MIKTEX_TARGET_SYSTEM_CPU@</TPM:Title>
+    <TPM:Copyright owner="The Apache Software Foundation" year="2000-2023"/>
+    <TPM:License type="apache"/>
+    <TPM:Version>1.1.0</TPM:Version>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">@MIKTEX_TARGET_SYSTEM_TAG@</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      Apache log4cxx is a logging framework for C++ patterned after Apache log4j.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${apr_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${apr_util_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${log4cxx_dll_name}.dll
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

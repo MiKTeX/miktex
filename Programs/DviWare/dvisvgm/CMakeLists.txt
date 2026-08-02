@@ -29,11 +29,6 @@ if(MIKTEX_NATIVE_WINDOWS)
     add_definitions(
         -DUNICODE
         -D_UNICODE
-    )
-endif()
-
-if(CMAKE_CL_64)
-    add_definitions(
         -D_WIN64
     )
 endif()

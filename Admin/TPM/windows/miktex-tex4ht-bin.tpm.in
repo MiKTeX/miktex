@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/tex4ht/">
+    <TPM:Name>TeX4HT @MIKTEX_TARGET_SYSTEM_CPU@</TPM:Name>
+    <TPM:Title>TeX4HT, Windows @MIKTEX_TARGET_SYSTEM_CPU@</TPM:Title>
+    <TPM:Copyright owner="TeX Users Group" year="2009-2023"/>
+    <TPM:Copyright owner="Eitan M. Gurari" year="1996-2009"/>
+    <TPM:License type="lppl1.3c"/>
+    <TPM:Version>2023-10-13-15:32</TPM:Version>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">@MIKTEX_TARGET_SYSTEM_TAG@</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      This package includes the TeX4HT binaries.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}t4ht.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}tex4ht.exe
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

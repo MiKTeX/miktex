@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2015-2024 Christian Schenk
+## Copyright (C) 2015-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -18,6 +18,7 @@ set(GMP_NAIL_BITS 0)
 if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     set(HAVE_HOST_CPU_FAMILY_x86_64 1)
     set(HAVE_LIMB_LITTLE_ENDIAN 1)
+elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-arm64")
 else()
     message(FATAL_ERROR "TODO: implement platform checks")
 endif()
