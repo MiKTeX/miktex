@@ -38,6 +38,8 @@
 
 #cmakedefine HAVE_ZLIB 1
 
+#define HAVE_CTIME_R 1
+
 #define SIZEOF_INT ${SIZEOF_INT}
 
 #define SIZEOF_LONG ${SIZEOF_LONG}
