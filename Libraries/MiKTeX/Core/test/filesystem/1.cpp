@@ -233,6 +233,33 @@ BEGIN_TEST_FUNCTION(8);
 }
 END_TEST_FUNCTION();
 
+#if defined(MIKTEX_WINDOWS)
+BEGIN_TEST_FUNCTION(9);
+{
+    PathName dir = Directory::GetCurrent() / "path entries";
+    TESTX(Directory::Create(dir));
+    TEST(Directory::Exists(dir));
+    PathName terminatedDir(dir);
+    terminatedDir.AppendDirectoryDelimiter();
+    TEST(Directory::Exists(terminatedDir));
+    TEST(!Directory::Exists(dir / "missing"));
+    for (const char* name : { "mvn", "stripe.exe" })
+    {
+        PathName file = dir / name;
+        Touch(file.GetData());
+        TEST(!Directory::Exists(file));
+        PathName terminatedFile(file);
+        // FixProgramSearchPath appends this delimiter to PATH entries.
+        terminatedFile.AppendDirectoryDelimiter();
+        TEST(!Directory::Exists(terminatedFile));
+        TEST(!Directory::Exists(file / "child"));
+        TESTX(File::Delete(file));
+    }
+    TESTX(Directory::Delete(dir));
+}
+END_TEST_FUNCTION();
+#endif
+
 BEGIN_TEST_PROGRAM();
 {
     CALL_TEST_FUNCTION(1);
@@ -245,6 +272,9 @@ BEGIN_TEST_PROGRAM();
 #endif
     CALL_TEST_FUNCTION(7);
     CALL_TEST_FUNCTION(8);
+#if defined(MIKTEX_WINDOWS)
+    CALL_TEST_FUNCTION(9);
+#endif
 }
 END_TEST_PROGRAM();
 

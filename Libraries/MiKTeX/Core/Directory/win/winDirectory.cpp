@@ -61,6 +61,7 @@ static unsigned long GetFileAttributes_harmlessErrors[] = {
   ERROR_BAD_NET_NAME, // 67
   ERROR_INVALID_NAME, // 123
   ERROR_BAD_PATHNAME, // 161
+  ERROR_DIRECTORY, // 267: a file name followed by a directory delimiter
 };
 
 bool Directory::Exists(const PathName& path)
