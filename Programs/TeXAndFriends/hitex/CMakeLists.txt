@@ -124,10 +124,15 @@ set_property(TARGET ${MIKTEX_PREFIX}hitex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDE
 target_link_libraries(${MIKTEX_PREFIX}hitex
     ${app_dll_name}
     ${core_dll_name}
-    ${harfbuzz_dll_name}
     ${kpsemu_dll_name}
     ${w2cemu_dll_name}
 )
+
+if(USE_SYSTEM_HARFBUZZ)
+    target_link_libraries(${MIKTEX_PREFIX}hitex MiKTeX::Imported::HARFBUZZ MiKTeX::Imported::HARFBUZZ_SUBSET)
+else()
+    target_link_libraries(${MIKTEX_PREFIX}hitex ${harfbuzz_dll_name})
+endif()
 
 if(USE_SYSTEM_FMT)
     target_link_libraries(${MIKTEX_PREFIX}hitex MiKTeX::Imported::FMT)
