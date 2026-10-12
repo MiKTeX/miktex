@@ -1205,6 +1205,7 @@ endif()
 
 if(USE_SYSTEM_HARFBUZZ)
     find_package(HARFBUZZ REQUIRED)
+    find_library(HARFBUZZ_SUBSET_LIBRARY NAMES harfbuzz-subset REQUIRED)
 endif()
 
 if(USE_SYSTEM_HARFBUZZ_ICU)
@@ -1889,6 +1890,11 @@ if(USE_SYSTEM_HARFBUZZ)
         PROPERTIES
         IMPORTED_LOCATION "${HARFBUZZ_LIBRARY}"
         INTERFACE_INCLUDE_DIRECTORIES "${HARFBUZZ_INCLUDE_DIRS}"
+    )
+    add_library(MiKTeX::Imported::HARFBUZZ_SUBSET UNKNOWN IMPORTED)
+    set_target_properties(MiKTeX::Imported::HARFBUZZ_SUBSET
+        PROPERTIES
+        IMPORTED_LOCATION "${HARFBUZZ_SUBSET_LIBRARY}"
     )
 else()
     add_subdirectory(${MIKTEX_REL_HARFBUZZ_DIR})
