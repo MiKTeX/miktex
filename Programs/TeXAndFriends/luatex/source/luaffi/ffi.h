@@ -144,7 +144,7 @@ static void (lua_remove)(lua_State *L, int idx) {
 # define ARCH_X64
 #elif defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm
 # define ARCH_ARM
-#elif defined __aarch64__
+#elif defined(__aarch64__) || defined(_M_ARM64)
 # define ARCH_ARM64
 #elif defined __powerpc64__
 # define ARCH_PPC64

@@ -57,8 +57,6 @@ set(pixman_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-utils.c
 
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-mmx.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-sse2.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-ssse3.c
 
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/dither/blue-noise-64x64.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-accessor.h
@@ -69,6 +67,15 @@ set(pixman_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-private.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman.h
 )
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64|x86_64|i[3-6]86|^[Xx]86$")
+    set(USE_SSE2 1)
+    set(USE_SSSE3 1)
+    list(APPEND pixman_sources
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-sse2.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-ssse3.c
+    )
+endif()
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-version.h.in
