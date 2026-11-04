@@ -534,8 +534,25 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
 
   if (!initInfo.GetOptions()[InitOption::NoFixPath])
   {
+    // The names of environment variables are case-insensitive on Windows, where
+    // the search path is usually stored as "Path". envMap is case-sensitive: look
+    // the variable up regardless of case and keep its original name. Otherwise a
+    // second variable named "PATH" would be added, child processes would receive
+    // two definitions of the same variable, and which one they see would depend
+    // on the unspecified iteration order of envMap (see issues #926 and #1089).
+    string pathVarName = "PATH";
+#if defined(MIKTEX_WINDOWS)
+    for (const auto& kv : envMap)
+    {
+      if (kv.first.length() == pathVarName.length() && Utils::IsPureAscii(kv.first) && Utils::EqualsIgnoreCase(kv.first, pathVarName))
+      {
+        pathVarName = kv.first;
+        break;
+      }
+    }
+#endif
     string envPath;
-    auto it = envMap.find("PATH");
+    auto it = envMap.find(pathVarName);
     if (it != envMap.end())
     {
       envPath = it->second;
@@ -545,21 +562,21 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
     auto p = TryGetBinDirectory(true);
     if (p.first && FixProgramSearchPath(envPath, p.second, false, newEnvPath, competition))
     {
-      envMap["PATH"] = newEnvPath;
+      envMap[pathVarName] = newEnvPath;
       envPath = newEnvPath;
     }
 #if !defined(MIKTEX_MACOS_BUNDLE)
     p = TryGetBinDirectory(false);
     if (p.first && FixProgramSearchPath(envPath, p.second, false, newEnvPath, competition))
     {
-      envMap["PATH"] = newEnvPath;
+      envMap[pathVarName] = newEnvPath;
       envPath = newEnvPath;
     }
 #endif
     PathName linkTargetDirectory = GetSpecialPath(SpecialPath::LinkTargetDirectory);
     if (Directory::Exists(linkTargetDirectory) && FixProgramSearchPath(envPath, linkTargetDirectory, false, newEnvPath, competition))
     {
-      envMap["PATH"] = newEnvPath;
+      envMap[pathVarName] = newEnvPath;
       envPath = newEnvPath;
     }
   }
