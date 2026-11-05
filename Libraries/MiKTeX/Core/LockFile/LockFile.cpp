@@ -205,6 +205,21 @@ tuple<bool, int, string> LockFileImpl::CheckLockFile()
     trace_lockfile->WriteLine("core", fmt::format(T_("could not read lock file {0}"), Q_(path)));
     return make_tuple(false, pid, processName);
   }
+  catch (const std::logic_error&)
+  {
+    // std::stoi() failed (std::invalid_argument or std::out_of_range): the lock file
+    // is empty or its contents are corrupted. This happens when the owner was
+    // terminated after creating the file but before writing its process ID, or
+    // while another process is creating the file right now. Treat the file as
+    // garbage only if it is old enough; otherwise consider it locked.
+    constexpr time_t minAgeOfUnreadableLockFile = 10;
+    if (time(nullptr) - File::GetLastWriteTime(path) >= minAgeOfUnreadableLockFile)
+    {
+      trace_lockfile->WriteLine("core", TraceLevel::Warning, fmt::format(T_("lock file {0} is unreadable"), Q_(path)));
+      return make_tuple(true, 0, "");
+    }
+    return make_tuple(false, 0, "");
+  }
   if (pid == -1)
   {
     // permanently locked
