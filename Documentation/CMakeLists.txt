@@ -381,7 +381,11 @@ endif()
 ###############################################################################
 ## license
 
-if(WITH_MIKTEX_DOC)
+find_program(PANDOC_EXECUTABLE pandoc)
+
+# the license RTF is embedded into the Windows setup programs, so it is
+# generated even when the full documentation is not being built
+if(WITH_MIKTEX_DOC OR PANDOC_EXECUTABLE)
     add_custom_command(
         OUTPUT
             ${MIKTEX_COPYING_CONDITIONS_RTF}
@@ -504,13 +508,14 @@ if(WITH_MIKTEX_DOC)
         DEPENDS
             ${CMAKE_CURRENT_BINARY_DIR}/miktex.chm
     )
-    set_property(TARGET gen-miktex-help PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})  
-    add_custom_target(gen-COPYING-rtf
-        DEPENDS
-            ${MIKTEX_COPYING_CONDITIONS_RTF}
-    )
-    set_property(TARGET gen-COPYING-rtf PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+    set_property(TARGET gen-miktex-help PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 endif()
+
+add_custom_target(gen-COPYING-rtf
+    DEPENDS
+        ${MIKTEX_COPYING_CONDITIONS_RTF}
+)
+set_property(TARGET gen-COPYING-rtf PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 if(WITH_MAN_PAGES)
     add_custom_target(gen-man ALL
