@@ -10,14 +10,12 @@
 # On macOS this is done by fixup_bundle() at install time; on Windows
 # nothing equivalent ran, so freshly configured builds produced
 # Qt-dependent executables that could not start (missing Qt6*.dll).
-# The copies run in one shared custom target so that parallel target
-# builds never write to the same file concurrently.
-function(miktex_deploy_qt target)
-	if(NOT MIKTEX_NATIVE_WINDOWS OR NOT WITH_UI_QT)
+function(miktex_setup_runtime_deployment)
+	if(NOT MIKTEX_NATIVE_WINDOWS)
 		return()
 	endif()
-	if(NOT TARGET deploy_qt_runtime_windows)
-		set(bin_dir "${MIKTEX_SANDBOX_BINARY_DIR}/${MIKTEX_REL_MIKTEX_BIN_DIR}")
+	set(bin_dir "${MIKTEX_SANDBOX_BINARY_DIR}/${MIKTEX_REL_MIKTEX_BIN_DIR}")
+	if(WITH_UI_QT AND TARGET Qt${QT_SERIES}::Core)
 		set(qt_libs Core Gui Widgets Network Svg Concurrent PrintSupport Qml UiTools Xml)
 		if(QT_SERIES EQUAL 6)
 			list(APPEND qt_libs Core5Compat OpenGL OpenGLWidgets)
@@ -50,10 +48,29 @@ function(miktex_deploy_qt target)
 			foreach(d platforms imageformats iconengines generic)
 				if(EXISTS "${qt_root}/plugins/${d}")
 					list(APPEND deploy_commands
-						COMMAND ${CMAKE_COMMAND} -E copy_directory
-							"${qt_root}/plugins/${d}"
+						COMMAND ${CMAKE_COMMAND} -E make_directory
 							"${bin_dir}/${d}"
 					)
+					# release plugins only: a release build never loads the
+					# debug variants, and they pull in the debug Qt DLLs.
+					# a plugin is a debug variant when dropping the trailing
+					# "d" yields the release plugin's file name (this keeps
+					# release plugins that merely end in "d", e.g. qdirect2d)
+					file(GLOB plugin_dlls "${qt_root}/plugins/${d}/*.dll")
+					foreach(pdll IN LISTS plugin_dlls)
+						get_filename_component(pstem "${pdll}" NAME_WE)
+						if(pstem MATCHES "d$")
+							string(REGEX REPLACE "d$" "" pbase "${pstem}")
+							if(EXISTS "${qt_root}/plugins/${d}/${pbase}.dll")
+								continue()
+							endif()
+						endif()
+						list(APPEND deploy_commands
+							COMMAND ${CMAKE_COMMAND} -E copy_if_different
+								"${pdll}"
+								"${bin_dir}/${d}/"
+						)
+					endforeach()
 				endif()
 			endforeach()
 		endif()
@@ -63,19 +80,7 @@ function(miktex_deploy_qt target)
 			VERBATIM
 		)
 	endif()
-	add_dependencies(${target} deploy_qt_runtime_windows)
-endfunction()
-
-# Stage the system ICU runtime DLLs. xetex and friends always link against
-# the system ICU (USE_SYSTEM_ICU is unconditional), so the executables
-# import icuuc<version>.dll but nothing in the build copied them into the
-# sandbox on Windows.
-function(miktex_deploy_icu target)
-	if(NOT MIKTEX_NATIVE_WINDOWS OR NOT USE_SYSTEM_ICU OR NOT TARGET ICU::uc)
-		return()
-	endif()
-	if(NOT TARGET deploy_icu_runtime_windows)
-		set(bin_dir "${MIKTEX_SANDBOX_BINARY_DIR}/${MIKTEX_REL_MIKTEX_BIN_DIR}")
+	if(USE_SYSTEM_ICU AND TARGET ICU::uc)
 		set(icu_uc_lib)
 		foreach(cfg IMPORTED_LOCATION_RELEASE IMPORTED_LOCATION)
 			get_target_property(icu_uc_lib ICU::uc ${cfg})
@@ -83,25 +88,43 @@ function(miktex_deploy_icu target)
 				break()
 			endif()
 		endforeach()
-		if(NOT icu_uc_lib OR icu_uc_lib MATCHES "NOTFOUND")
-			return()
-		endif()
-		get_filename_component(icu_bin_dir "${icu_uc_lib}" DIRECTORY)
-		get_filename_component(icu_bin_dir "${icu_bin_dir}/../bin" ABSOLUTE)
-		file(GLOB icu_dlls "${icu_bin_dir}/icu*.dll")
-		set(deploy_commands)
-		foreach(d IN LISTS icu_dlls)
-			list(APPEND deploy_commands
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different
-					"${d}"
-					"${bin_dir}/"
+		if(icu_uc_lib AND NOT icu_uc_lib MATCHES "NOTFOUND")
+			get_filename_component(icu_bin_dir "${icu_uc_lib}" DIRECTORY)
+			get_filename_component(icu_bin_dir "${icu_bin_dir}/../bin" ABSOLUTE)
+			file(GLOB icu_dlls "${icu_bin_dir}/icu*.dll")
+			set(deploy_commands)
+			foreach(d IN LISTS icu_dlls)
+				list(APPEND deploy_commands
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different
+						"${d}"
+						"${bin_dir}/"
+				)
+			endforeach()
+			add_custom_target(deploy_icu_runtime_windows
+				${deploy_commands}
+				COMMENT "Deploying ICU runtime to the sandbox"
+				VERBATIM
 			)
-		endforeach()
-		add_custom_target(deploy_icu_runtime_windows
-			${deploy_commands}
-			COMMENT "Deploying ICU runtime to the sandbox"
-			VERBATIM
-		)
+		endif()
 	endif()
-	add_dependencies(${target} deploy_icu_runtime_windows)
+endfunction()
+
+# Attach the runtime deployment to a Qt UI executable.
+function(miktex_deploy_qt target)
+	if(NOT MIKTEX_NATIVE_WINDOWS OR NOT WITH_UI_QT)
+		return()
+	endif()
+	if(TARGET deploy_qt_runtime_windows)
+		add_dependencies(${target} deploy_qt_runtime_windows)
+	endif()
+endfunction()
+
+# Attach the runtime deployment to an executable that links the system ICU.
+function(miktex_deploy_icu target)
+	if(NOT MIKTEX_NATIVE_WINDOWS OR NOT USE_SYSTEM_ICU)
+		return()
+	endif()
+	if(TARGET deploy_icu_runtime_windows)
+		add_dependencies(${target} deploy_icu_runtime_windows)
+	endif()
 endfunction()

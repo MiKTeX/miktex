@@ -901,7 +901,6 @@ include(GNUInstallDirs)
 include(AddLinkFlags)
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
-include(DeployRuntimeLibs)
 include(CheckFunctionExists)
 include(CheckIncludeFileCXX)
 include(CheckIncludeFiles)
@@ -919,6 +918,7 @@ include(InstallPaths)
 include(GenerateExportHeader)
 include(LibraryNames)
 include(RuntimePaths)
+include(DeployRuntimeLibs)
 include(SetSharedLibraryVersion)
 include(SourcePaths)
 include(UseStaticCRT)
@@ -1251,6 +1251,32 @@ endif()
 
 if(USE_SYSTEM_ICU)
     find_package(ICU REQUIRED COMPONENTS i18n uc)
+endif()
+
+# create the runtime deployment targets; they must exist before the build
+# directories are processed so that build rules can order themselves after
+# them. initctangle and inittangle run as source generators and are MiKTeX
+# programs: they load app.dll (which imports the Qt UI library) and the
+# other runtime DLLs, but the build graph only models import libraries.
+# A clean build therefore must not execute a generator before the runtime
+# DLLs have been linked and the Qt/ICU runtimes have been deployed.
+miktex_setup_runtime_deployment()
+
+if(MIKTEX_NATIVE_WINDOWS)
+    set(miktex_runtime_dll_deps
+        ${app_dll_name}
+        ${core_dll_name}
+        ${kpsemu_dll_name}
+        ${w2cemu_dll_name}
+        ${utf8wrap_dll_name}
+    )
+    if(TARGET deploy_qt_runtime_windows)
+        list(APPEND miktex_runtime_dll_deps deploy_qt_runtime_windows)
+    endif()
+    if(TARGET deploy_icu_runtime_windows)
+        list(APPEND miktex_runtime_dll_deps deploy_icu_runtime_windows)
+    endif()
+    add_custom_target(miktex_runtime_dlls DEPENDS ${miktex_runtime_dll_deps})
 endif()
 
 if(USE_SYSTEM_JPEG)

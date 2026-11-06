@@ -61,6 +61,12 @@ endif()
 
 add_executable(inittangle ${inittangle_sources})
 
+# inittangle is run as a source generator; make sure the runtime DLLs it
+# loads exist before it is executed (they are not modeled by the link)
+if(TARGET miktex_runtime_dlls)
+    add_dependencies(inittangle miktex_runtime_dlls)
+endif()
+
 if(MIKTEX_NATIVE_WINDOWS)
     set_source_files_properties(
         ${CMAKE_CURRENT_BINARY_DIR}/inittanglewrapper.cpp

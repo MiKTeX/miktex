@@ -38,6 +38,12 @@ target_link_libraries(initctangle
     ${w2cemu_dll_name}
 )
 
+# initctangle is run as a source generator; make sure the runtime DLLs it
+# loads exist before it is executed (they are not modeled by the link)
+if(TARGET miktex_runtime_dlls)
+    add_dependencies(initctangle miktex_runtime_dlls)
+endif()
+
 if(MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(initctangle ${utf8wrap_dll_name})
 endif()
