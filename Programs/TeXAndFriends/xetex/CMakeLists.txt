@@ -173,6 +173,7 @@ endif()
 if(USE_SYSTEM_ICU)
     target_link_libraries(${xetex_target_name} PRIVATE ICU::i18n)
     target_link_libraries(${xetex_target_name} PRIVATE ICU::uc)
+    miktex_deploy_icu(${xetex_target_name})
 else()
     # not an option
 endif()

@@ -901,6 +901,7 @@ include(GNUInstallDirs)
 include(AddLinkFlags)
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
+include(DeployRuntimeLibs)
 include(CheckFunctionExists)
 include(CheckIncludeFileCXX)
 include(CheckIncludeFiles)
@@ -1110,8 +1111,10 @@ if(WITH_UI_QT)
         Core
         Gui
         LinguistTools
+        Network
         PrintSupport
         Qml
+        Svg
         UiTools
         Widgets
         Xml
