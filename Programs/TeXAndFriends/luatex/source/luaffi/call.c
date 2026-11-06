@@ -68,7 +68,10 @@ static void SetLastError(int err)
 #endif
 
 
-#ifdef _WIN64
+#if defined(_M_ARM64) || defined(__aarch64__)
+#include "dynasm/dasm_arm64.h"
+#include "call_arm64.h"
+#elif defined(_WIN64)
 #include "dynasm/dasm_x86.h"
 #include "call_x64win.h"
 #elif defined __amd64__
@@ -77,9 +80,6 @@ static void SetLastError(int err)
 #elif defined __arm__ || defined __arm || defined __ARM__ || defined __ARM || defined ARM || defined _ARM_ || defined ARMV4I || defined _M_ARM
 #include "dynasm/dasm_arm.h"
 #include "call_arm.h"
-#elif defined __aarch64__
-#include "dynasm/dasm_arm64.h"
-#include "call_arm64.h"
 #else
 #include "dynasm/dasm_x86.h"
 #include "call_x86.h"

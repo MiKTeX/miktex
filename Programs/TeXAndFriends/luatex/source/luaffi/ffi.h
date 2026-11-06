@@ -144,7 +144,7 @@ static void (lua_remove)(lua_State *L, int idx) {
 # define ARCH_X64
 #elif defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm
 # define ARCH_ARM
-#elif defined __aarch64__
+#elif defined(__aarch64__) || defined(_M_ARM64)
 # define ARCH_ARM64
 #elif defined __powerpc64__
 # define ARCH_PPC64
@@ -156,7 +156,7 @@ static void (lua_remove)(lua_State *L, int idx) {
 
 /* See ffi.c: replace luaopen_ffi with a stub    */
 /* if FFI_ENABLE_LUATEX_INTERFACE is not defined */
-#if (defined ARCH_X86 || defined ARCH_X64) && (defined OS_CE || defined OS_WIN || defined OS_LINUX || defined OS_BSD || defined OS_POSIX || defined OS_OSX) || ( defined ARCH_ARM64 && (defined OS_LINUX ||defined OS_POSIX || defined OS_OSX))
+#if (defined ARCH_X86 || defined ARCH_X64) && (defined OS_CE || defined OS_WIN || defined OS_LINUX || defined OS_BSD || defined OS_POSIX || defined OS_OSX) || ( defined ARCH_ARM64 && (defined OS_LINUX ||defined OS_POSIX || defined OS_OSX || defined OS_WIN))
 #define FFI_ENABLE_LUATEX_INTERFACE
 #endif 
 /* for the moment */

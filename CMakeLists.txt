@@ -918,6 +918,7 @@ include(InstallPaths)
 include(GenerateExportHeader)
 include(LibraryNames)
 include(RuntimePaths)
+include(DeployRuntimeLibs)
 include(SetSharedLibraryVersion)
 include(SourcePaths)
 include(UseStaticCRT)
@@ -1110,8 +1111,10 @@ if(WITH_UI_QT)
         Core
         Gui
         LinguistTools
+        Network
         PrintSupport
         Qml
+        Svg
         UiTools
         Widgets
         Xml
@@ -1155,8 +1158,39 @@ if(USE_SYSTEM_BOOST)
         set(Boost_USE_RELEASE_LIBS ON)
         set(Boost_USE_MULTITHREADED ON)
         set(Boost_USE_STATIC_RUNTIME OFF)
+        # vcpkg publishes Debug and Release only. Windows builds are RelWithDebInfo,
+        # and without this map CMake links the debug Boost libs into that build.
+        set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
     endif()
     find_package(Boost REQUIRED locale)
+    if(MIKTEX_NATIVE_WINDOWS)
+        # The map variable is only copied onto targets created after it is set.
+        # Apply it to the imported Boost graph so a clean configure does not
+        # link the debug libs into RelWithDebInfo.
+        set(_boost_pending Boost::locale)
+        set(_boost_seen "")
+        while(_boost_pending)
+            list(POP_FRONT _boost_pending _boost_one)
+            if(_boost_one IN_LIST _boost_seen OR NOT TARGET "${_boost_one}")
+                continue()
+            endif()
+            list(APPEND _boost_seen "${_boost_one}")
+            set_property(TARGET "${_boost_one}" PROPERTY MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
+            get_target_property(_boost_iface "${_boost_one}" INTERFACE_LINK_LIBRARIES)
+            if(_boost_iface)
+                foreach(_boost_dep IN LISTS _boost_iface)
+                    string(REGEX MATCHALL "Boost::[A-Za-z0-9_]+" _boost_names "${_boost_dep}")
+                    list(APPEND _boost_pending ${_boost_names})
+                endforeach()
+            endif()
+        endwhile()
+        unset(_boost_pending)
+        unset(_boost_seen)
+        unset(_boost_one)
+        unset(_boost_iface)
+        unset(_boost_dep)
+        unset(_boost_names)
+    endif()
 endif()
 
 if(USE_SYSTEM_BZIP2)
@@ -1217,6 +1251,32 @@ endif()
 
 if(USE_SYSTEM_ICU)
     find_package(ICU REQUIRED COMPONENTS i18n uc)
+endif()
+
+# create the runtime deployment targets; they must exist before the build
+# directories are processed so that build rules can order themselves after
+# them. initctangle and inittangle run as source generators and are MiKTeX
+# programs: they load app.dll (which imports the Qt UI library) and the
+# other runtime DLLs, but the build graph only models import libraries.
+# A clean build therefore must not execute a generator before the runtime
+# DLLs have been linked and the Qt/ICU runtimes have been deployed.
+miktex_setup_runtime_deployment()
+
+if(MIKTEX_NATIVE_WINDOWS)
+    set(miktex_runtime_dll_deps
+        ${app_dll_name}
+        ${core_dll_name}
+        ${kpsemu_dll_name}
+        ${w2cemu_dll_name}
+        ${utf8wrap_dll_name}
+    )
+    if(TARGET deploy_qt_runtime_windows)
+        list(APPEND miktex_runtime_dll_deps deploy_qt_runtime_windows)
+    endif()
+    if(TARGET deploy_icu_runtime_windows)
+        list(APPEND miktex_runtime_dll_deps deploy_icu_runtime_windows)
+    endif()
+    add_custom_target(miktex_runtime_dlls DEPENDS ${miktex_runtime_dll_deps})
 endif()
 
 if(USE_SYSTEM_JPEG)

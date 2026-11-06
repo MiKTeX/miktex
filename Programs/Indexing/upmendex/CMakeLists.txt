@@ -92,6 +92,7 @@ endif()
 if(USE_SYSTEM_ICU)
     target_link_libraries(${MIKTEX_PREFIX}upmendex ICU::i18n)
     target_link_libraries(${MIKTEX_PREFIX}upmendex ICU::uc)
+    miktex_deploy_icu(${MIKTEX_PREFIX}upmendex)
 else()
     # not an option
 endif()
