@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## next
+
+### Fixed issues
+
+- [1780](https://github.com/MiKTeX/miktex/issues/1780): FileSystemWatcher deadlock
+
 ## 26.5 - 2026-5-13
 
 ### Upgraded programs

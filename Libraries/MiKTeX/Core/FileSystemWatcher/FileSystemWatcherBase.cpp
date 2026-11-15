@@ -52,7 +52,10 @@ void FileSystemWatcherBase::StartThreads()
 
 void FileSystemWatcherBase::StopThreads()
 {
-    done = true;
+    {
+        lock_guard l(notifyMutex);
+        done = true;
+    }
     notifyCondition.notify_all();
     if (notifyThread.joinable())
     {
