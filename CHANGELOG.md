@@ -4,6 +4,7 @@
 
 ### Fixed issues
 
+- [1760](https://github.com/MiKTeX/miktex/issues/1760): Installer fails when PATH contains file entries instead of directories
 - [1780](https://github.com/MiKTeX/miktex/issues/1780): FileSystemWatcher deadlock
 
 ## 26.5 - 2026-5-13
