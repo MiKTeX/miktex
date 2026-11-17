@@ -1,6 +1,6 @@
 /* winDirectory.cpp:
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2026 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -61,6 +61,7 @@ static unsigned long GetFileAttributes_harmlessErrors[] = {
   ERROR_BAD_NET_NAME, // 67
   ERROR_INVALID_NAME, // 123
   ERROR_BAD_PATHNAME, // 161
+  ERROR_DIRECTORY, // 267
 };
 
 bool Directory::Exists(const PathName& path)

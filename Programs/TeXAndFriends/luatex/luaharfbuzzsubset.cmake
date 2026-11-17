@@ -1,6 +1,6 @@
 ## luaharfbuzzsubset.cmake
 ##
-## Copyright (C) 2025 Christian Schenk
+## Copyright (C) 2025-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -23,6 +23,7 @@ endif()
 
 if(USE_SYSTEM_HARFBUZZ_ICU)
     target_link_libraries(luahbtex-luaharfbuzzsubset-objects PUBLIC MiKTeX::Imported::HARFBUZZ_ICU)
+    target_link_libraries(luahbtex-luaharfbuzzsubset-objects PUBLIC MiKTeX::Imported::HARFBUZZ_SUBSET)
     target_link_libraries(luahbtex-luaharfbuzzsubset-objects PUBLIC MiKTeX::Imported::HARFBUZZ)
 else()
     target_link_libraries(luahbtex-luaharfbuzzsubset-objects PUBLIC ${harfbuzz_dll_name})
