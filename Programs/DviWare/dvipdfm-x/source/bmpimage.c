@@ -24,6 +24,10 @@
 #include <config.h>
 #endif
 
+#if defined(MIKTEX)
+#include <limits.h>
+#endif
+
 /*
  * BMP SUPPORT: Not fully supported.
  *   Unsupported features: Transparency, etc.
