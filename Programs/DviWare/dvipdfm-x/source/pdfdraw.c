@@ -1563,8 +1563,18 @@ pdf_dev_clip (void)
   dpx_stack  *gss = &gs_stack;
   pdf_gstate *gs  = dpx_stack_top(gss);
   pdf_path   *cpa = &gs->path;
+  int         error;
 
-  return pdf_dev__flushpath(cpa, 'W', PDF_FILL_RULE_NONZERO, 0);
+  if (PA_LENGTH(cpa) <= 0)
+    return 0;
+  /* PDF requires W to be followed by a path-painting operator,
+   * whereas PostScript clip keeps the current path.
+   */
+  error = pdf_dev__flushpath(cpa, 'W', PDF_FILL_RULE_NONZERO, 0);
+  if (!error)
+    pdf_doc_add_page_content(" n", 2);  /* op: n */
+
+  return error;
 }
 
 int
@@ -1573,8 +1583,18 @@ pdf_dev_eoclip (void)
   dpx_stack  *gss = &gs_stack;
   pdf_gstate *gs  = dpx_stack_top(gss);
   pdf_path   *cpa = &gs->path;
+  int         error;
 
-  return pdf_dev__flushpath(cpa, 'W', PDF_FILL_RULE_EVENODD, 0);
+  if (PA_LENGTH(cpa) <= 0)
+    return 0;
+  /* PDF requires W to be followed by a path-painting operator,
+   * whereas PostScript clip keeps the current path.
+   */
+  error = pdf_dev__flushpath(cpa, 'W', PDF_FILL_RULE_EVENODD, 0);
+  if (!error)
+    pdf_doc_add_page_content(" n", 2);  /* op: n */
+
+  return error;
 }
 
 int

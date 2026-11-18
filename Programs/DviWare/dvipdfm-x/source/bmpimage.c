@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2026 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -163,7 +163,9 @@ bmp_include_image (pdf_ximage *ximage, FILE *fp)
     return -1;
   }
 
-  if (info.width == 0 || info.height == 0 || num_palette < 1) {
+  if (info.width <= 0 || info.height <= 0 || num_palette < 1 ||
+      info.width > (INT_MAX - 7) / 24 ||
+      (info.width * hdr.bit_count + 7) / 8 > (INT_MAX - 3) / info.height) {
     WARN("Invalid BMP file: width=%ld, height=%ld, #palette=%d",
    info.width, info.height, num_palette);
     return -1;
@@ -227,7 +229,7 @@ bmp_include_image (pdf_ximage *ximage, FILE *fp)
           return -1;
         }
       }
-    } else if (hdr.compression == DIB_COMPRESS_RLE8) {
+    } else if (hdr.compression == DIB_COMPRESS_RLE8 && hdr.bit_count == 8) {
       stream_data_ptr = NEW(rowbytes*info.height, unsigned char);
       if (read_raster_rle8(stream_data_ptr, info.width, info.height, fp) < 0) {
         WARN("Reading BMP raster data failed...");
@@ -235,7 +237,7 @@ bmp_include_image (pdf_ximage *ximage, FILE *fp)
         RELEASE(stream_data_ptr);
         return -1;
       }
-    } else if (hdr.compression == DIB_COMPRESS_RLE4) {
+    } else if (hdr.compression == DIB_COMPRESS_RLE4 && hdr.bit_count == 4) {
       stream_data_ptr = NEW(rowbytes*info.height, unsigned char);
       if (read_raster_rle4(stream_data_ptr, info.width, info.height, fp) < 0) {
         WARN("Reading BMP raster data failed...");
@@ -315,6 +317,10 @@ read_header (FILE *fp, struct hdr_info *hdr)
 
   /* info header */
   hdr->hsize  = ULONG_LE(p); p += 4;
+  if (hdr->hsize < DIB_CORE_HEADER_SIZE || hdr->hsize > DIB_INFO_HEADER_SIZE5) {
+    WARN("Unknown BMP header type.");
+    return -1;
+  }
   if (fread(p, sizeof(char), hdr->hsize - 4, fp) != hdr->hsize - 4) {
     WARN("Could not read BMP file header...");
     return -1;
@@ -393,6 +399,10 @@ read_raster_rle8 (unsigned char *data_ptr,
 	  h += get_unsigned_byte(fp);
 	  v += get_unsigned_byte(fp);
 	  count += 2;
+	  if (v >= height) {
+	    WARN("RLE decode failed...");
+	    return -1;
+	  }
 	  break;
 	default:
 	  h += b1;
@@ -472,6 +482,10 @@ read_raster_rle4 (unsigned char *data_ptr,
 	  h += get_unsigned_byte(fp);
 	  v += get_unsigned_byte(fp);
 	  count += 2;
+	  if (v >= height) {
+	    WARN("RLE decode failed...");
+	    return -1;
+	  }
 	  break;
 	default:
 	  if (h + b1 > width) {
@@ -483,7 +497,8 @@ read_raster_rle4 (unsigned char *data_ptr,
 	    for (i = 0; i < nbytes; i++) {
 	      b = get_unsigned_byte(fp);
 	      *p++ |= (b >> 4) & 0x0f;
-	      *p    = (b << 4) & 0xf0;
+	      if (2 * i + 1 < b1)
+	        *p  = (b << 4) & 0xf0;
 	    }
 	  } else {
 	    if (fread(p, 1, nbytes, fp) != nbytes) {
