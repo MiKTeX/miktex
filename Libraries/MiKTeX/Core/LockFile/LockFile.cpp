@@ -205,6 +205,11 @@ tuple<bool, int, string> LockFileImpl::CheckLockFile()
     trace_lockfile->WriteLine("core", fmt::format(T_("could not read lock file {0}"), Q_(path)));
     return make_tuple(false, pid, processName);
   }
+  catch (const std::logic_error&)
+  {
+    trace_lockfile->WriteLine("core", fmt::format(T_("bad lock file {0}"), Q_(path)));
+    return make_tuple(true, pid, processName);
+  }
   if (pid == -1)
   {
     // permanently locked
