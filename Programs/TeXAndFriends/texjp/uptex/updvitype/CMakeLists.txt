@@ -1,12 +1,14 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2021-2022 Christian Schenk
+## Copyright (C) 2021-2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
 
 set(MIKTEX_CURRENT_FOLDER ${MIKTEX_CURRENT_FOLDER}/upDVItype)
+
+default_char_type_is_signed()
 
 include_directories(BEFORE
     ${CMAKE_CURRENT_BINARY_DIR}
