@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2020 Christian Schenk
+## Copyright (C) 2020-29026 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -18,6 +18,8 @@
 ## USA.
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_GENERATORS_FOLDER}/PATGEN")
+
+default_char_type_is_signed()
 
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}

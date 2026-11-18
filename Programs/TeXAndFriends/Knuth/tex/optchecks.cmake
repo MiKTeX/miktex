@@ -1,6 +1,6 @@
 ## optchecks.cmake
 ##
-## Copyright (C) 2022 Christian Schenk
+## Copyright (C) 2026 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -8,6 +8,8 @@
 
 remove_cxx_flag("/O2")
 add_cxx_flag("/Od")
+
+default_char_type_is_signed()
 
 set(function_count 344)
 foreach(func RANGE 1 ${function_count})
