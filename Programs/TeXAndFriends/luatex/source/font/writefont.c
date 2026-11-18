@@ -963,6 +963,8 @@ static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
     pdf_begin_obj(pdf, fo->cw_objnum, OBJSTM_ALWAYS);
     avl_t_init(&t, fo->fd->gl_tree);
     glyph = (glw_entry *) avl_t_first(&t, fo->fd->gl_tree);
+    if (glyph == NULL)
+      normal_error("fonts","there is a problem writing the cid array");
     i = (int) glyph->id;
     pdf_begin_array(pdf);
     pdf_add_int(pdf, i);

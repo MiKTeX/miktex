@@ -198,7 +198,8 @@ int get_math_code_num(int n)
 
 static void initializemathcode(void)
 {
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     sa_value.uint_value = MATHCODEDEFAULT;
     mathcode_head = new_sa_tree(MATHCODESTACK, 1, sa_value);
 }
@@ -314,7 +315,8 @@ int get_del_code_num(int n)
 
 static void initializedelcode(void)
 {
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     sa_value.uint_value = DELCODEDEFAULT;
     delcode_head = new_sa_tree(DELCODESTACK, 2, sa_value);
 }

@@ -150,8 +150,9 @@ void scan_file_name(void)
     begin_name();
     /*tex Get the next non-blank non-call token: */
     do {
-        get_x_token();
-    } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+      get_x_token();
+    } while ((cur_cmd == spacer_cmd)  || ((cur_cmd == relax_cmd) && (input_recursion_depth<1)));
+
 
     while (true) {
         if ((cur_cmd > other_char_cmd) || (cur_chr > biggest_char)) {   /* not a character */

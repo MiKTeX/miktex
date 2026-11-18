@@ -125,7 +125,7 @@ char *luatex_find_read_file(const char *s, int n, int callback_index)
         (void) run_callback(callback_id, "dS->R", n, s, &ftemp);
     } else {
       char str[21]; 
-      snprintf(str, sizeof(str), "%lld", callback_index);
+      snprintf(str, sizeof(str), "%d", callback_index);
       if (kpse_available(str)) {
         /*tex Use kpathsea here. */
         ftemp = find_in_output_directory(s);
@@ -155,7 +155,7 @@ char *luatex_find_file(const char *s, int callback_index)
         (void) run_callback(callback_id, "S->R", s, &ftemp);
     } else {
       char str[21]; 
-      snprintf(str, sizeof(str), "%lld", callback_index);
+      snprintf(str, sizeof(str), "%d", callback_index);
       if (kpse_available(str)) {
         /*tex Use kpathsea here. */
         switch (callback_index) {
@@ -891,6 +891,11 @@ char *open_fmt_file(void)
 
 */
 
+/*tex To ensure that input is not recursive */        
+
+int input_recursion_depth = 0;
+
+
 /*tex is a file name being scanned? */
 
 boolean name_in_progress;
@@ -1030,9 +1035,10 @@ void start_input(void)
 {
     str_number temp_str;
     char *fn;
+    input_recursion_depth++; 
     do {
         get_x_token();
-    } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+    } while (cur_cmd == spacer_cmd);
 
     back_input();
     if (cur_cmd != left_brace_cmd) {
@@ -1130,6 +1136,7 @@ void start_input(void)
         buffer[ilimit] = (packed_ASCII_code) end_line_char_par;
     first = ilimit + 1;
     iloc = istart;
+    input_recursion_depth--;
 }
 
 /*tex

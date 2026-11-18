@@ -2085,7 +2085,7 @@ static int get_parshape(lua_State * L)
     return 1;
 }
 
-static int get_etex_parshape(lua_State * L, int code)
+static int get_etex_penalties(lua_State * L, int code, int b)
 {
     halfword ptr = null;
     switch (code) {
@@ -2103,13 +2103,18 @@ static int get_etex_parshape(lua_State * L, int code)
             break;
     }
     if (ptr != null) {
-        int m = 1;
-        int n = vinfo(ptr + 1) + 1;
-        lua_createtable(L, n, 0);
-        while (m <= n) {
-            lua_pushinteger(L, penalty(ptr + m));
-            lua_rawseti(L, -2, m);
-            m++;
+        /* see scanning.c : case set_etex_shape_cmd */ 
+        int n = penalty(ptr);
+        if (b == 1) { 
+            lua_pushinteger(L, n);
+        } else {
+            int m = 1;
+            lua_createtable(L, n, 0);
+            while (m <= n) {
+                lua_pushinteger(L, penalty(ptr + m));
+                lua_rawseti(L, -2, m);
+                m++;
+            }
         }
     } else {
         lua_pushnil(L);
@@ -2187,7 +2192,7 @@ static int gettex(lua_State * L)
                 retval = get_parshape(L);
                 break;
             case set_etex_shape_cmd:
-                retval = get_etex_parshape(L, cur_code);
+                retval = get_etex_penalties(L, cur_code, b);
                 break;
             default:
                 lua_pushnil(L);
@@ -2926,11 +2931,13 @@ static halfword nodelib_topenalties(lua_State * L, int i)
     return p;
 }
 
+/* 
+    We could do more checks and recovery but when there is an error triggered 
+    here we don't have production code anyway so we leave that to the user.
+*/
+
 static int tex_run_linebreak(lua_State * L)
 {
-
-    halfword *j;
-    halfword p;
     halfword final_par_glue;
     int paragraph_dir = 0;
     /* locally initialized parameters for line breaking */
@@ -2942,23 +2949,41 @@ static int tex_run_linebreak(lua_State * L)
     int fewest_demerits = 0, actual_looseness = 0;
     halfword clubpenalties, interlinepenalties, widowpenalties;
     int save_vlink_tmp_head;
+    /* sanioty check */
+    halfword *j = check_isnode(L, 1);
+    halfword p;
+    if (! j) { 
+        /* we let users clean up the passed parameters as it's their mess anyway */
+        return luaL_error(L, "tex.linebreak expects a node");
+    }
+    p = *j;
     /* push a new nest level */
     push_nest();
+    /* save the current head */
     save_vlink_tmp_head = vlink(temp_head);
-
-    j = check_isnode(L, 1);     /* the value */
-    vlink(temp_head) = *j;
-    p = *j;
-    if ((!is_char_node(vlink(*j))) && ((type(vlink(*j)) == local_par_node))) {
-        paragraph_dir = local_par_dir(vlink(*j));
+    vlink(temp_head) = p;
+    /* another sanity check */
+    if (type(p) == local_par_node) {
+        paragraph_dir = local_par_dir(p);
+        /* maybe we should also check for an indent box */
+    } else {
+        vlink(temp_head) = save_vlink_tmp_head;
+        pop_nest();
+        /* we let users clean up the passed parameters as it's their mess anyway */
+        return luaL_error(L, "tex.linebreak expects a localpar node");
     }
-
-    while (vlink(p) != null)
+    /* find the end */
+    while (vlink(p) != null) {
         p = vlink(p);
+    }
     final_par_glue = p;
-
+    if (type(p) != glue_node) {
+        vlink(temp_head) = save_vlink_tmp_head;
+        pop_nest();
+        /* we let users clean up the passed parameters as it's their mess anyway */
+        return luaL_error(L, "tex.linebreak expects trailing glue");
+    }
     /* initialize local parameters */
-
     if (lua_gettop(L) != 2 || lua_type(L, 2) != LUA_TTABLE) {
         lua_checkstack(L, 3);
         lua_newtable(L);
@@ -2968,7 +2993,6 @@ static int tex_run_linebreak(lua_State * L)
         paragraph_dir = nodelib_getdir(L, -1);
     }
     lua_pop(L, 1);
-
     lua_key_rawgeti(parshape);
     if (lua_type(L, -1) == LUA_TTABLE) {
         parshape = nodelib_toparshape(L, lua_gettop(L));
@@ -2976,7 +3000,11 @@ static int tex_run_linebreak(lua_State * L)
         parshape = equiv(par_shape_loc);
     }
     lua_pop(L, 1);
-
+    /*  
+        We don't check if the arrays that get passed or the glues are valid. That 
+        is up to the user. If one operates at this level one has to make sure a 
+        proper list and sensible parameters are passed anyway. 
+    */
     get_int_par  (pretolerance, pretolerance_par);
     get_int_par  (tracingparagraphs, tracing_paragraphs_par);
     get_int_par  (tolerance, tolerance_par);
@@ -2998,6 +3026,7 @@ static int tex_run_linebreak(lua_State * L)
     get_dimen_par(hsize, hsize_par);
     get_glue_par (leftskip, left_skip_par);
     get_glue_par (rightskip, right_skip_par);
+    /* we cross our fingers */
     ext_do_line_break(paragraph_dir,
                       pretolerance,
                       tracingparagraphs,
@@ -3005,7 +3034,7 @@ static int tex_run_linebreak(lua_State * L)
                       emergencystretch,
                       looseness,
                       adjustspacing,
-                      parshape,
+                      parshape,               /* fragile */
                       adjdemerits,
                       protrudechars,
                       linepenalty,
@@ -3015,17 +3044,16 @@ static int tex_run_linebreak(lua_State * L)
                       hangindent,
                       hsize,
                       hangafter,
-                      leftskip,
-                      rightskip,
-                      interlinepenalties,
+                      leftskip,               /* fragile */
+                      rightskip,              /* fragile */
+                      interlinepenalties,     /* fragile */
                       interlinepenalty,
-                      clubpenalty,
-                      clubpenalties,
-                      widowpenalties,
+                      clubpenalty, 
+                      clubpenalties,          /* fragile */
+                      widowpenalties,         /* fragile */
                       widowpenalty,
                       brokenpenalty,
                       final_par_glue);
-
     /* return the generated list, and its prevdepth */
     get_linebreak_info (&fewest_demerits, &actual_looseness) ;
     lua_nodelib_push_fast(L, vlink(cur_list.head_field));
@@ -3042,12 +3070,23 @@ static int tex_run_linebreak(lua_State * L)
     lua_push_key(prevgraf);
     lua_pushinteger(L, cur_list.pg_field);
     lua_settable(L, -3);
-
     /* restore nest stack */
     vlink(temp_head) = save_vlink_tmp_head;
+    /* pop the nest level */
     pop_nest();
-    if (parshape != equiv(par_shape_loc))
+    /* cleanup user provided arrays */
+    if (parshape != equiv(par_shape_loc)) {
         flush_node(parshape);
+    }
+    if (interlinepenalties != equiv(inter_line_penalties_loc)) {
+        flush_node(interlinepenalties);
+    }
+    if (widowpenalties != equiv(widow_penalties_loc)) {
+        flush_node(interlinepenalties);
+    }
+    if (clubpenalties != equiv(club_penalties_loc)) {
+        flush_node(clubpenalties);
+    }
     return 2;
 }
 

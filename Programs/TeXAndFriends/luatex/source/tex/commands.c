@@ -813,6 +813,7 @@ void initialize_etex_commands(void)
     primitive_luatex("mathdefaultsmode", assign_int_cmd, int_base + math_defaults_mode_code, int_base);
     primitive_luatex("mathrulethicknessmode", assign_int_cmd, int_base + math_rule_thickness_mode_code, int_base);
     primitive_luatex("mathdelimitersmode", assign_int_cmd, int_base + math_delimiters_mode_code, int_base);
+    primitive_luatex("mathlargeoperatormode", assign_int_cmd, int_base + math_large_operator_mode_code, int_base);
 
     /* */
 

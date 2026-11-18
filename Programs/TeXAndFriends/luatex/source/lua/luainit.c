@@ -906,9 +906,12 @@ static int luatex_kpse_clua_find(lua_State * L)
     } else {
         const char *path_saved;
         char *prefix, *postfix, *p, *total;
-        char *extensionless;
-        char *temp_name;
+        char *extensionless ;
+        char *temp_name ;
         int j;
+
+	prefix = postfix = total = extensionless = temp_name = NULL;
+	
         filename = luatex_kpse_find_aux(L, name, kpse_clua_format, "C");
         if (filename == NULL) {
             /*tex library not found in this path */
@@ -918,10 +921,14 @@ static int luatex_kpse_clua_find(lua_State * L)
         extensionless = strdup(filename);
         if (!extensionless) {
             /*tex allocation failure */
-            return 1;
+            goto cleanup_and_return_1;
         }
         /*tex Replace '.' with |LUA_DIRSEP| */
         temp_name = strdup(name);
+	if (temp_name == NULL ) {
+            /*tex allocation failure */
+            goto cleanup_and_return_1;
+	}
         for(j=0; ; j++){
           if ((unsigned char)temp_name[j]=='\0') {
             break;
@@ -933,21 +940,24 @@ static int luatex_kpse_clua_find(lua_State * L)
         p = strstr(extensionless, temp_name);
         if (!p) {
             /*tex this would be exceedingly weird */
-            return 1;
+	    goto cleanup_and_return_1;
         }
         *p = '\0';
         prefix = strdup(extensionless);
         if (!prefix) {
             /*tex allocation failure */
-            return 1;
+            goto cleanup_and_return_1;
         }
         postfix = strdup(p+strlen(name));
         if (!postfix) {
             /*tex allocation failure */
-            return 1;
+            goto cleanup_and_return_1;
         }
         total = malloc(strlen(prefix)+strlen(postfix)+2);
-        if (!total) return 1;  /* allocation failure */
+        if (!total) {
+	     /*tex allocation failure */ 
+	     goto cleanup_and_return_1;
+	}
         snprintf(total,strlen(prefix)+strlen(postfix)+2, "%s?%s", prefix, postfix);
         /*tex save package.path */
         lua_getglobal(L,"package");
@@ -969,7 +979,10 @@ static int luatex_kpse_clua_find(lua_State * L)
         lua_setfield(L,-2,"cpath");
         /*tex pop ``package'' */
         lua_pop(L,1);
+    cleanup_and_return_1:	
         free(extensionless);
+	free(prefix);
+	free(postfix);
         free(total);
         free(temp_name);
         return 1;
@@ -1419,7 +1432,6 @@ void lua_initialize(int ac, char **av)
     if (output_directory) {
       xputenv ("TEXMF_OUTPUT_DIRECTORY", output_directory);
     } else if (getenv ("TEXMF_OUTPUT_DIRECTORY")) {
-      miktex_web2c_set_output_directory(getenv("TEXMF_OUTPUT_DIRECTORY"));
       output_directory = getenv ("TEXMF_OUTPUT_DIRECTORY");
     }
 #endif

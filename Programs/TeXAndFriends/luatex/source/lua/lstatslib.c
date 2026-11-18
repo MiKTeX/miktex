@@ -285,6 +285,11 @@ static lua_Number get_development_id(void)
     return (lua_Number) luatex_svn_revision ;
 }
 
+static const char * get_release_name(void)
+{
+    return (const char *) luatex_release_name;
+}
+
 static lua_Number get_dvi_gone(void)
 {
     if (static_pdf != NULL)
@@ -334,6 +339,7 @@ static struct statistic stats[] = {
     {"luatex_version", 'G', &get_luatexversion},
     {"luatex_revision", 'S', (void *) &luatexrevision},
     {"development_id", 'N', &get_development_id},
+    {"luatex_release_name", 'S', &get_release_name},
     {"luatex_hashtype", 'S', (void *) &get_luatexhashtype},
     {"luatex_hashchars", 'N',  &get_luatexhashchars},
     {"luatex_engine", 'S', (void *) &getenginename},

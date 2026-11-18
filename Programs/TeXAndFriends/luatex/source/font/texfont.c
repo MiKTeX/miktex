@@ -317,7 +317,8 @@ charinfo *copy_charinfo(charinfo * ci)
 charinfo *char_info(internal_font_number f, int c)
 {
     if (f > font_id_maxval)
-        return 0;
+      /* avoid later warning: dereference of NULL ‘ci’ [CWE-476] [-Wanalyzer-null-dereference]  */
+       normal_error("font","character insertion failed");
     if (proper_char_index(c)) {
         register int glyph = (int) find_charinfo_id(f, c);
         return &(font_tables[f]->_charinfo[glyph]);

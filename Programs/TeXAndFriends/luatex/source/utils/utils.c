@@ -96,9 +96,13 @@ if (fd->subset_tag != NULL) {
             for (glw_glyph = (glw_entry *) avl_t_first(&t, fd->gl_tree);
                  glw_glyph != NULL; glw_glyph = (glw_entry *) avl_t_next(&t)) {
                 glyph = malloc(24);
-                sprintf(glyph, "%05u%05u ", glw_glyph->id, glw_glyph->wd);
-                md5_append(&pms, (md5_byte_t *) glyph, (int) strlen(glyph));
-                free(glyph);
+		if (glyph){
+		  sprintf(glyph, "%05u%05u ", glw_glyph->id, glw_glyph->wd);
+		  md5_append(&pms, (md5_byte_t *) glyph, (int) strlen(glyph));
+		  free(glyph);
+		} else {
+		  formatted_error("internal","malloc failed: file %s, line %d", __FILE__, __LINE__);
+		}
             }
         } else {
             for (glyph = (char *) avl_t_first(&t, fd->gl_tree); glyph != NULL;

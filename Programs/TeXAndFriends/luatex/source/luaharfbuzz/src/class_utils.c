@@ -13,15 +13,27 @@ int register_class(lua_State *L, const char *name, const luaL_Reg *methods, cons
       constants++;
     }
   }
-
+#ifdef LuajitTeX
+  luaL_register(L,NULL,methods);
+#else
   luaL_setfuncs(L, methods, 0);
-  lua_pop(L, 1);
+#endif
 
   lua_newtable(L);
+#ifdef LuajitTeX
+  luaL_register(L,NULL,functions);
+#else
   luaL_setfuncs(L, functions, 0);
+#endif
 
-  luaL_getmetatable(L, name);
+  /* The class table only needs access to the instance metatable for constants;
+     keep its own metatable light to avoid triggering instance metamethods. */
+  lua_newtable(L);
+  lua_pushvalue(L, -3);
+  lua_setfield(L, -2, "__index");
   lua_setmetatable(L, -2);
+
+  lua_remove(L, -2);
   return 1;
 }
 

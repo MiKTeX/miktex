@@ -783,6 +783,9 @@ void do_vf(internal_font_number f)
                 tprint(".vf ignored");
             }
         }
+	if (vf_cur < 0 || vf_cur >= vf_size || packet_length >= (unsigned) (vf_size - vf_cur)) {
+	  normal_error("virtual font","unexpected eof");
+	}
         k = count_packet_bytes(vf_buffer, vf_cur, (int) packet_length);
         /*tex We need one extra extra for |packet_end|. */
         vpackets = xmalloc((unsigned) (k + 1));

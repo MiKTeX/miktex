@@ -508,7 +508,7 @@ static int face_var_get_axis_infos(lua_State *L) {
     hb_ot_var_get_axis_infos(*face, start, &count, axis_infos);
 
     lua_createtable(L, count, 0);
-    for (int i = 0; i != count; i++) {
+    for (unsigned int i = 0; i != count; i++) {
       push_axis_info(L, axis_infos + i);
       lua_seti(L, -2, i + 1);
     }
@@ -565,7 +565,7 @@ static int face_var_named_instance_get_design_coords(lua_State *L) {
   unsigned int count = STATIC_ARRAY_SIZE;
   count = hb_ot_var_named_instance_get_design_coords(*face, index, &count, coords);
 
-  for (int i = 0; i != count; i++) {
+  for (unsigned int i = 0; i != count; i++) {
     lua_pushnumber(L, coords[i]);
   }
   return count;
@@ -586,7 +586,7 @@ static int face_var_normalize_variations(lua_State *L) {
   int normalized[STATIC_ARRAY_SIZE];
   hb_ot_var_normalize_variations(*face, variations, count, normalized, coord_count);
 
-  for (int i = 0; i != coord_count; i++) {
+  for (unsigned int i = 0; i != coord_count; i++) {
     lua_pushinteger(L, normalized[i]);
   }
   return coord_count;
@@ -606,10 +606,30 @@ static int face_var_normalize_coords(lua_State *L) {
   int normalized[STATIC_ARRAY_SIZE];
   hb_ot_var_normalize_coords(*face, count, coords, normalized);
 
-  for (int i = 0; i != count; i++) {
+  for (unsigned int i = 0; i != count; i++) {
     lua_pushinteger(L, normalized[i]);
   }
   return count;
+}
+
+// face_blob(face) -> harfbuzz.Blob|nil, err
+// Returns the underlying face blob as a harfbuzz.Blob userdata.
+static int face_blob(lua_State *L) {
+  Face *f = (Face *)luaL_checkudata(L, 1, "harfbuzz.Face");
+
+  hb_blob_t *hb = hb_face_reference_blob(*f);
+  if (!hb) {
+    lua_pushnil(L);
+    return 1;
+  }
+
+  // Create Blob userdata and attach the HarfBuzz blob without copying.
+  Blob *b = (Blob *)lua_newuserdata(L, sizeof(*b));
+  luaL_getmetatable(L, "harfbuzz.Blob");
+  lua_setmetatable(L, -2);
+
+  *b = hb;
+  return 1;
 }
 
 static int face_destroy(lua_State *L) {
@@ -621,6 +641,7 @@ static int face_destroy(lua_State *L) {
 
 static const struct luaL_Reg face_methods[] = {
   { "__gc", face_destroy },
+  { "blob", face_blob },
   { "collect_unicodes", face_collect_unicodes },
   { "get_glyph_count", face_get_glyph_count },
   { "get_name", face_get_name },

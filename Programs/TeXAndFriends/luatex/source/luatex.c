@@ -28,13 +28,13 @@
 /*
     The version number can be queried with \.{\\luatexversion} and the revision with
     with \.{\\luatexrevision}. Traditionally the revision can be any character and
-    pdf\TeX\ occasionally used no digits. Here we still use a character but we will
-    stick to "0" upto "9" so users can expect a number represented as string.
+    pdf\TeX\ occasionally used no digits, but we use an integer.
+
 */
 
-int luatex_version = 125;
-int luatex_revision = '7';
-const char *luatex_version_string = "1.25.7";
+int luatex_version = 127;
+int luatex_revision = 11;
+const char *luatex_version_string = "1.27.11";
 const char *engine_name = my_name;
 
 #include <kpathsea/c-ctype.h>

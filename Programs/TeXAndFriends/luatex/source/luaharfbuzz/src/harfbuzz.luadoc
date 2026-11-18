@@ -27,23 +27,28 @@
 --    - table of `Feature` objects
 --  @function shape
 
---- Lua wrapper for `hb_blob_t` type
+--- Lua wrapper for `hb_blob_t` type.
+--  Wraps binary data such as font file contents or raw font table data.
 --  @type Blob
 
 --- Wraps `hb_blob_create`.
 --  Initializes a new `hb_blob_t`.
 --  @param data lua string containing binary or character data.
+--  @return a `Blob` object holding the binary data.
 --  @function Blob.new
 
 --- Wraps `hb_blob_create_from_file`.
 --  Initializes a new `hb_blob_t`.
 --  @param filename lua string.
+--  @return a `Blob` object holding the file contents.
 --  @function Blob.new_from_file
 
 --- Wraps `hb_blob_get_length`.
+--  @return length of the blob in bytes.
 --  @function Blob:get_length
 
 --- Wraps `hb_blob_get_data`.
+--  @return blob contents as a string.
 --  @function Blob:get_data
 
 --- Lua wrapper for `hb_face_t` type
@@ -53,6 +58,7 @@
 --  Initializes a new `hb_face_t` from a `Blob` object.
 --  @param blob `Blob` to read the font from.
 --  @param[opt=0] font_index index of font to read.
+--  @return a `Face` object, or `nil` if the blob is invalid.
 --  @function Face.new_from_blob
 
 --- Create a new `Face` from a file.
@@ -60,13 +66,25 @@
 --  file contents.
 --  @param file path to font file.
 --  @param[opt=0] font_index index of font to read.
+--  @return a `Face` object, or `nil` if the file cannot be read.
 --  @function Face.new
+
+--- Wraps `hb_face_reference_blob`.
+--  @return `Blob` containing the raw font data, or `nil`.
+--  @function Face:blob
+
+--- Wraps `hb_ot_name_get_utf8`.
+--  @param name_id an `ot.NAME_ID_*` constant.
+--  @param[opt] lang a `Language` object; uses default language if omitted.
+--  @return name string, or `nil` if not found.
+--  @function Face:get_name
 
 --- Wraps `hb_face_collect_unicodes`.
 --  @return table of codepoints supported by the face.
 --  @function Face:collect_unicodes
 
 --- Wraps `hb_face_get_glyph_count`.
+--  @return number of glyphs in the face.
 --  @function Face:get_glyph_count
 
 --- Wraps `hb_face_reference_table`.
@@ -79,42 +97,117 @@
 --  @function Face:get_table_tags
 
 --- Wraps `hb_face_get_upem`.
+--  @return units-per-em value of the face.
 --  @function Face:get_upem
 
 --- Wraps `hb_ot_color_has_palettes`.
+--  @return boolean indicating whether the face has color palettes.
 --  @function Face:ot_color_has_palettes
 
 --- Wraps `hb_ot_color_palette_get_count`.
+--  @return number of color palettes in the face.
 --  @function Face:ot_color_palette_get_count
 
 --- Wraps `hb_ot_color_palette_get_colors`.
+--  @param[opt=1] palette_index 1-indexed palette index.
+--  @return table of color tables each with `red`, `green`, `blue`, `alpha` fields, or `nil`.
 --  @function Face:ot_color_palette_get_colors
 
 --- Wraps `hb_ot_color_has_layers`.
+--  @return boolean indicating whether the face has layered color glyphs.
 --  @function Face:ot_color_has_layers
 
 --- Wraps `hb_ot_color_glyph_get_layers`.
+--  @param glyph glyph index.
+--  @return table of layer tables each with `glyph` and `color_index` fields, or `nil`.
 --  @function Face:ot_color_glyph_get_layers
 
 --- Wraps `hb_ot_color_has_png`.
+--  @return boolean indicating whether the face has PNG color glyphs.
 --  @function Face:ot_color_has_png
 
+--- Wraps `hb_ot_color_has_svg`.
+--  @return boolean indicating whether the face has SVG color glyphs.
+--  @function Face:ot_color_has_svg
+
+--- Wraps `hb_ot_color_glyph_reference_svg`.
+--  @param glyph glyph index.
+--  @return `Blob` containing the SVG data, or `nil`.
+--  @function Face:ot_color_glyph_get_svg
+
+--- Wraps `hb_ot_var_has_data`.
+--  @return boolean indicating whether the face has OpenType variation data.
+--  @function Face:ot_var_has_data
+
+--- Wraps `hb_ot_var_find_axis_info`.
+--  @param tag `Tag` of the variation axis.
+--  @return table with fields `axis_index`, `tag`, `name_id`, `flags`, `min_value`, `default_value`, `max_value`, or `nil` if not found.
+--  @function Face:ot_var_find_axis_info
+
+--- Wraps `hb_ot_var_get_axis_infos`.
+--  @param[opt=1] start 1-indexed start axis.
+--  @param[opt=-1] stop 1-indexed end axis (inclusive); `-1` means last.
+--  @return table of axis info tables, each with fields `axis_index`, `tag`, `name_id`, `flags`, `min_value`, `default_value`, `max_value`.
+--  @function Face:ot_var_get_axis_infos
+
+--- Wraps `hb_ot_var_get_named_instance_count` and related functions.
+--  @param[opt=1] start 1-indexed start instance.
+--  @param[opt=-1] stop 1-indexed end instance (inclusive); `-1` means last.
+--  @return table of instance info tables, each with fields `index`, `subfamily_name_id`, `postscript_name_id`.
+--  @function Face:ot_var_named_instance_get_infos
+
+--- Wraps `hb_ot_var_named_instance_get_design_coords`.
+--  @param index 1-indexed named instance index.
+--  @return multiple return values, one number per axis.
+--  @function Face:ot_var_named_instance_get_design_coords
+
+--- Wraps `hb_ot_var_normalize_variations`.
+--  @param ... one or more `Variation` objects.
+--  @return multiple return values, one normalized integer coordinate per axis.
+--  @function Face:ot_var_normalize_variations
+
+--- Wraps `hb_ot_var_normalize_coords`.
+--  @param ... one or more design-space coordinate numbers, one per axis.
+--  @return multiple return values, one normalized integer coordinate per axis.
+--  @function Face:ot_var_normalize_coords
+
 --- Wraps `hb_ot_layout_table_get_script_tags`.
+--  @param table_tag `Tag` for the layout table (`GSUB` or `GPOS`).
+--  @return table of script `Tag`s, or `nil`.
 --  @function Face:ot_layout_get_script_tags
 
 --- Wraps `hb_ot_layout_script_get_language_tags`.
+--  @param table_tag `Tag` for the layout table (`GSUB` or `GPOS`).
+--  @param script_index index of the script.
+--  @return table of language `Tag`s, or `nil`.
 --  @function Face:ot_layout_get_language_tags
 
 --- Wraps `hb_ot_layout_language_get_feature_tags`.
+--  @param table_tag `Tag` for the layout table (`GSUB` or `GPOS`).
+--  @param script_index index of the script.
+--  @param language_index index of the language.
+--  @return table of feature `Tag`s, or `nil`.
 --  @function Face:ot_layout_get_feature_tags
 
 --- Wraps `hb_ot_layout_table_find_script`.
+--  @param table_tag `Tag` for the layout table (`GSUB` or `GPOS`).
+--  @param script_tag `Tag` of the script to find.
+--  @return boolean indicating whether the script was found, and its index.
 --  @function Face:ot_layout_find_script
 
 --- Wraps `hb_ot_layout_script_find_language`.
+--  @param table_tag `Tag` for the layout table (`GSUB` or `GPOS`).
+--  @param script_index index of the script.
+--  @param language_tag `Tag` of the language to find.
+--  @return boolean indicating whether the language was found, and its index.
 --  @function Face:ot_layout_find_language
 
 --- Wraps `hb_ot_layout_language_find_feature`.
+--  @param table_tag `Tag` for the layout table (`GSUB` or `GPOS`).
+--  @param script_index index of the script.
+--  @param language_index index of the language.
+--  @param feature_tag `Tag` of the feature to find.
+--  @return boolean indicating whether the feature was found, and its index.
 --  @function Face:ot_layout_find_feature
 
 
@@ -126,6 +219,7 @@
 --  to the face’s upem value, and sets the font shaping functions by
 --  calling `hb_ot_font_set_funcs` on it.
 --  @param face `Face` object.
+--  @return a `Font` object.
 --  @function Font.new
 
 --- Wraps `hb_font_get_scale`.
@@ -187,14 +281,68 @@
 --  @return glyph index or `nil` if `codepoint` is not supported by the font.
 --  @function Font:get_nominal_glyph
 
+--- Wraps `hb_style_get_value`.
+--  Available when HarfBuzz >= 3.
+--  @param tag a `Tag` object for the style axis (e.g. `wght`, `ital`).
+--  @return style value as a number.
+--  @function Font:style_get_value
+
 --- Wraps `hb_ot_color_glyph_get_png`.
+--  @param glyph glyph index.
+--  @return `Blob` containing the PNG data, or `nil`.
 --  @function Font:ot_color_glyph_get_png
+
+--- Wraps `hb_ot_metrics_get_position`.
+--  @param tag a `Tag` object for the metric.
+--  @return integer position value, or `nil` if not available.
+--  @function Font:ot_metrics_get_position
+
+--- Wraps `hb_ot_metrics_get_variation`.
+--  @param tag a `Tag` object for the metric.
+--  @return number variation value.
+--  @function Font:ot_metrics_get_variation
+
+--- Wraps `hb_ot_metrics_get_x_variation`.
+--  @param tag a `Tag` object for the metric.
+--  @return integer x variation value.
+--  @function Font:ot_metrics_get_x_variation
+
+--- Wraps `hb_ot_metrics_get_y_variation`.
+--  @param tag a `Tag` object for the metric.
+--  @return integer y variation value.
+--  @function Font:ot_metrics_get_y_variation
+
+--- Wraps `hb_font_set_variations`.
+--  @param ... one or more `Variation` objects.
+--  @function Font:set_variations
+
+--- Wraps `hb_font_set_var_coords_design`.
+--  @param ... one or more design-space coordinate numbers, one per axis.
+--  @function Font:set_var_coords_design
+
+--- Wraps `hb_font_set_var_coords_normalized`.
+--  @param ... one or more normalized coordinate integers, one per axis.
+--  @function Font:set_var_coords_normalized
+
+--- Wraps `hb_font_set_var_named_instance`.
+--  @param index 1-indexed named instance index.
+--  @function Font:set_var_named_instance
+
+--- Wraps `hb_font_get_var_coords_normalized`.
+--  @return multiple return values, one normalized integer coordinate per axis.
+--  @function Font:get_var_coords_normalized
 
 --- Lua wrapper for `hb_buffer_t` type.
 --  @type Buffer
 
 --- Wraps `hb_buffer_create`.
+--  @return a `Buffer` object.
 --  @function Buffer.new
+
+--- Wraps `hb_buffer_add`.
+--  @param codepoint Unicode codepoint to add.
+--  @param cluster cluster index of the codepoint.
+--  @function Buffer:add
 
 --- Wraps `hb_buffer_add_utf8`.
 --  @param text UTF8 encoded string.
@@ -232,22 +380,58 @@
 -- @return A `Language` object
 --  @function Buffer:get_language
 
---- Wraps `hb_buffer_reverse`.
---  @function Buffer:reverse
+--- Wraps `hb_buffer_set_flags`.
+--  @param flags see [Buffer Flags](#Buffer_Flags)
+--  @function Buffer:set_flags
 
---- Wraps `hb_buffer_get_length`.
---  @function Buffer:get_length
-
---- Wraps `hb_buffer_get_cluster_level`.
---  @return see [Cluster Levels](#Cluster_Levels)
---  @function Buffer:get_cluster_level
+--- Wraps `hb_buffer_get_flags`.
+--  @return see [Buffer Flags](#Buffer_Flags)
+--  @function Buffer:get_flags
 
 --- Wraps `hb_buffer_set_cluster_level`.
 --  @param level see [Cluster Levels](#Cluster_Levels)
 --  @function Buffer:set_cluster_level
 
+--- Wraps `hb_buffer_get_cluster_level`.
+--  @return see [Cluster Levels](#Cluster_Levels)
+--  @function Buffer:get_cluster_level
+
+--- Wraps `hb_buffer_set_invisible_glyph`.
+--  @param glyph glyph index to use for invisible characters.
+--  @function Buffer:set_invisible_glyph
+
+--- Wraps `hb_buffer_get_invisible_glyph`.
+--  @return glyph index used for invisible characters.
+--  @function Buffer:get_invisible_glyph
+
+--- Wraps `hb_buffer_set_replacement_codepoint`.
+--  @param codepoint replacement codepoint for invalid input.
+--  @function Buffer:set_replacement_codepoint
+
+--- Wraps `hb_buffer_get_replacement_codepoint`.
+--  @return replacement codepoint for invalid input.
+--  @function Buffer:get_replacement_codepoint
+
+--- Wraps `hb_buffer_get_length`.
+--  @return number of items in the buffer.
+--  @function Buffer:get_length
+
 --- Wraps `hb_buffer_guess_segment_properties`.
 --  @function Buffer:guess_segment_properties
+
+--- Wraps `hb_buffer_reverse`.
+--  @function Buffer:reverse
+
+--- Wraps `hb_buffer_clear_contents`.
+--  @function Buffer:clear_contents
+
+--- Wraps `hb_buffer_reset`.
+--  @function Buffer:reset
+
+--- Wraps `hb_buffer_pre_allocate`.
+--  @param size number of items to pre-allocate.
+--  @return boolean indicating success.
+--  @function Buffer:pre_allocate
 
 --- Helper method to get shaped glyph data.
 --  Calls `hb_buffer_get_glyph_infos`, `hb_buffer_get_glyph_positions` and
@@ -265,7 +449,7 @@
 --  @function Buffer:get_glyphs
 
 --- Cluster Levels.
--- See [Harfbuzz docs](http://behdad.github.io/harfbuzz/clusters.html) for more details
+-- See [Harfbuzz docs](https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-cluster-level-t) for more details
 -- about what each of these levels mean.
 --  @section cluster-levels
 
@@ -281,8 +465,54 @@
 --- Wraps `HB_BUFFER_CLUSTER_LEVEL_DEFAULT`.
 --  @field Buffer.CLUSTER_LEVEL_DEFAULT
 
+--- Buffer Flags.
+-- See [Harfbuzz docs](https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-flags-t) for more details
+-- about what each of these flags mean.
+--  @section buffer-flags
+
+--- Wraps `HB_BUFFER_FLAG_DEFAULT`.
+-- @field Buffer.FLAG_DEFAULT
+
+--- Wraps `HB_BUFFER_FLAG_BOT`.
+-- @field Buffer.FLAG_BOT
+
+--- Wraps `HB_BUFFER_FLAG_EOT`.
+-- @field Buffer.FLAG_EOT
+
+--- Wraps `HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES`.
+-- @field Buffer.FLAG_PRESERVE_DEFAULT_IGNORABLES
+
+--- Wraps `HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES`.
+-- @field Buffer.FLAG_REMOVE_DEFAULT_IGNORABLES
+
+--- Wraps `HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE`.
+-- @field Buffer.FLAG_DO_NOT_INSERT_DOTTED_CIRCLE
+
+--- Wraps `HB_BUFFER_FLAG_VERIFY`.
+-- @field Buffer.FLAG_VERIFY
+
+--- Wraps `HB_BUFFER_FLAG_PRODUCE_UNSAFE_TO_CONCAT`.
+-- @field Buffer.FLAG_PRODUCE_UNSAFE_TO_CONCAT
+
+--- Wraps `HB_BUFFER_FLAG_PRODUCE_SAFE_TO_INSERT_TATWEEL`.
+-- @field Buffer.FLAG_PRODUCE_SAFE_TO_INSERT_TATWEEL
+
+--- Wraps `HB_BUFFER_FLAG_DEFINED`.
+-- @field Buffer.FLAG_DEFINED
+
+--- Glyph Flags.
+-- See [Harfbuzz docs](https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-glyph-flags-t) for more details
+-- about what each of these flags mean.
+--  @section glyph-flags
+
 --- Wraps `HB_GLYPH_FLAG_UNSAFE_TO_BREAK`.
 -- @field Buffer.GLYPH_FLAG_UNSAFE_TO_BREAK
+
+--- Wraps `HB_GLYPH_FLAG_UNSAFE_TO_CONCAT`.
+-- @field Buffer.GLYPH_FLAG_UNSAFE_TO_CONCAT
+
+--- Wraps `HB_GLYPH_FLAG_SAFE_TO_INSERT_TATWEEL`.
+-- @field Buffer.GLYPH_FLAG_SAFE_TO_INSERT_TATWEEL
 
 --- Wraps `HB_GLYPH_FLAG_DEFINED`.
 -- @field Buffer.GLYPH_FLAG_DEFINED
@@ -297,6 +527,18 @@
 --- Wraps `hb_feature_to_string`.
 --  Enables nice output with `tostring(…)`.
 --  @function Feature:__tostring
+
+--- Lua wrapper for `hb_variation_t` type.
+--  @type Variation
+
+--- Wraps `hb_variation_from_string`.
+--  @param variation_string variation string, e.g. `"wght=700"`.
+--  @return a `Variation` object, or `nil` if the string is invalid.
+--  @function Variation.new
+
+--- Wraps `hb_variation_to_string`.
+--  Enables nice output with `tostring(…)`.
+--  @function Variation:__tostring
 
 --- Lua wrapper for `hb_tag_t` type.
 --  @type Tag

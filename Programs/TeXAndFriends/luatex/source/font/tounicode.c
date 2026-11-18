@@ -196,6 +196,9 @@ static void set_glyph_unicode(char *s, glyph_unicode_entry * gp)
     /*tex Skip dummy entries. */
     if (s == NULL || s == notdef)
         return;
+    /* assert(strlen(s) < sizeof(buf)); */
+    if ( strlen(s) >= sizeof(buf) )
+      formatted_error("tounicode", "Invalid glyph name %s, it has length %zu >= %zu", s, strlen(s), sizeof(buf));
     /*tex Strip everything after the first dot. */
     p = strchr(s, '.');
     if (p != NULL) {
@@ -208,10 +211,12 @@ static void set_glyph_unicode(char *s, glyph_unicode_entry * gp)
     /*tex Check for case of multiple components separated by |_|. */
     p = strchr(s, '_');
     if (p != NULL) {
-        assert(strlen(s) < sizeof(buf));
         if (s != buf) {
+	    char *temp_p;
             strcpy(buf, s);
-            p = strchr(buf, '_');
+            temp_p = strchr(buf, '_');
+	    if (temp_p)
+	      p = temp_p;
             s = buf;
         }
         *buf2 = 0;
@@ -402,17 +407,17 @@ static int do_write_tounicode(PDF pdf, char **glyph_names, char *name, internal_
         /*
             This is again the case where we do a raw vector. Maybe needs checking.
         */
-        int done = 0 ;
+        int done_1 = 0 ;
         for (i = 0; i < 256; ++i) {
             if ((s = get_charinfo_tounicode(char_info(f,(int)i))) != NULL) {
                 gtab[i].code = UNI_EXTRA_STRING;
                 gtab[i].unicode_seq = xstrdup(s);
-                done = 1;
+                done_1 = 1;
             } else {
                 gtab[i].code = UNI_UNDEF;
             }
         }
-        if (! done) {
+        if (! done_1) {
             return 0;
         }
     } else {
@@ -433,15 +438,15 @@ static int do_write_tounicode(PDF pdf, char **glyph_names, char *name, internal_
             }
             if (glyph_unicode_tree && basesize && gtab[i].code == UNI_UNDEF) {
                 glyph_unicode_entry tmp, *ptmp;
-                char *s = xmalloc(basesize + (unsigned) strlen(glyph_names[i]));
+                char *s1 = xmalloc(basesize + (unsigned) strlen(glyph_names[i]));
                 /* undocumented as not really tested well */
-                sprintf(s, "%s::%s", filename, glyph_names[i]); /* nice */
-                tmp.name = s;
+                sprintf(s1, "%s::%s", filename, glyph_names[i]); /* nice */
+                tmp.name = s1;
                 tmp.code = UNI_UNDEF;
                 ptmp = (glyph_unicode_entry *) avl_find(glyph_unicode_tree, &tmp);
                 if (ptmp == NULL) {
-                    sprintf(s, "tfm:%s/%s", filename, glyph_names[i]); /* ugly */
-                    tmp.name = s;
+                    sprintf(s1, "tfm:%s/%s", filename, glyph_names[i]); /* ugly */
+                    tmp.name = s1;
                     tmp.code = UNI_UNDEF;
                     ptmp = (glyph_unicode_entry *) avl_find(glyph_unicode_tree, &tmp);
                 }
@@ -449,7 +454,7 @@ static int do_write_tounicode(PDF pdf, char **glyph_names, char *name, internal_
                     gtab[i].code = ptmp->code;
                     gtab[i].unicode_seq = ptmp->unicode_seq;
                 }
-                xfree(s);
+                xfree(s1);
             }
             if (gtab[i].code == UNI_UNDEF) {
                 set_glyph_unicode(glyph_names[i], &gtab[i]);
@@ -596,7 +601,8 @@ int write_tounicode(PDF pdf, char **glyph_names, char *name, internal_font_numbe
 
 int write_raw_tounicode(PDF pdf, internal_font_number f, char *name)
 {
-    return do_write_tounicode(pdf, NULL, name, f, 1);
+   char *empty_glyph_names[256] = { NULL }; 
+   return do_write_tounicode(pdf, empty_glyph_names, name, f, 1);
 }
 
 int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)

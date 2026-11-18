@@ -233,6 +233,10 @@ void check_obj_type(PDF pdf, int t, int objnum)
 
 halfword calculate_width_to_endlink(halfword p, halfword this_box, halfword *leftskip, halfword *rightskip);
 
+/*tex The corners of the last rectangle of |set_rect_dimens| before a matrix is applied. */
+
+scaledpos rect_dimens_ll, rect_dimens_ur;
+
 void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur, scaled_whd alt_rule)
 {
     /*tex 
@@ -247,7 +251,7 @@ void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur, sc
     halfword lskip = 0;
     halfword rskip = 0;
 
-    if (pdf_linking) {
+    if (pdf_linking == 1) {
         /* begin of experiment */
         if (subtype(p) == pdf_link_data_node) { 
             alt_rule.wd = calculate_width_to_endlink(list_ptr(parent_box), parent_box, &lskip, &rskip);
@@ -281,6 +285,8 @@ void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur, sc
     pos_ll = localpos.pos;
     synch_pos_with_cur(&localpos, pdf->posstruct, ur);
     pos_ur = localpos.pos;
+    rect_dimens_ll = pos_ll;
+    rect_dimens_ur = pos_ur;
     /*
         The test for swapping has been moved to the moment we write the rectangle. This has to
         do with the fact that we have code dealing with directions and that the |pdf_ann_*|

@@ -102,7 +102,8 @@ static void init_dvi_backend_functions(void)
 
 void init_backend_functionpointers(output_mode o_mode)
 {
-    int i, j;
+    /*int i, j;*/
+    int i;
     if (backend == NULL) {
         backend = xmalloc((MAX_OMODE + 1) * sizeof(backend_struct));
         for (i = 0; i <= MAX_OMODE; i++) {

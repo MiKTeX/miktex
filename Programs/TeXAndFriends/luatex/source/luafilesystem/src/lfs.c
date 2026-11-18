@@ -37,7 +37,9 @@
 #endif
 
 #ifndef LFS_DO_NOT_USE_LARGE_FILE
+#ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
+#endif
 #endif
 
 #include <errno.h>

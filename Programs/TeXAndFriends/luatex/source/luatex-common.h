@@ -24,12 +24,14 @@
 #ifndef LUATEX_COMMON_H
 #  define LUATEX_COMMON_H
 
+#include "tex/errors.h"
 /* utils.c */
 
+
 extern void tex_error(const char *msg, const char **hlp);
-extern void normal_error(const char *t, const char *p);
+ATTRIBUTE_NORETURN extern void normal_error(const char *t, const char *p);
 extern void normal_warning(const char *t, const char *p);
-extern void formatted_error(const char *t, const char *fmt, ...);
+ATTRIBUTE_NORETURN_FORMAT extern void formatted_error(const char *t, const char *fmt, ...);
 extern void formatted_warning(const char *t, const char *fmt, ...);
 
 #endif /* LUATEX_COMMON_H */

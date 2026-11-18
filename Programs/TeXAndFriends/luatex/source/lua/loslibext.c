@@ -179,7 +179,7 @@ static int exec_command(const char *file, char *const *av, char *const *envp)
             if (totallen >= PATH_MAX)
                 continue;
 #  endif
-            path = malloc(totallen + 1);
+            path = xmalloc(totallen + 1);
             memcpy(path, searchpath, prefixlen);
             memcpy(path + prefixlen, file, filelen);
         } else {
@@ -188,7 +188,7 @@ static int exec_command(const char *file, char *const *av, char *const *envp)
             if (totallen >= PATH_MAX)
                 continue;
 #  endif
-            path = malloc(totallen + 1);
+            path = xmalloc(totallen + 1);
             memcpy(path, searchpath, prefixlen);
             path[prefixlen] = '/';
             memcpy(path + prefixlen + 1, file, filelen);
@@ -274,17 +274,17 @@ static int spawn_command(const char *file, char *const *av, char *const *envp)
             /* let's hope no-one uses these values  */
             switch (errno) {
             case E2BIG:
-                exit(INVALID_RET_E2BIG);
+                _exit(INVALID_RET_E2BIG);
             case ETXTBSY:
-                exit(INVALID_RET_ETXTBSY);
+                _exit(INVALID_RET_ETXTBSY);
             case ENOENT:
-                exit(INVALID_RET_ENOENT);
+                _exit(INVALID_RET_ENOENT);
             case ENOEXEC:
-                exit(INVALID_RET_ENOEXEC);
+                _exit(INVALID_RET_ENOEXEC);
             case ENOMEM:
-                exit(INVALID_RET_ENOMEM);
+	       _exit(INVALID_RET_ENOMEM);
             default:
-                exit(INVALID_RET_UNKNOWN);
+                _exit(INVALID_RET_UNKNOWN);
             }
             return -1;
         }
@@ -331,7 +331,7 @@ static char **do_split_command(const char *maincmd, char **runcmd)
        if there are quoted arguments with spaces.
        Instead, dump everything into one argument
        and it will be passed through as is */
-    cmdline = malloc(sizeof(char *) * 2);
+    cmdline = xmalloc(sizeof(char *) * 2);
     cmdline[0] = xstrdup(maincmd);
     cmdline[1] = NULL;
     *runcmd = get_command_name(cmdline[0]);
@@ -351,7 +351,7 @@ static char **do_split_command(const char *maincmd, char **runcmd)
         if (maincmd[i] == ' ')
             j++;
     }
-    cmdline = malloc(sizeof(char *) * j);
+    cmdline = xmalloc(sizeof(char *) * j);
     for (i = 0; i < j; i++) {
         cmdline[i] = NULL;
     }
@@ -359,7 +359,7 @@ static char **do_split_command(const char *maincmd, char **runcmd)
     i = 0;
     while (cmd[i] == ' ')
         i++;                    /* skip leading spaces */
-    start_piece = malloc(strlen(cmd) + 1);      /* a buffer */
+    start_piece = xmalloc(strlen(cmd) + 1);      /* a buffer */
     piece = start_piece;
     for (; i <= strlen(maincmd); i++) {
         if (cmd[i] == '\\' &&
@@ -411,7 +411,7 @@ static char **do_flatten_command(lua_State * L, char **runcmd)
     }
     if (j == 1)
         return NULL;
-    cmdline = malloc(sizeof(char *) * (unsigned) (j + 1));
+    cmdline = xmalloc(sizeof(char *) * (unsigned) (j + 1));
     for (i = 1; i <= (unsigned) j; i++) {
         cmdline[i] = NULL;
         lua_rawgeti(L, 1, (int) i);
@@ -518,6 +518,8 @@ static int os_exec(lua_State * L)
         free(safecmd);
     if (cmdname)
         free(cmdname);
+    if (cmdline)
+        free(cmdline);
     if (allow == 0) {
         lua_pushnil(L);
         lua_pushliteral(L, "Command execution disabled via shell_escape='p'");

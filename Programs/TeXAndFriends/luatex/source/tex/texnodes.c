@@ -2070,7 +2070,9 @@ halfword copy_node(const halfword p)
         \stoptyping
         */
     } else if (synctex_par) {
-        /*tex Handle synctex extension. */
+        /*tex Handle synctex extension.
+
+        \starttyping
         switch (t) {
             case math_node:
                 synctex_tag_math(r) = cur_input.synctex_tag_field;
@@ -2081,6 +2083,8 @@ halfword copy_node(const halfword p)
                 synctex_line_kern(r) = line;
                 break;
         }
+        \stoptyping
+        */
     }
     if (nodetype_has_attributes(t)) {
         add_node_attr_ref(node_attr(p));
@@ -2961,10 +2965,14 @@ halfword slow_get_node(int s)
             }
             /*tex If we are still here, it was apparently impossible to get a match. */
             x = (var_mem_max >> 2) + s;
-            varmem = (memory_word *) realloc((void *) varmem, sizeof(memory_word) * (unsigned) (var_mem_max + x));
-            if (varmem == NULL) {
-                overflow("node memory size", (unsigned) var_mem_max);
+	    /* warning: leak of ‘realloc(varmem, (long unsigned int)(unsigned int)(x + var_mem_max) * 8)’ [CWE-401] [-Wanalyzer-malloc-leak] */
+	    /* varmem = (memory_word *) realloc((void *) varmem, sizeof(memory_word) * (unsigned) (var_mem_max + x)); */
+            memory_word *temp_varmem = (memory_word *) realloc((void *) varmem, sizeof(memory_word) * (unsigned) (var_mem_max + x));
+	    if (temp_varmem == NULL) {
+	      xfree(varmem);
+              overflow("node memory size", (unsigned) var_mem_max);
             }
+	    varmem = temp_varmem;
             memset((void *) (varmem + var_mem_max), 0, (unsigned) x * sizeof(memory_word));
             varmem_sizes = (char *) realloc(varmem_sizes, sizeof(char) * (unsigned) (var_mem_max + x));
             if (varmem_sizes == NULL) {

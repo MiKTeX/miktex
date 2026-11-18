@@ -41,7 +41,8 @@ static unsigned char *catcode_valid = NULL;
 
 void set_cat_code(int h, int n, halfword v, quarterword gl)
 {
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     sa_tree s = catcode_heads[h];
     if (h > catcode_max)
         catcode_max = h;
@@ -56,7 +57,8 @@ void set_cat_code(int h, int n, halfword v, quarterword gl)
 
 halfword get_cat_code(int h, int n)
 {
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     sa_tree s = catcode_heads[h];
     if (h > catcode_max)
         catcode_max = h;
@@ -81,7 +83,8 @@ void unsave_cat_codes(int h, quarterword gl)
 
 static void initializecatcodes(void)
 {
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     catcode_max = 0;
     catcode_heads = Mxmalloc_array(sa_tree, (CATCODE_MAX + 1));
     catcode_valid = Mxmalloc_array(unsigned char, (CATCODE_MAX + 1));
@@ -195,7 +198,8 @@ static sa_tree lccode_head = NULL;
 
 void set_lc_code(int n, halfword v, quarterword gl)
 {
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     sa_value.int_value = (int) v;
     set_sa_item(lccode_head, n, sa_value, gl);
 }
@@ -212,7 +216,8 @@ static void unsavelccodes(quarterword gl)
 
 static void initializelccodes(void)
 {
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     sa_value.int_value = LCCODEDEFAULT;
     lccode_head = new_sa_tree(LCCODESTACK, 1, sa_value);
 }
@@ -245,7 +250,8 @@ static sa_tree uccode_head = NULL;
 
 void set_uc_code(int n, halfword v, quarterword gl)
 {
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     sa_value.int_value = (int) v;
     set_sa_item(uccode_head, n, sa_value, gl);
 }
@@ -262,7 +268,8 @@ static void unsaveuccodes(quarterword gl)
 
 static void initializeuccodes(void)
 {
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     sa_value.int_value = UCCODEDEFAULT;
     uccode_head = new_sa_tree(UCCODESTACK, 1, sa_value);
 }
@@ -295,7 +302,8 @@ static sa_tree sfcode_head = NULL;
 
 void set_sf_code(int n, halfword v, quarterword gl)
 {
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     sa_value.int_value = (int) v;
     set_sa_item(sfcode_head, n, sa_value, gl);
 }
@@ -312,9 +320,10 @@ static void unsavesfcodes(quarterword gl)
 
 static void initializesfcodes(void)
 {
-    sa_tree_item sa_value = { 0 };
-    sa_value.int_value = SFCODEDEFAULT;
-    sfcode_head = new_sa_tree(SFCODESTACK, 1, sa_value);
+  sa_tree_item sa_value; 
+  memset(&sa_value, 0, sizeof(sa_value));
+  sa_value.int_value = SFCODEDEFAULT;
+  sfcode_head = new_sa_tree(SFCODESTACK, 1, sa_value);
 }
 
 static void dumpsfcodes(void)
@@ -356,7 +365,8 @@ Here we set codes but we don't initialize from lccodes.
 
 void set_hj_code(int h, int n, halfword v, quarterword gl)
 {
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     sa_tree s = hjcode_heads[h];
     if (h > hjcode_max)
         hjcode_max = h;
@@ -399,7 +409,10 @@ one can overload settings but management is then upto the used, so no:
 static void initializehjcodes(void)
 {
     /*
-        sa_tree_item sa_value = { 0 };
+
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
+
     */
     hjcode_max = 0;
     hjcode_heads = Mxmalloc_array(sa_tree, (HJCODE_MAX + 1));
@@ -415,7 +428,8 @@ static void initializehjcodes(void)
 
 void hj_codes_from_lc_codes(int h)
 {
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     sa_tree s = hjcode_heads[h];
     if (s != NULL) {
         destroy_sa_tree(s);

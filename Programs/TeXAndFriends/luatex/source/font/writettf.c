@@ -642,6 +642,7 @@ static ttf_cmap_entry *ttf_read_cmap(char *ttf_name, int pid, int eid, boolean w
     ncmapsubtabs = get_ushort();
     cmap_offset = (TTF_ULONG) (ttf_curbyte - 2 * TTF_USHORT_SIZE);
     cmap_tab = xtalloc(ncmapsubtabs, cmap_entry);
+    (void)(cmap_tab);
     for (i = 0; i < ncmapsubtabs; ++i) {
         tmp_pid = get_ushort();
         tmp_eid = get_ushort();

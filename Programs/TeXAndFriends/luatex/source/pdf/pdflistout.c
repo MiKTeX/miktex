@@ -341,6 +341,9 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     scaled_whd rule, ci;
     /*tex index to scan |pdf_link_stack| */
     int i;
+    /*tex page position before a \.{\\leftskip} or \.{\\rightskip}, for links */
+    scaled link_skip_h = 0;
+    boolean link_skip = false;
     /*tex DVI! \.{DVI} byte location upon entry */
     int saved_loc = 0;
     /*tex safeguard */
@@ -507,6 +510,11 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                             Move right or output leaders, we use real
                             multiplication.
                         */
+                        if (pdf->link_stack_ptr > 0 && pdf_linking == 2 && type(p) == glue_node
+                            && (subtype(p) == left_skip_glue || subtype(p) == right_skip_glue)) {
+                            link_skip_h = pdf->posstruct->pos.h;
+                            link_skip = true;
+                        }
                         rule.wd = width(p) - cur_g;
                         if (g_sign != normal) {
                             if (g_sign == stretching) {
@@ -672,6 +680,9 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                     /*tex
                         Output a reflection instruction if the direction has changed.
                     */
+                    if (pdf->link_stack_ptr > 0 && pdf_linking == 2) {
+                        link_dir_switch(pdf, 0);
+                    }
                     if (subtype(p) == normal_dir) {
                         /*tex
                             Calculate the needed width to the matching |enddir|, return the
@@ -698,15 +709,20 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                         localpos.dir = dir_dir(p);
                         cur.h = 0;
                         cur.v = 0;
-                        dir_done = 1;
+                        dir_done++;
                     } else if (dir_done) {
                         refpos->pos.h = dir_refpos_h(p);
                         refpos->pos.v = dir_refpos_v(p);
                         localpos.dir = dir_dir(p);
                         cur.h = dir_cur_h(p);
                         cur.v = dir_cur_v(p);
+                        dir_done--;
                     } else {
                         /*tex maybe issue a warning */
+                    }
+                    if (pdf->link_stack_ptr > 0 && pdf_linking == 2) {
+                        synch_pos_with_cur(pdf->posstruct, refpos, cur);
+                        link_dir_switch(pdf, 1);
                     }
                     break;
                 case whatsit_node:
@@ -759,7 +775,25 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
             }
             if (rleft != 0) {
                 rule.ht -= rleft;
-                pos_down(-rleft);
+                switch (localpos.dir) {
+                    case dir_TLT:
+                        pos_down(-rleft);
+                        break;
+                    case dir_TRT:
+                        pos_down(-rleft);
+                        break;
+                    case dir_LTL:
+                        pos_left(rleft);
+                        break;
+                    case dir_RTT:
+                        pos_left(-rleft);
+                        break;
+                    default:
+                        formatted_warning("pdf backend","forcing bad dir %i to TLT in hlist case rule",localpos.dir);
+                        localpos.dir = dir_TLT;
+                        pos_down(-rleft);
+                        break;
+                }
             }
             if (is_running(rule.dp)) {
                 rule.dp = depth(this_box);
@@ -823,7 +857,14 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
           NEXTP:
             p = vlink(p);
             synch_pos_with_cur(pdf->posstruct, refpos, cur);
+            if (link_skip) {
+                link_skip = false;
+                link_past_skip(pdf, link_skip_h);
+            }
         }
+    }
+    if (pdf->link_stack_ptr > 0 && pdf_linking == 2) {
+        finish_link_pieces(pdf);
     }
     if (synctex) {
         synctextsilh(this_box);
@@ -891,12 +932,13 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     /*tex Use local structure for recursion. */
     pdf->posstruct = &localpos;
     localpos.dir = box_dir(this_box);
-    synch_pos_with_cur(pdf->posstruct, refpos, cur);
     cur_s++;
     backend_out_control_list[BACKEND_INDEX(backend_control_push_list)](pdf,&saved_pos,&saved_loc);
     if (synctex) {
+        localpos.pos = refpos->pos;
         synctexvlist(this_box);
     }
+    synch_pos_with_cur(pdf->posstruct, refpos, cur);
     /*tex Create thread for the current vbox if needed. */
     check_running_thread(pdf, this_box, cur);
     while (p != null) {
@@ -1139,7 +1181,25 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
         }
         if (rleft != 0) {
             rule.wd -= rleft;
-            pos_left(-rleft);
+            switch (localpos.dir) {
+                case dir_TLT:
+                    pos_left(-rleft);
+                    break;
+                case dir_TRT:
+                    pos_left(rleft);
+                    break;
+                case dir_LTL:
+                    pos_down(rleft);
+                    break;
+                case dir_RTT:
+                    pos_down(rleft);
+                    break;
+                default:
+                    formatted_warning("pdf backend","forcing bad dir %i to TLT in vlist case rule",localpos.dir);
+                    localpos.dir = dir_TLT;
+                    pos_left(-rleft);
+                    break;
+            }
         }
         if (rright != 0) {
             rule.wd -= rright;

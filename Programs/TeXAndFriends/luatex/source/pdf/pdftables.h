@@ -109,6 +109,7 @@ extern void check_obj_type(PDF pdf, int t, int objnum);
 extern int pdf_get_obj(PDF pdf, int t, int i, boolean byname);
 extern int pdf_create_obj(PDF pdf, int t, int i);
 extern void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur, scaled_whd alt_rule);
+extern scaledpos rect_dimens_ll, rect_dimens_ur;
 extern void libpdffinish(PDF);
 
 #  define set_width(A,B)  width(A)=(B)

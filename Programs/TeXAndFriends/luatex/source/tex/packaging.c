@@ -607,14 +607,26 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
     total_shrink[fill] = 0;
     total_stretch[filll] = 0;
     total_shrink[filll] = 0;
+    //__asm__ volatile("# LLVM-MCA-BEGIN main_while");   
   RESWITCH:
     while ((p != null) || (disc_level > 0)) {
-        if (p == null) {
+      //__asm__ volatile("# LLVM-MCA-BEGIN disc_level");         
+	  if (p == null) {
+	  /*tex
+	    We point out to the analyzer that |disc_level| here is definitely strictly positive.
+	    We could have used
+	    |if (disc_level == 0) break;|
+	    but |llvm-mca| shows that the assembly code is worse than the original,
+	    so we opted for |unreachable| encapsulated in the |ASSUME| macro.
+	    We'll check the code again, so let's keep the comments in assembly for a while. 
+          */
+	    ASSUME(disc_level > 0);
             decr(disc_level);
             p = pack_interrupt[disc_level];
             goto RESWITCH;
-        }
-        /*tex
+          }
+    //__asm__ volatile("# LLVM-MCA-END disc_level");         
+         /*tex
 
             Examine node |p| in the hlist, taking account of its effect on the
             dimensions of the new box, or moving it to the adjustment list; then
@@ -804,7 +816,7 @@ if (tracing_lost_chars_par > 3 && ! char_exists(font(p), character(p))) {
             p = vlink(p);
         }
     }
-
+//__asm__ volatile("# LLVM-MCA-END main_while");   
     if (adjust_tail != null)
         vlink(adjust_tail) = null;
     if (pre_adjust_tail != null)

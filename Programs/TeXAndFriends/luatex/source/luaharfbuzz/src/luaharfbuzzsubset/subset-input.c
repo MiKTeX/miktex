@@ -1,6 +1,6 @@
 #include "luaharfbuzzsubset.h"
 
-int subset_input_new(lua_State *L) {
+static int subset_input_new(lua_State *L) {
   SubsetInput *ud;
   hb_subset_input_t *input;
   input = hb_subset_input_create_or_fail();
@@ -41,7 +41,7 @@ static int subset_input_keep_everything(lua_State *L) {
 }
 
 
-int subset_input_unicode_set(lua_State *L) {
+static int subset_input_unicode_set(lua_State *L) {
   SubsetInput *input = (SubsetInput *)luaL_checkudata(L, 1, "harfbuzz.SubsetInput");
   hb_set_t *unicode_set = hb_subset_input_unicode_set(*input);
   if (unicode_set == NULL) {

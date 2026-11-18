@@ -592,7 +592,13 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
             characters.
         */
         pat = (unsigned char *) malloc((1 + l - (size_t) j));
+	if (pat == NULL)
+	  formatted_error("hyphenation","Cannot allocate %zu bytes  for hyphenation patterns",
+			  (1 + l - (size_t) j));
         org = (char *) malloc((size_t) (2 + l - (size_t) e1 - (size_t) j));
+	if (org == NULL)
+	  formatted_error("hyphenation","Cannot allocate %zu bytes  for hyphenation patterns characters",
+			  (size_t) (2 + l - (size_t) e1 - (size_t) j));
         /*tex Remove hyphenation encoders (digits) from pat. */
         org[0] = '0';
         for (i = 0, j = 0, e1 = 0; (unsigned) i < l; i++) {
@@ -637,6 +643,9 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
                         char *neworg;
                         unsigned char *newword =
                             (unsigned char *) malloc((size_t) (l1 + 1));
+			if (newword == NULL)
+			  formatted_error("hyphenation","Cannot allocate %zu bytes for a new word",
+					  (size_t) (l1 + 1));
                         int e1 = 0;
                         strncpy((char *) newword, (char *) word, (size_t) l1);
                         newword[l1] = 0;
@@ -644,6 +653,9 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
                             if (is_utf8_follow(newword[i1]))
                                 e1++;
                         neworg = malloc((size_t) (l1 + 2 - e1));
+			if (neworg == NULL)
+			  formatted_error("hyphenation","Cannot allocate %zu bytes for a new key",
+					  (size_t)(l1 + 2 - e1));
                         /*tex Fill with right amount of zeros: */
                         sprintf(neworg, "%0*d", l1 + 1 - e1, 0);
                         hyppat_insert(dict->merged, newword, combine(neworg, subpat_pat));

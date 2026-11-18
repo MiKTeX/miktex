@@ -308,7 +308,7 @@ void expand(void)
                 else if (cur_chr == 3) {
                     pseudo_start();
                     iname = 19;
-                } else if (name_in_progress)
+                } else if ((name_in_progress) ||  (input_recursion_depth>0))
                     insert_relax();
                 else
                     start_input();

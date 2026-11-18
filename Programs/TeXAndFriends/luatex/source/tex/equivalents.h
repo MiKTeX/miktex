@@ -317,8 +317,9 @@ the |number_regs| \.{\\dimen} registers.
 #  define var_fam_code 124
 #  define ignore_primitive_error_code 125 				/*ignore some primitive/engine errors*/
 #  define math_empty_display_mode_code 126
+#  define math_large_operator_mode_code 127
 
-#  define backend_int_base_code (math_empty_display_mode_code+1)
+#  define backend_int_base_code (math_large_operator_mode_code+1)
 #  define backend_int_last_code (backend_int_base_code+32)              /* we need some 25 but take some slack */
 
 #  define tex_int_pars (backend_int_last_code+1)                        /* total number of integer parameters */
@@ -814,6 +815,7 @@ extern halfword last_cs_name;
 #define math_defaults_mode_par       int_par(math_defaults_mode_code)
 #define math_rule_thickness_mode_par int_par(math_rule_thickness_mode_code)
 #define math_delimiters_mode_par     int_par(math_delimiters_mode_code)
+#define math_large_operator_mode_par int_par(math_large_operator_mode_code)
 
 /*
     #define box(A) equiv(box_base+(A))

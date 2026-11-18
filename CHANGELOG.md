@@ -2,6 +2,10 @@
 
 ## next
 
+### Upgraded programs
+
+* luatex 1.27.11
+
 ### Fixed issues
 
 - [372](https://github.com/MiKTeX/miktex/issues/372): "MiKTeX Console cannot be started"

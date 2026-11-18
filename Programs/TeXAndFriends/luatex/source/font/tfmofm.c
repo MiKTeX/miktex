@@ -722,6 +722,11 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
         tfm_abort;
     /*tex When |cnom| is an absolute filename |xbasename| fixes that. */
     tmpnam = strdup(xbasename(cnom));
+    if (tmpnam == NULL ) {
+      normal_error("vf","Insufficient memory available to allocate duplicate string.");
+      /* not needed */
+      exit(1);
+    }
     if (strcmp(tmpnam + strlen(tmpnam) - 4, ".tfm") == 0 || strcmp(tmpnam + strlen(tmpnam) - 4, ".ofm") == 0) {
         *(tmpnam + strlen(tmpnam) - 4) = 0;
     }

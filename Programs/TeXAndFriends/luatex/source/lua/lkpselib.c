@@ -851,6 +851,9 @@ static int do_lua_kpathsea_lookup(lua_State * L, kpathsea kpse, int idx)
         ret_list = XTALLOC(2, string);
         ret_list[0] = ret;
         ret_list[1] = NULL;
+    } else {
+        ret_list = XTALLOC(1, string);
+        ret_list[0] = NULL;
     }
 
     /* Filter by subdirectories, if specified.  */

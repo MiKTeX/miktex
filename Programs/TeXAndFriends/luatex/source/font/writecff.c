@@ -1072,6 +1072,12 @@ cff_font *read_cff(unsigned char *buf, long buflength, int n)
         cff_close(cff);
         return NULL;
     }
+    /*tex We should end up here with |idx->count>0| and therefore |idx->offset != NULL|, but we prefer to play it safe:*/
+    if (idx->offset == NULL ) {
+        normal_warning("cff","offset  not exist");
+        cff_close(cff);
+        return NULL;
+    }
     cff->topdict = cff_dict_unpack(idx->data + idx->offset[n] - 1, idx->data + idx->offset[n + 1] - 1);
     if (!cff->topdict) {
         normal_warning("cff","parsing top DICT data failed");

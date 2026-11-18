@@ -870,12 +870,14 @@ static int pdfelib_new(lua_State * L)
     }
     if (docstream == NULL) {
         luaL_error(L, "bad <pdfe> document");
+	exit(1); /* unreachable: luaL_error does not return, but the gcc analyzer doesn't see it (is the the l_noret attribute misplaced?). TODO: check if we can delete this exit(1); */
     }
     /* size of the stream */
     streamsize = (unsigned long long) luaL_checkint(L, 2);
     memstream = xmalloc((unsigned) (streamsize + 1));
-    if (! memstream) {
+    if (memstream == NULL ) {
         luaL_error(L, "no room for <pdfe> stream");
+	exit(1); /* unreachable: luaL_error does not return, but the gcc analyzer doesn't see it (is the the l_noret attribute misplaced?). TODO: check if we can delete this exit(1); */
     }
     memcpy(memstream, docstream, streamsize);
     memstream[streamsize]='\0';

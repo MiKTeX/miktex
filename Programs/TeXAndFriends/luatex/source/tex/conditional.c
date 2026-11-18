@@ -180,6 +180,7 @@ static boolean test_for_cs(void)
     }
     if (cur_cmd != end_cs_name_cmd) {
         last_tested_cs = null_cs;
+	(void)(last_tested_cs);
         if (suppress_ifcsname_error_par) {
             do {
                 get_x_token();

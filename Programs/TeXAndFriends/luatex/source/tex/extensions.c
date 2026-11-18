@@ -357,6 +357,9 @@ static void do_resource_pdf(int immediate, int code)
     descend to one level of recursion. Nothing happens unless \.{\\immediate} is
     followed by `\.{\\openout}', `\.{\\write}', or `\.{\\closeout}'.
 
+    We provide a non-recursive version of do_extension, to satisfy the gcc-16 analyzer.
+    We still keep the recursive version inside an #if 0.. #endif block.
+
 */
 
 /*tex
@@ -391,7 +394,8 @@ static void new_write_whatsit(int w, int check)
     (wish for a) shipout key scanner comes from similar features in the other engines. So, we're 
     compatible but also conceptually a bit more consistent by introducing a |\deferred| prefix. 
 */
-
+#if 0
+/* The orginal recursive do_extension. */
 void do_extension(int immediate, int deferred)
 {
     /*tex All-purpose pointers. */
@@ -524,6 +528,156 @@ void do_extension(int immediate, int deferred)
         back_input();
     }
 }
+#endif 
+
+/* The new non-recursive do_extension.  */
+void do_extension(int immediate, int deferred)
+{
+    /*tex All-purpose pointers. */
+    halfword k, p;
+ BEGIN_FUNC:
+    if (cur_cmd != extension_cmd) {
+        /*tex No extension command, quite certainly following |\immediate|. */
+        back_input();
+	return;
+    }
+
+    /*tex Now |cur_cmd == extension_cmd| and
+      these have their own range starting at 0. */
+    if ( cur_chr == reserved_immediate_code ) {
+      immediate=1;deferred=0;
+      get_x_token();
+      goto BEGIN_FUNC;//do_extension(1, 0);
+    }
+    if ( cur_chr == reserved_deferred_code ) {
+      immediate=0;deferred=1;
+      get_x_token();
+      goto BEGIN_FUNC;//do_extension(0, 1);
+    }
+    
+    switch (cur_chr) {
+            case open_code:
+                p = tail;
+                new_write_whatsit(open_node_size,1);
+                scan_optional_equals();
+                /* scan_file_name(); */
+                do {
+                    get_x_token();
+                } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+                back_input();
+                if (cur_cmd != left_brace_cmd) {
+                    scan_file_name();
+                } else {
+                    scan_file_name_toks();
+                }
+                /* */
+                open_name(tail) = cur_name;
+                open_area(tail) = cur_area;
+                open_ext(tail) = cur_ext;
+                if (immediate) {
+                    wrapup_leader(tail);
+                    flush_node_list(tail);
+                    tail = p;
+                    vlink(p) = null;
+                }
+                break;
+            case write_code:
+                /*tex
+
+                    When `\.{\\write 12\{...\}}' appears, we scan the token list
+                    `\.{\{...\}}' without expanding its macros; the macros will
+                    be expanded later when this token list is rescanned.
+
+                */
+                k = cur_cs;
+                p = tail;
+                new_write_whatsit(write_node_size,0); // this can modify cur_cs
+                cur_cs = k;                           // so we restore the prev. cur_cs, as in pdftex
+                scan_toks(false, false);
+                write_tokens(tail) = def_ref;
+                if (immediate) {
+                    wrapup_leader(tail);
+                    flush_node_list(tail);
+                    tail = p;
+                    vlink(p) = null;
+                }
+                break;
+            case close_code:
+                p = tail;
+                new_write_whatsit(close_node_size,1);
+                write_tokens(tail) = null;
+                if (immediate) {
+                    wrapup_leader(tail);
+                    flush_node_list(tail);
+                    tail = p;
+                    vlink(p) = null;
+                }
+                break;
+            case special_code:
+                /*tex
+
+                    When `\.{\\special\{...\}}' appears, we expand the macros in
+                    the token list as in \.{\\xdef} and \.{\\mark}.  When marked with \.{shipout}, we keep
+                    tokens unexpanded for now.
+
+                */
+                if (scan_keyword("shipout")) {
+                    deferred = 1;
+                } 
+                new_whatsit(deferred ? late_special_node : special_node);
+                write_stream(tail) = null;
+                p = scan_toks(false, ! deferred);
+                write_tokens(tail) = def_ref;
+                break;
+            /* case reserved_immediate_code: */
+            /*     get_x_token(); */
+            /*     do_extension(1, 0); */
+            /*     break; */
+            /* case reserved_deferred_code: */
+            /*     get_x_token(); */
+            /*     do_extension(0, 1); */
+            /*     break; */
+            case end_local_code:
+                if (tracing_nesting_par > 2) {
+                    local_control_message("leaving token scanner");
+                }
+                end_local_control();
+                break;
+            case use_box_resource_code:
+            case use_image_resource_code:
+            case save_box_resource_code:
+            case save_image_resource_code:
+                switch (get_o_mode()) {
+                    case OMODE_DVI:
+                        do_resource_dvi(immediate,cur_chr);
+                        break;
+                    case OMODE_PDF:
+                        do_resource_pdf(immediate,cur_chr);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            /*tex Backend extensions have their own range starting at 32. */
+            case dvi_extension_code:
+                if (get_o_mode() == OMODE_DVI)
+                    do_extension_dvi(immediate, deferred);
+                break;
+            case pdf_extension_code:
+                if (get_o_mode() == OMODE_PDF)
+                    do_extension_pdf(immediate, deferred);
+                break;
+            /*tex Done. */
+            default:
+                if (immediate) {
+                    back_input();
+                } else {
+                    confusion("invalid extension");
+                }
+                break;
+        }
+}
+
 
 /*tex
 

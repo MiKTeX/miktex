@@ -187,7 +187,8 @@ int fam_fnt(int fam_id, int size_id)
 void def_fam_fnt(int fam_id, int size_id, int f, int lvl)
 {
     int n = fam_id + (256 * size_id);
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     sa_value.int_value = f;
     set_sa_item(math_fam_head, n, sa_value, lvl);
     fixup_math_parameters(fam_id, size_id, f, lvl);
@@ -263,7 +264,8 @@ static sa_tree math_param_head = NULL;
 void def_math_param(int param_id, int style_id, scaled value, int lvl)
 {
     int n = param_id + (256 * style_id);
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value;
+    memset(&sa_value, 0, sizeof(sa_value));
     if (lvl <= 1) {
         if (param_id >= math_param_ord_ord_spacing && param_id <= math_param_inner_inner_spacing) {
             sa_tree_item ti = get_sa_item(math_param_head, n);
@@ -371,7 +373,8 @@ void unsave_math_data(int gl)
 
 void dump_math_data(void)
 {
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     if (math_fam_head == NULL) {
         sa_value.int_value = MATHFONTDEFAULT;
         math_fam_head = new_sa_tree(MATHFONTSTACK, 1, sa_value);
@@ -392,7 +395,8 @@ void undump_math_data(void)
 
 void initialize_math(void)
 {
-    sa_tree_item sa_value = { 0 };
+    sa_tree_item sa_value; 
+    memset(&sa_value, 0, sizeof(sa_value));
     if (math_fam_head == NULL) {
         sa_value.int_value = MATHFONTDEFAULT;
         math_fam_head = new_sa_tree(MATHFONTSTACK, 1, sa_value);
@@ -1476,7 +1480,7 @@ int scan_math(pointer p, int mstyle)
     math_character(p) = mval.character_value;
     if ((mval.class_value == math_use_current_family_code) && cur_fam_par_in_range)
         math_fam(p) = cur_fam_par;
-    else if ((mval.family_value == var_fam_par) && var_fam_par_in_range)
+    else if ((mval.family_value == var_fam_par) && var_fam_par_in_range && cur_fam_par_in_range)
         math_fam(p) = cur_fam_par;
     else
         math_fam(p) = mval.family_value;
@@ -1524,10 +1528,9 @@ void set_math_char(mathcodeval mval)
             if (cur_fam_par_in_range)
                 math_fam(nucleus(p)) = cur_fam_par;
             subtype(p) = ord_noad_type;
-        } else if ((mval.family_value == var_fam_par) && var_fam_par_in_range) {
-            if (cur_fam_par_in_range)
-                math_fam(nucleus(p)) = cur_fam_par;
         } else {
+            if ((mval.family_value == var_fam_par) && var_fam_par_in_range && cur_fam_par_in_range)
+                math_fam(nucleus(p)) = cur_fam_par;
             math_class_to_type(subtype(p),mval.class_value);
         }
         tail_append(p);
@@ -1821,7 +1824,7 @@ void math_ac(void)
         math_character(top_accent_chr(tail)) = t.character_value;
         if ((t.class_value == math_use_current_family_code) && cur_fam_par_in_range)
             math_fam(top_accent_chr(tail)) = cur_fam_par;
-        else if ((t.family_value == var_fam_par) && var_fam_par_in_range)
+        else if ((t.family_value == var_fam_par) && var_fam_par_in_range && cur_fam_par_in_range)
             math_fam(top_accent_chr(tail)) = cur_fam_par;
         else
             math_fam(top_accent_chr(tail)) = t.family_value;
@@ -1832,7 +1835,7 @@ void math_ac(void)
         math_character(bot_accent_chr(tail)) = b.character_value;
         if ((b.class_value == math_use_current_family_code) && cur_fam_par_in_range)
             math_fam(bot_accent_chr(tail)) = cur_fam_par;
-        else if ((b.family_value == var_fam_par) && var_fam_par_in_range)
+        else if ((b.family_value == var_fam_par) && var_fam_par_in_range && cur_fam_par_in_range)
             math_fam(bot_accent_chr(tail)) = cur_fam_par;
         else
             math_fam(bot_accent_chr(tail)) = b.family_value;
@@ -1843,7 +1846,7 @@ void math_ac(void)
         math_character(overlay_accent_chr(tail)) = o.character_value;
         if ((o.class_value == math_use_current_family_code) && cur_fam_par_in_range)
             math_fam(overlay_accent_chr(tail)) = cur_fam_par;
-        else if ((o.family_value == var_fam_par) && var_fam_par_in_range)
+        else if ((o.family_value == var_fam_par) && var_fam_par_in_range && cur_fam_par_in_range)
             math_fam(overlay_accent_chr(tail)) = cur_fam_par;
         else
             math_fam(overlay_accent_chr(tail)) = o.family_value;

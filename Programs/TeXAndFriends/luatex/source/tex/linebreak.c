@@ -2519,7 +2519,7 @@ if (tracing_lost_chars_par > 3 && ! char_exists(font(cur_p), character(cur_p))) 
                         protrude_chars,
                         par_shape_ptr,
                         adjust_spacing,
-                        inter_line_penalties_par_ptr,
+                        inter_line_penalties_ptr,
                         inter_line_penalty,
                         club_penalty,
                         club_penalties_ptr,

@@ -282,8 +282,8 @@ exit code can be overloaded.
 
 int defaultexitcode = 0;
 
-__attribute__ ((noreturn))
-void do_final_end(void)
+
+ATTRIBUTE_NORETURN void do_final_end(void)
 {
     update_terminal();
     ready_already = 0;
@@ -294,8 +294,8 @@ void do_final_end(void)
         uexit(defaultexitcode);
 }
 
-__attribute__ ((noreturn))
-void jump_out(void)
+
+ATTRIBUTE_NORETURN void jump_out(void)
 {
     close_files_and_terminate();
     do_final_end();
@@ -320,7 +320,7 @@ static int Isspace (char c)
 
 #endif /* WIN32 */
 
-__attribute__ ((noreturn))
+ATTRIBUTE_NORETURN
 static void luatex_calledit (int baseptr, int linenumber)
 {
 #if defined(MIKTEX)
@@ -1002,7 +1002,7 @@ void wrapup_backend(void) {
     }
 }
 
-void normal_error(const char *t, const char *p)
+ATTRIBUTE_NORETURN void normal_error(const char *t, const char *p)
 {
     normalize_selector();
     if (interaction == error_stop_mode) {
@@ -1035,7 +1035,7 @@ void normal_error(const char *t, const char *p)
 void normal_warning(const char *t, const char *p)
 {
     int report_id ;
-    if (strcmp(t,"lua") == 0) {
+    if ( (t != NULL) && strcmp(t,"lua") == 0) {
         int saved_new_line_char;
         saved_new_line_char = new_line_char_par;
         new_line_char_par = 10;
@@ -1056,12 +1056,16 @@ void normal_warning(const char *t, const char *p)
         report_id = callback_defined(show_warning_message_callback);
         if (report_id > 0) {
             /*tex Free the last ones, */
-            xfree(last_warning_str);
-            xfree(last_warning_tag);
-            last_warning_str = (string) xmalloc(strlen(p) + 1);
-            last_warning_tag = (string) xmalloc(strlen(t) + 1);
-            strcpy(last_warning_str,p);
-            strcpy(last_warning_tag,t);
+	    if (p) {
+	       xfree(last_warning_str);
+               last_warning_str = (string) xmalloc(strlen(p) + 1);
+	       strcpy(last_warning_str,p);
+	    }
+	    if (t) {
+	       xfree(last_warning_tag);
+               last_warning_tag = (string) xmalloc(strlen(t) + 1);
+               strcpy(last_warning_tag,t);
+	    }
             run_callback(report_id, "->");
         } else {
             print_ln();
@@ -1088,8 +1092,7 @@ void normal_warning(const char *t, const char *p)
 
 static char print_buf[PRINTF_BUF_SIZE];
 
-__attribute__ ((format(printf, 2,3)))
-void formatted_error(const char *t, const char *fmt, ...)
+ATTRIBUTE_NORETURN_FORMAT void formatted_error(const char *t, const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);

@@ -366,7 +366,7 @@ typedef enum {
 #  define margin_kern_node_size 4
 #  define margin_char(a)        vlink((a)+3)
 
-/*@# {|subtype| of marginal kerns}*/
+/* @# {|subtype| of marginal kerns}*/
 
 typedef enum {
     left_side = 0,

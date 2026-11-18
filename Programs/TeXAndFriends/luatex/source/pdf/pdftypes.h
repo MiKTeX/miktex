@@ -196,6 +196,15 @@ typedef struct pdf_link_stack_record {
                                    case of multi-line link */
     int direction;
     int count; 
+    int measuring;              /* the current piece (of |ref_link_node|) is being measured */
+    int split;                  /* a direction node or a skip came in the current piece */
+    int untracked;              /* the current piece left horizontal text: use the old rectangle */
+    scaled anchor;              /* page position where the current stretch starts */
+    int nseg;                   /* number of stretches of the current piece */
+    int segmax;                 /* allocated stretches */
+    scaled *seg;                /* stretches as pairs of page positions (low, high) */
+    scaledpos ll;               /* corners of the current piece's rectangle before a matrix */
+    scaledpos ur;
 } pdf_link_stack_record;
 
 /* types of objects */

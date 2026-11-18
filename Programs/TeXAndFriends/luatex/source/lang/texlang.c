@@ -199,7 +199,6 @@ void load_tex_patterns(int curlang, halfword head)
     into |buffer|.
 
 */
-
 const char *clean_hyphenation(int id, const char *buff, char **cleaned)
 {
     int items = 0;
@@ -226,8 +225,14 @@ const char *clean_hyphenation(int id, const char *buff, char **cleaned)
     /*tex Now convert the input to \UNICODE. */
     word[i] = '\0';
     utf2uni_strcpy(uword, (const char *)word);
-    /*tex Build the new word string. */
+    /*tex Build the new word string. 
+      The condition |i < (MAX_WORD_LEN + 1)| is true most of the time
+      but avoid a possible 'Infinite Loop'  warning by the analyzer. 
+      Interestingly enough, |llvm-mca| shows that the code generated 
+      by |clang-23| with |-O2| is more performant than before.
+      */
     i = 0;
+
     while (uword[i]>0) {
         u = uword[i++];
         if (u == '-') {
@@ -235,16 +240,19 @@ const char *clean_hyphenation(int id, const char *buff, char **cleaned)
         } else if (u == '=') {
             STORE_CHAR(id,'-');
         } else if (u == '{') {
+	    
             u = uword[i++];
             items = 0;
-            while (u && u != '}') {
+	    /* __asm__ volatile("# LLVM-MCA-BEGIN while_loop"); */
+            while (u && u != '}' && i < (MAX_WORD_LEN + 1)) {
                 u = uword[i++];
             }
+	    /* __asm__ volatile("# LLVM-MCA-END while_loop"); */
             if (u == '}') {
                 items++;
                 u = uword[i++];
             }
-            while (u && u != '}') {
+            while (u && u != '}' && i < (MAX_WORD_LEN + 1)) {
                 u = uword[i++];
             }
             if (u == '}') {
@@ -254,7 +262,7 @@ const char *clean_hyphenation(int id, const char *buff, char **cleaned)
             if (u == '{') {
                 u = uword[i++];
             }
-            while (u && u != '}') {
+            while (u && u != '}'&& i < (MAX_WORD_LEN + 1)) {
                 STORE_CHAR(id,u);
                 u = uword[i++];
             }
@@ -502,7 +510,7 @@ static char *hyphenation_exception(int exceptions, char *w)
 char *exception_strings(struct tex_language *lang)
 {
     const char *value;
-    size_t size = 0, current = 0;
+    size_t size = 0, current = 0, new_size = 0;
     size_t l = 0;
     char *ret = NULL;
     if (lang->exceptions == 0)
@@ -514,12 +522,26 @@ char *exception_strings(struct tex_language *lang)
         lua_pushnil(Luas);
         while (lua_next(Luas, -2) != 0) {
             value = lua_tolstring(Luas, -1, &l);
+	    if ( value == NULL ) {
+	      lua_pop(Luas, 1);
+	      continue;
+	    }
             if (current + 2 + l > size) {
-                ret = xrealloc(ret, (unsigned) ((size + size / 5) + current + l + 1024));
-                size = (size + size / 5) + current + l + 1024;
+	      new_size = (size + size / 5) + current + l + 1024;
+	      ret = xrealloc(ret, new_size);
+	      size = new_size;
             }
+            /*tex 
+              From the condition above, the very first time is $2+l>0$ and hence |ret| is always not |NULL| 
+              (|xrealloc| returns not |NULL| or exits).
+              The analyzer may fail to recognize that, and here we suggest that |ret==NULL| is always false */
+	    if ( ret == NULL ) {
+               INTRINSIC_UNREACHABLE(); 
+	    }
             *(ret + current) = ' ';
-            strcpy(ret + current + 1, value);
+	    /* We use memcpy, it's faster than strcpy and we already know the size l. We add +1 for the final '\0'
+               that Lua always adds */
+            memcpy(ret + current + 1, value, l + 1);
             current += l + 1;
             lua_pop(Luas, 1);
         }
@@ -1259,6 +1281,10 @@ static void undump_one_language(int i)
     char *s = NULL;
     int x = 0;
     struct tex_language *lang = get_language(i);
+    if (lang == NULL) {
+      formatted_warning("undump","language %d is undefined",i);
+      return;
+    }
     undump_int(x);
     lang->id = x;
     undump_int(x);

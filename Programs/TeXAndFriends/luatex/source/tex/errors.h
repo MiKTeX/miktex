@@ -21,8 +21,56 @@
 #ifndef ERRORS_H
 #  define ERRORS_H
 
+/* To help the compiler during analysys, we define the attribute noreturn  
+   and intrinsic unreachable in a portable way. 
+   C23 defines both, but it's not yet widely used.
+*/
+
+
+#ifndef INTRINSIC_UNREACHABLE
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
+    #include <stddef.h>
+    #define INTRINSIC_UNREACHABLE() unreachable()
+#elif defined(__has_builtin)
+    #if __has_builtin(__builtin_unreachable)
+        #define INTRINSIC_UNREACHABLE() __builtin_unreachable()
+    #else
+        #define INTRINSIC_UNREACHABLE() ((void)0)
+    #endif
+#elif defined(__clang__) || defined(__GNUC__)
+    #define INTRINSIC_UNREACHABLE() __builtin_unreachable()
+#elif defined(_MSC_VER)
+    #define INTRINSIC_UNREACHABLE() __assume(0)
+#else
+    #define INTRINSIC_UNREACHABLE() ((void)0)
+#endif
+#endif // INTRINSIC_UNREACHABLE
+
+
+#define ASSUME(cond) do { if (!(cond)) INTRINSIC_UNREACHABLE(); } while (0)
+
+
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
+    /* Compiler supports standard C23 attributes, gnu:: eventually ignored */
+    #define ATTRIBUTE_NORETURN [[noreturn]]
+    #define ATTRIBUTE_NORETURN_FORMAT [[noreturn,gnu::format(printf, 2,3)]]
+#elif defined(__GNUC__) || defined(__clang__)
+    /* GCC/Clang version (non-C23) */
+    #define ATTRIBUTE_NORETURN __attribute__((noreturn))
+    #define ATTRIBUTE_NORETURN_FORMAT __attribute__((noreturn, format(printf, 2,3)))
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+    /*  C11 / C17 standard keyword */
+    #define ATTRIBUTE_NORETURN _Noreturn
+    #define ATTRIBUTE_NORETURN_FORMAT _Noreturn
+#else
+    /* do nothing */
+    #define ATTRIBUTE_NORETURN
+    #define ATTRIBUTE_NORETURN_FORMAT 
+#endif
+
+
 /*
-The global variable |interaction| has four settings, representing increasing
+  Theomm global variable |interaction| has four settings, representing increasing
 amounts of user interaction:
 */
 
@@ -88,8 +136,8 @@ extern boolean use_err_help;    /* should the |err_help| list be shown? */
 #  define help5(A,B,C,D,E)   do { help_line[5]=NULL; hlp5(E,D,C,B,A);   } while (0)
 #  define help6(A,B,C,D,E,F) do { help_line[6]=NULL; hlp6(F,E,D,C,B,A); } while (0)
 
-extern void do_final_end(void);
-extern void jump_out(void);
+ATTRIBUTE_NORETURN extern void do_final_end(void);
+ATTRIBUTE_NORETURN extern void jump_out(void);
 extern void error(void);
 extern void int_error(int n);
 extern void normalize_selector(void);
@@ -101,9 +149,9 @@ extern void check_interrupt(void);
 extern void pause_for_instructions(void);
 
 extern void tex_error(const char *msg, const char **hlp);
-extern void normal_error(const char *t, const char *p);
+ATTRIBUTE_NORETURN extern void normal_error(const char *t, const char *p);
 extern void normal_warning(const char *t, const char *p);
-extern void formatted_error(const char *t, const char *fmt, ...);
+ATTRIBUTE_NORETURN_FORMAT extern void formatted_error(const char *t, const char *fmt, ...);
 extern void formatted_warning(const char *t, const char *fmt, ...);
 
 extern void back_error(void);

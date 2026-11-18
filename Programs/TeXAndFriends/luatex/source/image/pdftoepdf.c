@@ -105,7 +105,8 @@ static char *get_file_checksum(const char *a, file_error_mode fe)
                 ck = NULL;
                 break;
             default:
-                assert(0);
+                formatted_error("pdf inclusion","unknown file_error mode for file '%s'", a);
+                break;
         }
     }
     return ck;
@@ -188,7 +189,8 @@ PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe, const cha
                     return (PdfDocument *) NULL;
                     break;
                 default:
-                    assert(0);
+		  normal_error("pdf inclusion","unknown file error mode");
+		  break;
             }
         }
         if (pdfe != NULL) {
@@ -1013,6 +1015,10 @@ int write_epdf_object(PDF pdf, image_dict * idict, int n)
         normal_error("pdf inclusion","unknown document");
     } else {
         PdfDocument * pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL, img_userpassword(idict), img_ownerpassword(idict));
+	/* this should never happen */
+	if ( pdf_doc == NULL ) {
+	  normal_error("pdf inclusion","unknown document");
+	}
         ppdoc * pdfe = pdf_doc->pdfe;
         if (ppdoc_xref(pdfe)) {
             ppref * ref = ppxref_find(ppdoc_xref(pdfe), (ppuint) n);
