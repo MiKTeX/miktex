@@ -4,6 +4,7 @@
 
 ### Fixed issues
 
+- [1089](https://github.com/MiKTeX/miktex/issues/1089): PATH handled incorrectly on Windows for MiKTeX version of TexWorks (and others)
 - [1760](https://github.com/MiKTeX/miktex/issues/1760): Installer fails when PATH contains file entries instead of directories
 - [1780](https://github.com/MiKTeX/miktex/issues/1780): FileSystemWatcher deadlock
 

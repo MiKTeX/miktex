@@ -1,6 +1,6 @@
 /* SessionImpl.h: Session impl class
 
-   Copyright (C) 1996-2024 Christian Schenk
+   Copyright (C) 1996-2026 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -138,6 +138,12 @@ struct InternalStartupConfig :
   /// MiKTeX setup version.
   MiKTeX::Core::VersionNumber setupVersion;
 };
+
+#if defined(MIKTEX_WINDOWS)
+typedef std::unordered_map<std::string, std::string, MiKTeX::Core::hash_icase, MiKTeX::Core::equal_icase> EnvMap;
+#else
+typedef std::unordered_map<std::string, std::string> EnvMap;
+#endif
 
 class SessionImpl :
   public MiKTeX::Core::Session
@@ -817,7 +823,7 @@ private:
   std::deque<MiKTeX::Util::PathName> inputDirectories;
 
 public:
-  std::unordered_map<std::string, std::string> CreateChildEnvironment(bool changeDirectory);
+  EnvMap CreateChildEnvironment(bool changeDirectory);
 
 private:
   std::vector<MiKTeX::Util::PathName> GetFilenameDatabasePathNames(unsigned r);

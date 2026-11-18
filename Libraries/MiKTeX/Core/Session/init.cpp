@@ -1,6 +1,6 @@
 /* init.cpp: session initialization
 
-   Copyright (C) 1996-2024 Christian Schenk
+   Copyright (C) 1996-2026 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -380,9 +380,9 @@ void SessionImpl::Reset()
   this->onFinishScript = move(onFinishScript);
 }
 
-unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDirectory)
+EnvMap SessionImpl::CreateChildEnvironment(bool changeDirectory)
 {
-  unordered_map<string, string> envMap;
+  EnvMap envMap;
 
 #if defined(MIKTEX_WINDOWS)
   auto environmentStrings = GetEnvironmentStringsW();

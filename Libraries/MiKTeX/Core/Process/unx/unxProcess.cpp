@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Process handling (Unix-alike)
  *
- * @copyright Copyright © 1996-2023 Christian Schenk
+ * @copyright Copyright © 1996-2026 Christian Schenk
  *
  * This file is part of the MiKTeX Core Library.
  *
@@ -170,7 +170,7 @@ private:
     int twofd[2] = { -1, -1 };
 };
 
-tuple<char*, char**> CreateEnvironmentBlock(const unordered_map<string, string>& envMap)
+tuple<char*, char**> CreateEnvironmentBlock(const EnvMap& envMap)
 {
     size_t envSize = 0;
     for (const auto& p : envMap)
@@ -263,7 +263,7 @@ void unxProcess::Create()
 
     tmpFile = TemporaryFile::Create();
 
-    unordered_map<string, string> envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
+    auto envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
     envMap[MIKTEX_ENV_EXCEPTION_PATH] = tmpFile->GetPathName().ToString();
     char* environmentStrings;
     char** environmentPointers;
@@ -819,7 +819,7 @@ void Process::Overlay(const PathName& fileName, const vector<string>& arguments)
         trace_process->WriteLine("core", TraceLevel::Info, fmt::format(" argv[{0}]: {1}", idx, argv[idx]));
     }
     shared_ptr<SessionImpl> session = SESSION_IMPL();
-    unordered_map<string, string> envMap = session->CreateChildEnvironment(false);
+    auto envMap = session->CreateChildEnvironment(false);
     char* environmentStrings;
     char** environmentPointers;
     tie(environmentStrings, environmentPointers) = CreateEnvironmentBlock(envMap);

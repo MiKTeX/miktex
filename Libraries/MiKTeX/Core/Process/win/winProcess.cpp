@@ -1,6 +1,6 @@
 /* winProcess.cpp: executing secondary processes
 
-   Copyright (C) 1996-2024 Christian Schenk
+   Copyright (C) 1996-2026 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -280,7 +280,7 @@ void winProcess::Create()
     trace_process->WriteLine("core", TraceLevel::Info, fmt::format("start process: {0}", commandLine.ToString()));
 
     // create environment map
-    unordered_map<string, string> envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
+    auto envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
 
     tmpFile = TemporaryFile::Create();
     envMap[MIKTEX_ENV_EXCEPTION_PATH] = tmpFile->GetPathName().ToString();
