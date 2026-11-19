@@ -1,6 +1,6 @@
 /****************************************************************************\
  Part of the XeTeX typesetting system
- Copyright (c) 1994-2006 by SIL International
+ Copyright (c) 1994-2026 by SIL International
 
  SIL Author(s): Jonathan Kew
 
@@ -141,6 +141,10 @@ bmp_scan_file(struct bmp_info *info, FILE *fp)
 
   /* info header */
   hsize  = ULONG_LE(p); p += 4;
+  if (hsize < DIB_CORE_HEADER_SIZE || hsize > DIB_INFO_HEADER_SIZE5) {
+    WARN("Unknown BMP header type.");
+    return -1;
+  }
   if (fread(p, sizeof(char), hsize - 4, fp) != hsize - 4) {
     WARN("Could not read BMP file header...");
     return -1;

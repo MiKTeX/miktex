@@ -2,6 +2,7 @@
  Part of the XeTeX typesetting system
  Copyright (c) 1994-2008 by SIL International
  Copyright (c) 2009-2014 by Jonathan Kew
+ Trivial update 2026 by Karl Berry
 
  SIL Author(s): Jonathan Kew
 
@@ -656,6 +657,7 @@ XeTeXFontMgr::addToMaps(PlatformFontRef platformFont, const NameCollection* name
 void
 XeTeXFontMgr::die(const char*s, int i) const
 {
+    fprintf(stderr, "\n");
     fprintf(stderr, s, i);
     fprintf(stderr, " - exiting\n");
     exit(3);

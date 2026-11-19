@@ -2,6 +2,7 @@
  Part of the XeTeX typesetting system
  Copyright (c) 1994-2008 by SIL International
  Copyright (c) 2009, 2011 by Jonathan Kew
+ Trivial update 2026 by Karl Berry
 
  SIL Author(s): Jonathan Kew
 
@@ -312,12 +313,12 @@ void
 XeTeXFontMgr_FC::initialize()
 {
     if (FcInit() == FcFalse) {
-        fprintf(stderr, "fontconfig initialization failed!\n");
+        fprintf(stderr, "\nXeTeX (FontMgr) fontconfig initialization failed!\n");
         exit(9);
     }
 
     if (gFreeTypeLibrary == 0 && FT_Init_FreeType(&gFreeTypeLibrary) != 0) {
-        fprintf(stderr, "FreeType initialization failed!\n");
+        fprintf(stderr, "\nXeTeX (FontMgr) FreeType initialization failed!\n");
         exit(9);
     }
 
@@ -326,7 +327,7 @@ XeTeXFontMgr_FC::initialize()
     utf16beConv = ucnv_open("UTF16BE", &err);
     utf8Conv = ucnv_open("UTF8", &err);
     if (err != 0) {
-        fprintf(stderr, "internal error; cannot read font names\n");
+        fprintf(stderr, "\nXeTeX (FontMgr) internal error, cannot read font names (ucnv_open failed)\n");
         exit(3);
     }
 

@@ -3,6 +3,7 @@
  Copyright (c) 1994-2008 by SIL International
  Copyright (c) 2009-2012 by Jonathan Kew
  Copyright (c) 2012-2019 by Khaled Hosny
+ Trivial update 2026 by Karl Berry
 
  SIL Author(s): Jonathan Kew
 
@@ -750,7 +751,7 @@ layoutChars(XeTeXLayoutEngine engine, uint16_t chars[], int32_t offset, int32_t 
             engine->shaper = strdup(hb_shape_plan_get_shaper(shape_plan));
             hb_buffer_set_content_type(engine->hbBuffer, HB_BUFFER_CONTENT_TYPE_GLYPHS);
         } else {
-            fprintf(stderr, "\nERROR: all shapers failed\n");
+            fprintf(stderr, "\nXeTeX (LayoutInterface): all shapers failed\n");
             exit(3);
         }
     }

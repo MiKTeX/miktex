@@ -2,6 +2,7 @@
  Part of the XeTeX typesetting system
  Copyright (c) 1994-2008 by SIL International
  Copyright (c) 2009 by Jonathan Kew
+ Trivial update 2026 by Karl Berry
 
  SIL Author(s): Jonathan Kew
 
@@ -297,7 +298,7 @@ XeTeXFontInst::initialize(const char* pathname, int index, int &status)
     if (!gFreeTypeLibrary) {
         error = FT_Init_FreeType(&gFreeTypeLibrary);
         if (error) {
-            fprintf(stderr, "FreeType initialization failed! (%d)\n", error);
+            fprintf(stderr, "\nXeTeX (FontInst) FreeType initialization failed! (%d)\n", error);
             exit(1);
         }
     }
