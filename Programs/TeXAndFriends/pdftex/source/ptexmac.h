@@ -39,6 +39,19 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    define random() rand()
 #  endif
 
+/* pdfTeX is single-threaded, so reading files does not need the
+   locking that getc does on every character (same as in XeTeX).  */
+#  ifdef WIN32
+#    ifdef __MINGW32__
+/* MinGW has problems with _getc_nolock() */
+#      define GETC(f) getc(f)
+#    else
+#      define GETC(f) _getc_nolock(f)
+#    endif
+#  else
+#    define GETC(f) getc_unlocked(f)
+#  endif
+
 /* Pascal WEB macros */
 #  define maxinteger 0x7FFFFFFF
 #  define maxdimen   0x3FFFFFFF

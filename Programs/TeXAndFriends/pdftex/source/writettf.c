@@ -1,5 +1,5 @@
 /*
-Copyright 1996-2022 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2026 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -947,7 +947,7 @@ static void ttf_write_dirtab(void)
     tmp_ulong = 0;
     checksum = 0;
     for (p = fb_array, i = 0; i < save_offset;) {
-        tmp_ulong = (tmp_ulong << 8) + *p++;
+        tmp_ulong = (tmp_ulong << 8) + (unsigned char) *p++;
         i++;
         if (i % 4 == 0) {
             checksum += tmp_ulong;

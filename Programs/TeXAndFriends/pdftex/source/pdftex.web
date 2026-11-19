@@ -19451,6 +19451,7 @@ end
 procedure pdf_write_obj(n: integer); {write a raw PDF object}
 var s: str_number;
     f: byte_file;
+    c: integer;
 begin
     s := tokens_to_string(obj_obj_data(n));
     delete_toks(obj_obj_data(n));
@@ -19475,9 +19476,12 @@ begin
         end;
         print("<<");
         print(s);
-        if not eof(f) then begin {at least one byte available}
-            while not eof(f) do
-                pdf_out(getc(f));
+        c := getc(f);
+        if c >= 0 then begin {at least one byte available}
+            while c >= 0 do begin
+                pdf_out(c);
+                c := getc(f);
+            end;
             if (not obj_obj_is_stream(n)) and (pdf_ptr > 0) and (pdf_buf[pdf_ptr - 1] <> 10) then
                 pdf_out(10);
         end;

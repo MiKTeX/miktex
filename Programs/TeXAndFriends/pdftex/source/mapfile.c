@@ -431,7 +431,7 @@ int check_std_t1font(char *s)
 
 static void fm_scan_line(void)
 {
-    int a, b, c, j, u = 0, v = 0;
+    int a, b, c, u = 0, v = 0;
     float d;
     fm_entry *fm;
     char fm_line[FM_BUF_SIZE], buf[FM_BUF_SIZE];
@@ -482,10 +482,10 @@ static void fm_scan_line(void)
             u = v = 0;
             do {
                 skip(r, ' ');
-                if (sscanf(r, "%f %n", &d, &j) > 0) {
-                    s = r + j;  /* jump behind number, eat also blanks, if any */
-                    if (*(s - 1) == 'E' || *(s - 1) == 'e')
-                        s--;    /* e. g. 0.5ExtendFont: %f = 0.5E */
+                d = (float) strtod(r, &s);
+                if (s != r) {   /* jump behind number, eat also blanks, if any */
+                    while (isspace((unsigned char) *s))
+                        s++;
                     if (str_prefix(s, "SlantFont")) {
                         d *= 1000.0;    /* correct rounding also for neg. numbers */
                         fm->slant = (integer) (d > 0 ? d + 0.5 : d - 0.5);

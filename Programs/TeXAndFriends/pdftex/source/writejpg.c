@@ -371,6 +371,8 @@ void read_jpg_info(integer img)
 void write_jpg(integer img)
 {
     long unsigned l;
+    integer n;
+    size_t count;
     FILE *f;
     pdf_puts("/Type /XObject\n/Subtype /Image\n");
     pdf_printf("/Width %i\n/Height %i\n/BitsPerComponent %i\n/Length %i\n",
@@ -398,7 +400,21 @@ void write_jpg(integer img)
         }
     }
     pdf_puts("/Filter /DCTDecode\n>>\nstream\n");
-    for (l = jpg_ptr(img)->length, f = jpg_ptr(img)->file; l > 0; l--)
-        pdfout(xgetc(f));
+    l = jpg_ptr(img)->length;
+    f = jpg_ptr(img)->file;
+    while (l > 0) {
+        n = (l > (unsigned long) pdfbufsize) ? pdfbufsize : (integer) l;
+        pdfroom(n);
+        count = fread(pdfbuf + pdfptr, 1, n, f);
+        pdfptr += (integer) count;
+        l -= count;
+        if (count != (size_t) n) {
+            /* Short read (truncated file or read error): finish one
+               byte at a time as before, so the output is unchanged. */
+            for (; l > 0; l--)
+                pdfout(xgetc(f));
+            break;
+        }
+    }
     pdfendstream();
 }

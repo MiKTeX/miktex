@@ -407,7 +407,7 @@ int xfflush(FILE * stream)
 
 int xgetc(FILE * stream)
 {
-    int c = getc(stream);
+    int c = GETC(stream);
     if (c < 0 && c != EOF)
         pdftex_fail("getc() failed (%s)", strerror(errno));
     return c;

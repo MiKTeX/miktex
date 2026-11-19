@@ -29,6 +29,7 @@ extern "C" {
 #endif
 #include <w2c/config.h>
 #include <kpathsea/lib.h>
+#include <kpathsea/c-stat.h>
 #if !defined(MIKTEX)
 }
 #endif
@@ -81,6 +82,15 @@ extern int getpdfsuppresswarningpagegroup(void);
 extern integer getpdfsuppressptexinfo(void);
 extern integer getptexuseunderscore(void);
 extern integer zround(double);
+
+#if defined(_WIN32)
+// From lib/texmfmp.c; handles file names in the file system code page.
+// texmfmp.c defines stat as _stat, so do the same here: with MinGW-w64
+// and _FILE_OFFSET_BITS=64, struct stat is not the struct _stat it fills.
+#undef stat
+#define stat _stat
+extern int fsyscp_stat(const char *path, struct stat *buffer);
+#endif
 #endif
 #if !defined(MIKTEX)
 }
@@ -164,12 +174,30 @@ struct PdfDocument {
     InObj *inObjList;
     int occurences;             // number of references to the document; the doc can be
     // deleted when this is negative
+    struct stat file_stat;      // file status when the document was released
     PdfDocument *next;
 };
 
 static PdfDocument *pdfDocuments = 0;
 
+// The most recently released document (see epdf_delete), or 0.
+static PdfDocument *releasedDocument = 0;
+
 static XRef *xref = 0;
+
+static void delete_document(PdfDocument * pdf_doc);
+
+// stat() a PDF file by name; on Windows the name is in the file system
+// code page (e.g., UTF-8), as when xpdf opens it.
+
+static int stat_file(const char *file_name, struct stat *st)
+{
+#if !defined(MIKTEX_WINDOWS) && defined(_WIN32)
+    return fsyscp_stat(file_name, st);
+#else
+    return stat(file_name, st);
+#endif
+}
 
 // Returns pointer to PdfDocument record for PDF file.
 // Creates a new record if it doesn't exist yet.
@@ -180,6 +208,20 @@ static PdfDocument *find_add_document(char *file_name)
     PdfDocument *p = pdfDocuments;
     while (p && strcmp(p->file_name, file_name) != 0)
         p = p->next;
+    if (p && p == releasedDocument) {
+        // Reuse the released document only if the file has not been
+        // changed or replaced since, e.g., by \write18.
+        struct stat st;
+        releasedDocument = 0;
+        if (stat_file(p->file_name, &st) != 0
+            || st.st_dev != p->file_stat.st_dev
+            || st.st_ino != p->file_stat.st_ino
+            || st.st_mtime != p->file_stat.st_mtime
+            || st.st_size != p->file_stat.st_size) {
+            delete_document(p);
+            p = 0;
+        }
+    }
     if (p) {
         xref = p->xref;
         (p->occurences)++;
@@ -200,6 +242,18 @@ static PdfDocument *find_add_document(char *file_name)
     return p;
 }
 
+// Forget which objects of a PdfDocument have been copied
+
+static void free_in_obj_list(PdfDocument * pdf_doc)
+{
+    InObj *r, *n;
+    for (r = pdf_doc->inObjList; r != 0; r = n) {
+        n = r->next;
+        delete r;
+    }
+    pdf_doc->inObjList = 0;
+}
+
 // Deallocate a PdfDocument with all its resources
 
 static void delete_document(PdfDocument * pdf_doc)
@@ -213,11 +267,7 @@ static void delete_document(PdfDocument * pdf_doc)
     // unlink from list
     *p = pdf_doc->next;
     // free pdf_doc's resources
-    InObj *r, *n;
-    for (r = pdf_doc->inObjList; r != 0; r = n) {
-        n = r->next;
-        delete r;
-    }
+    free_in_obj_list(pdf_doc);
     xref = pdf_doc->xref;
     delete pdf_doc->doc;
     xfree(pdf_doc->file_name);
@@ -1076,8 +1126,21 @@ void epdf_delete()
 {
     PdfDocument *pdf_doc = (PdfDocument *) epdf_doc;
     xref = pdf_doc->xref;
-    if (pdf_doc->occurences < 0) {
-        delete_document(pdf_doc);
+    if (pdf_doc->occurences < 0 && pdf_doc != releasedDocument) {
+        // Keep the document open until another one is released, since
+        // pages of a file are often included one at a time, and opening
+        // it again would make xpdf read its whole page tree again.
+        // Forget the copied objects, so that the output is the same as
+        // if the file were opened again.
+        if (releasedDocument != 0)
+            delete_document(releasedDocument);
+        releasedDocument = 0;
+        xref = pdf_doc->xref;
+        if (stat_file(pdf_doc->file_name, &pdf_doc->file_stat) == 0) {
+            free_in_obj_list(pdf_doc);
+            releasedDocument = pdf_doc;
+        } else
+            delete_document(pdf_doc);
     }
 }
 
@@ -1092,6 +1155,7 @@ void epdf_check_mem()
             n = p->next;
             delete_document(p);
         }
+        releasedDocument = 0;
         // see above for globalParams
         delete globalParams;
     }

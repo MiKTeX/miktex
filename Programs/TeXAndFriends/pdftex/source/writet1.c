@@ -26,7 +26,7 @@ along with this program.  If not, see  <http://www.gnu.org/licenses/>.  */
 
 #define t1_open()        open_input(&t1_file, kpse_type1_format, FOPEN_RBIN_MODE)
 #define t1_close()       xfclose(t1_file, cur_file_name)
-#define t1_getchar()     getc(t1_file)
+#define t1_getchar()     GETC(t1_file)
 #define t1_putchar       fb_putchar
 #define t1_offset        fb_offset
 #define t1_ungetchar(c)  ungetc(c, t1_file)
@@ -43,7 +43,7 @@ along with this program.  If not, see  <http://www.gnu.org/licenses/>.  */
 
 #define enc_open()       open_input(&enc_file, kpse_enc_format, FOPEN_RBIN_MODE)
 #define enc_close()      xfclose(enc_file, cur_file_name)
-#define enc_getchar()    getc(enc_file)
+#define enc_getchar()    GETC(enc_file)
 #define enc_eof()        feof(enc_file)
 
 #define valid_code(c)    (c >= 0 && c < 256)
