@@ -22,10 +22,14 @@ set(CMAKE_LINK_DEPENDS_NO_SHARED 1)
 
 if(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET
-        "10.12"
+        "10.15"
         CACHE STRING
         "The earliest version of MacOS X that MiKTeX will run on."
     )
+    if(EXISTS "/opt/homebrew/opt/icu4c")
+        set(ICU_ROOT "/opt/homebrew/opt/icu4c" CACHE PATH "Homebrew ICU root")
+        set(ICU_INCLUDE_DIR "/opt/homebrew/opt/icu4c/include" CACHE PATH "Homebrew ICU include dir")
+    endif()
     #set(CMAKE_EXE_LINKER_FLAGS "-Wl,-no_weak_imports")
 endif()
 

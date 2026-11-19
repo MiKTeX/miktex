@@ -258,14 +258,21 @@ if(MIKTEX_MACOS_BUNDLE)
     set(fixup_exe "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_MACOS_BUNDLE_DIR}/MacOS/${MIKTEX_MACOS_BUNDLE_NAME}")
     # FIXME: non-standard icu lib dir
     list(APPEND lib_dirs "/usr/local/opt/poppler-qt5/lib")
+    list(APPEND lib_dirs "/opt/homebrew/opt/poppler/lib")
     # FIXME: non-standard poppler-qt5 lib dir
     list(APPEND lib_dirs "/usr/local/opt/icu4c/lib")
+    list(APPEND lib_dirs "/opt/homebrew/opt/icu4c/lib")
+    list(APPEND lib_dirs "/opt/homebrew/opt/qt/lib")
+    list(APPEND lib_dirs "/opt/homebrew/lib")
     list(APPEND lib_dirs "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_LIBRARY_DESTINATION_DIR}")
     install(CODE "
         include(${CMAKE_SOURCE_DIR}/cmake/modules/BundleUtilitiesOverrides.cmake)
         include(BundleUtilities)
         set(BU_CHMOD_BUNDLE_ITEMS ON)
         fixup_bundle(\"${fixup_exe}\" \"${QT_PLUGINS}\" \"${Qt_BIN_DIR};${QT_LIBRARY_DIR};${QT_BINARY_DIR};${lib_dirs}\")
+        execute_process(COMMAND sh -c \"find '\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_MACOS_BUNDLE_NAME}.app' -type f -name '*.dylib' -exec codesign --force --sign - {} +\")
+        execute_process(COMMAND sh -c \"find '\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_MACOS_BUNDLE_NAME}.app/Contents/MacOS' -type f -exec codesign --force --sign - {} +\")
+        execute_process(COMMAND codesign --force --deep --sign - \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_MACOS_BUNDLE_NAME}.app\")
     ")
 endif()
 
