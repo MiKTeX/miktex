@@ -428,6 +428,8 @@ set_property(TARGET ${MIKTEX_PREFIX}texworks PROPERTY FOLDER ${MIKTEX_CURRENT_FO
 
 target_link_libraries(${MIKTEX_PREFIX}texworks ${libs})
 
+miktex_deploy_qt(${MIKTEX_PREFIX}texworks)
+
 install(TARGETS ${MIKTEX_PREFIX}texworks DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 add_subdirectory(plugins/lua)

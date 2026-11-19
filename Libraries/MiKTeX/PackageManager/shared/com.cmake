@@ -83,6 +83,12 @@ else()
   set(env "arm64")
 endif()
 
+# ARM64 midl rejects /no_robust (MIDL2338). Robust stubs are the default there.
+set(midl_robust_args)
+if(NOT env STREQUAL "arm64")
+  list(APPEND midl_robust_args /no_robust)
+endif()
+
 file(MAKE_DIRECTORY ${mpm_binary_dir}/include)
 
 add_custom_command(
@@ -103,7 +109,7 @@ add_custom_command(
     /h ${mpm_binary_dir}/include/${mpmidl_h}
     /iid ${CMAKE_CURRENT_BINARY_DIR}/mpm_i.c
     /proxy ${CMAKE_CURRENT_BINARY_DIR}/mpm_p.c
-    /no_robust
+    ${midl_robust_args}
     ${CMAKE_CURRENT_BINARY_DIR}/${mpm_idl}
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/${mpm_idl}

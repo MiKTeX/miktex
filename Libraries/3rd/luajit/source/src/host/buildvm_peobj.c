@@ -9,7 +9,7 @@
 #include "buildvm.h"
 #include "lj_bc.h"
 
-#if LJ_TARGET_X86ORX64 || LJ_TARGET_PPC
+#if LJ_TARGET_X86ORX64 || LJ_TARGET_ARM64 || LJ_TARGET_PPC
 
 /* Context for PE object emitter. */
 static char *strtab;
@@ -92,6 +92,12 @@ typedef struct PEsymaux {
 #define PEOBJ_RELOC_DIR32	0x02
 #define PEOBJ_RELOC_ADDR32NB	0x03
 #define PEOBJ_RELOC_OFS		0
+#define PEOBJ_TEXT_FLAGS	0x60500020  /* 60=r+x, 50=align16, 20=code. */
+#elif LJ_TARGET_ARM64
+#define PEOBJ_ARCH_TARGET	0xaa64
+#define PEOBJ_RELOC_REL32	0x03  /* IMAGE_REL_ARM64_BRANCH26, for BL. */
+#define PEOBJ_RELOC_DIR32	0x01  /* IMAGE_REL_ARM64_ADDR32. */
+#define PEOBJ_RELOC_OFS		(-4)
 #define PEOBJ_TEXT_FLAGS	0x60500020  /* 60=r+x, 50=align16, 20=code. */
 #elif LJ_TARGET_PPC
 #define PEOBJ_ARCH_TARGET	0x01f2

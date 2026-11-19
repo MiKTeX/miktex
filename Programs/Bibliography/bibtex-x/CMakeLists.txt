@@ -144,6 +144,8 @@ target_link_libraries(${MIKTEX_PREFIX}bibtexu
     ${ICU_LIBRARIES}
 )
 
+miktex_deploy_icu(${MIKTEX_PREFIX}bibtexu)
+
 if(MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(${MIKTEX_PREFIX}bibtexu
         ${getopt_dll_name}

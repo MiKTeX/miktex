@@ -564,6 +564,10 @@ void MainWindow::StartTeXworks()
     {
       Process::Start(exePath);
     }
+    else
+    {
+      MIKTEX_FATAL_ERROR_2("The TeXworks executable could not be found.", "searchedFor", MIKTEX_TEXWORKS_EXE);
+    }
   }
   catch (const MiKTeXException& e)
   {

@@ -70,10 +70,17 @@ add_executable(minilua EXCLUDE_FROM_ALL ${minilua_sources})
 
 set_property(TARGET minilua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(dasmflags -D WIN -D JIT -D FFI -D P64)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64|aarch64|arm64")
+    # The bundled ARM64 interpreter has no JIT and no Windows-only DynASM flags.
+    set(dasc_arch vm_arm64.dasc)
+    set(dasmflags -D FFI)
 else()
-    set(dasmflags -D WIN -D JIT -D FFI)
+    set(dasc_arch vm_x86.dasc)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(dasmflags -D WIN -D JIT -D FFI -D P64)
+    else()
+        set(dasmflags -D WIN -D JIT -D FFI)
+    endif()
 endif()
 
 add_custom_command(
@@ -81,11 +88,11 @@ add_custom_command(
     COMMAND minilua ${CMAKE_CURRENT_SOURCE_DIR}/source/dynasm/dynasm.lua
         -LN ${dasmflags}
         -o ${CMAKE_CURRENT_BINARY_DIR}/buildvm_arch.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/src/vm_x86.dasc
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/src/${dasc_arch}
     DEPENDS
         minilua
         ${CMAKE_CURRENT_SOURCE_DIR}/source/dynasm/dynasm.lua
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/src/vm_x86.dasc
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/src/${dasc_arch}
     VERBATIM
 )
 

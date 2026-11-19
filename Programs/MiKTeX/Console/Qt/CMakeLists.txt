@@ -279,6 +279,11 @@ if(MIKTEX_NATIVE_WINDOWS)
     )
 endif()
 
+miktex_deploy_qt(${MIKTEX_PROG_NAME_CONSOLE})
+if(MIKTEX_NATIVE_WINDOWS)
+    miktex_deploy_qt(${MIKTEX_PROG_NAME_CONSOLE_ADMIN})
+endif()
+
 if(MIKTEX_MACOS_BUNDLE)
     install(
         PROGRAMS

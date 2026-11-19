@@ -10,7 +10,7 @@
 #include <math.h>
 #include <inttypes.h>
 
-#ifdef ARCH_ARM64
+#if defined(ARCH_ARM64) && !defined(_MSC_VER)
 #include <arm_acle.h>
 #endif
 
